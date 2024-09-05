@@ -30,7 +30,7 @@ protected:
 	/** 윈도우 클라이언트 이름. Initialize() 실행전에만 적용됩니다.*/
 	LPCWSTR windowName = L"DemoApp";
 
-	/** 사용할 윈도우 프로시져 (nullptr이면 기본 프로시져를 사용합니다.) Initialize() 실행전에만 적용됩니다.*/
+	/** 사용할 윈도우 프로시저 (nullptr이면 기본 프로시저를 사용합니다.) Initialize() 실행전에만 적용됩니다.*/
 	WNDPROC customWndProc = nullptr;
 
 protected:
@@ -39,13 +39,13 @@ protected:
 
 private:
 	bool isEnd = false;
-	MSG msg;
+	MSG msg{};
 private:
 	void WinInitialize();
 
 private:
 	/** 클라이언트 사이즈. 기본 값 : 1920, 1080*/
-	inline static SIZE size{};
+	inline static SIZE size{1920, 1080};
 	inline static HINSTANCE hInstance;
 	inline static HWND hwnd;
 
