@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Framework\TimeSystem.h" />
     <ClInclude Include="Source\Framework\WinGameApp.h" />
+    <ClInclude Include="Source\Utility\MemoryUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Framework\TimeSystem.cpp" />
