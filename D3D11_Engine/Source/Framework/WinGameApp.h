@@ -14,6 +14,13 @@ public:
 	void Uninitialize();
 
 public:
+	static HWND GetHWND() { return hwnd; }
+	static HINSTANCE GetHINSTANCE() { return hInstance; }			
+	static const SIZE& GetClientSize() { return  size; }
+
+	/**클라이언트를 화면 가운데로 위치 시킨다.*/
+	static void WinToScreenCenter(HWND hwnd);
+
 	/** 현재 실행중인 게임루프를 종료시킵니다.*/
 	static void GameEnd();
 
@@ -33,6 +40,9 @@ protected:
 	/** 사용할 윈도우 프로시저 (nullptr이면 기본 프로시저를 사용합니다.) Initialize() 실행전에만 적용됩니다.*/
 	WNDPROC customWndProc = nullptr;
 
+	/** 클라이언트 사이즈. 기본 값 : 1920, 1080. Initialize() 실행전에만 적용됩니다.*/
+	SIZE clientSize = { 1920, 1080 };
+
 protected:
 	virtual void Update() = 0;
 	virtual void Render() = 0;
@@ -44,10 +54,9 @@ private:
 	void WinInitialize();
 
 private:
-	/** 클라이언트 사이즈. 기본 값 : 1920, 1080*/
-	inline static SIZE size{1920, 1080};
-	inline static HINSTANCE hInstance;
-	inline static HWND hwnd;
+	inline static SIZE size{};
+	inline static HINSTANCE hInstance{};
+	inline static HWND hwnd{};
 
 	friend LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };

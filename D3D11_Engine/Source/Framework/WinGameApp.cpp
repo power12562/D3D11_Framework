@@ -64,6 +64,19 @@ void WinGameApp::Uninitialize()
 
 }
 
+void WinGameApp::WinToScreenCenter(HWND hwnd)
+{
+	int x, y, width, height;
+	RECT rtDesk, rtWindow;
+	GetWindowRect(GetDesktopWindow(), &rtDesk);
+	GetWindowRect(hwnd, &rtWindow);
+	width = rtWindow.right - rtWindow.left;
+	height = rtWindow.bottom - rtWindow.top;
+	x = (rtDesk.right - width) / 2;
+	y = (rtDesk.bottom - height) / 2;
+	MoveWindow(hwnd, x, y, width, height, TRUE);
+}
+
 void WinGameApp::GameEnd()
 {
 	if (RunApp)
@@ -111,6 +124,7 @@ void WinGameApp::WinInitialize()
 	}
 
 	// 원하는 크기가 조정되어 리턴
+	WinGameApp::size = clientSize;
 	SIZE clientSize = WinGameApp::size;
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };
 	AdjustWindowRect(&clientRect, windowStyle, FALSE);
@@ -140,6 +154,7 @@ void WinGameApp::WinInitialize()
 	// 윈도우 표시
 	ShowWindow(hwnd, 10);
 	UpdateWindow(hwnd);
+	WinToScreenCenter(hwnd);
 
 #ifdef _DEBUG
 		RECT rc;
