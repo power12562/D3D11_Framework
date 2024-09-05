@@ -1,7 +1,10 @@
 ﻿#include "_1. Start.h"
 
-int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow)
+int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
 {
+    UNREFERENCED_PARAMETER(hInstPrev);
+    UNREFERENCED_PARAMETER(cmdshow);
+
     StartApp app;
     app.Initialize(hInst);
     app.Run();
