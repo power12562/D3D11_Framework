@@ -142,7 +142,7 @@ bool StartApp::InitScene()
 			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
 
 			{Vector3(-0.5, 0.5,0.5), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{Vector3(0.5, 0.5,0.5), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+			{Vector3(0.5, 0.5,0.5), Vector4(1.0f, 1.0f, 1.0f, 1.0f) },
 			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) }
 		};
 
