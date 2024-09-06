@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3D11_Engine", "D3D11_Engine\D3D11_Engine.vcxproj", "{C8880048-46A0-4CC4-BE47-C3144CD15787}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project", "Project\Project.vcxproj", "{AF9752D7-40EF-4A24-9F16-34DEEEA8615B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_BoxRender", "01_BoxRender\01_BoxRender.vcxproj", "{AF9752D7-40EF-4A24-9F16-34DEEEA8615B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
 	EndProjectSection

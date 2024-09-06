@@ -24,7 +24,7 @@
     <ProjectGuid>{af9752d7-40ef-4a24-9f16-34deeea8615b}</ProjectGuid>
     <RootNamespace>My1Start</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Project</ProjectName>
+    <ProjectName>01_BoxRender</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
