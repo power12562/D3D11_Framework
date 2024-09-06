@@ -30,7 +30,7 @@ void StartApp::Update()
 
 void StartApp::Render()
 {
-	float color[4] = { 0.0f, 0.5f, 0.5f, 1.0f };
+	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	// 화면 칠하기.
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
