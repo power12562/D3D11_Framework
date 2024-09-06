@@ -49,11 +49,6 @@ void StartApp::Render()
 	m_pSwapChain->Present(0, 0);
 }
 
-// 정점 선언.
-struct Vertex
-{
-	Vector3 position;		// 위치 정보.
-};
 
 bool StartApp::InitD3D()
 {
@@ -92,7 +87,7 @@ bool StartApp::InitD3D()
 		// 4. 렌더타겟뷰 생성.  (백버퍼를 이용하는 렌더타겟뷰)	
 		ID3D11Texture2D* pBackBufferTexture = nullptr;
 		CheackHRESULT(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture));
-		CheackHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  // 텍스처는 내부 참조 증가
+		CheackHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  //텍스처는 내부 참조 증가
 		SafeRelease(pBackBufferTexture);	//외부 참조 카운트를 감소시킨다.
 		// 렌더 타겟을 최종 출력 파이프라인에 바인딩합니다.
 		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
@@ -125,6 +120,14 @@ void StartApp::UninitD3D()
     SafeRelease(m_pDevice);
 }
 
+
+// 정점 선언.
+struct Vertex
+{
+	Vector3 position;		// 위치 정보.
+	Vector4 Color;
+};
+
 bool StartApp::InitScene()
 {
 	try
@@ -134,9 +137,13 @@ bool StartApp::InitScene()
 
 		Vertex vertices[] =
 		{
-			Vector3(-0.5,-0.5,0.5), // v0     
-			Vector3(0, 0.5,0.5),	// v1
-			Vector3(0.5,-0.5,0.5),	// v3	
+			{Vector3(-0.5,-0.5,0.5), Vector4(1.0f, 0.0f, 0.0f, 1.0f)},      
+			{Vector3(-0.5, 0.5,0.5), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },	
+			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+
+			{Vector3(-0.5, 0.5,0.5), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+			{Vector3(0.5, 0.5,0.5), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) }
 		};
 
 		D3D11_BUFFER_DESC vbDesc = {};
@@ -160,7 +167,8 @@ bool StartApp::InitScene()
 		// 2. Render() 에서 파이프라인에 바인딩할 InputLayout 생성 	
 		D3D11_INPUT_ELEMENT_DESC layout[] =  // 인풋 레이아웃은 버텍스 쉐이더가 입력받을 데이터의 형식을 지정한다.
 		{// SemanticName , SemanticIndex , Format , InputSlot , AlignedByteOffset , InputSlotClass , InstanceDataStepRate		
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
 		ID3DBlob* vertexShaderBuffer = nullptr;
