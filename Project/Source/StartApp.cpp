@@ -39,11 +39,12 @@ void StartApp::Render()
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
 	m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertextBufferStride, &m_VertextBufferOffset);
 	m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+	m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
 	// Render a triangle	
-	m_pDeviceContext->Draw(m_VertexCount, 0);
+	m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 
 	// Present the information rendered to the back buffer to the front buffer (the screen)
 	m_pSwapChain->Present(0, 0);
@@ -135,15 +136,19 @@ bool StartApp::InitScene()
 		HRESULT hr = 0; // 결과값.
 		ID3D10Blob* errorMessage = nullptr;	 // 컴파일 에러 메시지가 저장될 버퍼.	
 
+		// 1. Render() 에서 파이프라인에 바인딩할 버텍스 버퍼및 버퍼 정보 준비
+		// Normalized Device Coordinate
+		//   0-----1
+		//   |    /|
+		//   |  /  |                중앙이 (0,0)  왼쪽이 (-1,0) 오른쪽이 (1,0) , 위쪽이 (0,1) 아래쪽이 (0,-1)
+		//   |/    |
+		//	 2-----3
 		Vertex vertices[] =
 		{
-			{Vector3(-0.5,-0.5,0.5), Vector4(1.0f, 0.0f, 0.0f, 1.0f)},      
-			{Vector3(-0.5, 0.5,0.5), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },	
-			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
-
-			{Vector3(-0.5, 0.5,0.5), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{Vector3(0.5, 0.5,0.5), Vector4(1.0f, 1.0f, 1.0f, 1.0f) },
-			{Vector3(0.5,-0.5,0.5), Vector4(0.0f, 0.0f, 1.0f, 1.0f) }
+			{Vector3(-0.5f,  0.5f, 0.5f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)},
+			{Vector3(0.5f,  0.5f, 0.5f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+			{Vector3(-0.5f, -0.5f, 0.5f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)},
+			{Vector3(0.5f, -0.5f, 0.5f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) }
 		};
 
 		D3D11_BUFFER_DESC vbDesc = {};
@@ -189,6 +194,21 @@ bool StartApp::InitScene()
 			pixelShaderBuffer->GetBufferPointer(),
 			pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 		SafeRelease(pixelShaderBuffer);
+
+		// 5. Render() 에서 파이프라인에 바인딩할 인덱스 버퍼 생성
+		UINT indices[] =
+		{
+			0, 1, 2,
+			2, 1, 3,
+		};
+		m_nIndices = ARRAYSIZE(indices);	// 인덱스 개수 저장.
+		D3D11_BUFFER_DESC ibDesc = {};
+		ibDesc.ByteWidth = sizeof(UINT) * ARRAYSIZE(indices);
+		ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		ibDesc.Usage = D3D11_USAGE_DEFAULT;
+		D3D11_SUBRESOURCE_DATA ibData = {};
+		ibData.pSysMem = indices;
+		CheackHRESULT(m_pDevice->CreateBuffer(&ibDesc, &ibData, &m_pIndexBuffer));
 
 		return true;
 	}

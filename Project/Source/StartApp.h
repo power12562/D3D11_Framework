@@ -35,6 +35,8 @@ private:
 	UINT m_VertextBufferOffset = 0;					// 버텍스 버퍼의 오프셋.
 	UINT m_VertexCount = 0;							// 버텍스 개수.
 
+	ID3D11Buffer* m_pIndexBuffer = nullptr;			// 인덱스 버퍼
+	UINT m_nIndices = 0;							// 인덱스 개수						
 
 };
 
