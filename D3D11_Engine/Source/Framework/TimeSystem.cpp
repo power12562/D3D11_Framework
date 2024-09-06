@@ -25,7 +25,7 @@ void QPCTime::UpdateTime()
 	deltaTime_ms = float(currentTime.QuadPart - previousTime.QuadPart) / float(frequency.QuadPart / 1000.0); //ms
 }
 
-float QPCTime::GetDeltatime_ms(bool isScale) const
+float QPCTime::GetDeltaTime_ms(bool isScale) const
 {
 	if (isScale)
 	{

@@ -16,14 +16,15 @@ public:
 
 		return ceil(((1000.0f / deltaTime_ms) * 1000.f) / 1000.f);
 	}
-	float GetDeltatime_ms(bool isScale) const;
-	float GetDeltatime_ms() const { return GetDeltatime_ms(true); }
 
-	float GetDeltatime(bool isScale) const { return (GetDeltatime_ms(isScale) / 1000.f);}
-	float GetDeltatime() const { return (GetDeltatime_ms(true) / 1000.f);}
+	float GetDeltaTime_ms(bool isScale = true) const;
+	float GetDeltaTime(bool isScale = true) const { return (GetDeltaTime_ms(isScale) / 1000.f);}
 
-	__declspec(property(get = GetDeltatime)) float DeltaTime;
-	__declspec(property(get = GetDeltatime_ms)) float DeltaTime_ms;
+	float GetPropertyDeltaTime() { return GetDeltaTime(); }
+	__declspec(property(get = GetPropertyDeltaTime)) float DeltaTime;
+
+	float GetPropertyDeltaTime_ms() { return GetDeltaTime_ms(); }
+	__declspec(property(get = GetPropertyDeltaTime_ms)) float DeltaTime_ms;
 
 	int FixedUpdatePerSec = 50;
 	float GetFixedDelta() const { return 1.f / (float)FixedUpdatePerSec; }
