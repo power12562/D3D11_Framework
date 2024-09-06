@@ -20,10 +20,14 @@ public:
 	float GetDeltaTime_ms(bool isScale = true) const;
 	float GetDeltaTime(bool isScale = true) const { return (GetDeltaTime_ms(isScale) / 1000.f);}
 
-	float GetPropertyDeltaTime() { return GetDeltaTime(); }
+	/* DeltaTime (단위 : sec). timeScale 영향 받습니다.*/
+	float GetPropertyDeltaTime() const { return deltaTime_ms * timeScale / 1000.f; }
+	/* DeltaTime (단위 : sec). timeScale 영향 받습니다.*/
 	__declspec(property(get = GetPropertyDeltaTime)) float DeltaTime;
 
-	float GetPropertyDeltaTime_ms() { return GetDeltaTime_ms(); }
+	/* DeltaTime (단위 : ms). timeScale 영향 받습니다.*/
+	float GetPropertyDeltaTime_ms() const { return deltaTime_ms * timeScale; }
+	/* DeltaTime (단위 : ms). timeScale 영향 받습니다.*/
 	__declspec(property(get = GetPropertyDeltaTime_ms)) float DeltaTime_ms;
 
 	int FixedUpdatePerSec = 50;
