@@ -2,11 +2,11 @@
 #include <Framework/WinGameApp.h>
 #include <d3d11.h>
 
-class StartApp : public WinGameApp
+class D3D11_BoxDrawApp : public WinGameApp
 {
 public:
-	StartApp();
-	~StartApp();
+	D3D11_BoxDrawApp();
+	~D3D11_BoxDrawApp();
 
 	bool InitD3D();
 	void UninitD3D();

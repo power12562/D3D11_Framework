@@ -5,7 +5,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     UNREFERENCED_PARAMETER(hInstPrev);
     UNREFERENCED_PARAMETER(cmdshow);
 
-    StartApp app;
+    D3D11_BoxDrawApp app;
     app.Initialize(hInst);
     app.InitD3D();
     app.InitScene();

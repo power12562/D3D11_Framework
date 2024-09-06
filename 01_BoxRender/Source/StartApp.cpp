@@ -10,25 +10,25 @@
 using namespace Utility;
 using namespace DirectX::SimpleMath;
 
-StartApp::StartApp()
+D3D11_BoxDrawApp::D3D11_BoxDrawApp()
 {
-    this->windowName = L"StartApp";
+    this->windowName = L"D3D11_BoxDrawApp";
 	this->clientSize = { 1024, 768 };
 
 }
 
-StartApp::~StartApp()
+D3D11_BoxDrawApp::~D3D11_BoxDrawApp()
 {
 	UninitD3D();
 	UninitScene();
 }
 
-void StartApp::Update()
+void D3D11_BoxDrawApp::Update()
 {
 
 }
 
-void StartApp::Render()
+void D3D11_BoxDrawApp::Render()
 {
 	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -51,7 +51,7 @@ void StartApp::Render()
 }
 
 
-bool StartApp::InitD3D()
+bool D3D11_BoxDrawApp::InitD3D()
 {
 	try
 	{
@@ -113,7 +113,7 @@ bool StartApp::InitD3D()
 
 }
 
-void StartApp::UninitD3D()
+void D3D11_BoxDrawApp::UninitD3D()
 {
     SafeRelease(m_pRenderTargetView);
     SafeRelease(m_pSwapChain);
@@ -129,7 +129,7 @@ struct Vertex
 	Vector4 Color;
 };
 
-bool StartApp::InitScene()
+bool D3D11_BoxDrawApp::InitScene()
 {
 	try
 	{
@@ -219,7 +219,7 @@ bool StartApp::InitScene()
 	}
 }
 
-void StartApp::UninitScene()
+void D3D11_BoxDrawApp::UninitScene()
 {
 	SafeRelease(m_pVertexBuffer);
 	SafeRelease(m_pInputLayout);
