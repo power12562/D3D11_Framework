@@ -23,6 +23,10 @@ D3D11_BoxDrawApp::~D3D11_BoxDrawApp()
 	UninitScene();
 }
 
+void D3D11_BoxDrawApp::Start()
+{
+}
+
 void D3D11_BoxDrawApp::Update()
 {
 

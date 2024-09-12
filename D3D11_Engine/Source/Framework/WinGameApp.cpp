@@ -33,6 +33,7 @@ void WinGameApp::Run()
 
 	Time.UpdateTime();
 
+	Start();
 	// PeekMessage 메세지가 있으면 true,없으면 false
 	while (!isEnd)
 	{	

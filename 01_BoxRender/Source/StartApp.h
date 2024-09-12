@@ -15,6 +15,7 @@ public:
 	void UninitScene();
 
 protected:
+	virtual void Start();
 	virtual void Update();
 	virtual void Render();
 
