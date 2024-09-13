@@ -16,12 +16,19 @@
 namespace G_ImGUI
 {
     bool show_demo_window{};
-    bool show_another_window{};
 
-    float testFloat{};
-    int testCounter{};
+    float mesh1_pos[3]{};
+    float mesh2_pos[3]{ 3.f, 0.f, 0.f };
+    float mesh3_pos[3]{ 0.f, 3.f, 0.f };
 
-    float testColor{};
+    float rotation_speed_1{100};
+    float rotation_speed_2{75};
+    float rotation_speed_3{50};
+
+    float camera_pos[3]{ 0.0f, 1.0f, -5.0f };
+    float camera_fov_y{ 90 * Mathf::Deg2Rad };
+    float camera_near{0.1f};
+    float camera_far{100.f};
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -159,6 +166,7 @@ void TransformTest::UninitD3D()
 bool TransformTest::InitScene()
 {
     using namespace Utility;
+    using namespace G_ImGUI;
     try
     {
         //hlsl 입력 레이아웃
@@ -197,7 +205,7 @@ bool TransformTest::InitScene()
         CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
 
         // Initialize the view matrix
-        XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
+        XMVECTOR Eye = XMVectorSet(camera_pos[0], camera_pos[1], camera_pos[2], 0.0f);
         XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
         XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -205,7 +213,7 @@ bool TransformTest::InitScene()
 
         // Initialize the projection matrix
         SIZE size = GetClientSize();
-        SimpleObject::mProjection = XMMatrixPerspectiveFovLH(90 * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.1f, 100.0f);
+        SimpleObject::mProjection = XMMatrixPerspectiveFovLH(camera_fov_y, (FLOAT)size.cx / (FLOAT)size.cy, camera_near, camera_far);
         return true;
     }
     catch (const std::exception& ex)
@@ -250,18 +258,19 @@ void TransformTest::UninitImGUI()
 }
 
 void TransformTest::Start()
-{                        
+{                    
+    using namespace G_ImGUI;
     CubeObject* cube1 = new CubeObject;
 
     CubeObject* cube2 = new CubeObject;
     cube2->transform->SetParent(cube1->transform);
     cube2->transform->scale = { 0.5, 0.5, 0.5 };
-    cube2->transform->localPosition = { 3.f, 0.f, 0.f };
+    cube2->transform->localPosition = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2]};
 
     CubeObject* cube3 = new CubeObject;      
     cube3->transform->SetParent(cube2->transform);
     cube3->transform->scale = { 0.25, 0.25, 0.25 };
-    cube3->transform->localPosition = { 0.f, 3.f, 0.f };
+    cube3->transform->localPosition = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2]};
 
     objList.push_back(cube1);
     objList.push_back(cube2);
@@ -270,10 +279,27 @@ void TransformTest::Start()
 
 void TransformTest::Update()
 {
+    using namespace G_ImGUI;
     using namespace TimeSystem;
-    objList[0]->transform->rotation += Vector3::Up * 100.f * Time.DeltaTime;
-    objList[1]->transform->rotation += Vector3::Right * 75.f * Time.DeltaTime;
-    objList[2]->transform->rotation += Vector3::Forward * 50.f * Time.DeltaTime;
+    SIZE size = GetClientSize();
+
+    XMVECTOR Eye = XMVectorSet(camera_pos[0], camera_pos[1], camera_pos[2], 0.0f);
+
+    const Vector3& atPosition = objList[0]->transform->position;
+    XMVECTOR At = XMVectorSet(atPosition.x, atPosition.y, atPosition.z, 0.0f); //큐브를 향해
+    //XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); 
+
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    SimpleObject::mView = XMMatrixLookAtLH(Eye, At, Up);
+    SimpleObject::mProjection = XMMatrixPerspectiveFovLH(G_ImGUI::camera_fov_y, (FLOAT)size.cx / (FLOAT)size.cy, G_ImGUI::camera_near, G_ImGUI::camera_far);
+
+    objList[0]->transform->position = { mesh1_pos[0], mesh1_pos[1], mesh1_pos[2] };
+    objList[1]->transform->position = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2] };
+    objList[2]->transform->position = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2] };
+
+    objList[0]->transform->rotation += Vector3::Up * rotation_speed_1 * Time.DeltaTime;
+    objList[1]->transform->rotation += Vector3::Up * rotation_speed_2 * Time.DeltaTime;
+    objList[2]->transform->rotation += Vector3::Up * rotation_speed_3 * Time.DeltaTime;
 
     for (auto item : objList)
     {
@@ -319,36 +345,33 @@ void TransformTest::ImGUIRender()
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
-
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &testFloat, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            testCounter++;
-
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", testCounter);
+        ImGui::Begin("Debug");                          // Create a window called "Hello, world!" and append into it.
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-        ImGui::ColorEdit3("clear color", (float*)&testColor); // Edit 3 floats representing a color	
+        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+
+        ImGui::Text("Mesh1");
+        ImGui::DragFloat3("mesh1_position", mesh1_pos);
+        ImGui::SliderFloat("mesh1_rot_speed", &rotation_speed_1, 0.0f, 300.0f);  
+
+        ImGui::Text("Mesh2");
+        ImGui::DragFloat3("mesh2_position", mesh2_pos);
+        ImGui::SliderFloat("mesh2_rot_speed", &rotation_speed_2, 0.0f, 300.0f);    
+
+        ImGui::Text("Mesh3");
+        ImGui::DragFloat3("mesh3_position", mesh3_pos);
+        ImGui::SliderFloat("mesh3_rot_speed", &rotation_speed_3, 0.0f, 300.0f);     
+
+        ImGui::Text("Camera");
+        ImGui::DragFloat3("position", camera_pos);
+        ImGui::SliderFloat("fov", &camera_fov_y, 10.0f * Mathf::Deg2Rad, 175.0f * Mathf::Deg2Rad);
+        ImGui::InputFloat("Near", &camera_near);
+        ImGui::InputFloat("Far", &camera_far);
+     
         ImGui::End();
     }
 
-    // 3. Show another simple window.
-    if (show_another_window)
-    {
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
-    }
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
