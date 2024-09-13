@@ -44,6 +44,8 @@ public:
 	Vector3 GetFront();
 	__declspec(property(get = GetFront)) Vector3 Front;
 
+	Matrix GetWM() const { return _WM; }
+
 public:
 	/**부모로 만들 Transform을 설정합니다.*/
 	void SetParent(Transform& parent, bool worldPositionStays = true);
@@ -52,6 +54,13 @@ public:
 
 	/**해당 인덱스의 자식을 반환합니다. 실패하면 nullptr을 반환합니다.*/
 	Transform* GetChild(unsigned int index);
+
+	void UpdateTransform();
+	void UpdateChildTransform();
+
+private:
+	void ClearParent();
+
 private:
 	Transform* parent{ nullptr }; 
 	std::vector<Transform*>	childList{};
@@ -63,10 +72,12 @@ private:
 	Vector3 _rotation{};
 	Vector3 _localRotation{};
 
-	Vector3 _scale{};
-	Vector3 _localScale{};
+	Vector3 _scale{1,1,1};
+	Vector3 _localScale{1,1,1};
 
 private:
+	Matrix _WM{};
+	Matrix _LM{};
 	Matrix _rotationMatrix{};
 
 };

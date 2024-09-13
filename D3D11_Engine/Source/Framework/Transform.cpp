@@ -3,12 +3,14 @@
 				
 Transform::Transform()
 {
+	_WM = DirectX::XMMatrixIdentity();
+	_LM = DirectX::XMMatrixIdentity();
 
 }
 
 Transform::~Transform()
-{
-
+{								 
+	ClearParent();
 }
 
 Vector3& Transform::SetPosition(const Vector3& value)
@@ -34,7 +36,7 @@ Vector3& Transform::SetLocalPosition(const Vector3& value)
 	}
 	else
 	{
-
+		
 	}
 	return _localPosition;
 }
@@ -44,22 +46,25 @@ Vector3& Transform::SetRotation(const Vector3& value)
 	if (parent)
 	{
 		_rotation = value;
-		Matrix parentRotationMatrix = Matrix::CreateFromYawPitchRoll(
-			parent->_rotation.y * Mathf::Deg2Rad, 
-			parent->_rotation.x * Mathf::Deg2Rad,
-			parent->_rotation.z * Mathf::Deg2Rad);
 		Matrix childRotationMatrix = Matrix::CreateFromYawPitchRoll(
 			_rotation.y * Mathf::Deg2Rad,
 			_rotation.x * Mathf::Deg2Rad,
 			_rotation.z * Mathf::Deg2Rad);
 
+		Transform* rootParent = parent;
+		while (rootParent->parent != nullptr)
+		{
+			rootParent = parent->parent;
+		}
+		rootParent->UpdateTransform();
+
 		// 부모의 역회전을 자식의 월드 회전에 적용하여 로컬 회전을 계산
-		Matrix localRotationMatrix = childRotationMatrix * parentRotationMatrix.Invert();
+		Matrix localRotationMatrix = childRotationMatrix * parent->_WM.Invert();
 
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		localRotationMatrix.Decompose(scale, quaternion, translation); 	
-		_localRotation = quaternion.ToEuler();
+		_localRotation = quaternion.ToEuler() * Mathf::Rad2Deg;
 	}
 	else
 	{
@@ -73,22 +78,25 @@ Vector3& Transform::SetLocalRotation(const Vector3& value)
 	if (parent)
 	{
 		_localRotation = value;
-		Matrix parentRotationMatrix = Matrix::CreateFromYawPitchRoll(
-			parent->_rotation.y * Mathf::Deg2Rad,
-			parent->_rotation.x * Mathf::Deg2Rad,
-			parent->_rotation.z * Mathf::Deg2Rad);
 		Matrix childRotationMatrix = Matrix::CreateFromYawPitchRoll(
 			_localRotation.y * Mathf::Deg2Rad,
 			_localRotation.x * Mathf::Deg2Rad,
 			_localRotation.z * Mathf::Deg2Rad);
 
+		Transform* rootParent = parent;
+		while (rootParent->parent != nullptr)
+		{
+			rootParent = parent->parent;
+		}
+		rootParent->UpdateTransform();
+
 		// 부모의 행렬로 자신의 월드 회전 행렬을 계산
-		Matrix worldRotationMatrix = parentRotationMatrix * childRotationMatrix;
+		Matrix worldRotationMatrix = parent->_WM * childRotationMatrix;
 
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		worldRotationMatrix.Decompose(scale, quaternion, translation);
-		_rotation = quaternion.ToEuler();
+		_rotation = quaternion.ToEuler() * Mathf::Rad2Deg;
 	}
 	else
 	{
@@ -160,19 +168,7 @@ Vector3 Transform::GetFront()
 
 void Transform::SetParent(Transform& parent, bool worldPositionStays)
 {				
-	if (this->parent)
-	{
-		auto& pChildList = this->parent->childList;
-		for (auto iter = pChildList.begin(); iter != pChildList.end(); iter++)
-		{
-			if (*iter == this)
-			{
-				pChildList.erase(iter);
-				break;
-			}
-		}
-		this->parent = nullptr;
-	}
+	ClearParent();
 	this->parent = &parent;
 	parent.childList.push_back(this);
 	if (worldPositionStays)
@@ -197,16 +193,7 @@ void Transform::SetParent(Transform* parent, bool worldPositionStays)
 	}
 	else
 	{
-		auto& pChildList = this->parent->childList;
-		for (auto iter = pChildList.begin(); iter != pChildList.end(); iter++)
-		{
-			if (*iter == this)
-			{
-				pChildList.erase(iter);
-				break;
-			}
-		} 
-		this->parent = nullptr;
+		ClearParent();
 	}
 }
 
@@ -219,5 +206,51 @@ Transform* Transform::GetChild(unsigned int index)
 	else
 	{
 		return nullptr;
+	}
+}
+
+void Transform::UpdateTransform()
+{
+	if (parent == nullptr)
+	{
+		_WM = DirectX::XMMatrixScalingFromVector(scale) *
+			DirectX::XMMatrixRotationRollPitchYawFromVector(rotation * Mathf::Deg2Rad) *
+			DirectX::XMMatrixTranslationFromVector(position);
+		UpdateChildTransform();
+	}
+}
+
+void Transform::UpdateChildTransform()
+{
+	if (!childList.empty())
+	{
+		for (auto child : childList)
+		{		
+			child->_LM = DirectX::XMMatrixScalingFromVector(child->localScale) *
+				DirectX::XMMatrixRotationRollPitchYawFromVector(child->localRotation * Mathf::Deg2Rad) *
+				DirectX::XMMatrixTranslationFromVector(child->localPosition);
+			child->_WM = child->_LM *_WM;
+			child->UpdateChildTransform();
+		}
+	}
+}
+
+void Transform::ClearParent()
+{
+	if (parent)
+	{
+		auto& pChildList = this->parent->childList;
+		if (!pChildList.empty())
+		{
+			for (auto iter = pChildList.begin(); iter != pChildList.end(); ++iter)
+			{
+				if (*iter == this)
+				{
+					pChildList.erase(iter);
+					break;
+				}
+			}
+		}
+		this->parent = nullptr;
 	}
 }
