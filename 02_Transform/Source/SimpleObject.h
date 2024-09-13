@@ -40,11 +40,11 @@ public:
 	inline static Matrix mProjection = XMMatrixIdentity();
 };
 
-class CubeObject : public SimpleObject
+class PyramidObject : public SimpleObject
 {
 public:
-	CubeObject();
-	virtual ~CubeObject() override;
+	PyramidObject();
+	virtual ~PyramidObject() override;
 
 	virtual void Update() override;
 	virtual void Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader) override;

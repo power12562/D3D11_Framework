@@ -260,14 +260,14 @@ void TransformTest::UninitImGUI()
 void TransformTest::Start()
 {                    
     using namespace G_ImGUI;
-    CubeObject* cube1 = new CubeObject;
+    PyramidObject* cube1 = new PyramidObject;
 
-    CubeObject* cube2 = new CubeObject;
+    PyramidObject* cube2 = new PyramidObject;
     cube2->transform->SetParent(cube1->transform);
     cube2->transform->scale = { 0.5, 0.5, 0.5 };
     cube2->transform->localPosition = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2]};
 
-    CubeObject* cube3 = new CubeObject;      
+    PyramidObject* cube3 = new PyramidObject;      
     cube3->transform->SetParent(cube2->transform);
     cube3->transform->scale = { 0.25, 0.25, 0.25 };
     cube3->transform->localPosition = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2]};

@@ -15,18 +15,15 @@ SimpleObject::~SimpleObject()
     delete transform;
 }
 
-CubeObject::CubeObject()
+PyramidObject::PyramidObject()
 {
     Vertex vertices[] =
     {
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector3(-1.0f, 1.0f, -1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
         { Vector3(1.0f, 1.0f, -1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector4(0.0f, 1.0f, 1.0f, 1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector4(1.0f, 1.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector4(1.0f, 1.0f, 1.0f, 1.0f) },
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector3(-1.0f, 1.0f, 1.0f),	Vector4(0.1f, 0.1f, 0.1f, 1.0f) },
+        { Vector3(0.0f, 3.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) }
     };
 
     D3D11_BUFFER_DESC bd{};
@@ -44,12 +41,9 @@ CubeObject::CubeObject()
     //인덱스 버퍼용 배열
     UINT indices[] =
     {
-        3,1,0, 2,1,3,
-        0,5,4, 1,5,0,
-        3,4,7, 0,4,3,
-        1,6,5, 2,6,1,
-        2,7,6, 3,7,2,
-        6,4,5, 7,4,6,
+        0,1,3, 1,2,3,
+        0,4,1, 3,4,0,
+        4,3,2, 4,2,1, 
     };
     // 인덱스 개수 저장.
     m_nIndices = ARRAYSIZE(indices);
@@ -64,19 +58,19 @@ CubeObject::CubeObject()
     CheackHRESULT(TransformTest::GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 }
 
-CubeObject::~CubeObject()
+PyramidObject::~PyramidObject()
 {
     SafeRelease(m_pIndexBuffer);
     SafeRelease(m_pVertexBuffer);
 }
 
-void CubeObject::Update()
+void PyramidObject::Update()
 {
     transform->UpdateTransform();
     m_World = transform->GetWM();
 }
 
-void CubeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)
+void PyramidObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)
 {
     auto pDeviceContext = TransformTest::GetDeviceContext();
 
