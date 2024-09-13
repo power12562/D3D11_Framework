@@ -237,6 +237,7 @@ void TransformTest::Render()
     {
         item->Render(m_pConstantBuffer, m_pInputLayout, m_pVertexShader, m_pPixelShader);
     }
+
     // Present the information rendered to the back buffer to the front buffer (the screen)
     pSwapChain->Present(0, 0);
 }

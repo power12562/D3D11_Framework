@@ -1,7 +1,7 @@
 #include "SimpleObject.h"
 #include <Utility/D3D11Utility.h>
+#include <Utility\MemoryUtility.h>
 #include "TransformTest.h"    
-#include <Math\Mathf.h>
 
 using namespace Utility;
 
@@ -66,6 +66,8 @@ CubeObject::CubeObject()
 
 CubeObject::~CubeObject()
 {
+    SafeRelease(m_pIndexBuffer);
+    SafeRelease(m_pVertexBuffer);
 }
 
 void CubeObject::Update()
