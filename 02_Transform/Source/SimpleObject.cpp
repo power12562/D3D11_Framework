@@ -76,6 +76,8 @@ void CubeObject::Update()
 
 void CubeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)
 {
+    auto pDeviceContext = TransformTest::GetDeviceContext();
+
     // 상수버퍼 업데이트
     ConstantBuffer cb;
     cb.mWorld = XMMatrixTranspose(m_World);
@@ -83,7 +85,6 @@ void CubeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInput
     cb.mProjection = XMMatrixTranspose(SimpleObject::mProjection);
     cb.WVP = XMMatrixTranspose(m_World * SimpleObject::mView * SimpleObject::mProjection);
 
-    auto pDeviceContext = TransformTest::GetDeviceContext();
     pDeviceContext->UpdateSubresource(pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Draw계열 함수를 호출하기전에 렌더링 파이프라인에 필수 스테이지 설정을 해야한다.	

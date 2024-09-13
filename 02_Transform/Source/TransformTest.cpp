@@ -51,30 +51,59 @@ bool TransformTest::InitD3D()
 #endif
     try
     {
+        SIZE clientSize = GetClientSize();
+
 		//디바이스, 스왑체인, 디바이스 컨텍스트 생성
 		CheackHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
-			D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
+			D3D11_SDK_VERSION, &swapDesc, &pSwapChain, &pDevice, NULL, &pDeviceContext));
 
         //렌더타겟뷰 생성. (백퍼버 이용)
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
-        CheackHRESULT(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
-        CheackHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+        CheackHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
+        CheackHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
         //출력 파이프라인에 바인딩.
-        m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
+        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
 
         //뷰포트 설정
         D3D11_VIEWPORT viewport = {};
         viewport.TopLeftX = 0;
         viewport.TopLeftY = 0;
-        SIZE size = GetClientSize();
-        viewport.Width = (float)size.cx;
-        viewport.Height = (float)size.cy;
+        viewport.Width = (float)clientSize.cx;
+        viewport.Height = (float)clientSize.cy;
         viewport.MinDepth = 0.0f;
         viewport.MaxDepth = 1.0f;
 
-        //뷰포트 설정
-        m_pDeviceContext->RSSetViewports(1, &viewport);
+        //뷰포트 할당
+        pDeviceContext->RSSetViewports(1, &viewport);
+
+        //깊이 스텐실 버퍼
+        D3D11_TEXTURE2D_DESC descDepth = {};
+        descDepth.Width = clientSize.cx;
+        descDepth.Height = clientSize.cy;
+        descDepth.MipLevels = 1;
+        descDepth.ArraySize = 1;
+        descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        descDepth.SampleDesc.Count = 1;
+        descDepth.SampleDesc.Quality = 0;
+        descDepth.Usage = D3D11_USAGE_DEFAULT;
+        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        descDepth.CPUAccessFlags = 0;
+        descDepth.MiscFlags = 0;
+
+        ID3D11Texture2D* textureDepthStencil = nullptr;
+        CheackHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
+
+        // Create the depth stencil view
+        D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+        descDSV.Format = descDepth.Format;
+        descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        descDSV.Texture2D.MipSlice = 0;
+        CheackHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
+        SafeRelease(textureDepthStencil);
+
+        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
+
     }
     catch (const std::exception& ex)
     {
@@ -88,10 +117,10 @@ bool TransformTest::InitD3D()
 void TransformTest::UninitD3D()
 {
     using namespace Utility;
-    SafeRelease(m_pDevice);
-    SafeRelease(m_pDeviceContext);
-    SafeRelease(m_pSwapChain);
-    SafeRelease(m_pRenderTargetView);
+    SafeRelease(pDevice);
+    SafeRelease(pDeviceContext);
+    SafeRelease(pSwapChain);
+    SafeRelease(pRenderTargetView);
 }
 
 bool TransformTest::InitScene()
@@ -109,11 +138,11 @@ bool TransformTest::InitScene()
         //버텍스 셰이더 컴파일
         ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
         CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-        CheackHRESULT(m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+        CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
             vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
 
         //버텍스 셰이더 생성
-        CheackHRESULT(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+        CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
             vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
         SafeRelease(vertexShaderBuffer);
 
@@ -121,7 +150,7 @@ bool TransformTest::InitScene()
         ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
         CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
         // 픽셸 셰이더 생성
-        CheackHRESULT(m_pDevice->CreatePixelShader(
+        CheackHRESULT(pDevice->CreatePixelShader(
             pixelShaderBuffer->GetBufferPointer(),
             pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
         SafeRelease(pixelShaderBuffer);
@@ -132,7 +161,7 @@ bool TransformTest::InitScene()
         bd.ByteWidth = sizeof(ConstantBuffer);
         bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = 0;
-        CheackHRESULT(m_pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
+        CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
 
         // Initialize the view matrix
         XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
@@ -200,14 +229,16 @@ void TransformTest::Render()
 {
     // 화면 칠하기.
     float bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, bgColor);
+    pDeviceContext->ClearRenderTargetView(pRenderTargetView, bgColor);
+    //깊이 버퍼 초기화
+    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     for (auto item : objList)
     {
         item->Render(m_pConstantBuffer, m_pInputLayout, m_pVertexShader, m_pPixelShader);
     }
     // Present the information rendered to the back buffer to the front buffer (the screen)
-    m_pSwapChain->Present(0, 0);
+    pSwapChain->Present(0, 0);
 }
 
 void TransformTest::ClearObjList()
