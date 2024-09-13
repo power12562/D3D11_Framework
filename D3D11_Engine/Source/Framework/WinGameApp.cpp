@@ -20,10 +20,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 	FILE* _tempFile;
 	freopen_s(&_tempFile, "CONOUT$", "w", stdout);
 #endif // _DEBUG
-
 	WinInitialize();
-
-
 }
 
 void WinGameApp::Run()
