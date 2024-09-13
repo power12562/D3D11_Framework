@@ -53,13 +53,3 @@ private:
 
 };
 
-namespace G_ImGUI
-{
-	extern bool show_demo_window;
-	extern bool show_another_window;
-
-	extern float testFloat;
-	extern int testCounter;
-
-	extern float testColor;
-}
