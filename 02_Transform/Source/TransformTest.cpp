@@ -6,14 +6,47 @@
 #include <Framework/TimeSystem.h>
 #include <cassert>
 #include "SimpleObject.h"
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
+
+namespace G_ImGUI
+{
+    bool show_demo_window{};
+    bool show_another_window{};
+
+    float testFloat{};
+    int testCounter{};
+
+    float testColor{};
+}
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
+
+    switch (message)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
 
 TransformTest::TransformTest()
 {
     this->windowName = L"TransformTest";
     this->clientSize = { 1280, 720 };
+    this->customWndProc = WndProc;
 }
 
 TransformTest::~TransformTest()
@@ -193,6 +226,29 @@ void TransformTest::UninitScene()
     SafeRelease(m_pConstantBuffer);
 }
 
+bool TransformTest::InitImGUI()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsLight();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_Init(GetHWND());
+    ImGui_ImplDX11_Init(this->pDevice, this->pDeviceContext);
+
+    return true;
+}
+
+void TransformTest::UninitImGUI()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
+
 void TransformTest::Start()
 {                        
     CubeObject* cube1 = new CubeObject;
@@ -238,8 +294,63 @@ void TransformTest::Render()
         item->Render(m_pConstantBuffer, m_pInputLayout, m_pVertexShader, m_pPixelShader);
     }
 
+    ImGUIRender();
+
     // Present the information rendered to the back buffer to the front buffer (the screen)
     pSwapChain->Present(0, 0);
+}
+
+void TransformTest::ImGUIRender()
+{
+    using namespace G_ImGUI;
+
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+    {
+
+        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        ImGui::Checkbox("Another Window", &show_another_window);
+
+        ImGui::SliderFloat("float", &testFloat, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+
+        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            testCounter++;
+
+        ImGui::SameLine();
+        ImGui::Text("counter = %d", testCounter);
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+        ImGui::ColorEdit3("clear color", (float*)&testColor); // Edit 3 floats representing a color	
+        ImGui::End();
+    }
+
+    // 3. Show another simple window.
+    if (show_another_window)
+    {
+        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::Text("Hello from another window!");
+        if (ImGui::Button("Close Me"))
+            show_another_window = false;
+        ImGui::End();
+    }
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void TransformTest::ClearObjList()

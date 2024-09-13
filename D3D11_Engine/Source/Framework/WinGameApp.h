@@ -60,5 +60,5 @@ private:
 	inline static HINSTANCE hInstance{};
 	inline static HWND hwnd{};
 
-	friend LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	friend LRESULT CALLBACK DefaultWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };

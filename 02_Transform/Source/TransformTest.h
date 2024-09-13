@@ -15,6 +15,8 @@ public:
 	bool InitScene();
 	void UninitScene();
 
+	bool InitImGUI();
+	void UninitImGUI();
 public:
 	// 렌더링 파이프라인을 구성하는 필수 객체의 인터페이스(뎊스 스텐실 뷰도 있지만 아직 사용하지 않는다.)
 	inline static struct ID3D11Device* pDevice = nullptr;						// 디바이스	
@@ -36,9 +38,12 @@ public:
 	struct ID3D11Buffer* m_pConstantBuffer = nullptr;		// 상수 버퍼.
 
 protected:
-	virtual void Start();
-	virtual void Update();
-	virtual void Render();
+	virtual void Start() override;
+	virtual void Update() override;
+	virtual void Render() override;
+
+private:
+	void ImGUIRender();
 
 private:
 	std::vector<SimpleObject*> objList{};
@@ -47,3 +52,14 @@ private:
 	void ClearObjList();
 
 };
+
+namespace G_ImGUI
+{
+	extern bool show_demo_window;
+	extern bool show_another_window;
+
+	extern float testFloat;
+	extern int testCounter;
+
+	extern float testColor;
+}

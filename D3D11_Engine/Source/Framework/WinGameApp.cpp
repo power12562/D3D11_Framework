@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <clocale>
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void WinGameApp::Initialize(HINSTANCE hinstance)
 {
@@ -101,7 +101,7 @@ void WinGameApp::WinInitialize()
 	}
 	else
 	{
-		wc.lpfnWndProc = WndProc;	// 기본 윈도우 프로시저 함수
+		wc.lpfnWndProc = DefaultWndProc;	// 기본 윈도우 프로시저 함수
 	}	
 	wc.hInstance = hInstance;   // 인스턴스 핸들
 	// NULL을 사용하면 현재 실행 중인 프로그램의 인스턴스 핸들을 사용하게 됩니다.두 번째 인자는 로드할 커서의 ID입니다.
@@ -171,7 +171,7 @@ void WinGameApp::WinInitialize()
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
