@@ -44,7 +44,7 @@ public:
 	Vector3 GetFront();
 	__declspec(property(get = GetFront)) Vector3 Front;
 
-	Matrix GetWM() const { return _WM; }
+	const Matrix& GetWM() const { return _WM; }
 
 public:
 	/**부모로 만들 Transform을 설정합니다.*/
