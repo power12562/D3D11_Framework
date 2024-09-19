@@ -1,4 +1,6 @@
 #include "WinGameApp.h"
+
+#include <Framework\D3DRenderer.h>
 #include <Framework/TimeSystem.h>
 #include <cassert>
 #include <cstdio>
@@ -20,7 +22,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 	freopen_s(&_tempFile, "CONOUT$", "w", stdout);
 #endif // _DEBUG
 	WinInit();
-
+	D3D11Renderer.Init();
 }
 
 void WinGameApp::Run()

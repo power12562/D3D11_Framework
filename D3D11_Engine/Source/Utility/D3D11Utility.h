@@ -6,8 +6,6 @@
 
 namespace Utility
 {
-
-
 	// Helper class for COM exceptions
 	class com_exception : public std::exception
 	{

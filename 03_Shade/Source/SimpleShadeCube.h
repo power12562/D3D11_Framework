@@ -6,13 +6,7 @@ using namespace DirectX;
 struct Vertex
 {
 	Vector3 position;		// 정점 위치 정보.
-	Vector4 color;			// 정점 색상 정보.
-
-	Vertex(float x, float y, float z) : position(x, y, z) { }
-	Vertex(Vector3 position) : position(position) { }
-
-	Vertex(Vector3 position, Vector4 color)
-		: position(position), color(color) { }
+	Vector3 normal;			// 정점 색상 정보.
 };
 
 struct ConstantBuffer
@@ -21,30 +15,35 @@ struct ConstantBuffer
 	Matrix mView;
 	Matrix mProjection;
 	Matrix WVP;
+	Vector4 vLightDir;
+	Vector4 vLightColor;
 };
 static_assert((sizeof(ConstantBuffer) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
 
 class Transform;
-class SimpleObject
+class SimpleShadeObject
 {
 public:
-	SimpleObject();
-	virtual ~SimpleObject();
+	SimpleShadeObject();
+	virtual ~SimpleShadeObject();
 
 	virtual void Update() = 0;
 	virtual void Render(struct ID3D11Buffer* pConstantBuffer, struct ID3D11InputLayout* m_pInputLayout, struct ID3D11VertexShader* pVertexShader, struct ID3D11PixelShader* pPixelShader) = 0;
 public:
 	Transform* transform;  
-public:
-	inline static Matrix mView = XMMatrixIdentity();
-	inline static Matrix mProjection = XMMatrixIdentity();
+
+	inline static Matrix mView{};
+	inline static Matrix mProjection{};
+	inline static Vector4 vLightDir{};
+	inline static Vector4 vLightColor{};
+
 };
 
-class PyramidObject : public SimpleObject
+class SimpleCubeShadeObject : public SimpleShadeObject
 {
 public:
-	PyramidObject();
-	virtual ~PyramidObject() override;
+	SimpleCubeShadeObject();
+	virtual ~SimpleCubeShadeObject() override;
 
 	virtual void Update() override;
 	virtual void Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader) override;

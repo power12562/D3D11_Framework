@@ -261,7 +261,7 @@ void TransformTest::Start()
 {                    
     using namespace G_ImGUI;
     PyramidObject* cube1 = new PyramidObject;
-
+   
     PyramidObject* cube2 = new PyramidObject;
     cube2->transform->SetParent(cube1->transform);
     cube2->transform->scale = { 0.5, 0.5, 0.5 };
@@ -294,8 +294,8 @@ void TransformTest::Update()
     SimpleObject::mProjection = XMMatrixPerspectiveFovLH(G_ImGUI::camera_fov_y, (FLOAT)size.cx / (FLOAT)size.cy, G_ImGUI::camera_near, G_ImGUI::camera_far);
 
     objList[0]->transform->position = { mesh1_pos[0], mesh1_pos[1], mesh1_pos[2] };
-    objList[1]->transform->position = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2] };
-    objList[2]->transform->position = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2] };
+    objList[1]->transform->localPosition = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2] };
+    objList[2]->transform->localPosition = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2] };
 
     objList[0]->transform->rotation += Vector3::Up * rotation_speed_1 * Time.DeltaTime;
     objList[1]->transform->rotation += Vector3::Up * rotation_speed_2 * Time.DeltaTime;
