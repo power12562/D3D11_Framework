@@ -53,7 +53,7 @@ private:
 	bool isEnd = false;
 	MSG msg{};
 private:
-	void WinInitialize();
+	bool WinInit();
 
 private:
 	inline static SIZE size{};

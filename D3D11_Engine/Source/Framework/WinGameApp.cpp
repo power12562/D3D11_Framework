@@ -10,7 +10,6 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 {
 	if (RunApp != nullptr)
 	{
-
 		return;
 	}
 		
@@ -20,7 +19,8 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 	FILE* _tempFile;
 	freopen_s(&_tempFile, "CONOUT$", "w", stdout);
 #endif // _DEBUG
-	WinInitialize();
+	WinInit();
+
 }
 
 void WinGameApp::Run()
@@ -59,7 +59,6 @@ void WinGameApp::Uninitialize()
 #ifdef _DEBUG
 	FreeConsole();
 #endif // _DEBUG
-
 }
 
 void WinGameApp::WinToScreenCenter(HWND hwnd)
@@ -83,7 +82,7 @@ void WinGameApp::GameEnd()
 	}
 }
 
-void WinGameApp::WinInitialize()
+bool WinGameApp::WinInit()
 {
 	//static hInstance
 	if (WinGameApp::hInstance == NULL)
@@ -118,7 +117,7 @@ void WinGameApp::WinInitialize()
 
 		MessageBox(NULL, errorStr, L"에러", MB_OK | MB_ICONERROR);
 		isEnd = false;
-		return;
+		return false;
 	}
 
 	// 원하는 크기가 조정되어 리턴
@@ -146,7 +145,7 @@ void WinGameApp::WinInitialize()
 		swprintf_s(errorStr, L"윈도우 생성 실패. 에러 : %d", error);
 		MessageBox(NULL, errorStr, L"에러", MB_OK | MB_ICONERROR);
 		isEnd = false;
-		return;
+		return false;
 	}
 
 	// 윈도우 표시
@@ -162,7 +161,6 @@ void WinGameApp::WinInitialize()
 		printf("ClientSize : %d, %d\n", sx, sy);
 #endif // _DEBUG
 }
-
 
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
