@@ -67,7 +67,6 @@ PyramidObject::~PyramidObject()
 void PyramidObject::Update()
 {
     transform->UpdateTransform();
-    m_World = transform->GetWM();
 }
 
 void PyramidObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)
@@ -76,10 +75,10 @@ void PyramidObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pIn
 
     // 상수버퍼 업데이트
     ConstantBuffer cb;
-    cb.mWorld = XMMatrixTranspose(m_World);
+    cb.mWorld = XMMatrixTranspose(transform->GetWM());
     cb.mView = XMMatrixTranspose(SimpleObject::mView);
     cb.mProjection = XMMatrixTranspose(SimpleObject::mProjection);
-    cb.WVP = XMMatrixTranspose(m_World * SimpleObject::mView * SimpleObject::mProjection);
+    cb.WVP = XMMatrixTranspose(transform->GetWM() * SimpleObject::mView * SimpleObject::mProjection);
 
     pDeviceContext->UpdateSubresource(pConstantBuffer, 0, nullptr, &cb, 0, 0);
 

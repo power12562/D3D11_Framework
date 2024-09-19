@@ -50,12 +50,9 @@ public:
 	virtual void Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader) override;
 
 	// 렌더링 파이프라인에 적용하는  객체와 정보
-	ID3D11Buffer* m_pVertexBuffer = nullptr;		// 버텍스 버퍼.
+	ID3D11Buffer* m_pVertexBuffer = nullptr;				// 버텍스 버퍼.
 	unsigned int m_VertexBufferStride = 0;					// 버텍스 하나의 크기.
 	unsigned int m_VertexBufferOffset = 0;					// 버텍스 버퍼의 오프셋.
-	ID3D11Buffer* m_pIndexBuffer = nullptr;	// 버텍스 버퍼.
-	int m_nIndices = 0;								// 인덱스 개수.
-
-	// 쉐이더에 에 전달할 데이터
-	Matrix m_World = XMMatrixIdentity();				// 월드좌표계 공간으로 변환을 위한 행렬.
+	ID3D11Buffer* m_pIndexBuffer = nullptr;					// 버텍스 버퍼.
+	int m_nIndices = 0;										// 인덱스 개수.
 };
