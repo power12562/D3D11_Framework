@@ -7,6 +7,7 @@ struct Vertex
 {
 	Vector3 position;		// 정점 위치 정보.
 	Vector3 normal;			// 정점 색상 정보.
+	Vector2 Tex;
 };
 
 struct ConstantBuffer
@@ -54,5 +55,7 @@ public:
 	unsigned int m_VertexBufferOffset = 0;					// 버텍스 버퍼의 오프셋.
 	ID3D11Buffer* m_pIndexBuffer = nullptr;					// 버텍스 버퍼.
 	int m_nIndices = 0;										// 인덱스 개수.
+	ID3D11ShaderResourceView* m_pTextureRV = nullptr;	// 텍스처 리소스 뷰.
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
 };
 

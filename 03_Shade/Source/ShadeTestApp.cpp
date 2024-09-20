@@ -1,6 +1,7 @@
 ﻿#include "ShadeTestApp.h"
 #include "SimpleShadeCube.h"
 
+#include <_Debug\Console.h>
 #include <Math\Mathf.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility/MemoryUtility.h>
@@ -60,51 +61,52 @@ void ShadeTestApp::InitScene()
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-    //버텍스 셰이더 컴파일
-    ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-    CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-    CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
+	ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
+	CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+	CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
 
-    //버텍스 셰이더 생성
-    CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-        vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
-    SafeRelease(vertexShaderBuffer);
+	//버텍스 셰이더 생성
+	CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+		vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
+	SafeRelease(vertexShaderBuffer);
 
-    // 픽셀 셰이더 컴파일
-    ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
-    CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
-    // 픽셸 셰이더 생성
-    CheackHRESULT(pDevice->CreatePixelShader(
-        pixelShaderBuffer->GetBufferPointer(),
-        pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
-    SafeRelease(pixelShaderBuffer);
+	// 픽셀 셰이더 컴파일
+	ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
+	CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+	// 픽셸 셰이더 생성
+	CheackHRESULT(pDevice->CreatePixelShader(
+		pixelShaderBuffer->GetBufferPointer(),
+		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
+	SafeRelease(pixelShaderBuffer);
 
-    D3D11_BUFFER_DESC bd{};
-    // Create the constant buffer
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(ConstantBuffer);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
+	D3D11_BUFFER_DESC bd{};
+	// Create the constant buffer
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(ConstantBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
 
-    m_cubeObject = new SimpleCubeShadeObject;
-    m_cubeObject->transform->position = { 0.f, 0.f, 3.0f };
+	m_cubeObject = new SimpleCubeShadeObject;
+	m_cubeObject->transform->position = { 0.f, 0.f, 3.0f };
+	//m_cubeObject->transform->scale = { 2,1,1 };
 
-    // Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet(constBuffer::camPos[0], constBuffer::camPos[1], constBuffer::camPos[2], 0.0f);
-    const Vector3& atVector = m_cubeObject->transform->position;
-    XMVECTOR At = XMVectorSet(atVector.x, atVector.y, atVector.z, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    SimpleShadeObject::mView = XMMatrixLookAtLH(Eye, At, Up);
+	// Initialize the view matrix
+	XMVECTOR Eye = XMVectorSet(constBuffer::camPos[0], constBuffer::camPos[1], constBuffer::camPos[2], 0.0f);
+	const Vector3& atVector = m_cubeObject->transform->position;
+	XMVECTOR At = XMVectorSet(atVector.x, atVector.y, atVector.z, 0.0f);
+	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	SimpleShadeObject::mView = XMMatrixLookAtLH(Eye, At, Up);
 
-    // Initialize the projection matrix
-    SIZE size = GetClientSize();
-    SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(constBuffer::camFOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
+	// Initialize the projection matrix
+	SIZE size = GetClientSize();
+	SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(constBuffer::camFOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
 }
 
 void ShadeTestApp::UninitScene()
