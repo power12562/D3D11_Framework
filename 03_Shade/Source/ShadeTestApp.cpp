@@ -12,6 +12,16 @@
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
+namespace constBuffer
+{
+    float lightDir[4]{0,0,1,0};
+    float lightColor[4]{1,1,1,1};
+    float camPos[3]{0.0f, 2.0f, -5.0f};
+    float camFOV = 90;
+    float cubeRotation[3]{ 0,0,0 };
+    float bgColor[4]{ 0.4f, 1.0f, 1.0f, 0.0f };;
+}
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -81,18 +91,19 @@ void ShadeTestApp::InitScene()
     bd.CPUAccessFlags = 0;
     CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
 
+    m_cubeObject = new SimpleCubeShadeObject;
+    m_cubeObject->transform->position = { 0.f, 0.f, 3.0f };
+
     // Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet(0.0f, 4.0f, -10.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR Eye = XMVectorSet(constBuffer::camPos[0], constBuffer::camPos[1], constBuffer::camPos[2], 0.0f);
+    const Vector3& atVector = m_cubeObject->transform->position;
+    XMVECTOR At = XMVectorSet(atVector.x, atVector.y, atVector.z, 0.0f);
     XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     SimpleShadeObject::mView = XMMatrixLookAtLH(Eye, At, Up);
 
     // Initialize the projection matrix
     SIZE size = GetClientSize();
-    SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(90 * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
-
-    m_cubeObject = new SimpleCubeShadeObject;
-    m_cubeObject->transform->position = { 0.f, 0.f, 3.0f };
+    SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(constBuffer::camFOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
 }
 
 void ShadeTestApp::UninitScene()
@@ -132,14 +143,23 @@ void ShadeTestApp::Start()
 
 void ShadeTestApp::Update()
 {
+    XMVECTOR Eye = XMVectorSet(constBuffer::camPos[0], constBuffer::camPos[1], constBuffer::camPos[2], 0.0f);
+    const Vector3& atVector = m_cubeObject->transform->position;
+    XMVECTOR At = XMVectorSet(atVector.x, atVector.y, atVector.z, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    SimpleShadeObject::mView = XMMatrixLookAtLH(Eye, At, Up);
+
+    SIZE size = GetClientSize();
+    SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(constBuffer::camFOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
+
+    m_cubeObject->transform->rotation = Vector3(constBuffer::cubeRotation);
     m_cubeObject->Update();
 }
 
 void ShadeTestApp::Render()
 {
     // 화면 칠하기.
-    float bgColor[4] = { 0.4f, 1.0f, 1.0f, 0.0f };
-    D3D11Renderer.GetDeviceContext()->ClearRenderTargetView(D3D11Renderer.GetRenderTargetView(), bgColor);
+    D3D11Renderer.GetDeviceContext()->ClearRenderTargetView(D3D11Renderer.GetRenderTargetView(), constBuffer::bgColor);
     //깊이 버퍼 초기화
     D3D11Renderer.GetDeviceContext()->ClearDepthStencilView(D3D11Renderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -163,8 +183,20 @@ void ShadeTestApp::ImGUIRender()
 
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
-        ImGui::Begin("Debug");                          // Create a window called "Hello, world!" and append into it.
-        ImGui::Text("Test");
+        ImGui::Begin("Debug");                         
+        ImGui::Text("Camera");
+        ImGui::DragFloat3("position", constBuffer::camPos);
+        ImGui::SliderFloat("FOV", &constBuffer::camFOV, 10, 120);
+        ImGui::Text("");
+        ImGui::Text("Cube");
+        ImGui::DragFloat3("Rotation", constBuffer::cubeRotation);
+        ImGui::Text("");
+        ImGui::Text("Light");
+        ImGui::ColorEdit3("Color", constBuffer::lightColor);
+        ImGui::DragFloat3("Dir", constBuffer::lightDir, 0.01f, -1.0f, 1.0f);
+        ImGui::Text("");
+        ImGui::Text("Background");
+        ImGui::ColorEdit3("BgColor", constBuffer::bgColor);
         ImGui::End();
     }
 

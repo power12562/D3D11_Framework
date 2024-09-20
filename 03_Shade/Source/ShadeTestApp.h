@@ -31,3 +31,13 @@ private:
 	class SimpleCubeShadeObject* m_cubeObject = nullptr;
 
 };
+
+namespace constBuffer
+{
+	extern float lightDir[4];
+	extern float lightColor[4];
+	extern float camPos[3];
+	extern float camFOV;
+	extern float cubeRotation[3];
+	extern float bgColor[4];
+}
