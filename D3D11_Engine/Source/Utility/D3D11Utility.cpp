@@ -46,15 +46,15 @@ namespace Utility
 		return S_OK;
 	}
 
-	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11ShaderResourceView** textureView)
+	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView)
 	{
 		HRESULT hr = S_OK;
 
 		// Load the Texture
-		hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, nullptr, textureView);
+		hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, texture, textureView);
 		if (FAILED(hr))
 		{
-			hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, nullptr, textureView);
+			hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, texture, textureView);
 			if (FAILED(hr))
 			{
 				MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);

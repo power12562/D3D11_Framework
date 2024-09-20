@@ -1,4 +1,6 @@
 #pragma once
+#include <Utility\D3D11Utility.h>
+
 class D3DRenderer
 {
 	friend class WinGameApp;
