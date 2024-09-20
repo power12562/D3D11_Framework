@@ -7,7 +7,7 @@ PS_INPUT main(VS_INPUT input)
 {
     PS_INPUT output = (PS_INPUT) 0;
     output.Pos = mul(input.Pos, WVP);
-    output.Norm = mul(float4(input.Norm, 1), World).xyz;
-    
+    output.Norm = normalize(mul(input.Norm, (float3x3) World));
+   
     return output;
 }
