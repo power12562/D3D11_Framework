@@ -10,8 +10,8 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     app.InitScene();
     app.InitImGUI();
     app.Run();
-    app.UninitScene();
     app.UninitImGUI();
+    app.UninitScene();
     app.Uninitialize();
 
     return 0;

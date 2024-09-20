@@ -46,6 +46,7 @@ ShadeTestApp::ShadeTestApp()
 {
     this->windowName = L"ShadeTestApp";
     this->customWndProc = WndProc;
+    
 }
 
 ShadeTestApp::~ShadeTestApp()

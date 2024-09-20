@@ -162,6 +162,8 @@ bool WinGameApp::WinInit()
 		int sy = rc.bottom - rc.top;
 		printf("ClientSize : %d, %d\n", sx, sy);
 #endif // _DEBUG
+
+	return true;
 }
 
 //

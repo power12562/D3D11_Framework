@@ -1,11 +1,12 @@
 #pragma once
 class D3DRenderer
 {
+	friend class WinGameApp;
 public:
 	D3DRenderer();
 	~D3DRenderer();
 
-public:
+private:
 	void Init();
 	void Uninit();	   
 
