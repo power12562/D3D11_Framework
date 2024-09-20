@@ -21,7 +21,7 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
 {
     Vertex vertices[] =
     {
-       { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f) },// Normal Y +	 
+        { Vector3(-1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f) },// Normal Y +	 
         { Vector3(1.0f, 1.0f, -1.0f),	Vector3(0.0f, 1.0f, 0.0f) },
         { Vector3(1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f) },
         { Vector3(-1.0f, 1.0f, 1.0f),	Vector3(0.0f, 1.0f, 0.0f) },
@@ -101,6 +101,8 @@ void SimpleCubeShadeObject::Update()
 
 void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLayout* pInputLayout, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)
 {
+    using namespace constBuffer;
+
     auto pDeviceContext = D3D11Renderer.GetDeviceContext();
 
     // 상수버퍼 업데이트
@@ -109,8 +111,8 @@ void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLay
     cb.mView = XMMatrixTranspose(SimpleCubeShadeObject::mView);
     cb.mProjection = XMMatrixTranspose(SimpleCubeShadeObject::mProjection);
     cb.WVP = XMMatrixTranspose(transform->GetWM() * SimpleCubeShadeObject::mView * SimpleCubeShadeObject::mProjection);
-    cb.vLightDir = Vector4(0, 0, 1, 1);
-    cb.vLightColor = Vector4(0, 0, 0, 1);
+    Vector4(lightDir[0], lightDir[1], lightDir[2], lightDir[3]).Normalize(cb.vLightDir);
+    cb.vLightColor = Vector4(lightColor[0], lightColor[1], lightColor[2], lightColor[3]);
 
     pDeviceContext->UpdateSubresource(pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
@@ -122,6 +124,7 @@ void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLay
     pDeviceContext->VSSetShader(pVertexShader, nullptr, 0);
     pDeviceContext->PSSetShader(pPixelShader, nullptr, 0);
     pDeviceContext->VSSetConstantBuffers(0, 1, &pConstantBuffer);
+    pDeviceContext->PSSetConstantBuffers(0, 1, &pConstantBuffer);
 
     pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 }
