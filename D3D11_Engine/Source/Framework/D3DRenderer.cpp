@@ -118,9 +118,9 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
-    SafeRelease(pDevice);
     SafeRelease(pDeviceContext);
     SafeRelease(pSwapChain);
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
+    SafeRelease(pDevice);
 }

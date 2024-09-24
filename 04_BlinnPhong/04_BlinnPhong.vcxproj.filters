@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source\MainEntry.cpp" />
+    <ClCompile Include="Source\BlinnPhongTestApp.cpp" />
+    <ClCompile Include="Source\SimpleBlinnPhongObject.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\BlinnPhongTestApp.h" />
+    <ClInclude Include="Source\SimpleBlinnPhongObject.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{6a7e891f-3780-4ef4-b0a2-5dd2a76be52f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shared.fxh" />
+  </ItemGroup>
+</Project>
