@@ -65,8 +65,6 @@ void D3DRenderer::Init()
         CheackHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
         CheackHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
-        //출력 파이프라인에 바인딩.
-        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, NULL);
 
         //뷰포트 설정
         D3D11_VIEWPORT viewport = {};
