@@ -3,6 +3,9 @@ template <typename T>
 
 class TSingleton
 {
+protected:
+	TSingleton() = default;
+	~TSingleton() = default;
 public:
 	static T& GetInstance()
 	{
