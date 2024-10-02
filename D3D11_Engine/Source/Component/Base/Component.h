@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
+class Transform;
 class GameObject;
 class Component
 {
@@ -11,6 +12,7 @@ public:
 
 private:
 	void SetOwner(GameObject* gameObject);
+	int index = -1;
 
 protected:
 	GameObject* _gameObject = nullptr;
@@ -27,11 +29,16 @@ public:
 	GameObject& GetGameObject();
 	_declspec (property(get = GetGameObject)) GameObject& gameObject;
 
+	Transform& GetTransform();
+	__declspec (property(get = GetTransform)) Transform& transform;
+
 	template <typename T>
 	T& AddComponent();
 
 	template <typename T>
 	T& GetComponent();
+
+	int GetComponentIndex() const { return index; }
 };
 
 #include <GameObject\Base\GameObject.h>

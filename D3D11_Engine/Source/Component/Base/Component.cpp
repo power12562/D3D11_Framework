@@ -35,3 +35,8 @@ GameObject& Component::GetGameObject()
 {
 	return *_gameObject;
 }
+
+Transform& Component::GetTransform()
+{
+	return gameObject.transform;
+}
