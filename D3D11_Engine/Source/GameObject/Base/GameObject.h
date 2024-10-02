@@ -5,6 +5,7 @@
 class Component;
 class GameObject
 {		 
+	friend class Scene;
 public:
 	GameObject();
 	virtual ~GameObject();
@@ -17,6 +18,7 @@ private:
 	std::vector<std::unique_ptr<Component>> componentList;
 public:
 	Transform transform;
+	bool Active = true;
 
 public:
 	/*컴포넌트 추가*/
