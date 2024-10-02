@@ -43,7 +43,7 @@ void D3DRenderer::Init()
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 
-    //샘플링 설정
+    //샘플링 설정 *(MSAA)
     swapDesc.SampleDesc.Count = 1;
     swapDesc.SampleDesc.Quality = 0;
 
