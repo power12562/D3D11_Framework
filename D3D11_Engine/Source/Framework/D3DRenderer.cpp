@@ -6,7 +6,7 @@
 #include <_Debug\Console.h>
 #include <cassert>
 
-D3DRenderer& Renderer = D3DRenderer::GetInstance();
+D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
 using namespace Utility;
 

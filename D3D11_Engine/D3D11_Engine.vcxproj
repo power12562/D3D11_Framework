@@ -147,6 +147,8 @@
     <ClInclude Include="Source\Debug\Console.h" />
     <ClInclude Include="Source\Framework\D3D11_GameApp.h" />
     <ClInclude Include="Source\Framework\D3DRenderer.h" />
+    <ClInclude Include="Source\Framework\Scene.h" />
+    <ClInclude Include="Source\Framework\SceneManager.h" />
     <ClInclude Include="Source\Framework\TimeSystem.h" />
     <ClInclude Include="Source\Framework\Transform.h" />
     <ClInclude Include="Source\Framework\TSingleton.h" />
@@ -160,6 +162,7 @@
     <ClCompile Include="Source\Component\Base\Component.cpp" />
     <ClCompile Include="Source\Framework\D3D11_GameApp.cpp" />
     <ClCompile Include="Source\Framework\D3DRenderer.cpp" />
+    <ClCompile Include="Source\Framework\SceneManager.cpp" />
     <ClCompile Include="Source\Framework\TimeSystem.cpp" />
     <ClCompile Include="Source\Framework\Transform.cpp" />
     <ClCompile Include="Source\Framework\WinGameApp.cpp" />

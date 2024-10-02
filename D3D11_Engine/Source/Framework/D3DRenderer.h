@@ -28,4 +28,4 @@ private:
 	ID3D11DepthStencilView*  pDepthStencilView;   // ±íÀÌ ¹öÆÛ
 };
 
-extern D3DRenderer& Renderer;
+extern D3DRenderer& d3dRenderer;

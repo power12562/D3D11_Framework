@@ -5,7 +5,7 @@ class TSingleton
 {
 protected:
 	TSingleton() = default;
-	~TSingleton() = default;
+	virtual ~TSingleton() = default;
 public:
 	static T& GetInstance()
 	{

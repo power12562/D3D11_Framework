@@ -57,7 +57,7 @@ ShadeTestApp::~ShadeTestApp()
 
 void ShadeTestApp::InitScene()
 {
-	ID3D11Device* pDevice = Renderer.GetDevice();
+	ID3D11Device* pDevice = d3dRenderer.GetDevice();
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -129,7 +129,7 @@ void ShadeTestApp::InitImGUI()
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(GetHWND());
-    ImGui_ImplDX11_Init(Renderer.GetDevice(), Renderer.GetDeviceContext());
+    ImGui_ImplDX11_Init(d3dRenderer.GetDevice(), d3dRenderer.GetDeviceContext());
 }
 
 void ShadeTestApp::UninitImGUI()
@@ -162,15 +162,15 @@ void ShadeTestApp::Update()
 void ShadeTestApp::Render()
 {
     // 화면 칠하기.
-    Renderer.GetDeviceContext()->ClearRenderTargetView(Renderer.GetRenderTargetView(), constBuffer::bgColor);
+    d3dRenderer.GetDeviceContext()->ClearRenderTargetView(d3dRenderer.GetRenderTargetView(), constBuffer::bgColor);
     //깊이 버퍼 초기화
-    Renderer.GetDeviceContext()->ClearDepthStencilView(Renderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    d3dRenderer.GetDeviceContext()->ClearDepthStencilView(d3dRenderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     m_cubeObject->Render(m_pConstantBuffer, m_pInputLayout, m_pVertexShader, m_pPixelShader);
 
     ImGUIRender();
     // Present the information rendered to the back buffer to the front buffer (the screen)
-    Renderer.GetSwapChain()->Present(0, 0);
+    d3dRenderer.GetSwapChain()->Present(0, 0);
 }
 
 void ShadeTestApp::ImGUIRender()

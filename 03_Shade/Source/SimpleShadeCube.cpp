@@ -59,7 +59,7 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(Renderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
 
     m_VertexBufferStride = sizeof(Vertex);
     m_VertexBufferOffset = 0;
@@ -85,10 +85,10 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(Renderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 
     //Load Texture
-    CheackHRESULT(Utility::CreateTextureFromFile(Renderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
+    CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
 
     // Create the sample state
     D3D11_SAMPLER_DESC sampDesc = {};
@@ -99,7 +99,7 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    CheackHRESULT(Renderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 }
 
 SimpleCubeShadeObject::~SimpleCubeShadeObject()
@@ -117,7 +117,7 @@ void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLay
 {
     using namespace constBuffer;
 
-    auto pDeviceContext = Renderer.GetDeviceContext();
+    auto pDeviceContext = d3dRenderer.GetDeviceContext();
 
     // 상수버퍼 업데이트
     ConstantBuffer cb;
@@ -142,8 +142,8 @@ void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLay
     pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
     pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    auto* pRenderTargetView = Renderer.GetRenderTargetView();
-    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, Renderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
+    auto* pRenderTargetView = d3dRenderer.GetRenderTargetView();
+    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, d3dRenderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
     pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
 }

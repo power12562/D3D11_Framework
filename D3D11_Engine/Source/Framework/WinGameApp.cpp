@@ -22,7 +22,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 	freopen_s(&_tempFile, "CONOUT$", "w", stdout);
 #endif // _DEBUG
 	WinInit();
-	Renderer.Init();
+	d3dRenderer.Init();
 }
 
 void WinGameApp::Run()
@@ -61,7 +61,7 @@ void WinGameApp::Uninitialize()
 #ifdef _DEBUG
 	FreeConsole();
 #endif // _DEBUG
-	Renderer.Uninit();
+	d3dRenderer.Uninit();
 }
 
 void WinGameApp::WinToScreenCenter(HWND hwnd)
