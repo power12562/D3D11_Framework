@@ -9,7 +9,7 @@ extern class SceneManager& sceneManager;
 class SceneManager : public TSingleton<SceneManager>
 {
 	friend TSingleton;
-	friend class D3DRenderer;
+	friend class D3D11_GameApp;
 private:
 	SceneManager();
 	~SceneManager();

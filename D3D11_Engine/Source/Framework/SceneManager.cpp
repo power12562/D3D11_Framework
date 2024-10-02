@@ -32,7 +32,6 @@ void SceneManager::NextSccene()
 	if (nextScene)
 	{
 		currScene = std::move(nextScene);
-		nextScene = nullptr;
 	}
 }
 
