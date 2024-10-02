@@ -46,4 +46,5 @@ private:
 namespace TimeSystem
 {
 	extern QPCTime Time;
+	extern float FixedTimeStep; //fixed Update 호출 주기.
 }

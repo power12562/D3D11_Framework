@@ -3,6 +3,7 @@
 namespace TimeSystem
 {
 	QPCTime Time;
+	float FixedTimeStep = 0.02f; //fixed Update 호출 주기.
 }
 
 QPCTime::QPCTime() :
