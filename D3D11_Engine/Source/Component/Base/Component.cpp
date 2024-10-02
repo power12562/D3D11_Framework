@@ -1,10 +1,14 @@
 #include "Component.h"
 #include <GameObject\Base\GameObject.h>
 
-Component::Component(GameObject* gameObject)
+void Component::SetOwner(GameObject* gameObject)
 {
-	this->_gameObject = gameObject;
+	this->_gameObject = gameObject;	
+}
 
+Component::Component()
+{
+	
 }
 
 Component::~Component()

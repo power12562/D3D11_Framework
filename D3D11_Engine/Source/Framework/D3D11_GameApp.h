@@ -7,10 +7,10 @@ public:
 	D3D11_GameApp();
 	virtual ~D3D11_GameApp() override;
 
-protected:
-	virtual void Start() override;
-	virtual void Update() override;
-	virtual void Render() override;
+private:
+	virtual void Start() override final;
+	virtual void Update() override final;
+	virtual void Render() override final;
 
 private:
 	void FixedUpdate();

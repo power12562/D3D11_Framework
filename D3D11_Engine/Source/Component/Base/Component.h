@@ -6,10 +6,14 @@ class Component
 {
 	friend class GameObject;
 public:
-	Component(GameObject* gameObject);
+	Component();
 	~Component();
+
+private:
+	void SetOwner(GameObject* gameObject);
+
 protected:
-	GameObject* _gameObject;
+	GameObject* _gameObject = nullptr;
 
 	virtual void Start();
 	virtual void FixedUpdate();

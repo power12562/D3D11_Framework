@@ -49,8 +49,9 @@ protected:
 	virtual void Update() = 0;
 	virtual void Render() = 0;
 
-private:
+protected:
 	bool isEnd = false;
+private:
 	MSG msg{};
 private:
 	bool WinInit();

@@ -1,5 +1,8 @@
 #include "D3D11_GameApp.h"
 
+#pragma comment (lib, "d3d11.lib")
+#pragma comment(lib,"d3dcompiler.lib")
+
 D3D11_GameApp::D3D11_GameApp()
 {
 

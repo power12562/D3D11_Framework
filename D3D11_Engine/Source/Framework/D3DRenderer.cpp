@@ -28,11 +28,12 @@ void D3DRenderer::Init()
     using namespace Utility;
 
     DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
-    swapDesc.BufferCount = 1; //버퍼 개수
+    swapDesc.BufferCount = 2; //버퍼 개수
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
     swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
     swapDesc.Windowed = true; //창모드 유무
     swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //출력 포멧 지정.
+    swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
     //버퍼 사이즈 지정
     SIZE size = WinGameApp::GetClientSize();
