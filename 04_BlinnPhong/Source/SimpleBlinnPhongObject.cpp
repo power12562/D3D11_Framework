@@ -59,7 +59,7 @@ SimpleBlinnPhongObject::SimpleBlinnPhongObject()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(D3D11Renderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
+    CheackHRESULT(Renderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
 
     m_VertexBufferStride = sizeof(Vertex);
     m_VertexBufferOffset = 0;
@@ -85,10 +85,10 @@ SimpleBlinnPhongObject::SimpleBlinnPhongObject()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(D3D11Renderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+    CheackHRESULT(Renderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 
     //Load Texture
-    CheackHRESULT(Utility::CreateTextureFromFile(D3D11Renderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
+    CheackHRESULT(Utility::CreateTextureFromFile(Renderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
 
     // Create the sample state
     D3D11_SAMPLER_DESC sampDesc = {};
@@ -99,7 +99,7 @@ SimpleBlinnPhongObject::SimpleBlinnPhongObject()
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    CheackHRESULT(D3D11Renderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
+    CheackHRESULT(Renderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 
     transform->scale = Vector3{ global::cubeScale, global::cubeScale, global::cubeScale };
 }
@@ -122,7 +122,7 @@ void SimpleBlinnPhongObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLa
 {
     using namespace global;
 
-    auto pDeviceContext = D3D11Renderer.GetDeviceContext();
+    auto pDeviceContext = Renderer.GetDeviceContext();
 
     // 상수버퍼 업데이트
     ConstantBuffer cb;

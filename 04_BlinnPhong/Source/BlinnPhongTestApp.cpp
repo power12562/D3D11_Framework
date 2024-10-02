@@ -66,7 +66,7 @@ BlinnPhongTestApp::~BlinnPhongTestApp()
 
 void BlinnPhongTestApp::InitScene()
 {
-	ID3D11Device* pDevice = D3D11Renderer.GetDevice();
+	ID3D11Device* pDevice = Renderer.GetDevice();
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
@@ -138,7 +138,7 @@ void BlinnPhongTestApp::InitImGUI()
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(GetHWND());
-    ImGui_ImplDX11_Init(D3D11Renderer.GetDevice(), D3D11Renderer.GetDeviceContext());
+    ImGui_ImplDX11_Init(Renderer.GetDevice(), Renderer.GetDeviceContext());
 }
 
 void BlinnPhongTestApp::UninitImGUI()
@@ -170,15 +170,15 @@ void BlinnPhongTestApp::Update()
 void BlinnPhongTestApp::Render()
 {
     // 화면 칠하기.
-    D3D11Renderer.GetDeviceContext()->ClearRenderTargetView(D3D11Renderer.GetRenderTargetView(), global::bgColor);
+    Renderer.GetDeviceContext()->ClearRenderTargetView(Renderer.GetRenderTargetView(), global::bgColor);
     //깊이 버퍼 초기화
-    D3D11Renderer.GetDeviceContext()->ClearDepthStencilView(D3D11Renderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    Renderer.GetDeviceContext()->ClearDepthStencilView(Renderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     m_cubeObject->Render(m_pConstantBuffer, m_pInputLayout, m_pVertexShader, m_pPixelShader);
 
     ImGUIRender();
     // Present the information rendered to the back buffer to the front buffer (the screen)
-    D3D11Renderer.GetSwapChain()->Present(0, 0);
+    Renderer.GetSwapChain()->Present(0, 0);
 }
 
 void BlinnPhongTestApp::ImGUIRender()
