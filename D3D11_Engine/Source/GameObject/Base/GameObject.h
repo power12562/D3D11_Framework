@@ -1,8 +1,8 @@
 #pragma once
 #include <Framework\Transform.h>
-#include <Component\Base\Component.h>
 #include <memory>
 
+class Component;
 class GameObject
 {		 
 public:

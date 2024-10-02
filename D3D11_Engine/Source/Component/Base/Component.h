@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
-class GameObject;
 
+class GameObject;
 class Component
 {
 	friend class GameObject;
@@ -27,4 +27,22 @@ public:
 	GameObject& GetGameObject();
 	_declspec (property(get = GetGameObject)) GameObject& gameObject;
 
+	template <typename T>
+	T& AddComponent();
+
+	template <typename T>
+	T& GetComponent();
 };
+
+#include <GameObject\Base\GameObject.h>
+template<typename T>
+inline T& Component::AddComponent()
+{
+	return gameObject.AddComponent<T>();
+}
+
+template<typename T>
+inline T& Component::GetComponent()
+{
+	return gameObject.GetComponent<T>();
+}
