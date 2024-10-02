@@ -19,11 +19,20 @@ public:
 	Transform transform;
 
 public:
+	/*컴포넌트 추가*/
 	template <typename T>
 	T& AddComponent();
 
+	/*컴포넌트 가져오기*/
 	template <typename T>
 	T& GetComponent();
+
+	/*이 오브젝트의 컴포넌트 개수*/
+	int GetComponentCount() { return componentList.size(); }
+
+	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
+	template <typename T>
+	T& GetComponentAtIndex(int index);
 };
 
 template<typename T>
@@ -34,6 +43,7 @@ inline T& GameObject::AddComponent()
 	T* nComponent = new T;
 	nComponent->SetOwner(this);
 	componentList.emplace_back(nComponent);	
+	nComponent->index = componentList.size() - 1;
 	return *nComponent;
 }
 
@@ -50,4 +60,14 @@ inline T& GameObject::GetComponent()
 		}
 	}
 	__debugbreak(); //예외) 존재하지 않는 컴포넌트
+}
+
+template<typename T>
+inline T& GameObject::GetComponentAtIndex(int index)
+{
+	static_assert(std::is_base_of_v<Component, T>, "is not Component");
+
+	T& component = dynamic_cast<T&>(*componentList[index]);
+
+	return component;
 }
