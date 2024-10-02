@@ -13,6 +13,6 @@ private:
 	virtual void Render() override final;
 
 private:
-	void FixedUpdate();
+	float fixedElapsedTime = 0;
 
 };
