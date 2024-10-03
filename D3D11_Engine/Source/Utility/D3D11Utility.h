@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <d3d11.h>
+#include <directxtk/simplemath.h>
 #include <exception>
 #include <cstdio>
 

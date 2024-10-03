@@ -148,9 +148,24 @@
   <ItemGroup>
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\TestApp.cpp" />
+    <ClCompile Include="Source\TestCubeComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\TestApp.h" />
+    <ClInclude Include="Source\TestCubeComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shared.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
