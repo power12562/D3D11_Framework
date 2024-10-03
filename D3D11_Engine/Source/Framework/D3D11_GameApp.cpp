@@ -31,9 +31,12 @@ void D3D11_GameApp::Update()
 	}
 	sceneManager.UpdateScene();
 	sceneManager.LateUpdateScene();
+	sceneManager.UpdateTransformScene();
 }
 
 void D3D11_GameApp::Render()
 {
-
+	sceneManager.RenderScene(); //씬 렌더링 함수.
+	sceneManager.NextSccene(); //다음 씬 있으면 전환 
+	sceneManager.AddObjects();  //오브젝트 생성
 }
