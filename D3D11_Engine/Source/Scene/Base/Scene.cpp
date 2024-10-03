@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include <Framework\SceneManager.h>
+#include <Framework/D3DRenderer.h>
 #include <typeinfo>
 
 Scene::Scene()
@@ -37,6 +38,28 @@ void Scene::LateUpdate()
 		if (obj->Active)
 			obj->LateUpdate();
 	}
+}
+
+void Scene::UpdateTransform()
+{
+	for (auto& obj : objectList)
+	{
+		if (obj->Active)
+			obj->transform.UpdateTransform();
+	}
+}
+
+void Scene::Render()
+{
+	d3dRenderer.BegineDraw();
+
+	for (auto& obj : objectList)
+	{
+		if (obj->Active)
+			obj->Render();
+	}
+
+	d3dRenderer.EndDraw();
 }
 
 

@@ -12,10 +12,16 @@ public:
 	virtual ~Scene();
 
 protected:
-	std::vector<std::unique_ptr<GameObject>> objectList;
+	std::vector<std::shared_ptr<GameObject>> objectList;
 
 private:
+	//Update
 	void FixedUpdate();
 	void Update();
 	void LateUpdate();
+	void UpdateTransform();
+
+	//Render
+	void Render();
+
 };
