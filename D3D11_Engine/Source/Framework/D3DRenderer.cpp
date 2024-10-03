@@ -105,6 +105,8 @@ void D3DRenderer::Init()
 
         pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
+        CreateConstantBuffers<cbuffer_Transform>();
+
     }
     catch (const std::exception& ex)
     {
@@ -122,4 +124,31 @@ void D3DRenderer::Uninit()
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
     SafeRelease(pDevice);
+    
+    for (auto& cbuffer : cbufferList)
+    {
+        SafeRelease(cbuffer);
+    }
+}
+
+void D3DRenderer::BegineDraw()
+{   
+    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
+    pDeviceContext->ClearRenderTargetView(pRenderTargetView, d3dRenderer.backgroundColor);  // 화면 칠하기.  
+    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
+    SetConstBuffer(); //상수 버퍼 바인딩
+}
+
+void D3DRenderer::EndDraw()
+{
+    pSwapChain->Present(0, 0);     // Present the information rendered to the back buffer to the front buffer (the screen)
+}
+
+void D3DRenderer::SetConstBuffer()
+{
+    for (int i = 0; i < cbufferList.size(); i++)
+    {
+        pDeviceContext->VSSetConstantBuffers(i, 1, &cbufferList[0]);
+        pDeviceContext->PSSetConstantBuffers(i, 1, &cbufferList[0]);
+    }
 }
