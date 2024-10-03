@@ -13,22 +13,7 @@ Component::Component()
 
 Component::~Component()
 {
-}
 
-void Component::Start()
-{
-}
-
-void Component::FixedUpdate()
-{
-}
-
-void Component::Update()
-{
-}
-
-void Component::LateUpdate()
-{
 }
 
 GameObject& Component::GetGameObject()

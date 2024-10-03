@@ -8,19 +8,22 @@ class Component
 	friend class GameObject;
 public:
 	Component();
-	~Component();
+	virtual ~Component();
 
 private:
 	void SetOwner(GameObject* gameObject);
 	int index = -1;
 
-protected:
+private:
 	GameObject* _gameObject = nullptr;
 
-	virtual void Start();
-	virtual void FixedUpdate();
-	virtual void Update();
-	virtual void LateUpdate();
+public:
+	virtual void Start() = 0; //초기화 함수는 명시적으로 호출 가능.
+protected:
+	virtual void FixedUpdate() = 0;
+	virtual void Update() = 0;
+	virtual void LateUpdate() = 0;
+	virtual void Render() = 0;
 
 public:
 	bool Enable = true;
