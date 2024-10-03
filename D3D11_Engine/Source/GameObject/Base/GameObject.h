@@ -1,21 +1,30 @@
 #pragma once
 #include <Framework\Transform.h>
 #include <memory>
+#include <string>
+
+#pragma warning( disable : 4267)
 
 class Component;
 class GameObject
 {		 
 	friend class Scene;
 public:
-	GameObject();
+	GameObject(const wchar_t* name);
 	virtual ~GameObject();
 
 private:
 	void FixedUpdate();
 	void Update();
 	void LateUpdate();
+	void Render();
 
+private:
 	std::vector<std::unique_ptr<Component>> componentList;
+
+private:
+	std::wstring name;
+
 public:
 	Transform transform;
 	bool Active = true;
@@ -44,8 +53,9 @@ inline T& GameObject::AddComponent()
 
 	T* nComponent = new T;
 	nComponent->SetOwner(this);
+	nComponent->Start();
+	nComponent->index = componentList.size();
 	componentList.emplace_back(nComponent);	
-	nComponent->index = componentList.size() - 1;
 	return *nComponent;
 }
 
@@ -58,7 +68,7 @@ inline T& GameObject::GetComponent()
 	{
 		if (typeid(*component) == typeid(T))
 		{
-			return *component;
+			return dynamic_cast<T&>(*component);
 		}
 	}
 	__debugbreak(); //예외) 존재하지 않는 컴포넌트
