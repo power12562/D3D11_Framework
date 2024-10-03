@@ -27,7 +27,7 @@ struct ConstantBuffer
 	Vector4 MaterialAmbient;
 	Vector4 MaterialDiffuse;
 	Vector4 MaterialSpecular;
-	float MaterialSpecularPower;
+	float MaterialSpecularPower{};
 	Vector3  MaterialSpecularPad;
 };
 static_assert((sizeof(ConstantBuffer) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
