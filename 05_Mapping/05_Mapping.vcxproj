@@ -146,11 +146,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\LightManager.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
-    <ClCompile Include="Source\StartApp.cpp" />
+    <ClCompile Include="Source\MappingCubeObject.cpp" />
+    <ClCompile Include="Source\MappingTestApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\StartApp.h" />
+    <ClInclude Include="Source\LightManager.h" />
+    <ClInclude Include="Source\MappingCubeObject.h" />
+    <ClInclude Include="Source\MappingTestApp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Bricks059_1K-JPG_Color.jpg" />
+    <Image Include="Bricks059_1K-JPG_NormalDX.jpg" />
+    <Image Include="Bricks059_Specular.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shared.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
