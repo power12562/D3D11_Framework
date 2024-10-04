@@ -121,33 +121,21 @@ Vector3& Transform::SetLocalScale(const Vector3& value)
 
 Vector3 Transform::GetRight()
 {
-	Matrix x = Matrix::CreateRotationX(_rotation.x * Mathf::Deg2Rad);
-	Matrix y = Matrix::CreateRotationX(_rotation.y * Mathf::Deg2Rad);
-	Matrix z = Matrix::CreateRotationX(_rotation.z * Mathf::Deg2Rad);
-
-	_rotationMatrix = z * y * x;
+	_rotationMatrix = _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
 
 	return Vector3{ _rotationMatrix._11, _rotationMatrix._21, _rotationMatrix._31 };
 }
 
 Vector3 Transform::GetUp()
 {
-	Matrix x = Matrix::CreateRotationX(_rotation.x * Mathf::Deg2Rad);
-	Matrix y = Matrix::CreateRotationX(_rotation.y * Mathf::Deg2Rad);
-	Matrix z = Matrix::CreateRotationX(_rotation.z * Mathf::Deg2Rad);
-
-	_rotationMatrix = z * y * x;
+	_rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
 
 	return Vector3{ _rotationMatrix._12, _rotationMatrix._22, _rotationMatrix._32 };
 }
 
 Vector3 Transform::GetFront()
 {
-	Matrix x = Matrix::CreateRotationX(_rotation.x * Mathf::Deg2Rad);
-	Matrix y = Matrix::CreateRotationX(_rotation.y * Mathf::Deg2Rad);
-	Matrix z = Matrix::CreateRotationX(_rotation.z * Mathf::Deg2Rad);
-
-	_rotationMatrix = z * y * x;
+	_rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
 
 	return Vector3{ _rotationMatrix._13, _rotationMatrix._23, _rotationMatrix._33 };
 }
