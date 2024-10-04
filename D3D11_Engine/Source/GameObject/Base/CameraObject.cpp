@@ -2,12 +2,17 @@
 
 CameraObject::CameraObject(const wchar_t* name) : GameObject(name)
 {
-	Camera& cam = AddComponent<Camera>();
+	cam = &AddComponent<Camera>();
 }
 
 CameraObject::~CameraObject()
 {
 
 
+}
+
+void CameraObject::SetMainCamera()
+{
+	cam->SetMainCamera();
 }
 

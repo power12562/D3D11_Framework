@@ -8,4 +8,9 @@ public:
 	CameraObject(const wchar_t* name);
 	virtual ~CameraObject() override;
 
+public:
+	void SetMainCamera();
+	
+private:
+	Camera* cam = nullptr;
 };
