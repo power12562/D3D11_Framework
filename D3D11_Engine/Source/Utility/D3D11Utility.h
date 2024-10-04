@@ -37,3 +37,16 @@ namespace Utility
 	HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView);
 }
+
+struct DRAW_INDEX_DATA
+{
+	ID3D11Buffer* pVertexBuffer = nullptr;				// 버텍스 버퍼.
+	unsigned int vertexBufferStride = 0;					// 버텍스 하나의 크기.
+	unsigned int vertexBufferOffset = 0;					// 버텍스 버퍼의 오프셋.
+	ID3D11Buffer* pIndexBuffer = nullptr;					// 버텍스 버퍼.
+	int indicesCount = 0;										// 인덱스 개수.
+
+	ID3D11VertexShader* pVertexShader = nullptr;	// 정점 셰이더.
+	ID3D11PixelShader*  pPixelShader = nullptr;	// 픽셀 셰이더.	
+	ID3D11InputLayout*  pInputLayout = nullptr;	// 입력 레이아웃.
+};
