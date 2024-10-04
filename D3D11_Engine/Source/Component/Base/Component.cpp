@@ -1,5 +1,6 @@
 #include "Component.h"
 #include <GameObject\Base\GameObject.h>
+#include <_Debug\Console.h>
 
 void Component::SetOwner(GameObject* gameObject)
 {
@@ -13,7 +14,7 @@ Component::Component()
 
 Component::~Component()
 {
-
+	//Debug_printf("ÄÄÆ÷³ÍÆ® ¼Ò¸ê\n");
 }
 
 GameObject& Component::GetGameObject()

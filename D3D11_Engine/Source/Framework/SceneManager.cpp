@@ -13,17 +13,6 @@ SceneManager::~SceneManager()
 
 }
 
-void SceneManager::CheckMainCam()
-{
-	if (Camera::GetMainCamera() == nullptr)
-	{
-		auto mainCamera = new CameraObject(L"MainCamera");
-		mainCamera->SetMainCamera();
-		nextScene->objectList.emplace_back(mainCamera);
-		nextAddQueue.pop();
-	}
-}
-
 void SceneManager::FixedUpdateScene()
 {
 	currScene->FixedUpdate();
@@ -53,7 +42,21 @@ void SceneManager::NextSccene()
 {
 	if (nextScene)
 	{
+		while (!nextAddQueue.empty())
+		{
+			GameObject* obj = nextAddQueue.front();
+			nextScene->objectList.emplace_back(obj);
+			nextAddQueue.pop();
+		}
+		currScene.reset();
 		currScene = std::move(nextScene);
+		if (Camera::GetMainCamera() == nullptr)
+		{
+			auto mainCamera = new CameraObject(L"MainCamera");
+			mainCamera->SetMainCamera();
+			currScene->objectList.emplace_back(mainCamera);
+			currAddQueue.pop();
+		}
 		nextScene = nullptr;
 	}
 }
