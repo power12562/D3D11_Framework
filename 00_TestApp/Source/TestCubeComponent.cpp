@@ -2,6 +2,7 @@
 #include <Framework\SceneManager.h>
 #include <Framework\TimeSystem.h>
 #include <GameObject\Base\CameraObject.h>
+#include <Math/Mathf.h>
 
 using namespace Utility;
 
@@ -130,8 +131,8 @@ void TestCubeComponent::FixedUpdate()
 void TestCubeComponent::Update()
 {
     elapseTime += TimeSystem::Time.DeltaTime;
-    transform.rotation += Vector3(45, 45, 0) * TimeSystem::Time.DeltaTime;
-    transform.localRotation += Vector3(0, 45, 0) * TimeSystem::Time.DeltaTime;
+    transform.rotation = Quaternion::CreateFromYawPitchRoll(transform.rotation.ToEuler() + (Vector3(0, 90, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime));
+    transform.localRotation = Quaternion::CreateFromYawPitchRoll(transform.localRotation.ToEuler() + (Vector3(0, 45, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime));
 }
 
 void TestCubeComponent::LateUpdate()
