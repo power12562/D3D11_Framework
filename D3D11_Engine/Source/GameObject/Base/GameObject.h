@@ -6,6 +6,7 @@
 #pragma warning( disable : 4267)
 
 class Component;
+class RenderComponent;
 class GameObject
 {		 
 	friend class Scene;
@@ -21,7 +22,7 @@ private:
 
 private:
 	std::vector<std::unique_ptr<Component>> componentList;
-
+	std::vector<RenderComponent*> renderList;
 private:
 	std::wstring name;
 
@@ -56,6 +57,10 @@ inline T& GameObject::AddComponent()
 	nComponent->Start();
 	nComponent->index = componentList.size();
 	componentList.emplace_back(nComponent);	
+	if constexpr (std::is_base_of_v<RenderComponent, T>)
+	{
+		renderList.push_back(nComponent);
+	}
 	return *nComponent;
 }
 
