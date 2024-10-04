@@ -19,4 +19,5 @@ protected:
 
 private:
 	DRAW_INDEX_DATA drawData;
+	float elapseTime = 0;;
 };

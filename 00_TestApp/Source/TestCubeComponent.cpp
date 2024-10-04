@@ -1,5 +1,8 @@
 #include "TestCubeComponent.h"
+#include <Framework\SceneManager.h>
 #include <Framework\TimeSystem.h>
+#include <GameObject\Base\CameraObject.h>
+
 using namespace Utility;
 
 TestCubeComponent::TestCubeComponent()
@@ -126,6 +129,7 @@ void TestCubeComponent::FixedUpdate()
 
 void TestCubeComponent::Update()
 {
+    elapseTime += TimeSystem::Time.DeltaTime;
     transform.rotation += Vector3(45, 45, 0) * TimeSystem::Time.DeltaTime;
     transform.localRotation += Vector3(0, 45, 0) * TimeSystem::Time.DeltaTime;
 }
