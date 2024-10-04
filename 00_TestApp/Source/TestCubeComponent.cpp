@@ -1,6 +1,5 @@
 #include "TestCubeComponent.h"
-#include <Framework/D3DRenderer.h>
-
+#include <Framework\TimeSystem.h>
 using namespace Utility;
 
 TestCubeComponent::TestCubeComponent()
@@ -10,11 +9,11 @@ TestCubeComponent::TestCubeComponent()
 
 TestCubeComponent::~TestCubeComponent()
 {
-    SafeRelease(m_pIndexBuffer);
-    SafeRelease(m_pVertexBuffer);
-    SafeRelease(m_pVertexShader);
-    SafeRelease(m_pPixelShader);
-    SafeRelease(m_pInputLayout);
+    SafeRelease(drawData.pIndexBuffer);
+    SafeRelease(drawData.pVertexBuffer);
+    SafeRelease(drawData.pVertexShader);
+    SafeRelease(drawData.pPixelShader);
+    SafeRelease(drawData.pInputLayout);
 }
 
 void TestCubeComponent::Start()
@@ -65,10 +64,10 @@ void TestCubeComponent::Start()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &drawData.pVertexBuffer));
 
-    m_VertexBufferStride = sizeof(Vertex);
-    m_VertexBufferOffset = 0;
+    drawData.vertexBufferStride = sizeof(Vertex);
+    drawData.vertexBufferOffset = 0;
 
     //인덱스 버퍼용 배열
     UINT indices[] =
@@ -82,7 +81,7 @@ void TestCubeComponent::Start()
     };
 
     // 인덱스 개수 저장.
-    m_nIndices = ARRAYSIZE(indices);
+    drawData.indicesCount = ARRAYSIZE(indices);
     bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(UINT) * ARRAYSIZE(indices);
@@ -91,7 +90,7 @@ void TestCubeComponent::Start()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &drawData.pIndexBuffer));
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -103,11 +102,11 @@ void TestCubeComponent::Start()
     ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
     CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
     CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
+        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
 
     //버텍스 셰이더 생성
     CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-        vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
+        vertexShaderBuffer->GetBufferSize(), NULL, &drawData.pVertexShader));
     SafeRelease(vertexShaderBuffer);
 
     // 픽셀 셰이더 컴파일
@@ -116,7 +115,7 @@ void TestCubeComponent::Start()
     // 픽셸 셰이더 생성
     CheackHRESULT(pDevice->CreatePixelShader(
         pixelShaderBuffer->GetBufferPointer(),
-        pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
+        pixelShaderBuffer->GetBufferSize(), NULL, &drawData.pPixelShader));
     SafeRelease(pixelShaderBuffer);
 }
 
@@ -127,7 +126,8 @@ void TestCubeComponent::FixedUpdate()
 
 void TestCubeComponent::Update()
 {
-
+    transform.rotation += Vector3(45, 45, 0) * TimeSystem::Time.DeltaTime;
+    transform.localRotation += Vector3(0, 45, 0) * TimeSystem::Time.DeltaTime;
 }
 
 void TestCubeComponent::LateUpdate()
@@ -137,20 +137,5 @@ void TestCubeComponent::LateUpdate()
 
 void TestCubeComponent::Render()
 {
-    auto pDeviceContext = d3dRenderer.GetDeviceContext();
-
-    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
-    pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertexBufferStride, &m_VertexBufferOffset);
-    pDeviceContext->IASetInputLayout(m_pInputLayout);
-    pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-
-    pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-
-    pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-
-    auto* pRenderTargetView = d3dRenderer.GetRenderTargetView();
-    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, d3dRenderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
-
-    pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
-
+    d3dRenderer.DrawIndex(drawData);
 }

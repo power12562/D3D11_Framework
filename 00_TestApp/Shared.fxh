@@ -4,10 +4,14 @@
 cbuffer cbuffer_Transform : register(b0)
 {
     Matrix World;
-    Matrix View;
-    Matrix Projection;
     Matrix WVP;
 }
+
+cbuffer cbuffer_Camera : register(b1)
+{
+    Matrix View;
+    Matrix Projection;
+};
 
 //--------------------------------------------------------------------------------------
 struct PS_INPUT

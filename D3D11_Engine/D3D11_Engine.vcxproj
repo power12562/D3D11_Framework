@@ -144,11 +144,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Component\Base\Component.h" />
+    <ClInclude Include="Source\Component\Base\RenderComponent.h" />
     <ClInclude Include="Source\Component\Camera.h" />
     <ClInclude Include="Source\Debug\Console.h" />
     <ClInclude Include="Source\Framework\D3D11_GameApp.h" />
     <ClInclude Include="Source\Framework\D3DRenderer.h" />
-    <ClInclude Include="Source\GameObject\CameraObject.h" />
+    <ClInclude Include="Source\GameObject\Base\CameraObject.h" />
     <ClInclude Include="Source\Scene\Base\Scene.h" />
     <ClInclude Include="Source\Framework\SceneManager.h" />
     <ClInclude Include="Source\Framework\TimeSystem.h" />
@@ -161,11 +162,12 @@
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera.cpp" />
     <ClCompile Include="Source\Component\Base\Component.cpp" />
     <ClCompile Include="Source\Framework\D3D11_GameApp.cpp" />
     <ClCompile Include="Source\Framework\D3DRenderer.cpp" />
-    <ClCompile Include="Source\GameObject\CameraObject.cpp" />
+    <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
     <ClCompile Include="Source\Scene\Base\Scene.cpp" />
     <ClCompile Include="Source\Framework\SceneManager.cpp" />
     <ClCompile Include="Source\Framework\TimeSystem.cpp" />
