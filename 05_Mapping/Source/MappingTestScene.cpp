@@ -19,7 +19,7 @@ MappingTestScene::MappingTestScene()
 
 	auto cube1 = new GameObject(L"cube1");
 	cube1->AddComponent<MappingCubeObject>();
-	cube1->transform.position = Vector3{ 0,0,5 };
+	cube1->transform.position = Vector3{ 0,0,3 };
 }
 
 MappingTestScene::~MappingTestScene()
@@ -35,17 +35,20 @@ void MappingTestScene::ImGUIRender()
 
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = LightManager::cb_Light;
+	cbuffer_bool& cb_bool = LightManager::cb_bool;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
-	ImGui::DragFloat3("position", camPos);
+	ImGui::DragFloat3("Cam Position", camPos);
 	mainCam->transform.position = Vector3(camPos);
+	ImGui::DragFloat3("Cam Rotation", camRotation);
+	mainCam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(camRotation) * Mathf::Deg2Rad);
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::Text("");
 	ImGui::Text("Cube");
-	ImGui::DragFloat3("Rotation", cubeRotation);
+	ImGui::DragFloat3("Cube Rotation", cubeRotation);
 	objectList[1]->transform.rotation = Quaternion(Quaternion::CreateFromYawPitchRoll(Vector3(cubeRotation) * Mathf::Deg2Rad));
-	ImGui::SliderFloat("Scale", &cubeScale, 1.0f, 10.0f);
+	ImGui::SliderFloat("Cube Scale", &cubeScale, 1.0f, 10.0f);
 	objectList[1]->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");
 	ImGui::Text("Light");	
@@ -59,13 +62,15 @@ void MappingTestScene::ImGUIRender()
 	cb_Light.LightSpecular = Vector4(LightSpecular);
 	ImGui::Text("");
 	ImGui::Text("Material");
+	ImGui::Checkbox("Use NormalMap", (bool*)& cb_bool.UseNormalMap);
+	ImGui::Checkbox("Use SpecularMap", (bool*)&cb_bool.UseSpecularMap);
 	ImGui::ColorEdit3("MaterialDiffuse", MaterialDiffuse);
 	cb_Light.MaterialDiffuse = Vector4(MaterialDiffuse);
 	ImGui::ColorEdit3("MaterialAmbient", MaterialAmbient);
 	cb_Light.MaterialAmbient = Vector4(MaterialAmbient);
 	ImGui::ColorEdit3("MaterialSpecular", MaterialSpecular);
 	cb_Light.MaterialSpecular = Vector4(MaterialSpecular);
-	ImGui::DragFloat("MaterialSpecularPower", &cb_Light.MaterialSpecularPower, 10, 100, 1000);
+	ImGui::DragFloat("MaterialSpecularPower", &cb_Light.MaterialSpecularPower, 10, 50, 500);
 	ImGui::Text("");
 	ImGui::Text("Background");
 	ImGui::ColorEdit3("BgColor", bgColor);

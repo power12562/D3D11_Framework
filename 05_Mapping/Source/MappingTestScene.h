@@ -10,6 +10,7 @@ public:
 
 private:
 	float camPos[3]{};
+	float camRotation[3]{};
 	
 private:
 	float cubeRotation[3]{};

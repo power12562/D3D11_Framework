@@ -6,14 +6,33 @@
 float4 main(PS_INPUT input) : SV_Target
 {
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    float4 diffuse = saturate(dot(input.Norm, (float3) -LightDir) * LightDiffuse) * txColor;
+    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
+    float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
+    
+    float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
+    if (UseNormalMap)
+    {
+        input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+    }
+    float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * txColor;
     
     float4 ambient = LightAmbient * MaterialAmbient;
     
     float3 View = normalize(CamPos.xyz - input.World);
     float3 HalfVector = normalize(-LightDir.xyz+View);
-    float fHDotN = max(0.0f, dot(HalfVector, input.Norm));
-    float4 specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular;
+    float fHDotN = max(0.0f, dot(HalfVector, input.Normal));
+ 
+    float4 specular;
+    if(UseSpecularMap)
+    {
+        specular = pow(fHDotN, MaterialSpecularPower) * mapSpecular * LightSpecular;
+    }
+    else
+    {
+        specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular;
+    }
     
+    //return float4(input.Normal, 1);
+    //return specular;
     return ambient + diffuse + specular;
 }

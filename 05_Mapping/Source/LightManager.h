@@ -14,14 +14,23 @@ struct cbuffer_Light
     Vector4 MaterialAmbient{ 1, 1, 1, 1 };
     Vector4 MaterialDiffuse{ 1, 1, 1, 1 };
     Vector4 MaterialSpecular{ 1, 1, 1, 1 };
-    float MaterialSpecularPower{ 500 };
+    float MaterialSpecularPower{ 100 };
     Vector3 MaterialSpecularPad;
+};
+
+struct cbuffer_bool
+{
+    bool UseNormalMap = true;
+    bool pad1[3]{};
+    bool UseSpecularMap = true;
+    bool pad2[11]{};
 };
 
 class LightManager : public Component
 {
 public:
     inline static cbuffer_Light cb_Light{};
+    inline static cbuffer_bool cb_bool{};
 public:
     LightManager();
     virtual ~LightManager() override;
