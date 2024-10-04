@@ -9,7 +9,10 @@
 GameObject::GameObject(const wchar_t* name)
 {
 	this->name = name;
-	sceneManager.objectAddQueue.push(this);
+	if (sceneManager.nextScene)
+		sceneManager.nextAddQueue.push(this);
+	else
+		sceneManager.currAddQueue.push(this);
 }
 
 GameObject::~GameObject()

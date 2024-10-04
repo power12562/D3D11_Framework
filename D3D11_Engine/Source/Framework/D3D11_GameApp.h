@@ -1,6 +1,9 @@
 #pragma once
 #include <Framework\WinGameApp.h>
 
+#pragma comment (lib, "d3d11.lib")
+#pragma comment(lib,"d3dcompiler.lib")
+
 class D3D11_GameApp : public WinGameApp
 {
 public:

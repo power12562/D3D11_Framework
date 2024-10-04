@@ -20,7 +20,8 @@ private:
 	std::unique_ptr<Scene> currScene;
 	std::unique_ptr<Scene> nextScene;
 
-	std::queue<GameObject*> objectAddQueue; //게임 오브젝트 추가 대기열
+	std::queue<GameObject*> currAddQueue; //게임 오브젝트 추가 대기열
+	std::queue<GameObject*>	nextAddQueue; //게임 오브젝트 추가 대기열
 public:
 	template <typename T>
 	void LoadScene();

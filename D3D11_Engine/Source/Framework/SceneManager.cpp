@@ -41,18 +41,25 @@ void SceneManager::NextSccene()
 {
 	if (nextScene)
 	{
+		while (!nextAddQueue.empty())
+		{
+			GameObject* obj = nextAddQueue.front();
+			nextScene->objectList.emplace_back(obj);
+			nextAddQueue.pop();
+		}
 		currScene = std::move(nextScene);
+		nextScene = nullptr;
 	}
 }
 
 void SceneManager::AddObjects()
 {
-	while (!objectAddQueue.empty())
+	while (!currAddQueue.empty())
 	{
-		GameObject* obj = objectAddQueue.front();
+		GameObject* obj = currAddQueue.front();
 		currScene->objectList.emplace_back(obj);
-		objectAddQueue.pop();
+		currAddQueue.pop();
 	}
 }
-
+						
 
