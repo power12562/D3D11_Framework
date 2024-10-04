@@ -1,5 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
+#include <Framework\D3DRenderer.h>
 
 class RenderComponent : public Component
 {
