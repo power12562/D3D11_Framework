@@ -30,6 +30,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "00_TestApp", "00_TestApp\00
 		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "05_Project", "ProjectBase\Project.vcxproj", "{37FEA58C-1AAE-4FDB-B138-CC0A14422962}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -86,6 +88,14 @@ Global
 		{CD998E2E-616E-4E5B-9395-5ECFEE48D93C}.Release|x64.Build.0 = Release|x64
 		{CD998E2E-616E-4E5B-9395-5ECFEE48D93C}.Release|x86.ActiveCfg = Release|Win32
 		{CD998E2E-616E-4E5B-9395-5ECFEE48D93C}.Release|x86.Build.0 = Release|Win32
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Debug|x64.ActiveCfg = Debug|x64
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Debug|x64.Build.0 = Debug|x64
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Debug|x86.ActiveCfg = Debug|Win32
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Debug|x86.Build.0 = Debug|Win32
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Release|x64.ActiveCfg = Release|x64
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Release|x64.Build.0 = Release|x64
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Release|x86.ActiveCfg = Release|Win32
+		{37FEA58C-1AAE-4FDB-B138-CC0A14422962}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
