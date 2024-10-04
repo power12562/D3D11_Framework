@@ -72,8 +72,9 @@ public:
 
 public:
 	void DrawIndex(DRAW_INDEX_DATA& data);
+
 public:
-	float backgroundColor[4]{ 0,0,0,1 };
+	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
 
 private:
 	ID3D11Device*			 pDevice;			  // 디바이스	
