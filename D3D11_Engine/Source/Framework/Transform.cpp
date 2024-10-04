@@ -46,11 +46,6 @@ Vector3& Transform::SetRotation(const Vector3& value)
 	if (parent)
 	{
 		_rotation = value;
-		Matrix childRotationMatrix = Matrix::CreateFromYawPitchRoll(
-			_rotation.y * Mathf::Deg2Rad,
-			_rotation.x * Mathf::Deg2Rad,
-			_rotation.z * Mathf::Deg2Rad);
-
 		Transform* rootParent = parent;
 		while (rootParent->parent != nullptr)
 		{
@@ -58,9 +53,8 @@ Vector3& Transform::SetRotation(const Vector3& value)
 		}
 		rootParent->UpdateTransform();
 
-		// 부모의 역회전을 자식의 월드 회전에 적용하여 로컬 회전을 계산
-		Matrix localRotationMatrix = childRotationMatrix * parent->_WM.Invert();
-
+		// 부모의 역메트릭스을 자식의 메트릭스에 적용하여 로컬 회전을 계산
+		Matrix localRotationMatrix = _WM * parent->_WM.Invert();
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		localRotationMatrix.Decompose(scale, quaternion, translation); 	
@@ -78,11 +72,6 @@ Vector3& Transform::SetLocalRotation(const Vector3& value)
 	if (parent)
 	{
 		_localRotation = value;
-		Matrix childRotationMatrix = Matrix::CreateFromYawPitchRoll(
-			_localRotation.y * Mathf::Deg2Rad,
-			_localRotation.x * Mathf::Deg2Rad,
-			_localRotation.z * Mathf::Deg2Rad);
-
 		Transform* rootParent = parent;
 		while (rootParent->parent != nullptr)
 		{
@@ -90,12 +79,9 @@ Vector3& Transform::SetLocalRotation(const Vector3& value)
 		}
 		rootParent->UpdateTransform();
 
-		// 부모의 행렬로 자신의 월드 회전 행렬을 계산
-		Matrix worldRotationMatrix = parent->_WM * childRotationMatrix;
-
 		Vector3 scale, translation;
 		Quaternion quaternion;
-		worldRotationMatrix.Decompose(scale, quaternion, translation);
+		_WM.Decompose(scale, quaternion, translation);
 		_rotation = quaternion.ToEuler() * Mathf::Rad2Deg;
 	}
 	else
