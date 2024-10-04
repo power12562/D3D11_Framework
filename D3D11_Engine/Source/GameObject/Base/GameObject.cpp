@@ -1,6 +1,8 @@
 #include "GameObject.h"	   
 #include <_Debug/Console.h>
+
 #include <Component/Camera.h>
+#include <Component\Base\RenderComponent.h>
 #include <Framework/D3DRenderer.h>
 #include <Framework/SceneManager.h>
 
@@ -44,14 +46,12 @@ void GameObject::LateUpdate()
 
 void GameObject::Render()
 {
-	cbuffer_Transform cb_T;
-	cb_T.World = XMMatrixTranspose(transform.GetWM());
-	cb_T.View = XMMatrixTranspose(Camera::GetMainCamera()->GetVM());
-	cb_T.Projection = XMMatrixTranspose(Camera::GetMainCamera()->GetPM());
-	cb_T.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-	d3dRenderer.UpdateConstBuffer(cb_T);
+	cbuffer_Transform cb_Transform;
+	cb_Transform.World = XMMatrixTranspose(transform.GetWM());
+	cb_Transform.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
 
-	for (auto& component : componentList)
+	d3dRenderer.UpdateConstBuffer(cb_Transform);
+	for (auto& component : renderList)
 	{
 		if (component->Enable)
 			component->Render();
