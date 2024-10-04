@@ -23,7 +23,6 @@ protected:
 	virtual void FixedUpdate() = 0;
 	virtual void Update() = 0;
 	virtual void LateUpdate() = 0;
-	virtual void Render() = 0;
 
 public:
 	bool Enable = true;

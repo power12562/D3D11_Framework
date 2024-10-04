@@ -53,9 +53,5 @@ void Camera::LateUpdate()
 
 }
 
-void Camera::Render()
-{
-
-}
 
 
