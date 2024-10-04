@@ -18,11 +18,6 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
-	if (Camera::GetMainCamera() == nullptr)
-	{
-		auto mainCamera = new CameraObject(L"MainCamera");
-		mainCamera->SetMainCamera();
-	}
 	sceneManager.LoadScene<Scene>(); //ºó ¾À ·Îµå
 	sceneManager.NextSccene();
 	sceneManager.AddObjects();

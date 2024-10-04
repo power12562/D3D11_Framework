@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <GameObject\Base\CameraObject.h>
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 
@@ -10,6 +11,17 @@ SceneManager::SceneManager()
 SceneManager::~SceneManager()
 {
 
+}
+
+void SceneManager::CheckMainCam()
+{
+	if (Camera::GetMainCamera() == nullptr)
+	{
+		auto mainCamera = new CameraObject(L"MainCamera");
+		mainCamera->SetMainCamera();
+		nextScene->objectList.emplace_back(mainCamera);
+		nextAddQueue.pop();
+	}
 }
 
 void SceneManager::FixedUpdateScene()
@@ -41,12 +53,6 @@ void SceneManager::NextSccene()
 {
 	if (nextScene)
 	{
-		while (!nextAddQueue.empty())
-		{
-			GameObject* obj = nextAddQueue.front();
-			nextScene->objectList.emplace_back(obj);
-			nextAddQueue.pop();
-		}
 		currScene = std::move(nextScene);
 		nextScene = nullptr;
 	}

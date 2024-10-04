@@ -27,6 +27,9 @@ public:
 	void LoadScene();
 
 private:
+	void CheckMainCam(); //씬 생성이후 메인카메라가 존재하지 않으면 생성해주는 함수.
+
+private:
 	//Update
 	void FixedUpdateScene();
 	void UpdateScene();
@@ -40,9 +43,17 @@ private:
 	
 };
 
+
 template<typename T>
 inline void SceneManager::LoadScene()
 {
 	static_assert(std::is_base_of_v<Scene, T>, "T is not Scene");
 	nextScene.reset(new T);
+	while (!nextAddQueue.empty())
+	{
+		GameObject* obj = nextAddQueue.front();
+		nextScene->objectList.emplace_back(obj);
+		nextAddQueue.pop();
+	}
+	CheckMainCam();
 }
