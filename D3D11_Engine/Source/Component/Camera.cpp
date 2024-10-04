@@ -12,7 +12,10 @@ Camera::Camera()
 
 Camera::~Camera()
 {
-
+	if (this == mainCam)
+	{
+		mainCam = nullptr;
+	}
 }
 
 const Matrix& Camera::GetVM() const
