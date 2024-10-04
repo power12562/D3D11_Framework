@@ -143,7 +143,6 @@ void D3DRenderer::BegineDraw()
     cb.View = Camera::GetMainCamera()->GetVM();
 
     UpdateConstBuffer(cb); //카메라 버퍼 바인딩
-    SetConstBuffer(); //상수 버퍼 바인딩
 }
 
 void D3DRenderer::EndDraw()
@@ -153,6 +152,8 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data)
 {
+    SetConstBuffer(); // 상수 버퍼 바인딩.
+
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
     pDeviceContext->IASetInputLayout(data.pInputLayout);

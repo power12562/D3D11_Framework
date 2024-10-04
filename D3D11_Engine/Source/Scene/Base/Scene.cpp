@@ -60,7 +60,6 @@ void Scene::Render()
 		if (obj->Active)
 			obj->Render();
 	}
-
 	if (UseImGUI) 
 	{
 		ImGUIBegineDraw();

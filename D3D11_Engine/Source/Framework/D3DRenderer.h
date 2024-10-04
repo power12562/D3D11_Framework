@@ -13,6 +13,7 @@ extern D3DRenderer& d3dRenderer;
 struct cbuffer_Transform
 {
 	DirectX::SimpleMath::Matrix World;
+	DirectX::SimpleMath::Matrix WorldInverseTranspose;
 	DirectX::SimpleMath::Matrix WVP;
 };
 
@@ -28,8 +29,9 @@ struct cbuffer_Camera
 cbuffer cbuffer_Transform : register(b0)
 {
 	Matrix World;
+	Matrix WorldInverseTranspose;
 	Matrix WVP;
-}
+};
 
 cbuffer cbuffer_Camera : register(b1)
 {

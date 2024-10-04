@@ -51,6 +51,7 @@ void GameObject::Render()
 {
 	cbuffer_Transform cb_Transform;
 	cb_Transform.World = XMMatrixTranspose(transform.GetWM());
+	cb_Transform.WorldInverseTranspose = XMMatrixInverse(nullptr,transform.GetWM());
 	cb_Transform.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
 
 	d3dRenderer.UpdateConstBuffer(cb_Transform);
