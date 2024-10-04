@@ -13,19 +13,30 @@ extern D3DRenderer& d3dRenderer;
 struct cbuffer_Transform
 {
 	DirectX::SimpleMath::Matrix World;
-	DirectX::SimpleMath::Matrix View;
-	DirectX::SimpleMath::Matrix Projection;
 	DirectX::SimpleMath::Matrix WVP;
 };
 
+/* b1 레지스터는 Camera 버퍼로 고정 사용.*/
+struct cbuffer_Camera
+{
+	DirectX::SimpleMath::Matrix View;
+	DirectX::SimpleMath::Matrix Projection;
+};
+
 /*copy to fxh file
+
 cbuffer cbuffer_Transform : register(b0)
 {
 	Matrix World;
-	Matrix View;
-	Matrix Projection;
 	Matrix WVP;
 }
+
+cbuffer cbuffer_Camera : register(b1)
+{
+	Matrix View;
+	Matrix Projection;
+};
+
 */
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -60,6 +71,8 @@ public:
 	void EndDraw();
 
 public:
+	void DrawIndex(DRAW_INDEX_DATA& data);
+public:
 	float backgroundColor[4]{ 0,0,0,1 };
 
 private:
@@ -88,14 +101,6 @@ inline void D3DRenderer::CreateConstantBuffers()
 		return;
 	}
 
-	D3D11_BUFFER_DESC bufferDesc;
-	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-
-	bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-	bufferDesc.ByteWidth = sizeof(T);  // 상수 버퍼 크기
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
 	//상수 버퍼 생성
 	std::string key = typeid(T).name();
 	size_t temp = key.find(" ");
@@ -106,6 +111,19 @@ inline void D3DRenderer::CreateConstantBuffers()
 		__debugbreak(); //키값 이상함.
 		return;
 	}
+
+	if (cbufferMap.find(key) != cbufferMap.end())
+	{
+		__debugbreak(); //이미 존재하는 키값.
+		return;
+	}
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+	bufferDesc.ByteWidth = sizeof(T);  // 상수 버퍼 크기
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		
 	cbufferMap[key] = (int)cbufferList.size();
 	ID3D11Buffer* cBufferTemp{};

@@ -1,5 +1,5 @@
 #include "D3DRenderer.h"
-
+#include <Component\Camera.h>
 #include <Framework\WinGameApp.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
@@ -106,7 +106,7 @@ void D3DRenderer::Init()
         pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
         CreateConstantBuffers<cbuffer_Transform>();
-
+        CreateConstantBuffers<cbuffer_Camera>();
     }
     catch (const std::exception& ex)
     {
@@ -136,12 +136,32 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, d3dRenderer.backgroundColor);  // 화면 칠하기.  
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
+    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, d3dRenderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
+
+    cbuffer_Camera cb;
+    cb.Projection = Camera::GetMainCamera()->GetPM();
+    cb.View = Camera::GetMainCamera()->GetVM();
+    UpdateConstBuffer(cb); //카메라 버퍼 바인딩
     SetConstBuffer(); //상수 버퍼 바인딩
 }
 
 void D3DRenderer::EndDraw()
 {
     pSwapChain->Present(0, 0);     // Present the information rendered to the back buffer to the front buffer (the screen)
+}
+
+void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data)
+{
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
+    pDeviceContext->IASetInputLayout(data.pInputLayout);
+    pDeviceContext->IASetIndexBuffer(data.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+
+    pDeviceContext->VSSetShader(data.pVertexShader, nullptr, 0);
+
+    pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
+
+    pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
 }
 
 void D3DRenderer::SetConstBuffer()
