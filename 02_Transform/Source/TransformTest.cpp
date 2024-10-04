@@ -141,7 +141,6 @@ bool TransformTest::InitD3D()
         SafeRelease(textureDepthStencil);
 
         pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
     }
     catch (const std::exception& ex)
     {
@@ -149,6 +148,7 @@ bool TransformTest::InitD3D()
         assert(!"D3D Init Error");
         return false;
     }
+    InitImGUI();
     return true;
 }
 
@@ -232,27 +232,21 @@ void TransformTest::UninitScene()
     SafeRelease(m_pConstantBuffer);
 }
 
-bool TransformTest::InitImGUI()
+void TransformTest::InitImGUI()
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    if (pDevice && pDeviceContext)
+    {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsLight();
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplWin32_Init(GetHWND());
-    ImGui_ImplDX11_Init(this->pDevice, this->pDeviceContext);
-
-    return true;
-}
-
-void TransformTest::UninitImGUI()
-{
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+        // Setup Platform/Renderer backends
+        ImGui_ImplWin32_Init(GetHWND());
+        ImGui_ImplDX11_Init(pDevice, pDeviceContext);
+    }
 }
 
 void TransformTest::Start()
@@ -295,9 +289,9 @@ void TransformTest::Update()
     objList[1]->transform->localPosition = { mesh2_pos[0], mesh2_pos[1], mesh2_pos[2] };
     objList[2]->transform->localPosition = { mesh3_pos[0], mesh3_pos[1], mesh3_pos[2] };
 
-    objList[0]->transform->rotation += Vector3::Up * rotation_speed_1 * Time.DeltaTime;
-    objList[1]->transform->rotation += Vector3::Up * rotation_speed_2 * Time.DeltaTime;
-    objList[2]->transform->rotation += Vector3::Up * rotation_speed_3 * Time.DeltaTime;
+    objList[0]->transform->rotation = Quaternion::CreateFromYawPitchRoll(objList[0]->transform->rotation.ToEuler() + (Vector3::Up * rotation_speed_1 * Time.DeltaTime * Mathf::Deg2Rad));
+    objList[1]->transform->rotation = Quaternion::CreateFromYawPitchRoll(objList[1]->transform->rotation.ToEuler() + (Vector3::Up * rotation_speed_2 * Time.DeltaTime * Mathf::Deg2Rad));
+    objList[2]->transform->rotation = Quaternion::CreateFromYawPitchRoll(objList[2]->transform->rotation.ToEuler() + (Vector3::Up * rotation_speed_3 * Time.DeltaTime * Mathf::Deg2Rad));
 
     for (auto item : objList)
     {
@@ -337,17 +331,9 @@ void TransformTest::ImGUIRender()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
-        ImGui::Begin("Debug");                          // Create a window called "Hello, world!" and append into it.
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        ImGui::Begin("Debug");                      
 
         ImGui::Text("Mesh1");
         ImGui::DragFloat3("mesh1_position", mesh1_pos);

@@ -10,9 +10,6 @@ public:
 	void InitScene();
 	void UninitScene();
 
-	void InitImGUI();
-	void UninitImGUI();
-
 protected:
 	virtual void Start() override;
 	virtual void Update() override;

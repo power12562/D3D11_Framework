@@ -7,13 +7,12 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
 
     TransformTest app;
     app.Initialize(hInst);
-    if(app.InitD3D() && app.InitScene() && app.InitImGUI())
+    if(app.InitD3D() && app.InitScene())
     {
         app.Run();
     }
     app.UninitD3D();
     app.UninitScene();
-    app.UninitImGUI();
     app.Uninitialize();
     return 0;
 }

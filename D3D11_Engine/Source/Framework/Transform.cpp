@@ -41,7 +41,7 @@ Vector3& Transform::SetLocalPosition(const Vector3& value)
 	return _localPosition;
 }
 
-Vector3& Transform::SetRotation(const Vector3& value)
+Quaternion& Transform::SetRotation(const Quaternion& value)
 {
 	if (parent)
 	{
@@ -58,7 +58,7 @@ Vector3& Transform::SetRotation(const Vector3& value)
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		localRotationMatrix.Decompose(scale, quaternion, translation); 	
-		_localRotation = quaternion.ToEuler() * Mathf::Rad2Deg;
+		_localRotation;
 	}
 	else
 	{
@@ -67,7 +67,7 @@ Vector3& Transform::SetRotation(const Vector3& value)
 	return _rotation;
 }
 
-Vector3& Transform::SetLocalRotation(const Vector3& value)
+Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 {
 	if (parent)
 	{
@@ -82,7 +82,7 @@ Vector3& Transform::SetLocalRotation(const Vector3& value)
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		_WM.Decompose(scale, quaternion, translation);
-		_rotation = quaternion.ToEuler() * Mathf::Rad2Deg;
+		_rotation = quaternion;
 	}
 	else
 	{
@@ -200,7 +200,7 @@ void Transform::UpdateTransform()
 	if (parent == nullptr)
 	{
 		_WM = DirectX::XMMatrixScalingFromVector(scale) *
-			DirectX::XMMatrixRotationRollPitchYawFromVector(rotation * Mathf::Deg2Rad) *
+			DirectX::XMMatrixRotationQuaternion(rotation) *
 			DirectX::XMMatrixTranslationFromVector(position);
 		UpdateChildTransform();
 	}
@@ -213,7 +213,7 @@ void Transform::UpdateChildTransform()
 		for (auto child : childList)
 		{		
 			child->_LM = DirectX::XMMatrixScalingFromVector(child->localScale) *
-				DirectX::XMMatrixRotationRollPitchYawFromVector(child->localRotation * Mathf::Deg2Rad) *
+				DirectX::XMMatrixRotationQuaternion(child->localRotation) *
 				DirectX::XMMatrixTranslationFromVector(child->localPosition);
 			child->_WM = child->_LM *_WM;
 			child->UpdateChildTransform();

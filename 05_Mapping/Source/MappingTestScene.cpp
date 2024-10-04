@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
+#include <Math/Mathf.h>
 
 #include "../Source/LightManager.h"
 #include "../Source/MappingCubeObject.h"
@@ -43,7 +44,7 @@ void MappingTestScene::ImGUIRender()
 	ImGui::Text("");
 	ImGui::Text("Cube");
 	ImGui::DragFloat3("Rotation", cubeRotation);
-	objectList[1]->transform.rotation = Vector3(cubeRotation);
+	objectList[1]->transform.rotation = Quaternion(Quaternion::CreateFromYawPitchRoll(Vector3(cubeRotation) * Mathf::Deg2Rad));
 	ImGui::SliderFloat("Scale", &cubeScale, 1.0f, 10.0f);
 	objectList[1]->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");

@@ -8,9 +8,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     ShadeTestApp app;
     app.Initialize(hInst);
     app.InitScene();
-    app.InitImGUI();
     app.Run();
-    app.UninitImGUI();
     app.UninitScene();
     app.Uninitialize();
 

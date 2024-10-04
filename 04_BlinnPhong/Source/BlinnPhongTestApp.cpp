@@ -127,27 +127,6 @@ void BlinnPhongTestApp::UninitScene()
     SafeDelete(m_cubeObject);
 }
 
-void BlinnPhongTestApp::InitImGUI()
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplWin32_Init(GetHWND());
-    ImGui_ImplDX11_Init(d3dRenderer.GetDevice(), d3dRenderer.GetDeviceContext());
-}
-
-void BlinnPhongTestApp::UninitImGUI()
-{
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-}
-
 void BlinnPhongTestApp::Start()
 {
 
@@ -163,7 +142,7 @@ void BlinnPhongTestApp::Update()
     SIZE size = GetClientSize();
     SimpleShadeObject::mProjection = XMMatrixPerspectiveFovLH(global::camFOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, 0.01f, 100.0f);
 
-    m_cubeObject->transform->rotation = Vector3(global::cubeRotation);
+    m_cubeObject->transform->rotation = Quaternion::CreateFromYawPitchRoll(Vector3(global::cubeRotation) * Mathf::Deg2Rad);
     m_cubeObject->Update();
 }
 

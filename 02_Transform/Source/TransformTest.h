@@ -15,8 +15,7 @@ public:
 	bool InitScene();
 	void UninitScene();
 
-	bool InitImGUI();
-	void UninitImGUI();
+	virtual void InitImGUI() override;
 public:
 	// 렌더링 파이프라인을 구성하는 필수 객체의 인터페이스(뎊스 스텐실 뷰도 있지만 아직 사용하지 않는다.)
 	inline static struct ID3D11Device* pDevice = nullptr;						// 디바이스	
