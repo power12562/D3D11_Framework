@@ -12,6 +12,16 @@ public:
 	virtual ~Scene();
 
 protected:
+	virtual void ImGUIRender() {}
+
+private:
+	void ImGUIBegineDraw();
+	void ImGUIEndDraw();
+
+public:
+	bool UseImGUI = false;
+
+protected:
 	std::vector<std::shared_ptr<GameObject>> objectList;
 
 private:

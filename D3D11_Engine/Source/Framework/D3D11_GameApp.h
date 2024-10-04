@@ -17,5 +17,4 @@ private:
 
 private:
 	float fixedElapsedTime = 0;
-
 };

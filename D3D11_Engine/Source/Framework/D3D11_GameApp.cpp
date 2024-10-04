@@ -1,14 +1,36 @@
 #include "D3D11_GameApp.h"
 #include <Framework\SceneManager.h>
 #include <Framework\TimeSystem.h>
+#include <Framework/D3DRenderer.h>
 #include <GameObject\Base\CameraObject.h>
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
+	switch (message)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
+}
+
 D3D11_GameApp::D3D11_GameApp()
 {
-
+	this->customWndProc = ImGUIWndProcDefault;
 }
 
 D3D11_GameApp::~D3D11_GameApp()
@@ -18,7 +40,8 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
-	sceneManager.LoadScene<Scene>(); //ºó ¾À ·Îµå
+	if (sceneManager.nextScene == nullptr)
+		sceneManager.LoadScene<Scene>(); //ºó ¾À ·Îµå
 	sceneManager.NextSccene();
 	sceneManager.AddObjects();
 }

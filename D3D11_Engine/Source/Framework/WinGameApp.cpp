@@ -6,6 +6,11 @@
 #include <cstdio>
 #include <clocale>
 
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
+
+
 LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void WinGameApp::Initialize(HINSTANCE hinstance)
@@ -23,6 +28,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 #endif // _DEBUG
 	WinInit();
 	d3dRenderer.Init();
+	InitImGUI();
 }
 
 void WinGameApp::Run()
@@ -62,6 +68,7 @@ void WinGameApp::Uninitialize()
 	FreeConsole();
 #endif // _DEBUG
 	d3dRenderer.Uninit();
+	UninitImGUI();
 }
 
 void WinGameApp::WinToScreenCenter(HWND hwnd)
@@ -165,6 +172,27 @@ bool WinGameApp::WinInit()
 #endif // _DEBUG
 
 	return true;
+}
+
+void WinGameApp::InitImGUI()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplWin32_Init(GetHWND());
+	ImGui_ImplDX11_Init(d3dRenderer.GetDevice(), d3dRenderer.GetDeviceContext());
+}
+
+void WinGameApp::UninitImGUI()
+{
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 //

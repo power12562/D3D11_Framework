@@ -56,6 +56,12 @@ private:
 private:
 	bool WinInit();
 
+protected:
+	virtual void InitImGUI();
+
+private:
+	void UninitImGUI();
+
 private:
 	inline static SIZE size{};
 	inline static HINSTANCE hInstance{};

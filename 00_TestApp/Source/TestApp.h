@@ -6,8 +6,4 @@ class TestApp : public D3D11_GameApp
 public:
 	TestApp();
 	~TestApp();
-
-protected:
-	
-
 };

@@ -150,11 +150,13 @@
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\MappingCubeObject.cpp" />
     <ClCompile Include="Source\MappingTestApp.cpp" />
+    <ClCompile Include="Source\MappingTestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\LightManager.h" />
     <ClInclude Include="Source\MappingCubeObject.h" />
     <ClInclude Include="Source\MappingTestApp.h" />
+    <ClInclude Include="Source\MappingTestScene.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Bricks059_1K-JPG_Color.jpg" />
