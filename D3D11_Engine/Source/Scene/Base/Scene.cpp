@@ -20,8 +20,9 @@ void Scene::FixedUpdate()
 {
 	for (auto& obj : objectList)
 	{
-		if (obj->Active)
-			obj->FixedUpdate();
+		if (obj)
+			if (obj->Active)
+				obj->FixedUpdate();
 	}
 }
 
@@ -29,8 +30,9 @@ void Scene::Update()
 {
 	for (auto& obj : objectList)
 	{
-		if (obj->Active)
-			obj->Update();
+		if (obj)
+			if (obj->Active)
+				obj->Update();
 	}
 }
 
@@ -38,8 +40,9 @@ void Scene::LateUpdate()
 {
 	for (auto& obj : objectList)
 	{
-		if (obj->Active)
-			obj->LateUpdate();
+		if (obj)
+			if (obj->Active)
+				obj->LateUpdate();
 	}
 }
 
@@ -47,8 +50,9 @@ void Scene::UpdateTransform()
 {
 	for (auto& obj : objectList)
 	{
-		if (obj->Active)
-			obj->transform.UpdateTransform();
+		if (obj)
+			if (obj->Active)
+				obj->transform.UpdateTransform();
 	}
 }
 
@@ -57,8 +61,9 @@ void Scene::Render()
 	d3dRenderer.BegineDraw();	
 	for (auto& obj : objectList)
 	{
-		if (obj->Active)
-			obj->Render();
+		if (obj)
+			if (obj->Active)
+				obj->Render();
 	}
 	if (UseImGUI) 
 	{
