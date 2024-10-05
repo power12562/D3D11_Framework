@@ -159,6 +159,7 @@ void TransformTest::UninitD3D()
     SafeRelease(pDeviceContext);
     SafeRelease(pSwapChain);
     SafeRelease(pRenderTargetView);
+    SafeRelease(pDepthStencilView);
 }
 
 bool TransformTest::InitScene()
