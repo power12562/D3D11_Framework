@@ -13,7 +13,7 @@ Transform::~Transform()
 	ClearParent();
 }
 
-Vector3& Transform::SetPosition(const Vector3& value)
+const Vector3& Transform::SetPosition(const Vector3& value)
 {
 	if (parent)
 	{
@@ -27,7 +27,7 @@ Vector3& Transform::SetPosition(const Vector3& value)
 	return _position;
 }
 
-Vector3& Transform::SetLocalPosition(const Vector3& value)
+const Vector3& Transform::SetLocalPosition(const Vector3& value)
 {
 	if (parent)
 	{
@@ -41,7 +41,7 @@ Vector3& Transform::SetLocalPosition(const Vector3& value)
 	return _localPosition;
 }
 
-Quaternion& Transform::SetRotation(const Quaternion& value)
+const Quaternion& Transform::SetRotation(const Quaternion& value)
 {
 	if (parent)
 	{
@@ -67,7 +67,7 @@ Quaternion& Transform::SetRotation(const Quaternion& value)
 	return _rotation;
 }
 
-Quaternion& Transform::SetLocalRotation(const Quaternion& value)
+const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 {
 	if (parent)
 	{
@@ -91,7 +91,7 @@ Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 	return _localRotation;
 }
 
-Vector3& Transform::SetScale(const Vector3& value)
+const Vector3& Transform::SetScale(const Vector3& value)
 {
 	if (parent)
 	{
@@ -105,7 +105,7 @@ Vector3& Transform::SetScale(const Vector3& value)
 	return _scale;
 }
 
-Vector3& Transform::SetLocalScale(const Vector3& value)
+const Vector3& Transform::SetLocalScale(const Vector3& value)
 {
 	if (parent)
 	{

@@ -10,27 +10,27 @@ public:
 	~Transform();
 	
 public:
-	Vector3& SetPosition(const Vector3& value);
+	const Vector3& SetPosition(const Vector3& value);
 	const Vector3& GetPosition() const { return _position; }
 	__declspec(property(get = GetPosition, put = SetPosition)) const Vector3& position;
 
-	Vector3& SetLocalPosition(const Vector3& value);
+	const Vector3& SetLocalPosition(const Vector3& value);
 	const Vector3& GetLocalPosition() const { return _localPosition; }
 	__declspec(property(get = GetLocalPosition, put = SetLocalPosition)) const Vector3& localPosition;
 						   
-	Quaternion& SetRotation(const Quaternion& value);
+	const Quaternion& SetRotation(const Quaternion& value);
 	const Quaternion& GetRotation() const { return _rotation; }
 	__declspec(property(get = GetRotation, put = SetRotation)) const Quaternion& rotation;
 
-	Quaternion& SetLocalRotation(const Quaternion& value);
+	const Quaternion& SetLocalRotation(const Quaternion& value);
 	const Quaternion& GetLocalRotation() const { return _localRotation; }
 	__declspec(property(get = GetLocalRotation, put = SetLocalRotation)) const Quaternion& localRotation;
 
-	Vector3& SetScale(const Vector3& value);
+	const Vector3& SetScale(const Vector3& value);
 	const Vector3& GetScale() const { return _scale; }
 	__declspec(property(get = GetScale, put = SetScale)) const Vector3& scale;
 
-	Vector3& SetLocalScale(const Vector3& value);
+	const Vector3& SetLocalScale(const Vector3& value);
 	const Vector3& GetLocalScale() const { return _localScale; }
 	__declspec(property(get = GetLocalScale, put = SetLocalScale)) const Vector3& localScale;
 
