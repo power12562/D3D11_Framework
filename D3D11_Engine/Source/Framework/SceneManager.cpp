@@ -45,7 +45,7 @@ void SceneManager::NextSccene()
 		while (!nextAddQueue.empty())
 		{
 			GameObject* obj = nextAddQueue.front();
-			nextScene->objectList.emplace_back(obj);
+			AddObjectNextScene(obj);
 			nextAddQueue.pop();
 		}
 		currScene.reset();
@@ -54,10 +54,43 @@ void SceneManager::NextSccene()
 		{
 			auto mainCamera = new CameraObject(L"MainCamera");
 			mainCamera->SetMainCamera();
-			currScene->objectList.emplace_back(mainCamera);
+			AddObjectCurrScene(mainCamera);
 			currAddQueue.pop();
 		}
-		nextScene = nullptr;
+	}
+}
+
+void SceneManager::AddObjectCurrScene(GameObject* obj)
+{
+	currScene->objectFindMap[obj->Name][obj->GetInstanceID()] = (int)currScene->objectList.size();
+	currScene->objectList.emplace_back(obj);
+}
+
+void SceneManager::AddObjectNextScene(GameObject* obj)
+{
+	nextScene->objectFindMap[obj->Name][obj->GetInstanceID()] = (int)nextScene->objectList.size();
+	nextScene->objectList.emplace_back(obj);
+}
+
+void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName)
+{
+	if (nextScene)
+	{
+		auto pervNameIter = nextScene->objectFindMap.find(_pervName);
+		if (pervNameIter == nextScene->objectFindMap.end())
+			return;
+		
+		nextScene->objectFindMap[_newName][instanceID] = pervNameIter->second[instanceID];
+		nextScene->objectFindMap[_pervName].erase(instanceID);
+	}
+	else if(currScene)
+	{
+		auto pervNameIter = currScene->objectFindMap.find(_pervName);
+		if(pervNameIter == currScene->objectFindMap.end())
+			return;
+
+		currScene->objectFindMap[_newName][instanceID] = pervNameIter->second[instanceID];
+		currScene->objectFindMap[_pervName].erase(instanceID);
 	}
 }
 
@@ -66,7 +99,7 @@ void SceneManager::AddObjects()
 	while (!currAddQueue.empty())
 	{
 		GameObject* obj = currAddQueue.front();
-		currScene->objectList.emplace_back(obj);
+		AddObjectCurrScene(obj);
 		currAddQueue.pop();
 	}
 }

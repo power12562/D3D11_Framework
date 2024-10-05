@@ -13,6 +13,7 @@ class SceneManager : public TSingleton<SceneManager>
 	friend TSingleton;
 	friend class D3D11_GameApp;
 	friend GameObject::GameObject(const wchar_t* name);
+	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 private:
 	SceneManager();
 	~SceneManager();
@@ -27,9 +28,6 @@ public:
 	void LoadScene();
 
 private:
-	void CheckMainCam(); //씬 생성이후 메인카메라가 존재하지 않으면 생성해주는 함수.
-
-private:
 	//Update
 	void FixedUpdateScene();
 	void UpdateScene();
@@ -38,9 +36,13 @@ private:
 
 	//Render
 	void RenderScene();
-	void NextSccene();
 	void AddObjects();
+	void NextSccene();
 	
+private:
+	void AddObjectCurrScene(GameObject* obj);
+	void AddObjectNextScene(GameObject* obj);
+	void ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName);
 };
 
 
