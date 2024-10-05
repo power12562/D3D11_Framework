@@ -3,6 +3,7 @@
 #include <Framework\TimeSystem.h>
 #include <GameObject\Base\CameraObject.h>
 #include <Math/Mathf.h>
+#include <_Debug/Console.h>
 
 #include "../Source/TestComponent.h"
 
@@ -139,11 +140,6 @@ void TestCubeComponent::Update()
     if (elapseTime >= 1.5f)
     {
         elapseTime = 0;
-        //gameObject.Destroy(gameObject);
-
-        //auto cube = new GameObject(L"t1");
-        //cube->AddComponent<TestCubeComponent>();
-        //cube->transform.position += Vector3(0, 0, 5);
     }
 }
 
