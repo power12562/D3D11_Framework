@@ -1,4 +1,5 @@
 #include "MappingCubeObject.h"
+#include <Utility/MemoryUtility.h>
 
 MappingCubeObject::MappingCubeObject()
 {
@@ -6,6 +7,11 @@ MappingCubeObject::MappingCubeObject()
 
 MappingCubeObject::~MappingCubeObject()
 {
+    using namespace Utility;
+    SafeRelease(m_pTextureRV);
+    SafeRelease(m_pNormalMap);
+    SafeRelease(m_pSpecularMap);
+    SafeRelease(m_pSamplerLinear);
 }
 
 void MappingCubeObject::Start()
