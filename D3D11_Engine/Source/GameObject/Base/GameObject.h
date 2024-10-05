@@ -13,6 +13,7 @@ class GameObject
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
+	static GameObject* Find(const wchar_t* name);
 
 public:
 	GameObject(const wchar_t* name);

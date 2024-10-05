@@ -17,6 +17,11 @@ void GameObject::Destroy(GameObject* obj)
 	sceneManager.DestroyObject(obj);
 }
 
+GameObject* GameObject::Find(const wchar_t* name)
+{
+	return sceneManager.FindObject(name);
+}
+
 GameObject::GameObject(const wchar_t* name)
 {
 	if (sceneManager.nextScene)
