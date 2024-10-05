@@ -139,7 +139,11 @@ void TestCubeComponent::Update()
     if (elapseTime >= 1.5f)
     {
         elapseTime = 0;
-        sceneManager.DestroyObject(gameObject);
+        //gameObject.Destroy(gameObject);
+
+        //auto cube = new GameObject(L"t1");
+        //cube->AddComponent<TestCubeComponent>();
+        //cube->transform.position += Vector3(0, 0, 5);
     }
 }
 
