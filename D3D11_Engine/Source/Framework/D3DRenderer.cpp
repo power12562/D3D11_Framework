@@ -21,8 +21,9 @@ D3DRenderer::D3DRenderer()
 
 D3DRenderer::~D3DRenderer()
 {
-    Uninit();
+   
 }
+
 void D3DRenderer::Init()
 {
     using namespace Utility;
