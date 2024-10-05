@@ -42,6 +42,7 @@ void D3D11_GameApp::Start()
 {
 	if (sceneManager.nextScene == nullptr)
 		sceneManager.LoadScene<Scene>(); //ºó ¾À ·Îµå
+
 	sceneManager.NextSccene();
 	sceneManager.AddObjects();
 }
