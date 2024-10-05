@@ -23,10 +23,17 @@ private:
 private:
 	std::vector<std::unique_ptr<Component>> componentList;
 	std::vector<RenderComponent*> renderList;
-private:
-	std::wstring name;
 
+private:
+	unsigned int instanceID;
+	std::wstring name;
 public:
+	unsigned int GetInstanceID() const { return instanceID; }
+	const std::wstring& GetName() const { return name; }
+	const std::wstring& SetName(const wchar_t* _name);
+public:
+	/*오브젝트 이름. (중복 가능)*/
+	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;
 	Transform transform;
 	bool Active = true;
 
@@ -39,12 +46,16 @@ public:
 	template <typename T>
 	T& GetComponent();
 
-	/*이 오브젝트의 컴포넌트 개수*/
-	int GetComponentCount() { return componentList.size(); }
+	/*컴포넌트 가져오기. (없으면 nullptr 반환)*/
+	template <typename T>
+	T* IsComponent();
 
 	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
 	template <typename T>
 	T& GetComponentAtIndex(int index);
+	
+	/*이 오브젝트의 컴포넌트 개수*/
+	int GetComponentCount() { return componentList.size(); }
 };
 
 template<typename T>
@@ -80,11 +91,29 @@ inline T& GameObject::GetComponent()
 }
 
 template<typename T>
+inline T* GameObject::IsComponent()
+{
+	static_assert(std::is_base_of_v<Component, T>, "is not Component");
+
+	for (auto& component : componentList)
+	{
+		if (typeid(*component) == typeid(T))
+		{
+			return dynamic_cast<T*>(component.get());
+		}
+	}
+	return nullptr;
+}
+
+template<typename T>
 inline T& GameObject::GetComponentAtIndex(int index)
 {
 	static_assert(std::is_base_of_v<Component, T>, "is not Component");
 
-	T& component = dynamic_cast<T&>(*componentList[index]);
-
-	return component;
+	if (0 <= index && index < componentList.size())
+	{
+		T& component = dynamic_cast<T&>(*componentList[index]);
+		return component;
+	}
+	__debugbreak(); //예외) 인덱스가 범위를 벗어남.
 }

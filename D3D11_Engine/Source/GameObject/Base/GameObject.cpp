@@ -5,19 +5,23 @@
 #include <Component\Base\RenderComponent.h>
 #include <Framework/D3DRenderer.h>
 #include <Framework/SceneManager.h>
+#include <Framework/InstanceIDManager.h>
 
 GameObject::GameObject(const wchar_t* name)
 {
-	this->name = name;
 	if (sceneManager.nextScene)
 		sceneManager.nextAddQueue.push(this);
 	else
 		sceneManager.currAddQueue.push(this);
+
+	this->Name = name;
+	instanceID = instanceIDManager.getUniqueID();
 }
 
 GameObject::~GameObject()
 {
-	//Debug_printf("%s, destroy\n", name);
+	//Debug_printf("%s, destroy\n", Name);
+	instanceIDManager.returnID(instanceID);
 }
 
 void GameObject::FixedUpdate()
@@ -60,4 +64,14 @@ void GameObject::Render()
 		if (component->Enable)
 			component->Render();
 	}
+}
+
+const std::wstring& GameObject::SetName(const wchar_t* _name)
+{
+	if (wcscmp(name.c_str(), _name) == 0)
+		return name;
+
+	sceneManager.ChangeObjectName(this->instanceID, name, _name);
+	name = _name;
+	return name;
 }
