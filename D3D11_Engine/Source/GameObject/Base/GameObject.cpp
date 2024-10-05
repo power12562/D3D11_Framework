@@ -7,6 +7,16 @@
 #include <Framework/SceneManager.h>
 #include <Framework/InstanceIDManager.h>
 
+void GameObject::Destroy(GameObject& obj)
+{
+	sceneManager.DestroyObject(obj);
+}
+
+void GameObject::Destroy(GameObject* obj)
+{
+	sceneManager.DestroyObject(obj);
+}
+
 GameObject::GameObject(const wchar_t* name)
 {
 	if (sceneManager.nextScene)

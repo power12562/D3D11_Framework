@@ -11,6 +11,10 @@ class GameObject
 {		 
 	friend class Scene;
 public:
+	static void Destroy(GameObject& obj);
+	static void Destroy(GameObject* obj);
+
+public:
 	GameObject(const wchar_t* name);
 	virtual ~GameObject();
 
