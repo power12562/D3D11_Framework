@@ -106,6 +106,8 @@ SimpleCubeShadeObject::~SimpleCubeShadeObject()
 {
     SafeRelease(m_pIndexBuffer);
     SafeRelease(m_pVertexBuffer);
+    SafeRelease(m_pTextureRV);
+    SafeRelease(m_pSamplerLinear);
 }
 
 void SimpleCubeShadeObject::Update()
