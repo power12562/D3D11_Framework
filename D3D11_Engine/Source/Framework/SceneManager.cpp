@@ -13,6 +13,16 @@ SceneManager::~SceneManager()
 
 }
 
+void SceneManager::DestroyObject(GameObject* obj)
+{
+	eraseSet.insert(obj);
+}
+
+void SceneManager::DestroyObject(GameObject& obj)
+{
+	eraseSet.insert(&obj);
+}
+
 void SceneManager::FixedUpdateScene()
 {
 	currScene->FixedUpdate();
@@ -36,6 +46,28 @@ void SceneManager::UpdateTransformScene()
 void SceneManager::RenderScene()
 {
 	currScene->Render();
+}
+
+void SceneManager::AddObjects()
+{
+	while (!currAddQueue.empty())
+	{
+		GameObject* obj = currAddQueue.front();
+		AddObjectCurrScene(obj);
+		currAddQueue.pop();
+	}
+}
+
+void SceneManager::EraseObjects()
+{
+	if (!eraseSet.empty())
+	{
+		for (auto& obj : eraseSet)
+		{
+			EraseObject(obj);
+		}
+		eraseSet.clear();
+	}
 }
 
 void SceneManager::NextSccene()
@@ -62,14 +94,22 @@ void SceneManager::NextSccene()
 
 void SceneManager::AddObjectCurrScene(GameObject* obj)
 {
-	currScene->objectFindMap[obj->Name][obj->GetInstanceID()] = (int)currScene->objectList.size();
-	currScene->objectList.emplace_back(obj);
+	int id = obj->GetInstanceID();
+	currScene->objectFindMap[obj->Name].insert(id);
+	if (id < currScene->objectList.size())
+		currScene->objectList[id].reset(obj);
+	else
+		currScene->objectList.emplace_back(obj);
 }
 
 void SceneManager::AddObjectNextScene(GameObject* obj)
 {
-	nextScene->objectFindMap[obj->Name][obj->GetInstanceID()] = (int)nextScene->objectList.size();
-	nextScene->objectList.emplace_back(obj);
+	int id = obj->GetInstanceID();
+	nextScene->objectFindMap[obj->Name].insert(id);
+	if (id < nextScene->objectList.size())
+		nextScene->objectList[id].reset(obj);
+	else
+		nextScene->objectList.emplace_back(obj);
 }
 
 void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName)
@@ -80,7 +120,7 @@ void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring&
 		if (pervNameIter == nextScene->objectFindMap.end())
 			return;
 		
-		nextScene->objectFindMap[_newName][instanceID] = pervNameIter->second[instanceID];
+		nextScene->objectFindMap[_newName].insert(instanceID);
 		nextScene->objectFindMap[_pervName].erase(instanceID);
 	}
 	else if(currScene)
@@ -89,19 +129,32 @@ void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring&
 		if(pervNameIter == currScene->objectFindMap.end())
 			return;
 
-		currScene->objectFindMap[_newName][instanceID] = pervNameIter->second[instanceID];
+		currScene->objectFindMap[_newName].insert(instanceID);
 		currScene->objectFindMap[_pervName].erase(instanceID);
 	}
 }
 
-void SceneManager::AddObjects()
+void SceneManager::EraseObject(GameObject* obj)
 {
-	while (!currAddQueue.empty())
+	if (nextScene)
 	{
-		GameObject* obj = currAddQueue.front();
-		AddObjectCurrScene(obj);
-		currAddQueue.pop();
+		auto findIter = nextScene->objectFindMap.find(obj->Name);
+		if (findIter == nextScene->objectFindMap.end())
+			return;
+
+		int index = obj->GetInstanceID();
+		findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
+		nextScene->objectList[index].reset(); //오브젝트 삭제
+	}
+	else if (currScene)
+	{
+		auto findIter = currScene->objectFindMap.find(obj->Name);
+		if (findIter == currScene->objectFindMap.end())
+			return;
+
+		int index = obj->GetInstanceID();
+		findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
+		currScene->objectList[index].reset(); //오브젝트 삭제
 	}
 }
-						
 
