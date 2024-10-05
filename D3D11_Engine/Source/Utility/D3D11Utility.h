@@ -4,6 +4,9 @@
 #include <directxtk/simplemath.h>
 #include <exception>
 #include <cstdio>
+#include <wrl.h>
+#include <Utility/MemoryUtility.h>
+using namespace Microsoft::WRL;
 
 namespace Utility
 {
@@ -49,4 +52,14 @@ struct DRAW_INDEX_DATA
 	ID3D11VertexShader* pVertexShader = nullptr;	// ¡§¡° ºŒ¿Ã¥ı.
 	ID3D11PixelShader*  pPixelShader = nullptr;	// «»ºø ºŒ¿Ã¥ı.	
 	ID3D11InputLayout*  pInputLayout = nullptr;	// ¿‘∑¬ ∑π¿Ãæ∆øÙ.
+
+	~DRAW_INDEX_DATA()
+	{
+		using namespace Utility;
+		SafeRelease(pVertexBuffer);
+		SafeRelease(pIndexBuffer);
+		SafeRelease(pVertexShader);
+		SafeRelease(pPixelShader);
+		SafeRelease(pInputLayout);
+	}
 };
