@@ -21,6 +21,8 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		sceneManager.currScene.reset();
+		WinGameApp::GameEnd();
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -64,5 +66,6 @@ void D3D11_GameApp::Render()
 {
 	sceneManager.RenderScene(); //씬 렌더링 함수.
 	sceneManager.AddObjects();  //오브젝트 생성
+	sceneManager.EraseObjects(); //오브젝트 삭제.
 	sceneManager.NextSccene(); //다음 씬 있으면 전환 
 }
