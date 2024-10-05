@@ -139,10 +139,7 @@ void TestCubeComponent::Update()
     if (elapseTime >= 1.5f)
     {
         elapseTime = 0;
-        sceneManager.LoadScene<Scene>();
-        auto asdf = new GameObject(L"ttt");
-        asdf->Name = L"asldjq";
-        asdf->AddComponent<TestComponent>();
+        sceneManager.DestroyObject(gameObject);
     }
 }
 
