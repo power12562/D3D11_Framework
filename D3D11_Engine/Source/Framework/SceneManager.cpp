@@ -23,6 +23,32 @@ void SceneManager::DestroyObject(GameObject& obj)
 	eraseSet.insert(&obj);
 }
 
+GameObject* SceneManager::FindObject(const wchar_t* name)
+{
+	GameObject* obj = nullptr;
+	auto findIter = currScene->objectFindMap.find(name);
+	if (findIter != currScene->objectFindMap.end())
+	{
+		int firstID = *(findIter->second.begin());
+		obj = currScene->objectList[firstID].get();
+	}
+	return obj;
+}
+
+std::vector<GameObject*> SceneManager::FindObjects(const wchar_t* name)
+{
+	std::vector<GameObject*> objects;
+	auto findIter = currScene->objectFindMap.find(name);
+	if(findIter != currScene->objectFindMap.end())
+	{
+		for (auto index : findIter->second)
+		{
+			objects.push_back(currScene->objectList[index].get());
+		}
+	}
+	return objects;
+}
+
 void SceneManager::FixedUpdateScene()
 {
 	currScene->FixedUpdate();

@@ -34,6 +34,9 @@ public:
 	void DestroyObject(GameObject* obj);
 	void DestroyObject(GameObject& obj);
 
+	GameObject* FindObject(const wchar_t* name);
+	std::vector<GameObject*> FindObjects(const wchar_t* name);
+
 private:
 	//Update
 	void FixedUpdateScene();
