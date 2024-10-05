@@ -229,5 +229,6 @@ void D3D11_BoxDrawApp::UninitScene()
 	SafeRelease(m_pInputLayout);
 	SafeRelease(m_pVertexShader);
 	SafeRelease(m_pPixelShader);
+	SafeRelease(m_pIndexBuffer);
 }
 
