@@ -37,7 +37,6 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 {
 	Vector3 forward = transform.Front;
 	Vector3 right = transform.Right;
-	Vector3 up = transform.Up;
 
 	if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
 	{
@@ -64,11 +63,11 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 
 	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::E))
 	{
-		inputVector += -up;
+		inputVector += -Vector3::Up;
 	}
 	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::Q))
 	{
-		inputVector += up;
+		inputVector += Vector3::Up;
 	}
 
 	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F1))
