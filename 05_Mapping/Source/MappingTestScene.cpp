@@ -1,11 +1,10 @@
 #include "MappingTestScene.h"
 #include <Framework/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
-#include <imgui.h>
-#include <imgui_impl_win32.h>
-#include <imgui_impl_dx11.h>
+#include <Framework\ImguiHelper.h>
 #include <Math/Mathf.h>
 #include <Component\CameraMoveHelper.h>
+
 
 #include "../Source/LightManager.h"
 #include "../Source/MappingCubeObject.h"
@@ -43,9 +42,8 @@ void MappingTestScene::ImGUIRender()
 	ImGui::Text("Camera");
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::Text("");
-	ImGui::Text("Cube");
-	ImGui::DragFloat3("Cube Rotation", cubeRotation);
-	objectList[1]->transform.rotation = Quaternion(Quaternion::CreateFromYawPitchRoll(Vector3(cubeRotation) * Mathf::Deg2Rad));
+	ImGui::Text("Cube");	
+	ImGui::DragQuaternion("Cube Rotation", &objectList[1]->transform.rotation);
 	ImGui::SliderFloat("Cube Scale", &cubeScale, 1.0f, 10.0f);
 	objectList[1]->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");

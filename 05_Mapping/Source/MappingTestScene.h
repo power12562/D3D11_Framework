@@ -9,11 +9,6 @@ public:
 	void ImGUIRender() override;
 
 private:
-	float camPos[3]{};
-	float camRotation[3]{};
-	
-private:
-	float cubeRotation[3]{};
 	float cubeScale{1};
 
 private:
