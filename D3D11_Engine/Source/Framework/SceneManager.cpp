@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include <GameObject\Base\CameraObject.h>
+#include <Framework\DXTKInputSystem.h>
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 
@@ -56,6 +57,7 @@ void SceneManager::FixedUpdateScene()
 
 void SceneManager::UpdateScene()
 {
+	DXTKinputSystem.Update();
 	currScene->Update();
 }
 

@@ -3,6 +3,8 @@
 #include <Framework\TimeSystem.h>
 #include <Framework/D3DRenderer.h>
 #include <GameObject\Base\CameraObject.h>
+#include <Framework\DXTKInputSystem.h>
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -19,11 +21,38 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 	switch (message)
 	{
+#pragma region 반드시 포함
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		sceneManager.currScene.reset();
 		WinGameApp::GameEnd();
 		break;
+#pragma endregion
+#pragma region DXTKInputSystem 사용시 포함
+	case WM_ACTIVATEAPP:
+		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+		DirectX::Mouse::ProcessMessage(message, wParam, lParam);
+		break;
+	case WM_INPUT:
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MOUSEWHEEL:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_MOUSEHOVER:
+		Mouse::ProcessMessage(message, wParam, lParam);
+		break;
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		Keyboard::ProcessMessage(message, wParam, lParam);
+		break;
+#pragma endregion 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -42,6 +71,8 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
+	DXTKinputSystem.Initialize(GetHWND());
+
 	if (sceneManager.nextScene == nullptr)
 		sceneManager.LoadScene<Scene>(); //빈 씬 로드
 

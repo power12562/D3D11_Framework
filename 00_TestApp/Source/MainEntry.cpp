@@ -1,7 +1,10 @@
 #include "TestApp.h"
 #include <GameObject/Base/CameraObject.h>
 #include <Math/Mathf.h>
+#include <Component\CameraMoveHelper.h>
+
 #include "../Source/TestCubeComponent.h"
+
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
 {
@@ -14,7 +17,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     auto mainCam = new CameraObject(L"Camera");
     mainCam->GetComponent<Camera>().SetMainCamera();
     mainCam->transform.position += Vector3(0, 3, 0);
-    //mainCam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(-15, 0, 0) * Mathf::Deg2Rad);
+    mainCam->AddComponent<CameraMoveHelper>();
 
     auto cube = new GameObject(L"Cube");
     cube->AddComponent<TestCubeComponent>();

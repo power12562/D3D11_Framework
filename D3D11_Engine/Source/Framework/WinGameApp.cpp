@@ -35,9 +35,7 @@ void WinGameApp::Run()
 {
 	using namespace TimeSystem;
 	RunApp = this;
-
 	Time.UpdateTime();
-
 	Start();
 	// PeekMessage 메세지가 있으면 true,없으면 false
 	while (!isEnd)
@@ -46,16 +44,13 @@ void WinGameApp::Run()
 		{
 			if (msg.message == WM_QUIT)
 				break;
-
-			//윈도우 메시지 처리 
+	
 			TranslateMessage(&msg); // 키입력관련 메시지 변환  WM_KEYDOWN -> WM_CHAR
 			DispatchMessage(&msg);
 		}
 		else
-		{
-			//게임 루프
+		{	
 			Time.UpdateTime();
-			
 			Update();
 			Render();
 		}

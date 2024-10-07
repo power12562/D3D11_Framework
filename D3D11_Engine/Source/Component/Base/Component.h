@@ -18,11 +18,11 @@ private:
 	GameObject* _gameObject = nullptr;
 
 public:
-	virtual void Start() = 0; //초기화 함수는 명시적으로 호출 가능.
+	virtual void Start()		= 0; //초기화 함수는 명시적으로 호출 가능.
 protected:
-	virtual void FixedUpdate() = 0;
-	virtual void Update() = 0;
-	virtual void LateUpdate() = 0;
+	virtual void FixedUpdate()  = 0;
+	virtual void Update()		= 0;
+	virtual void LateUpdate()	= 0;
 
 public:
 	bool Enable = true;
