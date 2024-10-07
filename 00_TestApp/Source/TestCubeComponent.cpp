@@ -134,8 +134,8 @@ void TestCubeComponent::FixedUpdate()
 void TestCubeComponent::Update()
 {
     elapseTime += TimeSystem::Time.DeltaTime;
-    transform.rotation = Quaternion::CreateFromYawPitchRoll(transform.rotation.ToEuler() + (Vector3(0, 90, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime));
-    transform.localRotation = Quaternion::CreateFromYawPitchRoll(transform.localRotation.ToEuler() + (Vector3(0, 45, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime));
+    transform.rotation *= Quaternion::CreateFromYawPitchRoll(Vector3(90, 0, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime);
+    transform.localRotation *= Quaternion::CreateFromYawPitchRoll(Vector3(90, 0, 0) * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime);
 
     if (elapseTime >= 1.5f)
     {
