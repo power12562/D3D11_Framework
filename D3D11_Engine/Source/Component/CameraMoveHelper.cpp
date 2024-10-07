@@ -5,7 +5,7 @@
 CameraMoveHelper::CameraMoveHelper()
 {
 	rotSpeed = 15 * Mathf::Deg2Rad;
-	moveSpeed = 20.0f;
+	moveSpeed = 10.0f;
 }
 
 void CameraMoveHelper::Start()
@@ -23,8 +23,9 @@ void CameraMoveHelper::Update()
 	if (inputVector.Length() > 0.0f)
 	{
 	 	transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
-		inputVector = Vector3::Zero;
+		inputVector = Vector3::Zero;	
 	}
+	transform.rotation = Quaternion::CreateFromYawPitchRoll(angle.x, angle.y, 0);
 }
 
 void CameraMoveHelper::LateUpdate()
@@ -72,26 +73,54 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 
 	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F1))
 	{
-		moveSpeed = 200;
+		moveSpeed = 10;
 	}
 	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F2))
 	{
-		moveSpeed = 5000;
+		moveSpeed = 100;
 	}
 	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F3))
 	{
-		moveSpeed = 10000;
+		moveSpeed = 1000;
 	}
 
 	DXTKinputSystem.GetMouse().SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
 	{
-		Vector3 delta = Vector3(float(MouseState.x), float(MouseState.y), 0.f) * rotSpeed * TimeSystem::Time.DeltaTime;
-		transform.rotation *= Quaternion::CreateFromYawPitchRoll(Vector3(-delta.y, -delta.x, 0));
+		Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * TimeSystem::Time.DeltaTime;
+		AddPitch(-delta.y);
+		AddYaw(-delta.x);
 	}
 }
 
 void CameraMoveHelper::Reset()
 {
 	transform.position = Vector3(0, 0, 0);
+	angle = { 0,0 };
+}
+
+void CameraMoveHelper::AddPitch(float value)
+{
+	angle.y += value;
+	if (angle.y > XM_PI)
+	{
+		angle.y -= XM_2PI;
+	}
+	else if (angle.y < -XM_PI)
+	{
+		angle.y += XM_2PI;
+	}
+}
+
+void CameraMoveHelper::AddYaw(float value)
+{
+	angle.x += value;
+	if (angle.x > XM_PI)
+	{
+		angle.x -= XM_2PI;
+	}
+	else if (angle.x < -XM_PI)
+	{
+		angle.x += XM_2PI;
+	}
 }

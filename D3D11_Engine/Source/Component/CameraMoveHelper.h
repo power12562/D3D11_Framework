@@ -21,9 +21,12 @@ public:
 
 public:
 	void Reset();
+	void AddPitch(float angle);
+	void AddYaw(float angle);
 
 private:
 	Vector3 inputVector{};
+	Vector2 angle{}; //z√‡¿∫ æ»æ∏
 	float moveSpeed;
 	float rotSpeed;
 };
