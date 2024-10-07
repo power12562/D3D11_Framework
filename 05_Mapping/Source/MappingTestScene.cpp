@@ -5,6 +5,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 #include <Math/Mathf.h>
+#include <Component\CameraMoveHelper.h>
 
 #include "../Source/LightManager.h"
 #include "../Source/MappingCubeObject.h"
@@ -16,6 +17,7 @@ MappingTestScene::MappingTestScene()
 	auto mainCam = new CameraObject(L"MainCamera");
 	mainCam->SetMainCamera();
 	mainCam->AddComponent<LightManager>();
+	mainCam->AddComponent<CameraMoveHelper>();
 
 	auto cube1 = new GameObject(L"cube1");
 	cube1->AddComponent<MappingCubeObject>();
@@ -39,10 +41,6 @@ void MappingTestScene::ImGUIRender()
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
-	ImGui::DragFloat3("Cam Position", camPos);
-	mainCam->transform.position = Vector3(camPos);
-	ImGui::DragFloat3("Cam Rotation", camRotation);
-	mainCam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(camRotation) * Mathf::Deg2Rad);
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::Text("");
 	ImGui::Text("Cube");
