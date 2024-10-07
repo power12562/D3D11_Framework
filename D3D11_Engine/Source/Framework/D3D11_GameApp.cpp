@@ -4,10 +4,7 @@
 #include <Framework/D3DRenderer.h>
 #include <GameObject\Base\CameraObject.h>
 #include <Framework\DXTKInputSystem.h>
-
-#include <imgui.h>
-#include <imgui_impl_win32.h>
-#include <imgui_impl_dx11.h>
+#include <Framework\ImguiHelper.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")

@@ -151,6 +151,7 @@
     <ClInclude Include="Source\Framework\D3D11_GameApp.h" />
     <ClInclude Include="Source\Framework\D3DRenderer.h" />
     <ClInclude Include="Source\Framework\DXTKInputSystem.h" />
+    <ClInclude Include="Source\Framework\ImguiHelper.h" />
     <ClInclude Include="Source\Framework\InstanceIDManager.h" />
     <ClInclude Include="Source\GameObject\Base\CameraObject.h" />
     <ClInclude Include="Source\Scene\Base\Scene.h" />
@@ -172,6 +173,7 @@
     <ClCompile Include="Source\Framework\D3D11_GameApp.cpp" />
     <ClCompile Include="Source\Framework\D3DRenderer.cpp" />
     <ClCompile Include="Source\Framework\DXTKInputSystem.cpp" />
+    <ClCompile Include="Source\Framework\ImguiHelper.cpp" />
     <ClCompile Include="Source\Framework\InstanceIDManager.cpp" />
     <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
     <ClCompile Include="Source\Scene\Base\Scene.cpp" />
