@@ -14,7 +14,7 @@ float4 main(PS_INPUT input) : SV_Target
     {
         input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
     }
-    float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * txColor;
+    float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * txColor * MaterialDiffuse;
     
     float4 ambient = LightAmbient * MaterialAmbient;
     

@@ -6,7 +6,7 @@
 float4 main(PS_INPUT input) : SV_Target
 {
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    float4 diffuse = saturate(dot(input.Norm, (float3) -LightDir) * LightDiffuse) * txColor;
+    float4 diffuse = saturate(dot(input.Norm, (float3) -LightDir) * LightDiffuse) * txColor * MaterialDiffuse;
     
     float4 ambient = LightAmbient * MaterialAmbient;
     
