@@ -2,7 +2,6 @@
 #include <Utility\D3D11Utility.h> //helper
 #include <Utility/MemoryUtility.h>
 #include <Framework\TSingleton.h>
-#include <Framework\D3DConstBuffer.h>
 #include <map>
 #include <string>
 #include <cassert>
@@ -48,7 +47,7 @@ class D3DRenderer : public TSingleton<D3DRenderer>
 	friend TSingleton;
 	
 public:
-	struct REG_INDEX_DATA
+	struct REG_INDEX
 	{
 		int vs_index;
 		int ps_index;
@@ -71,12 +70,12 @@ public:
 
 public:
 	/*
-	상수 버퍼 생성.
+	VS, PS 상수 버퍼 생성.
 	return : register index
 	*/
 	template<typename T>
-	REG_INDEX_DATA CreateConstantBuffers();
-	REG_INDEX_DATA CreateConstantBuffers(const char* key, unsigned int buffer_size);
+	REG_INDEX CreateVSPSConstantBuffers();
+	REG_INDEX CreateVSPSConstantBuffers(const char* key, unsigned int buffer_size);
 
 	/*
 	VS 상수 버퍼 생성.
@@ -96,18 +95,15 @@ public:
 								   
 	template<typename T>
 	void UpdateConstBuffer(T& data);
-	void UpdateConstBuffer(cbuffer& data);
 
 	template<typename T>
 	void UpdateVSConstBuffer(T& data);
-	void UpdateVSConstBuffer(cbuffer& data);
 
 	template<typename T>
 	void UpdatePSConstBuffer(T& data);
-	void UpdatePSConstBuffer(cbuffer& data);
 
 	template<typename T>
-	REG_INDEX_DATA GetConstBufferIndex();
+	REG_INDEX GetConstBufferIndex();
 
 	template<typename T>
 	int GetVSConstBufferIndex();
@@ -133,8 +129,8 @@ private:
 	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
 
 public:
-	int GetVSCbufferCount() { return vs_cbufferList.size(); }
-	int GetPSCbufferCount() { return ps_cbufferList.size(); }
+	int GetVSCbufferCount() { return (int)vs_cbufferList.size(); }
+	int GetPSCbufferCount() { return (int)ps_cbufferList.size(); }
 
 private:
 	std::map<std::string, int> vs_cbufferMap;
@@ -149,9 +145,9 @@ private:
 };
 
 template<typename T>
-inline D3DRenderer::REG_INDEX_DATA D3DRenderer::CreateConstantBuffers()
+inline D3DRenderer::REG_INDEX D3DRenderer::CreateVSPSConstantBuffers()
 {
-	REG_INDEX_DATA index{};
+	REG_INDEX index{};
 	index.vs_index = CreateVSConstantBuffers<T>();
 	index.ps_index = CreatePSConstantBuffers<T>();
 	return index;
@@ -278,9 +274,9 @@ inline void D3DRenderer::UpdatePSConstBuffer(T& data)
 }
 
 template<typename T>
-inline D3DRenderer::REG_INDEX_DATA D3DRenderer::GetConstBufferIndex()
+inline D3DRenderer::REG_INDEX D3DRenderer::GetConstBufferIndex()
 {
-	REG_INDEX_DATA index{};
+	REG_INDEX index{};
 	index.vs_index = GetVSConstBufferIndex<T>();
 	index.ps_index = GetPSConstBufferIndex<T>();
 

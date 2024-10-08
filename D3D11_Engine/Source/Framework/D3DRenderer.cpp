@@ -106,8 +106,8 @@ void D3DRenderer::Init()
 
         pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
-        CreateConstantBuffers<cbuffer_Transform>();
-        CreateConstantBuffers<cbuffer_Camera>();
+        CreateVSPSConstantBuffers<cbuffer_Transform>();
+        CreateVSPSConstantBuffers<cbuffer_Camera>();
     }
     catch (const std::exception& ex)
     {
@@ -139,9 +139,9 @@ void D3DRenderer::Uninit()
     }
 }
 
-D3DRenderer::REG_INDEX_DATA D3DRenderer::CreateConstantBuffers(const char* key, unsigned int buffer_size)
+D3DRenderer::REG_INDEX D3DRenderer::CreateVSPSConstantBuffers(const char* key, unsigned int buffer_size)
 {
-    REG_INDEX_DATA index{};
+    REG_INDEX index{};
     index.vs_index = CreateVSConstantBuffers(key, buffer_size);
     index.ps_index = CreatePSConstantBuffers(key, buffer_size);
 
@@ -196,18 +196,6 @@ int D3DRenderer::CreatePSConstantBuffers(const char* key, unsigned int buffer_si
     ps_cbufferList.push_back(cBufferTemp);
 
     return regIndex;
-}
-
-void D3DRenderer::UpdateConstBuffer(cbuffer& data)
-{
-}
-
-void D3DRenderer::UpdateVSConstBuffer(cbuffer& data)
-{
-}
-
-void D3DRenderer::UpdatePSConstBuffer(cbuffer& data)
-{
 }
 
 void D3DRenderer::BegineDraw()

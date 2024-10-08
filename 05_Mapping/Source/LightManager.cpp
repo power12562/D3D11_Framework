@@ -12,8 +12,8 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    d3dRenderer.CreateConstantBuffers<cbuffer_Light>();
-    d3dRenderer.CreateConstantBuffers<cbuffer_bool>();
+    d3dRenderer.CreateVSPSConstantBuffers<cbuffer_Light>();
+    d3dRenderer.CreateVSPSConstantBuffers<cbuffer_bool>();
 }
 
 void LightManager::FixedUpdate()

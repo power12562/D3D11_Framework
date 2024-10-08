@@ -148,7 +148,6 @@
     <ClInclude Include="Source\Component\Base\RenderComponent.h" />
     <ClInclude Include="Source\Component\Camera.h" />
     <ClInclude Include="Source\Debug\Console.h" />
-    <ClInclude Include="Source\Framework\D3DConstBuffer.h" />
     <ClInclude Include="Source\Framework\D3D11_GameApp.h" />
     <ClInclude Include="Source\Framework\D3DRenderer.h" />
     <ClInclude Include="Source\Framework\DXTKInputSystem.h" />
@@ -171,7 +170,6 @@
     <ClCompile Include="Source\Component\Camera.cpp" />
     <ClCompile Include="Source\Component\Base\Component.cpp" />
     <ClCompile Include="Source\Component\CameraMoveHelper.cpp" />
-    <ClCompile Include="Source\Framework\D3DConstBuffer.cpp" />
     <ClCompile Include="Source\Framework\D3D11_GameApp.cpp" />
     <ClCompile Include="Source\Framework\D3DRenderer.cpp" />
     <ClCompile Include="Source\Framework\DXTKInputSystem.cpp" />
