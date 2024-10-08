@@ -150,6 +150,14 @@ D3DRenderer::REG_INDEX D3DRenderer::CreateVSPSConstantBuffers(const char* key, u
 
 int D3DRenderer::CreateVSConstantBuffers(const char* key, unsigned int buffer_size)
 {
+    assert((buffer_size % 16) == 0 && "Constant Buffer size must be 16 - byte aligned");
+
+    if (vs_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+    {
+        __debugbreak(); //상수 버퍼 최대 개수 도달.
+        return -1;
+    }
+
     if (vs_cbufferMap.find(key) != vs_cbufferMap.end())
     {
         __debugbreak(); //이미 존재하는 키값.
@@ -175,6 +183,14 @@ int D3DRenderer::CreateVSConstantBuffers(const char* key, unsigned int buffer_si
 
 int D3DRenderer::CreatePSConstantBuffers(const char* key, unsigned int buffer_size)
 {
+    assert((buffer_size % 16) == 0 && "Constant Buffer size must be 16 - byte aligned");
+
+    if (ps_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+    {
+        __debugbreak(); //상수 버퍼 최대 개수 도달.
+        return -1;
+    }
+
     if (ps_cbufferMap.find(key) != ps_cbufferMap.end())
     {
         __debugbreak(); //이미 존재하는 키값.

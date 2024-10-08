@@ -103,9 +103,6 @@ public:
 	void UpdatePSConstBuffer(T& data);
 
 	template<typename T>
-	REG_INDEX GetConstBufferIndex();
-
-	template<typename T>
 	int GetVSConstBufferIndex();
 
 	template<typename T>
@@ -157,11 +154,6 @@ template<typename T>
 inline int D3DRenderer::CreateVSConstantBuffers()
 {
 	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
-	if (vs_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-	{
-		__debugbreak(); //상수 버퍼 최대 개수 도달.
-		return -1;
-	}
 
 	//상수 버퍼 생성
 	std::string key = typeid(T).name();
@@ -180,11 +172,6 @@ template<typename T>
 inline int D3DRenderer::CreatePSConstantBuffers()
 {
 	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
-	if (ps_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-	{
-		__debugbreak(); //상수 버퍼 최대 개수 도달.
-		return -1;
-	}
 
 	//상수 버퍼 생성
 	std::string key = typeid(T).name();
@@ -271,16 +258,6 @@ inline void D3DRenderer::UpdatePSConstBuffer(T& data)
 		__debugbreak(); //존재하지 않는 키.
 		return;
 	}
-}
-
-template<typename T>
-inline D3DRenderer::REG_INDEX D3DRenderer::GetConstBufferIndex()
-{
-	REG_INDEX index{};
-	index.vs_index = GetVSConstBufferIndex<T>();
-	index.ps_index = GetPSConstBufferIndex<T>();
-
-	return index;
 }
 
 template<typename T>
