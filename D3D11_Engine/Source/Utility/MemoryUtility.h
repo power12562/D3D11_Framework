@@ -1,15 +1,19 @@
 #pragma once
+#include <intrin.h>
 
 namespace Utility
 {
 	template<typename T>
-	void SafeRelease(T& p)
+	unsigned long SafeRelease(T& p)
 	{
 		if (p)
 		{
-			p->Release();
+			unsigned long refCount = p->Release();
 			p = nullptr;
+			return refCount;
 		}
+		__debugbreak(); //p is nullptr
+		return -1;
 	}
 
 	template<typename T>

@@ -62,8 +62,8 @@ void WinGameApp::Uninitialize()
 #ifdef _DEBUG
 	FreeConsole();
 #endif // _DEBUG
-	d3dRenderer.Uninit();
 	UninitImGUI();
+	d3dRenderer.Uninit();
 }
 
 void WinGameApp::WinToScreenCenter(HWND hwnd)

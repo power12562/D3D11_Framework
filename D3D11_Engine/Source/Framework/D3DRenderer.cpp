@@ -120,15 +120,18 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
-    SafeRelease(pDeviceContext);
-    SafeRelease(pSwapChain);
-    SafeRelease(pRenderTargetView);
-    SafeRelease(pDepthStencilView);
-    SafeRelease(pDevice);
-    
     for (auto& cbuffer : cbufferList)
     {
         SafeRelease(cbuffer);
+    }
+
+    SafeRelease(pRenderTargetView);
+    SafeRelease(pDepthStencilView);
+    SafeRelease(pSwapChain);
+    SafeRelease(pDeviceContext);
+    if (SafeRelease(pDevice) != 0)
+    {
+        __debugbreak(); //Device refcounter err.
     }
 }
 
