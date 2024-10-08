@@ -9,6 +9,10 @@
 
 using namespace Utility;
 
+
+
+
+
 TestCubeComponent::TestCubeComponent()
 {
 
@@ -16,11 +20,8 @@ TestCubeComponent::TestCubeComponent()
 
 TestCubeComponent::~TestCubeComponent()
 {
-    SafeRelease(drawData.pIndexBuffer);
-    SafeRelease(drawData.pVertexBuffer);
-    SafeRelease(drawData.pVertexShader);
-    SafeRelease(drawData.pPixelShader);
-    SafeRelease(drawData.pInputLayout);
+   
+
 }
 
 void TestCubeComponent::Start()
@@ -124,6 +125,7 @@ void TestCubeComponent::Start()
         pixelShaderBuffer->GetBufferPointer(),
         pixelShaderBuffer->GetBufferSize(), NULL, &drawData.pPixelShader));
     SafeRelease(pixelShaderBuffer);
+
 }
 
 void TestCubeComponent::FixedUpdate()
@@ -141,6 +143,8 @@ void TestCubeComponent::Update()
     {
         elapseTime = 0;
     }
+
+    //d3dRenderer.UpdatePSConstBuffer(testColor);
 }
 
 void TestCubeComponent::LateUpdate()

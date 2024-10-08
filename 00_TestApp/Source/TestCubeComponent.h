@@ -2,6 +2,11 @@
 #include <Component/Base/RenderComponent.h>
 #include <Framework\D3DRenderer.h>
 
+struct TestCbuffer
+{
+	Color c{ 1,0,0,0 };
+};
+
 class TestCubeComponent : public RenderComponent
 {
 public:
@@ -20,4 +25,7 @@ protected:
 private:
 	DRAW_INDEX_DATA drawData;
 	float elapseTime = 0;;
+
+private:
+	TestCbuffer testColor;
 };

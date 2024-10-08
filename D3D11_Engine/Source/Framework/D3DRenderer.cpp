@@ -120,7 +120,11 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
-    for (auto& cbuffer : cbufferList)
+    for (auto& cbuffer : vs_cbufferList)
+    {
+        SafeRelease(cbuffer);
+    }
+    for (auto& cbuffer : ps_cbufferList)
     {
         SafeRelease(cbuffer);
     }
@@ -133,6 +137,77 @@ void D3DRenderer::Uninit()
     {
         __debugbreak(); //Device refcounter err.
     }
+}
+
+D3DRenderer::REG_INDEX_DATA D3DRenderer::CreateConstantBuffers(const char* key, unsigned int buffer_size)
+{
+    REG_INDEX_DATA index{};
+    index.vs_index = CreateVSConstantBuffers(key, buffer_size);
+    index.ps_index = CreatePSConstantBuffers(key, buffer_size);
+
+    return index;
+}
+
+int D3DRenderer::CreateVSConstantBuffers(const char* key, unsigned int buffer_size)
+{
+    if (vs_cbufferMap.find(key) != vs_cbufferMap.end())
+    {
+        __debugbreak(); //이미 존재하는 키값.
+        return -1;
+    }
+
+    D3D11_BUFFER_DESC bufferDesc;
+    ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+    bufferDesc.ByteWidth = buffer_size;  // 상수 버퍼 크기
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    int regIndex = (int)vs_cbufferList.size();
+    vs_cbufferMap[key] = regIndex;
+
+    ID3D11Buffer* cBufferTemp{};
+    Utility::CheackHRESULT(pDevice->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+    vs_cbufferList.push_back(cBufferTemp);
+
+    return regIndex;
+}
+
+int D3DRenderer::CreatePSConstantBuffers(const char* key, unsigned int buffer_size)
+{
+    if (ps_cbufferMap.find(key) != ps_cbufferMap.end())
+    {
+        __debugbreak(); //이미 존재하는 키값.
+        return -1;
+    }
+
+    D3D11_BUFFER_DESC bufferDesc;
+    ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+    bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+    bufferDesc.ByteWidth = buffer_size;  // 상수 버퍼 크기
+    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    int regIndex = (int)ps_cbufferList.size();
+    ps_cbufferMap[key] = regIndex;
+
+    ID3D11Buffer* cBufferTemp{};
+    Utility::CheackHRESULT(pDevice->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+    ps_cbufferList.push_back(cBufferTemp);
+
+    return regIndex;
+}
+
+void D3DRenderer::UpdateConstBuffer(cbuffer& data)
+{
+}
+
+void D3DRenderer::UpdateVSConstBuffer(cbuffer& data)
+{
+}
+
+void D3DRenderer::UpdatePSConstBuffer(cbuffer& data)
+{
 }
 
 void D3DRenderer::BegineDraw()
@@ -172,9 +247,9 @@ void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data)
 
 void D3DRenderer::SetConstBuffer()
 {
-    for (int i = 0; i < cbufferList.size(); i++)
-    {
-        pDeviceContext->VSSetConstantBuffers(i, 1, &cbufferList[i]);
-        pDeviceContext->PSSetConstantBuffers(i, 1, &cbufferList[i]);
-    }
+    for (int i = 0; i < vs_cbufferList.size(); i++)
+        pDeviceContext->VSSetConstantBuffers(i, 1, &vs_cbufferList[i]);
+
+    for (int i = 0; i < ps_cbufferList.size(); i++)
+        pDeviceContext->PSSetConstantBuffers(i, 1, &ps_cbufferList[i]);
 }
