@@ -121,8 +121,10 @@ void MappingCubeObject::Start()
     auto pDevice = d3dRenderer.GetDevice();
     ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
     CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+
     CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
         vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
+
     //버텍스 셰이더 생성
     CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
         vertexShaderBuffer->GetBufferSize(), NULL, &drawData.pVertexShader));
@@ -131,6 +133,7 @@ void MappingCubeObject::Start()
     // 픽셀 셰이더 컴파일
     ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
     CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+
     // 픽셸 셰이더 생성
     CheackHRESULT(pDevice->CreatePixelShader(
         pixelShaderBuffer->GetBufferPointer(),
