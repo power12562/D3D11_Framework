@@ -10,13 +10,14 @@ class RenderComponent;
 class GameObject
 {		 
 	friend class Scene;
+	friend class SceneManager;
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
 	static GameObject* Find(const wchar_t* name);
 
 public:
-	GameObject(const wchar_t* name);
+	GameObject() = default; 
 	virtual ~GameObject();
 
 private:

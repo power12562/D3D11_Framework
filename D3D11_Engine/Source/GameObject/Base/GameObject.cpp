@@ -22,17 +22,6 @@ GameObject* GameObject::Find(const wchar_t* name)
 	return sceneManager.FindObject(name);
 }
 
-GameObject::GameObject(const wchar_t* name)
-{
-	if (sceneManager.nextScene)
-		sceneManager.nextAddQueue.push(this);
-	else
-		sceneManager.currAddQueue.push(this);
-
-	this->Name = name;
-	instanceID = instanceIDManager.getUniqueID();
-}
-
 GameObject::~GameObject()
 {
 	//Debug_printf("%s, destroy\n", Name);

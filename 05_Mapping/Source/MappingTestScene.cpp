@@ -4,7 +4,7 @@
 #include <Framework\ImguiHelper.h>
 #include <Math/Mathf.h>
 #include <Component\CameraMoveHelper.h>
-
+#include <Framework\SceneManager.h>
 
 #include "../Source/LightManager.h"
 #include "../Source/MappingCubeObject.h"
@@ -13,12 +13,12 @@ MappingTestScene::MappingTestScene()
 {
 	UseImGUI = true;
 
-	auto mainCam = new CameraObject(L"MainCamera");
+	auto mainCam = NewGameObject<CameraObject>(L"MainCamera");
 	mainCam->SetMainCamera();
 	mainCam->AddComponent<LightManager>();
 	mainCam->AddComponent<CameraMoveHelper>();
 
-	auto cube1 = new GameObject(L"cube1");
+	auto cube1 = NewGameObject<GameObject>(L"cube1");
 	cube1->AddComponent<MappingCubeObject>();
 	cube1->transform.position = Vector3{ 0,0,3 };
 }

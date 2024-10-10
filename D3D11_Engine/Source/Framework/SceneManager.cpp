@@ -112,7 +112,7 @@ void SceneManager::NextSccene()
 		currScene = std::move(nextScene);
 		if (Camera::GetMainCamera() == nullptr)
 		{
-			auto mainCamera = new CameraObject(L"MainCamera");
+			auto mainCamera = NewGameObject<CameraObject>(L"MainCamera");
 			mainCamera->SetMainCamera();
 			AddObjectCurrScene(mainCamera);
 			currAddQueue.pop();

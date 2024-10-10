@@ -5,7 +5,7 @@
 class CameraObject : public GameObject
 {
 public:
-	CameraObject(const wchar_t* name);
+	CameraObject();
 	virtual ~CameraObject() override;
 
 public:

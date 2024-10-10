@@ -13,9 +13,13 @@ class SceneManager : public TSingleton<SceneManager>
 {
 	friend TSingleton;
 	friend class D3D11_GameApp;
-	friend GameObject::GameObject(const wchar_t* name);
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+public:
+	
+	template<typename ObjectType>
+	static ObjectType* NewGameObject(const wchar_t* name);
+
 private:
 	SceneManager();
 	~SceneManager();
@@ -57,6 +61,30 @@ private:
 	void EraseObject(GameObject* obj);
 };
 
+template<typename ObjectType>
+ObjectType* NewGameObject(const wchar_t* name)
+{
+	return SceneManager::NewGameObject<ObjectType>(name);
+}
+
+#include <Framework\InstanceIDManager.h>
+template<typename ObjectType>
+inline ObjectType* SceneManager::NewGameObject(const wchar_t* name)
+{
+	static_assert(std::is_base_of_v<GameObject, ObjectType>, "is not gameObject");
+
+	ObjectType* newObject = new ObjectType;
+
+	if (sceneManager.nextScene)
+		sceneManager.nextAddQueue.push(newObject);
+	else
+		sceneManager.currAddQueue.push(newObject);
+
+	newObject->Name = name;
+	newObject->instanceID = instanceIDManager.getUniqueID();
+
+	return newObject;
+}
 
 template<typename T>
 inline void SceneManager::LoadScene()

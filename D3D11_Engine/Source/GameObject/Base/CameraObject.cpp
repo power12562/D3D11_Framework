@@ -1,6 +1,7 @@
 #include "CameraObject.h"
+#include <Framework\SceneManager.h>
 
-CameraObject::CameraObject(const wchar_t* name) : GameObject(name)
+CameraObject::CameraObject()
 {
 	cam = &AddComponent<Camera>();
 }
