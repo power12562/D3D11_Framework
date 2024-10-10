@@ -18,11 +18,11 @@ class HLSLManager : public TSingleton<HLSLManager>
 	friend class TSingleton;
 public:
 	template<typename ShaderType>
-	ShaderType* CreateSharingShader(const wchar_t* path, const char* shaderModel);
+	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ShaderType** ppOutput);
 	template<>
-	ID3D11VertexShader* CreateSharingShader<ID3D11VertexShader>(const wchar_t* path, const char* shaderModel);
+	void CreateSharingShader<ID3D11VertexShader>(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOutput);
 	template<>
-	ID3D11PixelShader* CreateSharingShader<ID3D11PixelShader>(const wchar_t* path, const char* shaderModel);
+	void CreateSharingShader<ID3D11PixelShader>(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 
 	ULONG ReleaseSharingShader(const wchar_t* path);
 private:
@@ -37,7 +37,7 @@ private:
 };
 
 template<typename ShaderType>
-inline ShaderType* HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel)
+inline void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ShaderType** ppOutput)
 {
 	static_assert(false, "is not ShaderType");
 }

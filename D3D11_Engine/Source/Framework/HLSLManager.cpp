@@ -56,11 +56,11 @@ ULONG HLSLManager::ReleaseSharingShader(const wchar_t* path)
 }
 
 template<>
-ID3D11VertexShader* HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel)
+void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOutput)
 {
 	auto findIter = sharingShaderMap.find(path);
 	if (findIter != sharingShaderMap.end())
-		return dynamic_cast<ID3D11VertexShader*>(findIter->second);
+		*ppOutput = dynamic_cast<ID3D11VertexShader*>(findIter->second);
 	else
 	{
 		ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
@@ -76,19 +76,21 @@ ID3D11VertexShader* HLSLManager::CreateSharingShader(const wchar_t* path, const 
 			break;
 		case HLSLManager::EXTENSION_TYPE::null:
 			__debugbreak(); //not shader file
-			return nullptr;
+			*ppOutput = nullptr;
 		}
 		CheackHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
 		sharingShaderMap[path] = vertexShader;
+		*ppOutput = vertexShader;
+		vertexShaderBuffer->Release();
 	}
 }
 
 template<>
-ID3D11PixelShader* HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel)
+void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput)
 {
 	auto findIter = sharingShaderMap.find(path);
 	if (findIter != sharingShaderMap.end())
-		return dynamic_cast<ID3D11PixelShader*>(findIter->second);
+		*ppOutput = dynamic_cast<ID3D11PixelShader*>(findIter->second);
 	else
 	{
 		ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
@@ -104,10 +106,12 @@ ID3D11PixelShader* HLSLManager::CreateSharingShader(const wchar_t* path, const c
 			break;
 		case HLSLManager::EXTENSION_TYPE::null:
 			__debugbreak(); //not shader file
-			return nullptr;
+			*ppOutput = nullptr;
 		}
 		CheackHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
 		sharingShaderMap[path] = pixelShader;
+		*ppOutput = pixelShader;
+		pixelShaderBuffer->Release();
 	}
 }
 

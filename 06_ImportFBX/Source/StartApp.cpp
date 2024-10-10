@@ -1,12 +1,12 @@
 ﻿#include "StartApp.h"
 #include <GameObject\Base\CameraObject.h>
 
-StartApp::StartApp()
+ImportFBXapp::ImportFBXapp()
 {
     this->windowName = L"06_ImportFBX";
 }
 
-StartApp::~StartApp()
+ImportFBXapp::~ImportFBXapp()
 {
 
 }
