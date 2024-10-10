@@ -25,7 +25,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular;
     if(UseSpecularMap)
     {
-        specular = pow(fHDotN, MaterialSpecularPower) * mapSpecular * LightSpecular;
+        specular = pow(fHDotN, MaterialSpecularPower) * mapSpecular * MaterialSpecular *LightSpecular;
     }
     else
     {
