@@ -30,10 +30,6 @@ MappingTestScene::~MappingTestScene()
 
 void MappingTestScene::ImGUIRender()
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = LightManager::cb_Light;
 	cbuffer_bool& cb_bool = LightManager::cb_bool;
