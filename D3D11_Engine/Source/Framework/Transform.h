@@ -55,6 +55,9 @@ public:
 	/**해당 인덱스의 자식을 반환합니다. 실패하면 nullptr을 반환합니다.*/
 	Transform* GetChild(unsigned int index);
 
+	/*부모 트랜스폼*/
+	Transform* GetParent() { return parent; }
+	__declspec(property(get = GetParent)) Transform* Parent;
 public:
 	/*Transform 정보로 메트릭스를 업데이트합니다.*/
 	void UpdateTransform();

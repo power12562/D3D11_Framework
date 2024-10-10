@@ -21,13 +21,4 @@ private:
 private:
 	std::string directory;
 
-private:
-	DRAW_INDEX_DATA drawData;
-
-private:
-	ID3D11ShaderResourceView* m_pTextureRV = nullptr;
-	ID3D11ShaderResourceView* m_pNormalMap = nullptr;
-	ID3D11ShaderResourceView* m_pSpecularMap = nullptr;
-
-	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
 };

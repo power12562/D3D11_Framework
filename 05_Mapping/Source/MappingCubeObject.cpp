@@ -22,7 +22,7 @@ void MappingCubeObject::Start()
     {
         Vector3 position;		
         Vector3 normal;			
-        Vector3 tangent;
+        Vector3 biTangent;
         Vector2 Tex;
     };
 

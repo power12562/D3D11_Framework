@@ -31,7 +31,7 @@ private:
 	std::vector<RenderComponent*> renderList;
 
 private:
-	unsigned int instanceID;
+	unsigned int instanceID = -1;
 	std::wstring name;
 public:
 	unsigned int GetInstanceID() const { return instanceID; }

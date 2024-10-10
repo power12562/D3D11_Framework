@@ -1,11 +1,13 @@
 #include "AssimpComponent.h"
 #include <_Debug\Console.h>
-#include <Framework\D3DRenderer.h>
-#include <Framework\HLSLManager.h>
-
+#include <Framework/SceneManager.h>
+#include <queue>
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
+#include <Math/AssimpMath.h>
+
+#include "../Source/SimpleMashComponent.h"
 
 AssimpComponent::AssimpComponent()
 {
@@ -13,18 +15,11 @@ AssimpComponent::AssimpComponent()
 
 AssimpComponent::~AssimpComponent()
 {
-    using namespace Utility;
-    SafeRelease(m_pTextureRV);
-    SafeRelease(m_pNormalMap);
-    SafeRelease(m_pSpecularMap);
-    SafeRelease(m_pSamplerLinear);
+
 }
 
 void AssimpComponent::Start()
 {
-    hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &drawData.pPixelShader);
-    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader);
-
     LoadFBX("Resource/zeldaPosed001.fbx");
 }
 
@@ -46,21 +41,6 @@ void AssimpComponent::Render()
 
 void AssimpComponent::LoadFBX(const char* path)
 {
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-
-    auto pDevice = d3dRenderer.GetDevice();
-    ID3D10Blob* vertexShaderBuffer = nullptr;
-    Utility::CheackHRESULT(Utility::CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-    Utility::CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
-    vertexShaderBuffer->Release();
-
     Assimp::Importer importer;
     unsigned int importFlags = aiProcess_Triangulate |    // vertex 삼각형 으로 출력
         aiProcess_GenNormals |        // Normal 정보 생성  
@@ -76,38 +56,85 @@ void AssimpComponent::LoadFBX(const char* path)
 
     this->directory = fileName.substr(0, fileName.find_last_of("/\\"));
    
-    struct Vertex
+    std::queue<aiNode*> nodeQue;
+    nodeQue.push(pScene->mRootNode);
+    const aiNode* currNode = nullptr;
+
+    std::queue<GameObject*> objQue; 
+    objQue.push(&gameObject);
+    GameObject* currObj = nullptr;
+
+    while (!nodeQue.empty())
     {
-        Vector3 position;
-        Vector3 normal;
-        Vector3 tangent;
-        Vector2 Tex;
-    };
-    drawData.vertexBufferStride = sizeof(Vertex);
+        currNode = nodeQue.front();
+        nodeQue.pop();
 
-    std::vector<Vertex> vertices;
-    std::vector<aiMesh*> meshes;
-    std::vector<UINT> indices;
-    auto processMesh = [&](aiMesh* mesh)->aiMesh*
-        {
+        currObj = objQue.front();
+        objQue.pop();
 
-        };
+        int childNumber = 0;
+        if (currNode)
+        {    
+            SimpleMashComponent& meshComponent = currObj->AddComponent<SimpleMashComponent>();
+            
+            Vector3 pos;
+            Quaternion rot;
+            Vector3 scale;
+            AssimpMath::DecomposeTransform(currNode, pos, rot, scale);
+            currObj->transform.position = pos;
+            currObj->transform.rotation = rot;
+            currObj->transform.scale = scale;
 
-    auto processNode = [&](aiNode* node)->void
-        {
-            for (UINT i = 0; i < node->mNumMeshes; i++) 
+            for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
             {
-                aiMesh* mesh = pScene->mMeshes[node->mMeshes[i]];
-                meshes.push_back(processMesh(mesh));
+                unsigned int meshIndex = currNode->mMeshes[i];
+                aiMesh* pMesh = pScene->mMeshes[meshIndex];
+                Vertex vertex;
+                for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
+                {
+                    aiVector3D position = pMesh->mVertices[vertexIndex];
+                    vertex.position.x = position.x;
+                    vertex.position.y = position.y;
+                    vertex.position.z = position.z;
+
+                    aiVector3D normal = pMesh->mNormals[vertexIndex];
+                    vertex.normal.x = normal.x;
+                    vertex.normal.y = normal.y;
+                    vertex.normal.z = normal.z;
+
+                    aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
+                    vertex.biTangent.x = BiTangents.x;
+                    vertex.biTangent.y = BiTangents.y;
+                    vertex.biTangent.z = BiTangents.z;
+
+                    aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
+                    vertex.Tex.x = texCoord.x; // u 좌표
+                    vertex.Tex.y = texCoord.y; // v 좌표
+
+                    meshComponent.vertices.push_back(vertex);
+                }
+                
+                for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
+                {
+                    const aiFace& face = pMesh->mFaces[faceIndex];
+                    for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
+                    {
+                        meshComponent.indices.push_back(face.mIndices[numIndex]);
+                    }
+                }
             }
+            for (unsigned int i = 0; i < currNode->mNumChildren; i++)
+            {       
+                // 큐에 자식 노드와 오브젝트를 넣음
+                nodeQue.push(currNode->mChildren[i]);
 
-            for (UINT i = 0; i < node->mNumChildren; i++) 
-            {
-                this->processNode(node->mChildren[i]);
-            }
-        };
+                std::wstring childName = currObj->Name + L"_Child_" + std::to_wstring(i);
+                GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
+                childObj->transform.SetParent(currObj->transform, false);
 
-    
-
-  
+                objQue.push(childObj);
+            }  
+            meshComponent.SetMesh();
+        }
+    }
 }

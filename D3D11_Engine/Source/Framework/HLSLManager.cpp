@@ -60,7 +60,14 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 {
 	auto findIter = sharingShaderMap.find(path);
 	if (findIter != sharingShaderMap.end())
-		*ppOutput = dynamic_cast<ID3D11VertexShader*>(findIter->second);
+	{
+		HRESULT hr = findIter->second->QueryInterface(__uuidof(ID3D11VertexShader), reinterpret_cast<void**>(ppOutput));
+		if (FAILED(hr))
+		{
+			*ppOutput = nullptr;
+		}
+		return;
+	}
 	else
 	{
 		ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
@@ -90,7 +97,14 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 {
 	auto findIter = sharingShaderMap.find(path);
 	if (findIter != sharingShaderMap.end())
-		*ppOutput = dynamic_cast<ID3D11PixelShader*>(findIter->second);
+	{
+		HRESULT hr = findIter->second->QueryInterface(__uuidof(ID3D11PixelShader), reinterpret_cast<void**>(ppOutput));
+		if (FAILED(hr))
+		{
+			*ppOutput = nullptr;
+		}
+		return;
+	}
 	else
 	{
 		ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.

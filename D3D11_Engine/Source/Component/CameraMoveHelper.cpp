@@ -28,6 +28,7 @@ void CameraMoveHelper::Update()
 	Quaternion yawRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.x);
 	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, angle.y);
 	transform.rotation = yawRotation * pitchRotation;
+	inputVector = Vector3::Zero;
 }
 
 void CameraMoveHelper::LateUpdate()
