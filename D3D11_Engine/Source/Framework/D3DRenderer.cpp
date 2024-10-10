@@ -219,13 +219,13 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
-    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, d3dRenderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
+    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
     cbuffer_Camera cb;
     cb.Projection = Camera::GetMainCamera()->GetPM();
     cb.View = Camera::GetMainCamera()->GetVM();
 
-    UpdateConstBuffer(cb); //카메라 버퍼 바인딩
+    UpdateVSPSConstBuffer(cb); //카메라 버퍼 업데이트
 }
 
 void D3DRenderer::EndDraw()
