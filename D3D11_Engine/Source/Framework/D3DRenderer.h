@@ -94,7 +94,7 @@ public:
 	int CreatePSConstantBuffers(const char* key, unsigned int buffer_size);
 								   
 	template<typename T>
-	void UpdateConstBuffer(T& data);
+	void UpdateVSPSConstBuffer(T& data);
 
 	template<typename T>
 	void UpdateVSConstBuffer(T& data);
@@ -188,7 +188,7 @@ inline int D3DRenderer::CreatePSConstantBuffers()
 }
 
 template<typename T>
-inline void D3DRenderer::UpdateConstBuffer(T& data)
+inline void D3DRenderer::UpdateVSPSConstBuffer(T& data)
 {
 	UpdateVSConstBuffer<T>(data);
 	UpdatePSConstBuffer<T>(data);
