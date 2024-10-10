@@ -23,8 +23,8 @@ void LightManager::FixedUpdate()
 void LightManager::Update()
 {
     cb_Light.CamPos = { Camera::GetMainCamera()->transform.position };
-    d3dRenderer.UpdateConstBuffer(cb_Light);
-    d3dRenderer.UpdateConstBuffer(cb_bool);
+    d3dRenderer.UpdateVSPSConstBuffer(cb_Light);
+    d3dRenderer.UpdateVSPSConstBuffer(cb_bool);
 }
 
 void LightManager::LateUpdate()
