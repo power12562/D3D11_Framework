@@ -46,6 +46,19 @@ namespace Utility
 		return S_OK;
 	}
 
+	HRESULT LoadShadeFormFile(const WCHAR* szFileName, ID3DBlob** ppBlobOut)
+	{
+		HRESULT hr{};
+		hr = D3DReadFileToBlob(szFileName, ppBlobOut);
+		if (FAILED(hr))
+		{
+			_com_error err(hr);
+			MessageBox(NULL, err.ErrorMessage(), L"LoadShadeFormFile", MB_OK);
+			return hr;
+		}
+		return S_OK;
+	}
+
 	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView)
 	{
 		HRESULT hr = S_OK;
