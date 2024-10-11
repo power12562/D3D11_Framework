@@ -1,6 +1,6 @@
 #include "ImportFBXScene.h"
 #include <Framework\SceneManager.h>
-#include <Component\CameraMoveHelper.h>
+#include <Component\Camera\CameraMoveHelper.h>
 #include <Framework/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
@@ -8,6 +8,8 @@
 
 #include "../Source/AssimpComponent.h"
 #include "../Source/SimpleDirectionalLight.h"
+
+#pragma warning(disable : 4305)
 
 ImportFBXScene::ImportFBXScene()
 {

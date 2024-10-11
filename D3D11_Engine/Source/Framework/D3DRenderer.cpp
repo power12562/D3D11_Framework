@@ -1,5 +1,5 @@
 #include "D3DRenderer.h"
-#include <Component\Camera.h>
+#include <Component\Camera\Camera.h>
 #include <Framework\WinGameApp.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>

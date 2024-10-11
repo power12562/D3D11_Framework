@@ -1,6 +1,6 @@
 #pragma once
 #include <GameObject/Base/GameObject.h>
-#include <Component/Camera.h>
+#include <Component/Camera/Camera.h>
 
 class CameraObject : public GameObject
 {

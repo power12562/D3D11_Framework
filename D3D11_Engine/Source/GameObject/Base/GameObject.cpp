@@ -1,7 +1,7 @@
 #include "GameObject.h"	   
 #include <_Debug/Console.h>
 
-#include <Component/Camera.h>
+#include <Component/Camera/Camera.h>
 #include <Component\Base\RenderComponent.h>
 #include <Framework/D3DRenderer.h>
 #include <Framework/SceneManager.h>

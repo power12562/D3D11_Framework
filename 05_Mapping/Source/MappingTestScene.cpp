@@ -3,7 +3,7 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
 #include <Math/Mathf.h>
-#include <Component\CameraMoveHelper.h>
+#include <Component\Camera\CameraMoveHelper.h>
 #include <Framework\SceneManager.h>
 
 #include "../Source/LightManager.h"
