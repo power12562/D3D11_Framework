@@ -82,7 +82,7 @@ void SimpleMashComponent::Start()
 
     auto pDevice = d3dRenderer.GetDevice();
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    Utility::CheackHRESULT(Utility::CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+    Utility::CheackHRESULT(Utility::LoadShadeFormFile(L"VertexShader.cso", &vertexShaderBuffer));
     Utility::CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
         vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
     vertexShaderBuffer->Release();
