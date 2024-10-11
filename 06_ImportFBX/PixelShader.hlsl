@@ -1,4 +1,44 @@
 #include "Shared.fxh"
+Texture2D txDiffuse : register(t0);
+Texture2D normalMap : register(t1);
+Texture2D specularMap : register(t2);
+Texture2D emissiveMap : register(t3);
+Texture2D opacityMap : register(t4);
+
+SamplerState samLinear : register(s0);
+
+cbuffer cbuffer_Light : register(b2)
+{
+    float3 CamPos;
+    float CamPosPad;
+    
+    float4 LightDir;
+    float4 LightDiffuse;
+    float4 LightAmbient;
+    float4 LightSpecular;
+
+    float4 MaterialAmbient;
+    float4 MaterialDiffuse;
+    float4 MaterialSpecular;
+    float MaterialSpecularPower;
+    float3 MaterialSpecularPad;
+}
+
+cbuffer cbuffer_bool : register(b3)
+{
+    bool UseNormalMap;
+    bool UseSpecularMap;
+    bool UseEmissive;
+    bool UseOpacity;
+}
+
+cbuffer cb_localBool : register(b4)
+{
+    bool loaclNormal;
+    bool loaclSpecular;
+    bool loaclEmissive;
+    bool loaclOpacity;
+};
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
@@ -8,14 +48,27 @@ float4 main(PS_INPUT input) : SV_Target
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
     float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
+    float4 emissive = { 0, 0, 0, 0 };
+    float4 mapOpacity = opacityMap.Sample(samLinear, input.Tex);
+    
+    if (UseEmissive && loaclEmissive)
+    {
+        emissive = emissiveMap.Sample(samLinear, input.Tex);
+    }
+      
+    float4 opacity = { 0, 0, 0, 1 };
+    if (UseOpacity && loaclOpacity)
+    {
+        opacity.a = mapOpacity.a;
+    }
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
-    if (UseNormalMap)
+    if (UseNormalMap && loaclNormal)
     {
         input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
     }
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * txColor * MaterialDiffuse;
-    
+
     float4 ambient = LightAmbient * MaterialAmbient;
     
     float3 View = normalize(CamPos.xyz - input.World);
@@ -23,7 +76,7 @@ float4 main(PS_INPUT input) : SV_Target
     float fHDotN = max(0.0f, dot(HalfVector, input.Normal));
  
     float4 specular;
-    if(UseSpecularMap)
+    if (UseSpecularMap && loaclSpecular)
     {
         specular = pow(fHDotN, MaterialSpecularPower) * mapSpecular * MaterialSpecular *LightSpecular;
     }
@@ -31,8 +84,12 @@ float4 main(PS_INPUT input) : SV_Target
     {
         specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular;
     }
-    
+      
     //return float4(input.Normal, 1);
     //return specular;
-    return ambient + diffuse + specular;
+    //return emissive;
+    //return opacity;
+    float4 final = ambient + diffuse + specular + emissive;
+    final.a = opacity.a;
+    return final;
 }

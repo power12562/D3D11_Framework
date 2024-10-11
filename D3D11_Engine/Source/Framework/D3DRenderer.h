@@ -124,6 +124,7 @@ private:
 	IDXGISwapChain*			 pSwapChain;		  // Ω∫ø“√º¿Œ
 	ID3D11RenderTargetView*  pRenderTargetView;	  // ∑ª¥ı∏µ ≈∏∞Ÿ∫‰
 	ID3D11DepthStencilView*  pDepthStencilView;   // ±Ì¿Ã πˆ∆€
+	ID3D11BlendState*		 pBlendState;		  // ∫Ì∑ªµÂ ªÛ≈¬
 
 public:
 	int GetVSCbufferCount() { return (int)vs_cbufferList.size(); }

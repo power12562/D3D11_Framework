@@ -2,6 +2,7 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Math/Mathf.h>
 #include <Component\CameraMoveHelper.h>
+#include <Framework\SceneManager.h>
 
 #include "../Source/TestCubeComponent.h"
 
@@ -14,16 +15,16 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     TestApp app;
     app.Initialize(hInst);
 
-    auto mainCam = new CameraObject(L"Camera");
+    auto mainCam = NewGameObject<CameraObject>(L"Camera");
     mainCam->GetComponent<Camera>().SetMainCamera();
     mainCam->transform.position += Vector3(0, 3, 0);
     mainCam->AddComponent<CameraMoveHelper>();
 
-    auto cube = new GameObject(L"Cube");
+    auto cube = NewGameObject<GameObject>(L"Cube");
     cube->AddComponent<TestCubeComponent>();
     cube->transform.position += Vector3(0, 0, 5);
 
-    auto cube2 = new GameObject(L"Cube1");
+    auto cube2 = NewGameObject<GameObject>(L"Cube1");
     cube2->AddComponent<TestCubeComponent>();
     cube2->transform.position += Vector3(2.5, 0, 5);
     cube2->transform.SetParent(cube->transform);

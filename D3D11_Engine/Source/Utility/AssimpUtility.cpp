@@ -2,10 +2,21 @@
 
 bool Utility::ParseFileName(aiString& str)
 {
-	const char* findBackShlash = strrchr(str.C_Str(), '\\');
-	if (findBackShlash)
+	const char* findBackSlash = strrchr(str.C_Str(), '\\');
+	const char* findSlash = strrchr(str.C_Str(), '/');
+	const char* findDot = strrchr(str.C_Str(), '.');
+	if (findBackSlash)
 	{
-		str.Set(findBackShlash + 1);
+		str.Set(findBackSlash + 1);
+		return true;
+	}
+	else if (findSlash)
+	{
+		str.Set(findSlash + 1);
+		return true;
+	}
+	else if (findDot)
+	{
 		return true;
 	}
 	else

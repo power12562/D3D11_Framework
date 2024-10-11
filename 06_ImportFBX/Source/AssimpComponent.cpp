@@ -32,7 +32,6 @@ void AssimpComponent::Start()
 
     CheackHRESULT(d3dRenderer.GetDevice()->CreateRasterizerState(&rd, &rasterierState));
     d3dRenderer.GetDeviceContext()->RSSetState(rasterierState);
-    LoadFBX("Resource/zeldaPosed001.fbx");
 }
 
 void AssimpComponent::FixedUpdate()
@@ -136,15 +135,17 @@ void AssimpComponent::LoadFBX(const char* path)
                     }
                 }
 
+                using namespace utfConvert;
                 //Load Texture
                 aiMaterial* materials = pScene->mMaterials[pMesh->mMaterialIndex];
                 aiString path;   
-                std::wstring basePath(this->directory);
-                basePath += L"\\";
+                std::wstring basePath;
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_DIFFUSE, 0, &path))
                 {
 					if (Utility::ParseFileName(path))
-					{
+					{              
+                        basePath = directory;
+                        basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
 						Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pTextureRV));
 					}                  
@@ -153,6 +154,8 @@ void AssimpComponent::LoadFBX(const char* path)
                 {
                     if (Utility::ParseFileName(path))
                     {
+                        basePath = directory;
+                        basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
                         Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pNormalMap));
                     }
@@ -162,8 +165,30 @@ void AssimpComponent::LoadFBX(const char* path)
 
                     if (Utility::ParseFileName(path))
                     {
+                        basePath = directory;
+                        basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
                         Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pSpecularMap));
+                    }
+                }
+                if (AI_SUCCESS == materials->GetTexture(aiTextureType_EMISSIVE, 0, &path))
+                {
+                    if (Utility::ParseFileName(path))
+                    {
+                        basePath = directory;
+                        basePath += L"\\";
+                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
+                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pEmissiveMap));
+                    }
+                }
+                if (AI_SUCCESS == materials->GetTexture(aiTextureType_OPACITY, 0, &path))
+                {
+                    if (Utility::ParseFileName(path))
+                    {
+                        basePath = directory;
+                        basePath += L"\\";
+                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
+                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pOpacityMap));
                     }
                 }
      

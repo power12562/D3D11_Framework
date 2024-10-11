@@ -8,6 +8,10 @@ class Transform
 public:
 	Transform();
 	~Transform();
+
+	Transform(const Transform& rhs);
+
+	Transform& operator=(const Transform& rhs);
 	
 public:
 	const Vector3& SetPosition(const Vector3& value);

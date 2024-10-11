@@ -13,6 +13,8 @@ void CameraMoveHelper::Start()
 	const Vector3& euler = transform.rotation.ToEuler();
 	angle.x = euler.x;
 	angle.y = euler.y;
+
+	startTransform = transform;
 }
 
 void CameraMoveHelper::FixedUpdate()
@@ -99,8 +101,10 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 
 void CameraMoveHelper::Reset()
 {
-	transform.position = Vector3(0, 0, 0);
-	angle = { 0,0 };
+	transform = startTransform;
+	const Vector3& startAngle = startTransform.rotation.ToEuler();
+	angle.x = startAngle.x;
+	angle.y = startAngle.y;
 }
 
 void CameraMoveHelper::AddYaw(float value)

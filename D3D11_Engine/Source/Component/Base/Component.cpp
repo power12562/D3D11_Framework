@@ -26,3 +26,10 @@ Transform& Component::GetTransform()
 {
 	return gameObject.transform;
 }
+
+Transform& Component::SetTransform(const Transform& tr)
+{
+	gameObject.transform = tr;
+	return gameObject.transform;
+}
+

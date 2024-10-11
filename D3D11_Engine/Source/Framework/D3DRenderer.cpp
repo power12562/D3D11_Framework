@@ -106,6 +106,28 @@ void D3DRenderer::Init()
 
         pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
 
+        //Set alpha blend
+        D3D11_BLEND_DESC blendDesc;
+        ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+        // 블렌딩 상태 설정
+        blendDesc.AlphaToCoverageEnable = FALSE; // Alpha To Coverage 비활성화
+        blendDesc.IndependentBlendEnable = FALSE; // 독립 블렌드 비활성화
+        blendDesc.RenderTarget[0].BlendEnable = TRUE; // 블렌딩 활성화
+        blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // 소스 블렌드 (소스 알파 사용)
+        blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; // 대상 블렌드 (1 - 소스 알파)
+        blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD; // 블렌드 연산
+        blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE; // 알파 소스 블렌드
+        blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; // 알파 대상 블렌드
+        blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; // 알파 블렌드 연산
+        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // 모든 색상 채널 쓰기 허용
+        CheackHRESULT(pDevice->CreateBlendState(&blendDesc, &pBlendState));
+
+        pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
+
+
+
+
         CreateVSPSConstantBuffers<cbuffer_Transform>();
         CreateVSPSConstantBuffers<cbuffer_Camera>();
     }
@@ -128,7 +150,7 @@ void D3DRenderer::Uninit()
     {
         SafeRelease(cbuffer);
     }
-
+    SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
     SafeRelease(pSwapChain);

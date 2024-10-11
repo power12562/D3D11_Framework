@@ -32,7 +32,8 @@ public:
 	_declspec (property(get = GetGameObject)) GameObject& gameObject;
 
 	Transform& GetTransform();
-	__declspec (property(get = GetTransform)) Transform& transform;
+	Transform& SetTransform(const Transform& tr);
+	__declspec (property(get = GetTransform, put = SetTransform)) Transform& transform;
 
 	template <typename T>
 	T& AddComponent();

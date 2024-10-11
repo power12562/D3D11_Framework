@@ -25,6 +25,8 @@ public:
 	void AddYaw(float angle);
 
 private:
+	Transform startTransform;
+
 	Vector3 inputVector{};
 	Vector2 angle{}; //z√‡¿∫ æ»æ∏
 	float moveSpeed;

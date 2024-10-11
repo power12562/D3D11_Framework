@@ -35,6 +35,8 @@ public:
 	ID3D11ShaderResourceView* m_pTextureRV = nullptr;
 	ID3D11ShaderResourceView* m_pNormalMap = nullptr;
 	ID3D11ShaderResourceView* m_pSpecularMap = nullptr;
+	ID3D11ShaderResourceView* m_pEmissiveMap = nullptr;
+	ID3D11ShaderResourceView* m_pOpacityMap = nullptr;
 private:
 
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.

@@ -2,6 +2,8 @@
 #include <Framework/D3DRenderer.h>
 #include <Framework/HLSLManager.h>
 
+#include "..\Source\SimpleDirectionalLight.h"
+
 SimpleMashComponent::SimpleMashComponent()
 {
 }
@@ -13,9 +15,11 @@ SimpleMashComponent::~SimpleMashComponent()
     SafeRelease(m_pNormalMap);
     SafeRelease(m_pSpecularMap);
     SafeRelease(m_pSamplerLinear);
+    SafeRelease(m_pEmissiveMap);
+    SafeRelease(m_pOpacityMap);
 
-    hlslManager.ReleaseSharingShader(L"PixelShader.hlsl");
-    hlslManager.ReleaseSharingShader(L"VertexShader.hlsl");
+    hlslManager.ReleaseSharingShader(L"PixelShader.cso");
+    hlslManager.ReleaseSharingShader(L"VertexShader.cso");
 }
 
 void SimpleMashComponent::SetMesh()
@@ -65,8 +69,8 @@ void SimpleMashComponent::SetMesh()
 
 void SimpleMashComponent::Start()
 {
-    hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &drawData.pPixelShader);
-    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader);
+    hlslManager.CreateSharingShader(L"PixelShader.cso", "ps_4_0", &drawData.pPixelShader);
+    hlslManager.CreateSharingShader(L"VertexShader.cso", "vs_4_0", &drawData.pVertexShader);
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -107,14 +111,22 @@ void SimpleMashComponent::Render()
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
     pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    if(m_pTextureRV)
-        pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
-
-    if(m_pNormalMap)
-        pDeviceContext->PSSetShaderResources(1, 1, &m_pNormalMap);
+    SimpleDirectionalLight::cb_localbool.loaclNormalMap = m_pNormalMap;
+    SimpleDirectionalLight::cb_localbool.loaclEmissiveMap = m_pEmissiveMap;
+    SimpleDirectionalLight::cb_localbool.loaclOpacityMap = m_pOpacityMap;
+    SimpleDirectionalLight::cb_localbool.loaclSpecularMap = m_pSpecularMap;
     
-    if(m_pSpecularMap)
-        pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularMap);
+    pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+
+    pDeviceContext->PSSetShaderResources(1, 1, &m_pNormalMap);
+
+    pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularMap);
+
+    pDeviceContext->PSSetShaderResources(3, 1, &m_pEmissiveMap);
+
+    pDeviceContext->PSSetShaderResources(4, 1, &m_pOpacityMap );
+
+    d3dRenderer.UpdatePSConstBuffer(SimpleDirectionalLight::cb_localbool);
 
     if (drawData.pInputLayout && drawData.pVertexBuffer && drawData.pIndexBuffer && drawData.pVertexShader && drawData.pPixelShader)
     {

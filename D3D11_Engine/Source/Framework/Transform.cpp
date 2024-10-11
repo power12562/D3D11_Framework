@@ -5,12 +5,38 @@ Transform::Transform()
 {
 	_WM = DirectX::XMMatrixIdentity();
 	_LM = DirectX::XMMatrixIdentity();
-
 }
 
 Transform::~Transform()
 {								 
 	ClearParent();
+}
+
+Transform::Transform(const Transform& rhs)
+{
+	_position = rhs._position;
+	_rotation = rhs._rotation;
+	_scale = rhs._scale;
+
+	_localPosition = rhs._localPosition;
+	_localRotation = rhs._localRotation;
+	_localScale = rhs._localScale;
+}
+
+Transform& Transform::operator=(const Transform& rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	_position	= rhs._position;
+	_rotation	= rhs._rotation;
+	_scale		= rhs._scale;
+
+	_localPosition	= rhs._localPosition;
+	_localRotation	= rhs._localRotation;
+	_localScale		= rhs._localScale;
+
+	return *this;
 }
 
 const Vector3& Transform::SetPosition(const Vector3& value)

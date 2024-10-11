@@ -6,7 +6,7 @@ struct cbuffer_Light
     Vector3 CamPos;
     float CamPosPad{};
 
-    Vector4 LightDir{ 0, 1, -1, 0 };
+    Vector4 LightDir{ 0, -1, 1, 0 };
     Vector4 LightDiffuse{ 1, 1, 1, 1 };
     Vector4 LightAmbient{ 0, 0, 0, 0 };
     Vector4 LightSpecular{ 1, 1, 1, 1 };
@@ -22,8 +22,30 @@ struct cbuffer_bool
 {
     bool UseNormalMap = true;
     bool pad1[3]{};
+
     bool UseSpecularMap = true;
-    bool pad2[11]{};
+    bool pad2[3]{};
+
+    bool UseEmissiveMap = true;
+    bool pad3[3]{};
+
+    bool UseOpacityMap = true;
+    bool pad4[3]{};
+};
+
+struct cb_localBool
+{
+    bool loaclNormalMap = true;
+    bool pad1[3]{};
+
+    bool loaclSpecularMap = true;
+    bool pad2[3]{};
+
+    bool loaclEmissiveMap = true;
+    bool pad3[3]{};
+
+    bool loaclOpacityMap = true;
+    bool pad4[3]{};
 };
 
 class SimpleDirectionalLight : public Component
@@ -31,6 +53,7 @@ class SimpleDirectionalLight : public Component
 public:
     inline static cbuffer_Light cb_Light{};
     inline static cbuffer_bool cb_bool{};
+    inline static cb_localBool cb_localbool{};
 public:
     SimpleDirectionalLight();
     virtual ~SimpleDirectionalLight() override;

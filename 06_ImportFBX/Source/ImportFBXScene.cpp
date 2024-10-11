@@ -12,17 +12,49 @@
 ImportFBXScene::ImportFBXScene()
 {
 	UseImGUI = true;
-	d3dRenderer.backgroundColor = Color(1, 1, 1, 1);
+	d3dRenderer.backgroundColor = Color(0.5, 0.5, 0.5, 1);
+
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->AddComponent<SimpleDirectionalLight>();
-	cam->transform.position = Vector3(0.98, 13.835, -16);
-	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll( Vector3(-16.45, 0.15, -0.04) * Mathf::Deg2Rad );
+	cam->transform.position = Vector3(0, 16, -30);
+	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll( Vector3(-3, 0, 0) * Mathf::Deg2Rad );
 	cam->AddComponent<CameraMoveHelper>();
 
-	auto obj = NewGameObject<GameObject>(L"obj");
-	obj->transform.scale = { 0.1,0.1,0.1 };
-	obj->AddComponent<AssimpComponent>();
+	auto character = NewGameObject<GameObject>(L"Character");
+	character->transform.position = { 15,0,0 };
+	character->transform.scale = { 0.1,0.1,0.1 };
+	character->AddComponent<AssimpComponent>().LoadFBX("Resource/Character.fbx");
+
+	auto zelda = NewGameObject<GameObject>(L"zelda");
+	zelda->transform.position = { 0,0,0 };
+	zelda->transform.scale = { 0.1,0.1,0.1 };
+	zelda->AddComponent<AssimpComponent>().LoadFBX("Resource/zeldaPosed001.fbx");
+
+	auto tree = NewGameObject<GameObject>(L"Tree");
+	tree->transform.position = { -15,0,0 };
+	tree->transform.scale = { 10, 10, 10 };
+	tree->AddComponent<AssimpComponent>().LoadFBX("Resource/Tree.fbx");
+
+	auto box = NewGameObject<GameObject>(L"box");
+	box->transform.position = { -5, 5, -15 };
+	box->transform.scale = { 0.1, 0.1, 0.1 };
+	box->AddComponent<AssimpComponent>().LoadFBX("Resource/box.fbx");
+
+	auto monkey = NewGameObject<GameObject>(L"Monkey");
+	monkey->transform.position = { 0,5,30 };
+	monkey->transform.scale = { 0.05,0.05,0.05 };
+	monkey->AddComponent<AssimpComponent>().LoadFBX("Resource/Monkey.fbx");
+
+	auto torus = NewGameObject<GameObject>(L"Torus");
+	torus->transform.position = { 30,5,30 };
+	torus->transform.scale = { 0.05,0.05,0.05 };
+	torus->AddComponent<AssimpComponent>().LoadFBX("Resource/Torus.fbx");
+
+	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
+	IcoSphere->transform.position = { -30, 5, 30 };
+	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
+	IcoSphere->AddComponent<AssimpComponent>().LoadFBX("Resource/IcoSphere.fbx");
 }
 
 ImportFBXScene::~ImportFBXScene()
@@ -52,6 +84,8 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::Text("Material");
 	ImGui::Checkbox("Use NormalMap", &cb_bool.UseNormalMap);
 	ImGui::Checkbox("Use SpecularMap", &cb_bool.UseSpecularMap);
+	ImGui::Checkbox("Use EmissiveMap", &cb_bool.UseEmissiveMap);
+	ImGui::Checkbox("Use OpacityMap", &cb_bool.UseOpacityMap);
 	ImGui::ColorEdit3("MaterialDiffuse", &cb_Light.MaterialDiffuse);
 	ImGui::ColorEdit3("MaterialAmbient", &cb_Light.MaterialAmbient);
 	ImGui::ColorEdit3("MaterialSpecular", &cb_Light.MaterialSpecular);
