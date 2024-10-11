@@ -12,7 +12,6 @@ namespace Utility
 			p = nullptr;
 			return refCount;
 		}
-		__debugbreak(); //p is nullptr
 		return -1;
 	}
 

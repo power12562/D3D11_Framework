@@ -10,7 +10,9 @@ CameraMoveHelper::CameraMoveHelper()
 
 void CameraMoveHelper::Start()
 {
-	
+	const Vector3& euler = transform.rotation.ToEuler();
+	angle.x = euler.x;
+	angle.y = euler.y;
 }
 
 void CameraMoveHelper::FixedUpdate()
@@ -25,8 +27,8 @@ void CameraMoveHelper::Update()
 	 	transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
 		inputVector = Vector3::Zero;	
 	}
-	Quaternion yawRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.x);
-	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, angle.y);
+	Quaternion yawRotation   = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.y);
+	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, angle.x);
 	transform.rotation = yawRotation * pitchRotation;
 	inputVector = Vector3::Zero;
 }
@@ -90,8 +92,8 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
 	{
 		Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * TimeSystem::Time.DeltaTime;
-		AddPitch(-delta.y);
-		AddYaw(-delta.x);
+		AddYaw(-delta.y);
+		AddPitch(-delta.x);
 	}
 }
 

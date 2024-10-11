@@ -19,6 +19,6 @@ private:
 	void LoadFBX(const char* path);
 
 private:
-	std::string directory;
-
+	std::wstring directory;
+	struct ID3D11RasterizerState* rasterierState = nullptr; //레스터화 규칙
 };

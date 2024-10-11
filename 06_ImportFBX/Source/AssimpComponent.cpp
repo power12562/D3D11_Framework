@@ -1,4 +1,5 @@
 #include "AssimpComponent.h"
+#include <Utility\D3D11Utility.h>
 #include <_Debug\Console.h>
 #include <Framework/SceneManager.h>
 #include <queue>
@@ -6,8 +7,11 @@
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 #include <Math/AssimpMath.h>
+#include <Utility\utfConvert.h>
+#include <Utility\AssimpUtility.h>
 
 #include "../Source/SimpleMashComponent.h"
+
 
 AssimpComponent::AssimpComponent()
 {
@@ -15,11 +19,19 @@ AssimpComponent::AssimpComponent()
 
 AssimpComponent::~AssimpComponent()
 {
-
+    Utility::SafeRelease(rasterierState);
 }
 
 void AssimpComponent::Start()
 {
+    using namespace Utility;
+
+    CD3D11_RASTERIZER_DESC rd(D3D11_DEFAULT);
+    rd.FillMode = D3D11_FILL_SOLID;         //채우기 방식
+    rd.CullMode = D3D11_CULL_NONE;          //컬링 방식
+
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateRasterizerState(&rd, &rasterierState));
+    d3dRenderer.GetDeviceContext()->RSSetState(rasterierState);
     LoadFBX("Resource/zeldaPosed001.fbx");
 }
 
@@ -37,6 +49,7 @@ void AssimpComponent::LateUpdate()
 
 void AssimpComponent::Render()
 {
+    
 }
 
 void AssimpComponent::LoadFBX(const char* path)
@@ -54,7 +67,7 @@ void AssimpComponent::LoadFBX(const char* path)
     if (pScene == nullptr)
         return;
 
-    this->directory = fileName.substr(0, fileName.find_last_of("/\\"));
+    this->directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
    
     std::queue<aiNode*> nodeQue;
     nodeQue.push(pScene->mRootNode);
@@ -81,9 +94,9 @@ void AssimpComponent::LoadFBX(const char* path)
             Quaternion rot;
             Vector3 scale;
             AssimpMath::DecomposeTransform(currNode, pos, rot, scale);
-            currObj->transform.position = pos;
-            currObj->transform.rotation = rot;
-            currObj->transform.scale = scale;
+            currObj->transform.position += pos;
+            currObj->transform.rotation *= rot;
+            currObj->transform.scale *= scale;
 
             for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
             {
@@ -108,8 +121,8 @@ void AssimpComponent::LoadFBX(const char* path)
                     vertex.biTangent.z = BiTangents.z;
 
                     aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
-                    vertex.Tex.x = texCoord.x; // u 좌표
-                    vertex.Tex.y = texCoord.y; // v 좌표
+                    vertex.Tex.x = texCoord.x;
+                    vertex.Tex.y = texCoord.y;
 
                     meshComponent.vertices.push_back(vertex);
                 }
@@ -122,10 +135,41 @@ void AssimpComponent::LoadFBX(const char* path)
                         meshComponent.indices.push_back(face.mIndices[numIndex]);
                     }
                 }
+
+                //Load Texture
+                aiMaterial* materials = pScene->mMaterials[pMesh->mMaterialIndex];
+                aiString path;   
+                std::wstring basePath(this->directory);
+                basePath += L"\\";
+                if (AI_SUCCESS == materials->GetTexture(aiTextureType_DIFFUSE, 0, &path))
+                {
+					if (Utility::ParseFileName(path))
+					{
+                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
+						Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pTextureRV));
+					}                  
+                }
+                if (AI_SUCCESS == materials->GetTexture(aiTextureType_NORMALS, 0, &path))
+                {
+                    if (Utility::ParseFileName(path))
+                    {
+                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
+                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pNormalMap));
+                    }
+                }
+                if (AI_SUCCESS == materials->GetTexture(aiTextureType_SPECULAR, 0, &path))
+                {
+
+                    if (Utility::ParseFileName(path))
+                    {
+                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
+                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pSpecularMap));
+                    }
+                }
+     
             }
             for (unsigned int i = 0; i < currNode->mNumChildren; i++)
             {       
-                // 큐에 자식 노드와 오브젝트를 넣음
                 nodeQue.push(currNode->mChildren[i]);
 
                 std::wstring childName = currObj->Name + L"_Child_" + std::to_wstring(i);

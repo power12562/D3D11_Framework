@@ -60,8 +60,6 @@ struct DRAW_INDEX_DATA
 		using namespace Utility;
 		SafeRelease(pVertexBuffer);
 		SafeRelease(pIndexBuffer);
-		SafeRelease(pVertexShader);
-		SafeRelease(pPixelShader);
 		SafeRelease(pInputLayout);
 	}
 };

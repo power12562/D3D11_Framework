@@ -165,8 +165,10 @@
     <ClInclude Include="Source\Framework\WinGameApp.h" />
     <ClInclude Include="Source\GameObject\Base\GameObject.h" />
     <ClInclude Include="Source\Math\Mathf.h" />
+    <ClInclude Include="Source\Utility\AssimpUtility.h" />
     <ClInclude Include="Source\Utility\D3D11Utility.h" />
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
+    <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
@@ -189,8 +191,10 @@
     <ClCompile Include="Source\Framework\WinGameApp.cpp" />
     <ClCompile Include="Source\GameObject\Base\GameObject.cpp" />
     <ClCompile Include="Source\Math\Mathf.cpp" />
+    <ClCompile Include="Source\Utility\AssimpUtility.cpp" />
     <ClCompile Include="Source\Utility\D3D11Utility.cpp" />
     <ClCompile Include="Source\Utility\MemoryUtility.cpp" />
+    <ClCompile Include="Source\Utility\utfConvert.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

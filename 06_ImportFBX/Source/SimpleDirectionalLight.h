@@ -6,7 +6,7 @@ struct cbuffer_Light
     Vector3 CamPos;
     float CamPosPad{};
 
-    Vector4 LightDir{ 0, 0, 1, 0 };
+    Vector4 LightDir{ 0, 1, -1, 0 };
     Vector4 LightDiffuse{ 1, 1, 1, 1 };
     Vector4 LightAmbient{ 0, 0, 0, 0 };
     Vector4 LightSpecular{ 1, 1, 1, 1 };

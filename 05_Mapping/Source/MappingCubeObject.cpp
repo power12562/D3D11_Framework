@@ -12,6 +12,9 @@ MappingCubeObject::~MappingCubeObject()
     SafeRelease(m_pNormalMap);
     SafeRelease(m_pSpecularMap);
     SafeRelease(m_pSamplerLinear);
+
+    SafeRelease(drawData.pVertexShader);
+    SafeRelease(drawData.pPixelShader);
 }
 
 void MappingCubeObject::Start()

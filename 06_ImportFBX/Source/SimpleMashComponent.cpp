@@ -50,6 +50,17 @@ void SimpleMashComponent::SetMesh()
 	D3D11_SUBRESOURCE_DATA ibData = {};
 	ibData.pSysMem = &indices[0];
 	CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &drawData.pIndexBuffer));
+
+    // Create the sample state
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    CheackHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 }
 
 void SimpleMashComponent::Start()
@@ -93,6 +104,20 @@ void SimpleMashComponent::LateUpdate()
 
 void SimpleMashComponent::Render()
 {
-    if(drawData.pInputLayout && drawData.pVertexBuffer && drawData.pIndexBuffer && drawData.pVertexShader && drawData.pPixelShader)
+    const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
+    pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+
+    if(m_pTextureRV)
+        pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
+
+    if(m_pNormalMap)
+        pDeviceContext->PSSetShaderResources(1, 1, &m_pNormalMap);
+    
+    if(m_pSpecularMap)
+        pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularMap);
+
+    if (drawData.pInputLayout && drawData.pVertexBuffer && drawData.pIndexBuffer && drawData.pVertexShader && drawData.pPixelShader)
+    {
         d3dRenderer.DrawIndex(drawData);
+    }
 }
