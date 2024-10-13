@@ -6,6 +6,7 @@
 #include <Framework/D3DRenderer.h>
 #include <Framework/SceneManager.h>
 #include <Framework/InstanceIDManager.h>
+#include <Framework/D3DConstBuffer.h>
 
 void GameObject::Destroy(GameObject& obj)
 {
@@ -57,11 +58,13 @@ void GameObject::LateUpdate()
 
 void GameObject::Render()
 {
-	cbuffer_Transform cb_Transform;
-	cb_Transform.World = XMMatrixTranspose(transform.GetWM());
-	cb_Transform.WorldInverseTranspose = XMMatrixInverse(nullptr,transform.GetWM());
-	cb_Transform.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-	d3dRenderer.UpdateVSPSConstBuffer(cb_Transform);
+	cb_Transform cb_transform;
+	cb_transform.World = XMMatrixTranspose(transform.GetWM());
+	cb_transform.WorldInverseTranspose = XMMatrixInverse(nullptr,transform.GetWM());
+	cb_transform.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+	d3dRenderer.UpdateVSPSConstBuffer(cb_transform);
+
+	D3DConstBuffer::UpdateStaticCbuffer(cb_transform);
 	
 	for (auto& component : renderList)
 	{

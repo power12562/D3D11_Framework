@@ -1,6 +1,7 @@
 #include "D3DRenderer.h"
 #include <Component\Camera\Camera.h>
 #include <Framework\WinGameApp.h>
+#include <Framework/D3DConstBuffer.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
 #include <_Debug\Console.h>
@@ -17,6 +18,7 @@ D3DRenderer::D3DRenderer()
     pSwapChain = nullptr;
     pRenderTargetView = nullptr;
     pDepthStencilView = nullptr;
+    pBlendState = nullptr;
 }
 
 D3DRenderer::~D3DRenderer()
@@ -127,9 +129,10 @@ void D3DRenderer::Init()
 
 
 
+        D3DConstBuffer::InitStaticCbuffer();
 
-        CreateVSPSConstantBuffers<cbuffer_Transform>();
-        CreateVSPSConstantBuffers<cbuffer_Camera>();
+        CreateVSPSConstantBuffers<cb_Transform>();
+        CreateVSPSConstantBuffers<cb_Camera>();
     }
     catch (const std::exception& ex)
     {
@@ -142,6 +145,8 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
+    D3DConstBuffer::UninitStaticCbuffer();
+
     for (auto& cbuffer : vs_cbufferList)
     {
         SafeRelease(cbuffer);
@@ -150,6 +155,7 @@ void D3DRenderer::Uninit()
     {
         SafeRelease(cbuffer);
     }
+
     SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
@@ -243,11 +249,15 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-    cbuffer_Camera cb;
+
+
+    cb_Camera cb;
     cb.Projection = Camera::GetMainCamera()->GetPM();
     cb.View = Camera::GetMainCamera()->GetVM();
 
-    UpdateVSPSConstBuffer(cb); //카메라 버퍼 업데이트
+    UpdateVSPSConstBuffer(cb); //카메라 버퍼 업데이트 (구형)
+
+    D3DConstBuffer::UpdateStaticCbuffer(cb); //D3DCbuffer. (new type)
 }
 
 void D3DRenderer::EndDraw()
@@ -258,6 +268,22 @@ void D3DRenderer::EndDraw()
 void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data)
 {
     SetConstBuffer(); // 상수 버퍼 바인딩.
+
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
+    pDeviceContext->IASetInputLayout(data.pInputLayout);
+    pDeviceContext->IASetIndexBuffer(data.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+
+    pDeviceContext->VSSetShader(data.pVertexShader, nullptr, 0);
+
+    pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
+
+    pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
+}
+
+void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer)
+{
+    cbuffer.SetConstBuffer(); // 상수 버퍼 바인딩.
 
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);

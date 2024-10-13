@@ -18,14 +18,14 @@ struct cb_Camera
 
 /*copy to fxh file
 
-cbuffer cbuffer_Transform : register(b0)
+cbuffer cb_Transform : register(b0)
 {
 	Matrix World;
 	Matrix WorldInverseTranspose;
 	Matrix WVP;
 };
 
-cbuffer cbuffer_Camera : register(b1)
+cbuffer cb_Camera : register(b1)
 {
 	Matrix View;
 	Matrix Projection;
@@ -37,27 +37,29 @@ class D3DConstBuffer
 {
 	friend D3DRenderer;
 public:
-	struct REG_INDEX
-	{
-		int vs_index;
-		int ps_index;
-	};
+	static void InitStaticCbuffer();
+	static void UninitStaticCbuffer();
+
+	template<typename T>
+	static void UpdateStaticCbuffer(const T& data);
+	template<>
+	static void UpdateStaticCbuffer(const cb_Transform& data);
+	template<>
+	static void UpdateStaticCbuffer(const cb_Camera& data);
+
 public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
 
 private:
-	inline static cb_Transform TransformBuffer{};
-	inline static cb_Camera CameraBuffer{};
+	inline static constexpr int StaticCbufferCount = 2;
+	inline static ID3D11Buffer* cBufferTransform = nullptr;
+	inline static ID3D11Buffer* cBufferCamera = nullptr;
 
+private:
+	inline static std::unordered_map<std::string, ID3D11Buffer*> cBufferMap;
 public:
-	/*
-	VS, PS 상수 버퍼 생성.
-	return : register index
-	*/
-	template<typename T>
-	REG_INDEX CreateVSPSConstantBuffers();
-	REG_INDEX CreateVSPSConstantBuffers(const char* key, unsigned int buffer_size);
+	void SetConstBuffer(); //상수 버퍼 바인딩
 
 	/*
 	VS 상수 버퍼 생성.
@@ -65,51 +67,64 @@ public:
 	*/
 	template<typename T>
 	int CreateVSConstantBuffers();
-	int CreateVSConstantBuffers(const char* key, unsigned int buffer_size);
-
 	/*
 	PS 상수 버퍼 생성.
 	return : register index
 	*/
 	template<typename T>
 	int CreatePSConstantBuffers();
-	int CreatePSConstantBuffers(const char* key, unsigned int buffer_size);
 
+	/** 반드시 DrawIndex 호출 전에 업데이트 해야함.*/
 	template<typename T>
-	void UpdateVSPSConstBuffer(T& data);
-
-	template<typename T>
-	void UpdateVSConstBuffer(T& data);
-
-	template<typename T>
-	void UpdatePSConstBuffer(T& data);
+	void UpdateConstBuffer(T& data);
 
 	template<typename T>
 	int GetVSConstBufferIndex();
-
 	template<typename T>
 	int GetPSConstBufferIndex();
 
 private:
-	std::map<std::string, int> vs_cbufferMap;
-	std::vector<ID3D11Buffer*> vs_cbufferList;
-
-	std::map<std::string, int> ps_cbufferMap;
-	std::vector<ID3D11Buffer*> ps_cbufferList;
+	std::vector<std::string> vs_cbufferList;
+	std::vector<std::string> ps_cbufferList;
 
 public:
-	int GetVSCbufferCount() { return (int)vs_cbufferList.size(); }
-	int GetPSCbufferCount() { return (int)ps_cbufferList.size(); }
+	int GetVSCbufferCount() { return (int)vs_cbufferList.size() + StaticCbufferCount; }
+	int GetPSCbufferCount() { return (int)ps_cbufferList.size() + StaticCbufferCount; }
 
 };
 
 template<typename T>
-inline D3DConstBuffer::REG_INDEX D3DConstBuffer::CreateVSPSConstantBuffers()
+inline void D3DConstBuffer::UpdateStaticCbuffer(const T& data)
 {
-	REG_INDEX index{};
-	index.vs_index = CreateVSConstantBuffers<T>();
-	index.ps_index = CreatePSConstantBuffers<T>();
-	return index;
+	static_assert(false, "T is not static buffer");
+}
+
+template<>
+inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Transform& data)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferTransform, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+	// 상수 버퍼에 데이터를 쓴다.
+	cb_Transform* dataPtr = (cb_Transform*)mappedResource.pData;
+	*dataPtr = data;
+
+	// 맵핑 해제
+	d3dRenderer.GetDeviceContext()->Unmap(cBufferTransform, 0);
+}
+
+template<>
+inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Camera& data)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferCamera, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+	// 상수 버퍼에 데이터를 쓴다.
+	cb_Camera* dataPtr = (cb_Camera*)mappedResource.pData;
+	*dataPtr = data;
+
+	// 맵핑 해제
+	d3dRenderer.GetDeviceContext()->Unmap(cBufferCamera, 0);
 }
 
 template<typename T>
@@ -119,15 +134,29 @@ inline int D3DConstBuffer::CreateVSConstantBuffers()
 
 	//상수 버퍼 생성
 	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
+
+	if (GetVSCbufferCount() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 	{
-		__debugbreak(); //키값 이상함.
+		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
-	return CreateVSConstantBuffers(key.c_str(), sizeof(T));
+
+	int regIndex = GetVSCbufferCount();
+	if (cBufferMap.find(key) == cBufferMap.end()) //키값 못찾을때 리소스 생성
+	{
+		D3D11_BUFFER_DESC bufferDesc;
+		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+		bufferDesc.ByteWidth = sizeof(T);  // 상수 버퍼 크기
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		ID3D11Buffer* cBufferTemp{};
+		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+		cBufferMap[key] = cBufferTemp;
+	}
+	vs_cbufferList.push_back(key);
+	return regIndex;
 }
 
 template<typename T>
@@ -137,83 +166,48 @@ inline int D3DConstBuffer::CreatePSConstantBuffers()
 
 	//상수 버퍼 생성
 	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
+
+	if (GetPSCbufferCount() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 	{
-		__debugbreak(); //키값 이상함.
+		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
 
-	return CreatePSConstantBuffers(key.c_str(), sizeof(T));
+	int regIndex = GetPSCbufferCount();
+	if (cBufferMap.find(key) == cBufferMap.end())
+	{
+		D3D11_BUFFER_DESC bufferDesc;
+		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+		bufferDesc.ByteWidth = sizeof(T);  // 상수 버퍼 크기
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		ID3D11Buffer* cBufferTemp{};
+		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+		cBufferMap[key] = cBufferTemp;
+	}
+	ps_cbufferList.push_back(key);
+	return regIndex;
 }
 
 template<typename T>
-inline void D3DConstBuffer::UpdateVSPSConstBuffer(T& data)
-{
-	UpdateVSConstBuffer<T>(data);
-	UpdatePSConstBuffer<T>(data);
-}
-
-template<typename T>
-inline void D3DConstBuffer::UpdateVSConstBuffer(T& data)
+inline void D3DConstBuffer::UpdateConstBuffer(T& data)
 {
 	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
-	{
-		__debugbreak(); //키값 이상함.
-		return;
-	}
 
-	auto findIter = vs_cbufferMap.find(key);
-	if (findIter != vs_cbufferMap.end())
+	auto findIter = cBufferMap.find(key);
+	if (findIter != cBufferMap.end())
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(vs_cbufferList[findIter->second], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 		// 상수 버퍼에 데이터를 쓴다.
 		T* dataPtr = (T*)mappedResource.pData;
 		*dataPtr = data;
 
 		// 맵핑 해제
-		d3dRenderer.GetDeviceContext()->Unmap(vs_cbufferList[findIter->second], 0);
-	}
-	else
-	{
-		__debugbreak(); //존재하지 않는 키.
-		return;
-	}
-}
-
-template<typename T>
-inline void D3DConstBuffer::UpdatePSConstBuffer(T& data)
-{
-	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
-	{
-		__debugbreak(); //키값 이상함.
-		return;
-	}
-
-	auto findIter = ps_cbufferMap.find(key);
-	if (findIter != ps_cbufferMap.end())
-	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(ps_cbufferList[findIter->second], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-		// 상수 버퍼에 데이터를 쓴다.
-		T* dataPtr = (T*)mappedResource.pData;
-		*dataPtr = data;
-
-		// 맵핑 해제
-		d3dRenderer.GetDeviceContext()->Unmap(ps_cbufferList[findIter->second], 0);
+		d3dRenderer.GetDeviceContext()->Unmap(findIter->second, 0);
 	}
 	else
 	{
@@ -226,21 +220,14 @@ template<typename T>
 inline int D3DConstBuffer::GetVSConstBufferIndex()
 {
 	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
-	{
-		__debugbreak(); //키값 이상함.
-		return -1;
-	}
 
-	auto findIter = vs_cbufferMap.find(key);
-	if (findIter != vs_cbufferMap.end())
+	int index = StaticCbufferCount;
+	for (auto& item : vs_cbufferList)
 	{
-		return 	findIter->second;
+		if (key == item)
+			return index;	
+		index++;
 	}
-
 	return -1;
 }
 
@@ -248,20 +235,13 @@ template<typename T>
 inline int D3DConstBuffer::GetPSConstBufferIndex()
 {
 	std::string key = typeid(T).name();
-	size_t temp = key.find(" ");
-	if (temp != std::string::npos)
-		key = key.substr(temp + 1);
-	else
-	{
-		__debugbreak(); //키값 이상함.
-		return -1;
-	}
 
-	auto findIter = ps_cbufferMap.find(key);
-	if (findIter != ps_cbufferMap.end())
+	int index = StaticCbufferCount;
+	for (auto& item : ps_cbufferList)
 	{
-		return 	findIter->second;
+		if (key == item)
+			return index;
+		index++;
 	}
-
 	return -1;
 }

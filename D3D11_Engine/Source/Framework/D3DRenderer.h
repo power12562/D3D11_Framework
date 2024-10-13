@@ -7,39 +7,8 @@
 #include <cassert>
 
 class D3DRenderer;
+class D3DConstBuffer;
 extern D3DRenderer& d3dRenderer;
-
-/* b0 레지스터는 Transform 버퍼로 고정 사용.*/
-struct cbuffer_Transform
-{
-	DirectX::SimpleMath::Matrix World;
-	DirectX::SimpleMath::Matrix WorldInverseTranspose;
-	DirectX::SimpleMath::Matrix WVP;
-};
-
-/* b1 레지스터는 Camera 버퍼로 고정 사용.*/
-struct cbuffer_Camera 
-{
-	DirectX::SimpleMath::Matrix View;
-	DirectX::SimpleMath::Matrix Projection;
-};
-
-/*copy to fxh file
-
-cbuffer cbuffer_Transform : register(b0)
-{
-	Matrix World;
-	Matrix WorldInverseTranspose;
-	Matrix WVP;
-};
-
-cbuffer cbuffer_Camera : register(b1)
-{
-	Matrix View;
-	Matrix Projection;
-};
-
-*/
 
 class D3DRenderer : public TSingleton<D3DRenderer>
 {
@@ -114,6 +83,7 @@ public:
 
 public:
 	void DrawIndex(DRAW_INDEX_DATA& data);
+	void DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer);
 
 public:
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
