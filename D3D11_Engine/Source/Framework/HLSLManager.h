@@ -17,16 +17,14 @@ class HLSLManager : public TSingleton<HLSLManager>
 	};
 	friend class TSingleton;
 public:
-	template<typename ShaderType>
-	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ShaderType** ppOutput);
-	template<>
-	void CreateSharingShader<ID3D11VertexShader>(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOutput);
-	template<>
-	void CreateSharingShader<ID3D11PixelShader>(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
+	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader);
+	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
+	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 
 	ULONG ReleaseSharingShader(const wchar_t* path);
 private:
 	std::map<std::wstring, ID3D11DeviceChild*> sharingShaderMap;
+	std::map<std::wstring, ID3D11InputLayout*> sharingInputLayoutMap;
 
 private:
 	EXTENSION_TYPE ChackShaderFile(const wchar_t* extension);
@@ -36,8 +34,3 @@ private:
 	~HLSLManager();
 };
 
-template<typename ShaderType>
-inline void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ShaderType** ppOutput)
-{
-	static_assert(false, "is not ShaderType");
-}

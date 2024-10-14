@@ -167,6 +167,6 @@ void MappingCubeObject::Render()
     pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularMap);
     pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    d3dRenderer.DrawIndex(drawData, LightManager::cbuffer);
+    d3dRenderer.DrawIndex(drawData, &LightManager::cbuffer);
 }
 

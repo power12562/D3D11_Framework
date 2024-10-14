@@ -70,7 +70,7 @@ void SimpleMashComponent::SetMesh()
 void SimpleMashComponent::Start()
 {
     hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &drawData.pPixelShader);
-    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader);
+    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader, &drawData.pInputLayout);
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -130,6 +130,6 @@ void SimpleMashComponent::Render()
 
     if (drawData.pInputLayout && drawData.pVertexBuffer && drawData.pIndexBuffer && drawData.pVertexShader && drawData.pPixelShader)
     {
-        d3dRenderer.DrawIndex(drawData, SimpleDirectionalLight::cbuffer);
+        d3dRenderer.DrawIndex(drawData, &SimpleDirectionalLight::cbuffer);
     }
 }

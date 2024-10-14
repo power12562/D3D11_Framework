@@ -171,9 +171,10 @@ void D3DRenderer::EndDraw()
     pSwapChain->Present(0, 0);     // Present the information rendered to the back buffer to the front buffer (the screen)
 }
 
-void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer)
+void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer* cbuffer)
 {
-    cbuffer.SetConstBuffer(); // 상수 버퍼 바인딩.
+	if (cbuffer)
+		cbuffer->SetConstBuffer(); // 상수 버퍼 바인딩.
 
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);

@@ -35,7 +35,7 @@ public:
 	void EndDraw();
 
 public:
-	void DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer);
+	void DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer* cbuffer);
 
 public:
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
