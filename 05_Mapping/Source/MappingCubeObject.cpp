@@ -1,6 +1,8 @@
 #include "MappingCubeObject.h"
 #include <Utility/MemoryUtility.h>
 
+#include "../Source/LightManager.h"
+
 MappingCubeObject::MappingCubeObject()
 {
 }
@@ -165,6 +167,6 @@ void MappingCubeObject::Render()
     pDeviceContext->PSSetShaderResources(2, 1, &m_pSpecularMap);
     pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    d3dRenderer.DrawIndex(drawData);
+    d3dRenderer.DrawIndex(drawData, LightManager::cbuffer);
 }
 

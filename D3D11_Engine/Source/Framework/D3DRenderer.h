@@ -35,7 +35,6 @@ public:
 	void EndDraw();
 
 public:
-	void DrawIndex(DRAW_INDEX_DATA& data);
 	void DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer);
 
 public:

@@ -12,8 +12,8 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    d3dRenderer.CreateVSPSConstantBuffers<cbuffer_Light>();
-    d3dRenderer.CreateVSPSConstantBuffers<cbuffer_bool>();
+    cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+    cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 }
 
 void LightManager::FixedUpdate()
@@ -23,8 +23,8 @@ void LightManager::FixedUpdate()
 void LightManager::Update()
 {
     cb_Light.CamPos = { Camera::GetMainCamera()->transform.position };
-    d3dRenderer.UpdateVSPSConstBuffer(cb_Light);
-    d3dRenderer.UpdateVSPSConstBuffer(cb_bool);
+    cbuffer.UpdateConstBuffer(cb_Light);
+    cbuffer.UpdateConstBuffer(cb_bool);
 }
 
 void LightManager::LateUpdate()

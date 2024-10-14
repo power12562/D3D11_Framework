@@ -1,5 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
+#include <Framework\D3DConstBuffer.h>
 
 struct cbuffer_Light
 {
@@ -28,6 +29,9 @@ struct cbuffer_bool
 
 class LightManager : public Component
 {
+public:
+    inline static D3DConstBuffer cbuffer{};
+
 public:
     inline static cbuffer_Light cb_Light{};
     inline static cbuffer_bool cb_bool{};
