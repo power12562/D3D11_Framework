@@ -13,9 +13,10 @@ SimpleDirectionalLight::~SimpleDirectionalLight()
 void SimpleDirectionalLight::Start()
 {
     int index;
-    index = d3dRenderer.CreatePSConstantBuffers<cbuffer_Light>();
-    index = d3dRenderer.CreatePSConstantBuffers<cbuffer_bool>();
-    index = d3dRenderer.CreatePSConstantBuffers<cb_localBool>();
+    index = cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+    index = cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+    index = cbuffer.CreatePSConstantBuffers<cb_localBool>();
+
 }
 
 void SimpleDirectionalLight::FixedUpdate()
@@ -25,8 +26,8 @@ void SimpleDirectionalLight::FixedUpdate()
 void SimpleDirectionalLight::Update()
 {
     cb_Light.CamPos = { Camera::GetMainCamera()->transform.position };
-    d3dRenderer.UpdatePSConstBuffer(cb_Light);
-    d3dRenderer.UpdatePSConstBuffer(cb_bool);
+    cbuffer.UpdateConstBuffer(cb_Light);
+    cbuffer.UpdateConstBuffer(cb_bool);
 }
 
 void SimpleDirectionalLight::LateUpdate()

@@ -20,8 +20,8 @@ ImportFBXScene::ImportFBXScene()
 	cam->SetMainCamera();
 	cam->AddComponent<SimpleDirectionalLight>();
 	cam->transform.position = Vector3(0, 16, -30);
-	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll( Vector3(-3, 0, 0) * Mathf::Deg2Rad );
-	cam->AddComponent<CameraMoveHelper>();
+	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(-3, 0, 0) * Mathf::Deg2Rad);
+	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
@@ -72,6 +72,7 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
+	ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 	ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);  
 	ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
 	ImGui::Text("");

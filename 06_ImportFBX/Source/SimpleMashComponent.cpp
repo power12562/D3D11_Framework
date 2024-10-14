@@ -18,8 +18,8 @@ SimpleMashComponent::~SimpleMashComponent()
     SafeRelease(m_pEmissiveMap);
     SafeRelease(m_pOpacityMap);
 
-    hlslManager.ReleaseSharingShader(L"PixelShader.cso");
-    hlslManager.ReleaseSharingShader(L"VertexShader.cso");
+    hlslManager.ReleaseSharingShader(L"PixelShader.hlsl");
+    hlslManager.ReleaseSharingShader(L"VertexShader.hlsl");
 }
 
 void SimpleMashComponent::SetMesh()
@@ -69,8 +69,8 @@ void SimpleMashComponent::SetMesh()
 
 void SimpleMashComponent::Start()
 {
-    hlslManager.CreateSharingShader(L"PixelShader.cso", "ps_4_0", &drawData.pPixelShader);
-    hlslManager.CreateSharingShader(L"VertexShader.cso", "vs_4_0", &drawData.pVertexShader);
+    hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &drawData.pPixelShader);
+    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader);
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -82,7 +82,7 @@ void SimpleMashComponent::Start()
 
     auto pDevice = d3dRenderer.GetDevice();
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    Utility::CheackHRESULT(Utility::LoadShadeFormFile(L"VertexShader.cso", &vertexShaderBuffer));
+    Utility::CheackHRESULT(Utility::CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
     Utility::CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
         vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
     vertexShaderBuffer->Release();
@@ -126,10 +126,10 @@ void SimpleMashComponent::Render()
 
     pDeviceContext->PSSetShaderResources(4, 1, &m_pOpacityMap );
 
-    d3dRenderer.UpdatePSConstBuffer(SimpleDirectionalLight::cb_localbool);
+    SimpleDirectionalLight::cbuffer.UpdateConstBuffer(SimpleDirectionalLight::cb_localbool);
 
     if (drawData.pInputLayout && drawData.pVertexBuffer && drawData.pIndexBuffer && drawData.pVertexShader && drawData.pPixelShader)
     {
-        d3dRenderer.DrawIndex(drawData);
+        d3dRenderer.DrawIndex(drawData, SimpleDirectionalLight::cbuffer);
     }
 }

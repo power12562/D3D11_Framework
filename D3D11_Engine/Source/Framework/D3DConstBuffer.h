@@ -37,8 +37,8 @@ class D3DConstBuffer
 {
 	friend D3DRenderer;
 public:
-	static void InitStaticCbuffer();
-	static void UninitStaticCbuffer();
+	static void CreateStaticCbuffer();
+	static void ReleaseStaticCbuffer();
 
 	template<typename T>
 	static void UpdateStaticCbuffer(const T& data);
@@ -74,7 +74,6 @@ public:
 	template<typename T>
 	int CreatePSConstantBuffers();
 
-	/** 반드시 DrawIndex 호출 전에 업데이트 해야함.*/
 	template<typename T>
 	void UpdateConstBuffer(T& data);
 
@@ -84,8 +83,8 @@ public:
 	int GetPSConstBufferIndex();
 
 private:
-	std::vector<std::string> vs_cbufferList;
-	std::vector<std::string> ps_cbufferList;
+	std::vector<std::string> vs_cbufferList{};
+	std::vector<std::string> ps_cbufferList{};
 
 public:
 	int GetVSCbufferCount() { return (int)vs_cbufferList.size() + StaticCbufferCount; }
@@ -155,7 +154,7 @@ inline int D3DConstBuffer::CreateVSConstantBuffers()
 		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
 	}
-	vs_cbufferList.push_back(key);
+	vs_cbufferList.emplace_back(key);
 	return regIndex;
 }
 
@@ -187,7 +186,7 @@ inline int D3DConstBuffer::CreatePSConstantBuffers()
 		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
 	}
-	ps_cbufferList.push_back(key);
+	ps_cbufferList.emplace_back(key);
 	return regIndex;
 }
 

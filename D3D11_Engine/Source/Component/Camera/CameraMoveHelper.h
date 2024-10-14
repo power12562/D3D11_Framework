@@ -24,11 +24,13 @@ public:
 	void AddPitch(float angle);
 	void AddYaw(float angle);
 
+public:
+	float moveSpeed;
+	float rotSpeed;
+
 private:
 	Transform startTransform;
 
 	Vector3 inputVector{};
 	Vector2 angle{}; //z√‡¿∫ æ»æ∏
-	float moveSpeed;
-	float rotSpeed;
 };

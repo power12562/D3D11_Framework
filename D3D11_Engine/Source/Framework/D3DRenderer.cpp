@@ -127,12 +127,7 @@ void D3DRenderer::Init()
 
         pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
 
-
-
-        D3DConstBuffer::InitStaticCbuffer();
-
-        CreateVSPSConstantBuffers<cb_Transform>();
-        CreateVSPSConstantBuffers<cb_Camera>();
+        D3DConstBuffer::CreateStaticCbuffer();
     }
     catch (const std::exception& ex)
     {
@@ -145,16 +140,7 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
-    D3DConstBuffer::UninitStaticCbuffer();
-
-    for (auto& cbuffer : vs_cbufferList)
-    {
-        SafeRelease(cbuffer);
-    }
-    for (auto& cbuffer : ps_cbufferList)
-    {
-        SafeRelease(cbuffer);
-    }
+    D3DConstBuffer::ReleaseStaticCbuffer();
 
     SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
@@ -167,81 +153,6 @@ void D3DRenderer::Uninit()
     }
 }
 
-D3DRenderer::REG_INDEX D3DRenderer::CreateVSPSConstantBuffers(const char* key, unsigned int buffer_size)
-{
-    REG_INDEX index{};
-    index.vs_index = CreateVSConstantBuffers(key, buffer_size);
-    index.ps_index = CreatePSConstantBuffers(key, buffer_size);
-
-    return index;
-}
-
-int D3DRenderer::CreateVSConstantBuffers(const char* key, unsigned int buffer_size)
-{
-    assert((buffer_size % 16) == 0 && "Constant Buffer size must be 16 - byte aligned");
-
-    if (vs_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-    {
-        __debugbreak(); //상수 버퍼 최대 개수 도달.
-        return -1;
-    }
-
-    if (vs_cbufferMap.find(key) != vs_cbufferMap.end())
-    {
-        __debugbreak(); //이미 존재하는 키값.
-        return -1;
-    }
-
-    D3D11_BUFFER_DESC bufferDesc;
-    ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-    bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-    bufferDesc.ByteWidth = buffer_size;  // 상수 버퍼 크기
-    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    int regIndex = (int)vs_cbufferList.size();
-    vs_cbufferMap[key] = regIndex;
-
-    ID3D11Buffer* cBufferTemp{};
-    Utility::CheackHRESULT(pDevice->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-    vs_cbufferList.push_back(cBufferTemp);
-
-    return regIndex;
-}
-
-int D3DRenderer::CreatePSConstantBuffers(const char* key, unsigned int buffer_size)
-{
-    assert((buffer_size % 16) == 0 && "Constant Buffer size must be 16 - byte aligned");
-
-    if (ps_cbufferList.size() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-    {
-        __debugbreak(); //상수 버퍼 최대 개수 도달.
-        return -1;
-    }
-
-    if (ps_cbufferMap.find(key) != ps_cbufferMap.end())
-    {
-        __debugbreak(); //이미 존재하는 키값.
-        return -1;
-    }
-
-    D3D11_BUFFER_DESC bufferDesc;
-    ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-    bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-    bufferDesc.ByteWidth = buffer_size;  // 상수 버퍼 크기
-    bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    int regIndex = (int)ps_cbufferList.size();
-    ps_cbufferMap[key] = regIndex;
-
-    ID3D11Buffer* cBufferTemp{};
-    Utility::CheackHRESULT(pDevice->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-    ps_cbufferList.push_back(cBufferTemp);
-
-    return regIndex;
-}
-
 void D3DRenderer::BegineDraw()
 {   
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
@@ -249,36 +160,15 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-
-
     cb_Camera cb;
     cb.Projection = Camera::GetMainCamera()->GetPM();
     cb.View = Camera::GetMainCamera()->GetVM();
-
-    UpdateVSPSConstBuffer(cb); //카메라 버퍼 업데이트 (구형)
-
-    D3DConstBuffer::UpdateStaticCbuffer(cb); //D3DCbuffer. (new type)
+    D3DConstBuffer::UpdateStaticCbuffer(cb);
 }
 
 void D3DRenderer::EndDraw()
 {
     pSwapChain->Present(0, 0);     // Present the information rendered to the back buffer to the front buffer (the screen)
-}
-
-void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data)
-{
-    SetConstBuffer(); // 상수 버퍼 바인딩.
-
-    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
-    pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
-    pDeviceContext->IASetInputLayout(data.pInputLayout);
-    pDeviceContext->IASetIndexBuffer(data.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-
-    pDeviceContext->VSSetShader(data.pVertexShader, nullptr, 0);
-
-    pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
-
-    pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
 }
 
 void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer)
@@ -295,13 +185,4 @@ void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer& cbuffer)
     pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
 
     pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
-}
-
-void D3DRenderer::SetConstBuffer()
-{
-    for (int i = 0; i < vs_cbufferList.size(); i++)
-        pDeviceContext->VSSetConstantBuffers(i, 1, &vs_cbufferList[i]);
-
-    for (int i = 0; i < ps_cbufferList.size(); i++)
-        pDeviceContext->PSSetConstantBuffers(i, 1, &ps_cbufferList[i]);
 }

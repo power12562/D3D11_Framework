@@ -1,5 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
+#include <Framework\D3DConstBuffer.h>
 
 struct cbuffer_Light
 {
@@ -8,13 +9,13 @@ struct cbuffer_Light
 
     Vector4 LightDir{ 0, -1, 1, 0 };
     Vector4 LightDiffuse{ 1, 1, 1, 1 };
-    Vector4 LightAmbient{ 0, 0, 0, 0 };
+    Vector4 LightAmbient{ 0.01, 0.01, 0.01, 0.01 };
     Vector4 LightSpecular{ 1, 1, 1, 1 };
 
     Vector4 MaterialAmbient{ 1, 1, 1, 1 };
     Vector4 MaterialDiffuse{ 1, 1, 1, 1 };
     Vector4 MaterialSpecular{ 1, 1, 1, 1 };
-    float MaterialSpecularPower{ 100 };
+    float MaterialSpecularPower{ 300 };
     Vector3 MaterialSpecularPad;
 };
 
@@ -50,6 +51,9 @@ struct cb_localBool
 
 class SimpleDirectionalLight : public Component
 {
+public:
+    inline static D3DConstBuffer cbuffer{};
+
 public:
     inline static cbuffer_Light cb_Light{};
     inline static cbuffer_bool cb_bool{};

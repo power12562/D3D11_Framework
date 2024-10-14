@@ -9,4 +9,7 @@ public:
 
 protected:
 	virtual void ImGUIRender() override;
+
+private:
+	float* pCamSpeed = nullptr;
 };

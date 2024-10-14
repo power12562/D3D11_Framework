@@ -62,8 +62,6 @@ void GameObject::Render()
 	cb_transform.World = XMMatrixTranspose(transform.GetWM());
 	cb_transform.WorldInverseTranspose = XMMatrixInverse(nullptr,transform.GetWM());
 	cb_transform.WVP = XMMatrixTranspose(transform.GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-	d3dRenderer.UpdateVSPSConstBuffer(cb_transform);
-
 	D3DConstBuffer::UpdateStaticCbuffer(cb_transform);
 	
 	for (auto& component : renderList)
