@@ -39,5 +39,5 @@ public:
 	ID3D11ShaderResourceView* m_pOpacityMap = nullptr;
 private:
 
-	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;		
 };
