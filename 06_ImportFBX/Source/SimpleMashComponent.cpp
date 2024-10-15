@@ -18,6 +18,9 @@ SimpleMashComponent::~SimpleMashComponent()
     SafeRelease(m_pEmissiveMap);
     SafeRelease(m_pOpacityMap);
 
+    SafeRelease(drawData.pVertexBuffer);
+    SafeRelease(drawData.pIndexBuffer);
+
     hlslManager.ReleaseSharingShader(L"PixelShader.hlsl");
     hlslManager.ReleaseSharingShader(L"VertexShader.hlsl");
 }
@@ -71,21 +74,6 @@ void SimpleMashComponent::Start()
 {
     hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &drawData.pPixelShader);
     hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &drawData.pVertexShader, &drawData.pInputLayout);
-
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-
-    auto pDevice = d3dRenderer.GetDevice();
-    ID3D10Blob* vertexShaderBuffer = nullptr;
-    Utility::CheackHRESULT(Utility::CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-    Utility::CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
-    vertexShaderBuffer->Release();
 
     drawData.vertexBufferStride = sizeof(Vertex);
     drawData.vertexBufferOffset = 0;

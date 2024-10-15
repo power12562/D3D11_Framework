@@ -1,10 +1,11 @@
 #pragma once
 #include <Component/Base/RenderComponent.h>
 #include <Framework\D3DRenderer.h>
+#include <Framework\D3DConstBuffer.h>
 
 struct TestCbuffer
 {
-	Color c{ 1,0,0,0 };
+	Color c{ 1,0,0,1 };
 };
 
 class TestCubeComponent : public RenderComponent
@@ -27,5 +28,6 @@ private:
 	float elapseTime = 0;;
 
 private:
+	D3DConstBuffer cbuffer;
 	TestCbuffer testColor;
 };

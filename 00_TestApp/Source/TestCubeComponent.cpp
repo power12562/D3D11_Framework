@@ -17,8 +17,12 @@ TestCubeComponent::TestCubeComponent()
 
 TestCubeComponent::~TestCubeComponent()
 {
-   
-
+    using namespace Utility;
+    SafeRelease(drawData.pIndexBuffer);
+    SafeRelease(drawData.pVertexBuffer);
+    SafeRelease(drawData.pPixelShader);
+    SafeRelease(drawData.pVertexShader);
+    SafeRelease(drawData.pInputLayout);
 }
 
 void TestCubeComponent::Start()
@@ -123,6 +127,7 @@ void TestCubeComponent::Start()
         pixelShaderBuffer->GetBufferSize(), NULL, &drawData.pPixelShader));
     SafeRelease(pixelShaderBuffer);
 
+    cbuffer.CreatePSConstantBuffers<TestCbuffer>();
 }
 
 void TestCubeComponent::FixedUpdate()
@@ -141,7 +146,7 @@ void TestCubeComponent::Update()
         elapseTime = 0;
     }
 
-    //d3dRenderer.UpdatePSConstBuffer(testColor);
+    cbuffer.UpdateConstBuffer(testColor);
 }
 
 void TestCubeComponent::LateUpdate()
@@ -151,5 +156,5 @@ void TestCubeComponent::LateUpdate()
 
 void TestCubeComponent::Render()
 {
-    d3dRenderer.DrawIndex(drawData);
+    d3dRenderer.DrawIndex(drawData, &cbuffer);
 }

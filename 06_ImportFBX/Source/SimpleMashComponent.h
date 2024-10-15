@@ -3,7 +3,7 @@
 
 struct Vertex
 {
-	Vector3 position;
+	Vector4 position{0,0,0,1};
 	Vector3 normal;
 	Vector3 biTangent;
 	Vector2 Tex;

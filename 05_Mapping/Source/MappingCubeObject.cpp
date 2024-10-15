@@ -17,6 +17,9 @@ MappingCubeObject::~MappingCubeObject()
 
     SafeRelease(drawData.pVertexShader);
     SafeRelease(drawData.pPixelShader);
+    SafeRelease(drawData.pIndexBuffer);
+    SafeRelease(drawData.pVertexBuffer);
+    SafeRelease(drawData.pInputLayout);
 }
 
 void MappingCubeObject::Start()

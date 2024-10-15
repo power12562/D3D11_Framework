@@ -40,13 +40,20 @@ HLSLManager::EXTENSION_TYPE HLSLManager::ChackShaderFile(const wchar_t* extensio
 
 ULONG HLSLManager::ReleaseSharingShader(const wchar_t* path)
 {
-	auto findIter = sharingShaderMap.find(path);
-	if (findIter != sharingShaderMap.end())
+	auto inputLayoutIter = sharingInputLayoutMap.find(path);
+	if (inputLayoutIter != sharingInputLayoutMap.end())
 	{
-		ULONG refcount = findIter->second->Release();
+		ULONG refcount = inputLayoutIter->second->Release();
+		if(refcount == 0)
+			sharingInputLayoutMap.erase(path);
+	}
+	auto shaderIter = sharingShaderMap.find(path);
+	if (shaderIter != sharingShaderMap.end())
+	{
+		ULONG refcount = shaderIter->second->Release();
 		if (refcount == 0)
 		{
-			sharingShaderMap.erase(findIter);
+			sharingShaderMap.erase(shaderIter);
 		}
 		return refcount;
 	}
@@ -102,6 +109,11 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 		if (FAILED(hr))
 		{
 			*ppOut_VertexShader = nullptr;
+			*ppOut_InputLayout = nullptr;
+		}
+		else
+		{
+			*ppOut_InputLayout = sharingInputLayoutMap[path];
 		}
 		return;
 	}
@@ -126,39 +138,38 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 		sharingShaderMap[path] = vertexShader;
 		*ppOut_VertexShader = vertexShader;
 
-		if (ppOut_InputLayout)
+		// 리플렉션을 사용하여 입력 레이아웃 생성
+		ID3D11ShaderReflection* pReflector = nullptr;
+		CheackHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector));
+
+		D3D11_SHADER_DESC shaderDesc;
+		pReflector->GetDesc(&shaderDesc);
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+		for (UINT i = 0; i < shaderDesc.InputParameters; ++i)
 		{
-			// 리플렉션을 사용하여 입력 레이아웃 생성
-			ID3D11ShaderReflection* pReflector = nullptr;
-			CheackHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector));
+			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
+			pReflector->GetInputParameterDesc(i, &paramDesc);
 
-			D3D11_SHADER_DESC shaderDesc;
-			pReflector->GetDesc(&shaderDesc);
+			// 각 입력 파라미터에 대해 D3D11_INPUT_ELEMENT_DESC 구성
+			D3D11_INPUT_ELEMENT_DESC elementDesc = {};
+			elementDesc.SemanticName = paramDesc.SemanticName;
+			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
+			elementDesc.Format = GetDXGIFormat(paramDesc.ComponentType, paramDesc.Mask);
+			elementDesc.InputSlot = 0;
+			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 자동으로 정렬
+			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			elementDesc.InstanceDataStepRate = 0;
 
-			std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-			for (UINT i = 0; i < shaderDesc.InputParameters; ++i) 
-			{
-				D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-				pReflector->GetInputParameterDesc(i, &paramDesc);
-
-				// 각 입력 파라미터에 대해 D3D11_INPUT_ELEMENT_DESC 구성
-				D3D11_INPUT_ELEMENT_DESC elementDesc = {};
-				elementDesc.SemanticName = paramDesc.SemanticName;
-				elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-				elementDesc.InputSlot = 0;
-				elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 자동으로 정렬
-				elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-				elementDesc.InstanceDataStepRate = 0;
-
-				// 포맷 결정
-				elementDesc.Format = Utility::GetDXGIFormat(paramDesc.ComponentType, paramDesc.Mask);
-
-
-			}
-
-			
+			inputLayoutDesc.push_back(elementDesc);
 		}
-		vertexShaderBuffer->Release();
+		CheackHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
+			vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), ppOut_InputLayout));
+
+		sharingInputLayoutMap[path] = *ppOut_InputLayout;
+
+		SafeRelease(pReflector);
+		SafeRelease(vertexShaderBuffer);
 	}
 }
 
