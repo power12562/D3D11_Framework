@@ -190,14 +190,12 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
                         Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pOpacityMap));
                     }
-                }
-     
+                }     
             }
             for (unsigned int i = 0; i < currNode->mNumChildren; i++)
             {       
                 nodeQue.push(currNode->mChildren[i]);
-
-                std::wstring childName = currObj->Name + L"_Child_" + std::to_wstring(i);
+                std::wstring childName = utfConvert::utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
                 GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
                 childObj->transform.SetParent(currObj->transform, false);
 
