@@ -14,6 +14,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 HalfVector = normalize(-LightDir.xyz+View);
     float fHDotN = max(0.0f, dot(HalfVector, input.Norm));
     float4 specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular;
-    
-    return ambient + diffuse + specular;
+
+    float4 final = ambient + diffuse + specular;
+    final.a = 1;
+    return final;
 }

@@ -35,5 +35,6 @@ float4 main(PS_INPUT input) : SV_Target
     //return float4(input.Normal, 1);
     //return specular;
     float4 final = ambient + diffuse + specular;
+    final.a = 1;
     return final;
 }
