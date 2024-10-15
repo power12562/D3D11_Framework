@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
     <ClInclude Include="Source\Component\Base\Component.h" />
     <ClInclude Include="Source\Component\Base\RenderComponent.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />
     <ClCompile Include="Source\Component\Base\Component.cpp" />

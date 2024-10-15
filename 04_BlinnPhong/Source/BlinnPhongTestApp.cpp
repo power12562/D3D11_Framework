@@ -188,7 +188,7 @@ void BlinnPhongTestApp::ImGUIRender()
         ImGui::ColorEdit3("LightAmbient", global::LightAmbient);
         ImGui::ColorEdit3("LightSpecular", global::LightSpecular);
         ImGui::Text("");
-        ImGui::Text("Material");
+        ImGui::Text("SimpleMaterial");
         ImGui::ColorEdit3("MaterialDiffuse", global::MaterialDiffuse);
         ImGui::ColorEdit3("MaterialAmbient", global::MaterialAmbient);
         ImGui::ColorEdit3("MaterialSpecular", global::MaterialSpecular);

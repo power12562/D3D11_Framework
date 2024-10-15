@@ -11,8 +11,9 @@ cbuffer cbuffer_Transform : register(b0)
     Matrix WVP;
 }
 
-cbuffer cbuffer_Camera : register(b1)
+cbuffer cb_Camera : register(b1)
 {
+    float3 MainCamPos;
     Matrix View;
     Matrix Projection;
 };

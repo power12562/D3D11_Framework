@@ -71,7 +71,7 @@ float4 main(PS_INPUT input) : SV_Target
 
     float4 ambient = LightAmbient * MaterialAmbient;
     
-    float3 View = normalize(CamPos.xyz - input.World);
+    float3 View = normalize(MainCamPos.xyz - input.World);
     float3 HalfVector = normalize(-LightDir.xyz+View);
     float fHDotN = max(0.0f, dot(HalfVector, input.Normal));
  

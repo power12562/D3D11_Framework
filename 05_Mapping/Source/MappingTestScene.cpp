@@ -50,7 +50,7 @@ void MappingTestScene::ImGUIRender()
 	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
 	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
 	ImGui::Text("");
-	ImGui::Text("Material");
+	ImGui::Text("SimpleMaterial");
 	ImGui::Checkbox("Use NormalMap", &cb_bool.UseNormalMap);
 	ImGui::Checkbox("Use SpecularMap", &cb_bool.UseSpecularMap);
 	ImGui::ColorEdit3("MaterialDiffuse", &cb_Light.MaterialDiffuse);

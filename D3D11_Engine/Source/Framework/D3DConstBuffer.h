@@ -12,6 +12,9 @@ struct cb_Transform
 /* b1 레지스터는 Camera 버퍼로 고정 사용.*/
 struct cb_Camera
 {
+	DirectX::SimpleMath::Vector3 MainCamPos;
+	float camPad;
+
 	DirectX::SimpleMath::Matrix View;
 	DirectX::SimpleMath::Matrix Projection;
 };
@@ -27,6 +30,7 @@ cbuffer cb_Transform : register(b0)
 
 cbuffer cb_Camera : register(b1)
 {
+	float3 MainCamPos;
 	Matrix View;
 	Matrix Projection;
 };

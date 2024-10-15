@@ -84,7 +84,7 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
 	ImGui::Text("");
 
-	ImGui::Text("Material");
+	ImGui::Text("SimpleMaterial");
 	ImGui::Checkbox("Use NormalMap", &cb_bool.UseNormalMap);
 	ImGui::Checkbox("Use SpecularMap", &cb_bool.UseSpecularMap);
 	ImGui::Checkbox("Use EmissiveMap", &cb_bool.UseEmissiveMap);
