@@ -11,6 +11,11 @@ D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
 using namespace Utility;
 
+namespace cbuffer
+{
+    cb_Camera camera;
+}
+
 D3DRenderer::D3DRenderer()
 {
     pDevice = nullptr;
@@ -106,8 +111,6 @@ void D3DRenderer::Init()
         CheackHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
         SafeRelease(textureDepthStencil);
 
-        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-
         //Set alpha blend
         D3D11_BLEND_DESC blendDesc;
         ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
@@ -155,15 +158,13 @@ void D3DRenderer::Uninit()
 
 void D3DRenderer::BegineDraw()
 {   
-    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-    cb_Camera cb;
-    cb.Projection = Camera::GetMainCamera()->GetPM();
-    cb.View = Camera::GetMainCamera()->GetVM();
-    D3DConstBuffer::UpdateStaticCbuffer(cb);
+    cbuffer::camera.Projection = Camera::GetMainCamera()->GetPM();
+    cbuffer::camera.View = Camera::GetMainCamera()->GetVM();
+    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 }
 
 void D3DRenderer::EndDraw()
