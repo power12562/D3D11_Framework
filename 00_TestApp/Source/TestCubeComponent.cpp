@@ -73,7 +73,7 @@ void TestCubeComponent::Start()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &drawData.pVertexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &drawData.pVertexBuffer));
 
     drawData.vertexBufferStride = sizeof(Vertex);
     drawData.vertexBufferOffset = 0;
@@ -99,7 +99,7 @@ void TestCubeComponent::Start()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &drawData.pIndexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &drawData.pIndexBuffer));
 
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -109,20 +109,20 @@ void TestCubeComponent::Start()
 
     auto pDevice = d3dRenderer.GetDevice();
     ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-    CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-    CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+    CheckHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+    CheckHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
         vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
 
     //버텍스 셰이더 생성
-    CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+    CheckHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
         vertexShaderBuffer->GetBufferSize(), NULL, &drawData.pVertexShader));
     SafeRelease(vertexShaderBuffer);
 
     // 픽셀 셰이더 컴파일
     ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
-    CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+    CheckHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
     // 픽셸 셰이더 생성
-    CheackHRESULT(pDevice->CreatePixelShader(
+    CheckHRESULT(pDevice->CreatePixelShader(
         pixelShaderBuffer->GetBufferPointer(),
         pixelShaderBuffer->GetBufferSize(), NULL, &drawData.pPixelShader));
     SafeRelease(pixelShaderBuffer);

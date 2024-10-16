@@ -60,7 +60,7 @@ void MappingCubeObject::Start()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &pVertexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &pVertexBuffer));
 
     vertexBufferStride = sizeof(Vertex);
     vertexBufferOffset = 0;
@@ -86,7 +86,7 @@ void MappingCubeObject::Start()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &pIndexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &pIndexBuffer));
 
     //Load Textures
     material.SetDiffuse(L"Bricks059_1K-JPG_Color.jpg");

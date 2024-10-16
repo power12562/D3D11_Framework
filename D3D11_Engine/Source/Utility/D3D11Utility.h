@@ -28,7 +28,7 @@ namespace Utility
 	};
 	
 	/** HRESULT 확인 후 에러시 exception 객체를 throw 합니다. */
-	inline void CheackHRESULT(HRESULT hr)
+	inline void CheckHRESULT(HRESULT hr)
 	{
 		if (FAILED(hr))
 		{

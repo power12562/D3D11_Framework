@@ -24,7 +24,7 @@ ULONG TextureManager::CreateSharingTexture(const wchar_t* path, ID3D11ShaderReso
 	else
 	{
 		ID3D11ShaderResourceView* newResource;
-		CheackHRESULT(CreateTextureFromFile(d3dRenderer.GetDevice(), path, nullptr, &newResource));
+		CheckHRESULT(CreateTextureFromFile(d3dRenderer.GetDevice(), path, nullptr, &newResource));
 		resourceMap[path] = newResource;
 		*ppOut_ResourceView = newResource;
 		return 1;

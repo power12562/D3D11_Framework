@@ -9,10 +9,10 @@ void D3DConstBuffer::CreateStaticCbuffer()
 	bufferDesc.ByteWidth = sizeof(cb_Transform);  // 상수 버퍼 크기
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTransform));
+	Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTransform));
 
 	bufferDesc.ByteWidth = sizeof(cb_Camera); 
-	Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferCamera));
+	Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferCamera));
 }
 
 void D3DConstBuffer::ReleaseStaticCbuffer()

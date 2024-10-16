@@ -33,7 +33,7 @@ PyramidObject::PyramidObject()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(TransformTest::GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
+    CheckHRESULT(TransformTest::GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
 
     m_VertexBufferStride = sizeof(Vertex);
     m_VertexBufferOffset = 0;
@@ -55,7 +55,7 @@ PyramidObject::PyramidObject()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(TransformTest::GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+    CheckHRESULT(TransformTest::GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 }
 
 PyramidObject::~PyramidObject()

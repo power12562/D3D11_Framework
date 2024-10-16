@@ -86,13 +86,13 @@ bool D3D11_BoxDrawApp::InitD3D()
 		creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 		// 1. 장치 생성.   2.스왑체인 생성. 3.장치 컨텍스트 생성.
-		CheackHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
+		CheckHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
 			D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
 
 		// 4. 렌더타겟뷰 생성.  (백버퍼를 이용하는 렌더타겟뷰)	
 		ID3D11Texture2D* pBackBufferTexture = nullptr;
-		CheackHRESULT(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture));
-		CheackHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  //텍스처는 내부 참조 증가
+		CheckHRESULT(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture));
+		CheckHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  //텍스처는 내부 참조 증가
 		SafeRelease(pBackBufferTexture);	//외부 참조 카운트를 감소시킨다.
 		// 렌더 타겟을 최종 출력 파이프라인에 바인딩합니다.
 		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
@@ -166,7 +166,7 @@ bool D3D11_BoxDrawApp::InitScene()
 		// 정점 버퍼 생성.
 		D3D11_SUBRESOURCE_DATA vbData = {};
 		vbData.pSysMem = vertices;
-		CheackHRESULT(hr = m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer));
+		CheckHRESULT(hr = m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer));
 
 		// 버텍스 버퍼 정보 
 		m_VertextBufferStride = sizeof(Vertex);
@@ -181,20 +181,20 @@ bool D3D11_BoxDrawApp::InitScene()
 		};
 
 		ID3DBlob* vertexShaderBuffer = nullptr;
-		CheackHRESULT(CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-		CheackHRESULT(hr = m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+		CheckHRESULT(CompileShaderFromFile(L"BasicVertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+		CheckHRESULT(hr = m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 			vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
 
 		// 3. Render에서 파이프라인에 바인딩할  버텍스 셰이더 생성
-		CheackHRESULT(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+		CheckHRESULT(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
 			vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
 		SafeRelease(vertexShaderBuffer);
 
 
 		// 4. Render에서 파이프라인에 바인딩할 픽셀 셰이더 생성
 		ID3DBlob* pixelShaderBuffer = nullptr;
-		CheackHRESULT(CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
-		CheackHRESULT(m_pDevice->CreatePixelShader(
+		CheckHRESULT(CompileShaderFromFile(L"BasicPixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+		CheckHRESULT(m_pDevice->CreatePixelShader(
 			pixelShaderBuffer->GetBufferPointer(),
 			pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 		SafeRelease(pixelShaderBuffer);
@@ -212,7 +212,7 @@ bool D3D11_BoxDrawApp::InitScene()
 		ibDesc.Usage = D3D11_USAGE_DEFAULT;
 		D3D11_SUBRESOURCE_DATA ibData = {};
 		ibData.pSysMem = indices;
-		CheackHRESULT(m_pDevice->CreateBuffer(&ibDesc, &ibData, &m_pIndexBuffer));
+		CheckHRESULT(m_pDevice->CreateBuffer(&ibDesc, &ibData, &m_pIndexBuffer));
 
 		return true;
 	}

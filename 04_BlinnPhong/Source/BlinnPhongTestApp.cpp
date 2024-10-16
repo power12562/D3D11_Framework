@@ -76,20 +76,20 @@ void BlinnPhongTestApp::InitScene()
 	};
 
 	ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-	CheackHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-	CheackHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+	CheckHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
+	CheckHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
 		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout));
 
 	//버텍스 셰이더 생성
-	CheackHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+	CheckHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
 		vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader));
 	SafeRelease(vertexShaderBuffer);
 
 	// 픽셀 셰이더 컴파일
 	ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
-	CheackHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
+	CheckHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
 	// 픽셸 셰이더 생성
-	CheackHRESULT(pDevice->CreatePixelShader(
+	CheckHRESULT(pDevice->CreatePixelShader(
 		pixelShaderBuffer->GetBufferPointer(),
 		pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader));
 	SafeRelease(pixelShaderBuffer);
@@ -100,7 +100,7 @@ void BlinnPhongTestApp::InitScene()
 	bd.ByteWidth = sizeof(ConstantBuffer);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
-	CheackHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
+	CheckHRESULT(pDevice->CreateBuffer(&bd, nullptr, &m_pConstantBuffer));
 
 	m_cubeObject = new SimpleBlinnPhongObject;
 	m_cubeObject->transform->position = { 0.f, 0.f, 3.0f };

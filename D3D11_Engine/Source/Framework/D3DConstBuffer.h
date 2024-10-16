@@ -106,7 +106,7 @@ template<>
 inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Transform& data)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferTransform, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferTransform, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	// 상수 버퍼에 데이터를 쓴다.
 	cb_Transform* dataPtr = (cb_Transform*)mappedResource.pData;
@@ -120,7 +120,7 @@ template<>
 inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Camera& data)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferCamera, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferCamera, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	// 상수 버퍼에 데이터를 쓴다.
 	cb_Camera* dataPtr = (cb_Camera*)mappedResource.pData;
@@ -155,7 +155,7 @@ inline int D3DConstBuffer::CreateVSConstantBuffers()
 		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 		ID3D11Buffer* cBufferTemp{};
-		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
 	}
 	vs_cbufferList.emplace_back(key);
@@ -187,7 +187,7 @@ inline int D3DConstBuffer::CreatePSConstantBuffers()
 		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 		ID3D11Buffer* cBufferTemp{};
-		Utility::CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
+		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
 	}
 	ps_cbufferList.emplace_back(key);
@@ -203,7 +203,7 @@ inline void D3DConstBuffer::UpdateConstBuffer(T& data)
 	if (findIter != cBufferMap.end())
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Utility::CheackHRESULT(d3dRenderer.GetDeviceContext()->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 		// 상수 버퍼에 데이터를 쓴다.
 		T* dataPtr = (T*)mappedResource.pData;

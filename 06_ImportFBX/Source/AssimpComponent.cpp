@@ -31,7 +31,7 @@ void AssimpComponent::Start()
     rd.FillMode = D3D11_FILL_SOLID;         //채우기 방식
     rd.CullMode = D3D11_CULL_NONE;          //컬링 방식
 
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateRasterizerState(&rd, &rasterierState));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateRasterizerState(&rd, &rasterierState));
     d3dRenderer.GetDeviceContext()->RSSetState(rasterierState);
 }
 

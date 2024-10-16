@@ -60,7 +60,7 @@ void SimpleMeshRender::CreateMesh()
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA vbData = {};
 	vbData.pSysMem = vertices.data();
-	CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshData.pVertexBuffer));
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshData.pVertexBuffer));
 	
 	meshData.indicesCount = indices.size();
 	bd = {};
@@ -70,5 +70,5 @@ void SimpleMeshRender::CreateMesh()
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA ibData = {};
 	ibData.pSysMem = indices.data();
-	CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshData.pIndexBuffer));
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshData.pIndexBuffer));
 }

@@ -21,7 +21,7 @@ SimpleMaterial::SimpleMaterial()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	CheackHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &pSamplerLinear));
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &pSamplerLinear));
 }
 
 SimpleMaterial::~SimpleMaterial()
@@ -81,101 +81,101 @@ void SimpleMaterial::ResetPS()
 
 void SimpleMaterial::SetDiffuse(const wchar_t* path)
 {
-	if (currTexture != path)
+	if (texturesNames[Diffuse] != path)
 	{
 		ResetDiffuse();
 		textureManager.CreateSharingTexture(path, &textures[Diffuse]);
-		currTexture = path;
+		texturesNames[Diffuse] = path;
 	}
 }
 
 void SimpleMaterial::ResetDiffuse()
 {
-	if (!currTexture.empty())
+	if (!texturesNames[Diffuse].empty())
 	{
-		textureManager.ReleaseSharingTexture(currTexture.c_str());
+		textureManager.ReleaseSharingTexture(texturesNames[Diffuse].c_str());
 		textures[Diffuse] = nullptr;
-		currTexture.clear();
+		texturesNames[Diffuse].clear();
 	}
 }
 
 void SimpleMaterial::SetNormalMap(const wchar_t* path)
 {
-	if (currNormal != path)
+	if (texturesNames[Normal] != path)
 	{
 		ResetNormalMap();
 		textureManager.CreateSharingTexture(path, &textures[Normal]);
-		currNormal = path;
+		texturesNames[Normal] = path;
 	}
 }
 
 void SimpleMaterial::ResetNormalMap()
 {
-	if (!currNormal.empty())
+	if (!texturesNames[Normal].empty())
 	{
-		textureManager.ReleaseSharingTexture(currNormal.c_str());
+		textureManager.ReleaseSharingTexture(texturesNames[Normal].c_str());
 		textures[Normal] = nullptr;
-		currNormal.clear();
+		texturesNames[Normal].clear();
 	}
 }
 
 void SimpleMaterial::SetSpecularMap(const wchar_t* path)
 {
-	if (currSpecular != path)
+	if (texturesNames[Specular] != path)
 	{
 		ResetSpecularMap();
 		textureManager.CreateSharingTexture(path, &textures[Specular]);
-		currSpecular = path;
+		texturesNames[Specular] = path;
 	}
 }
 
 void SimpleMaterial::ResetSpecularMap()
 {
-	if (!currSpecular.empty())
+	if (!texturesNames[Specular].empty())
 	{
-		textureManager.ReleaseSharingTexture(currSpecular.c_str());
+		textureManager.ReleaseSharingTexture(texturesNames[Specular].c_str());
 		textures[Specular] = nullptr;
-		currSpecular.clear();
+		texturesNames[Specular].clear();
 	}
 }
 
 void SimpleMaterial::SetEmissiveMap(const wchar_t* path)
 {
-	if (currEmissive != path)
+	if (texturesNames[Emissive] != path)
 	{
 		ResetEmissiveMap();
 		textureManager.CreateSharingTexture(path, &textures[Emissive]);
-		currEmissive = path;
+		texturesNames[Emissive] = path;
 	}
 }
 
 void SimpleMaterial::ResetEmissiveMap()
 {
-	if (!currEmissive.empty())
+	if (!texturesNames[Emissive].empty())
 	{
-		textureManager.ReleaseSharingTexture(currEmissive.c_str());
+		textureManager.ReleaseSharingTexture(texturesNames[Emissive].c_str());
 		textures[Emissive] = nullptr;
-		currEmissive.clear();
+		texturesNames[Emissive].clear();
 	}
 }
 
 void SimpleMaterial::SetOpacityMap(const wchar_t* path)
 {
-	if (currOpacity != path)
+	if (texturesNames[Opacity] != path)
 	{
 		ResetOpacityMap();
 		textureManager.CreateSharingTexture(path, &textures[Opacity]);
-		currOpacity = path;
+		texturesNames[Opacity] = path;
 	}
 }
 
 void SimpleMaterial::ResetOpacityMap()
 {
-	if (!currOpacity.empty())
+	if (!texturesNames[Opacity].empty())
 	{
-		textureManager.ReleaseSharingTexture(currOpacity.c_str());
+		textureManager.ReleaseSharingTexture(texturesNames[Opacity].c_str());
 		textures[Opacity] = nullptr;
-		currOpacity.clear();
+		texturesNames[Opacity].clear();
 	}
 }
 

@@ -66,13 +66,13 @@ void D3DRenderer::Init()
         SIZE clientSize = WinGameApp::GetClientSize();
 
         //디바이스, 스왑체인, 디바이스 컨텍스트 생성
-        CheackHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
+        CheckHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
             D3D11_SDK_VERSION, &swapDesc, &pSwapChain, &pDevice, NULL, &pDeviceContext));
 
         //렌더타겟뷰 생성. (백퍼버 이용)
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
-        CheackHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
-        CheackHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+        CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
+        CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
 
         //뷰포트 설정
@@ -102,14 +102,14 @@ void D3DRenderer::Init()
         descDepth.MiscFlags = 0;
 
         ID3D11Texture2D* textureDepthStencil = nullptr;
-        CheackHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
+        CheckHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
 
         // Create the depth stencil view
         D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
         descDSV.Format = descDepth.Format;
         descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         descDSV.Texture2D.MipSlice = 0;
-        CheackHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
+        CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
         SafeRelease(textureDepthStencil);
 
         //Set alpha blend
@@ -127,7 +127,7 @@ void D3DRenderer::Init()
         blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; // 알파 대상 블렌드
         blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; // 알파 블렌드 연산
         blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // 모든 색상 채널 쓰기 허용
-        CheackHRESULT(pDevice->CreateBlendState(&blendDesc, &pBlendState));
+        CheckHRESULT(pDevice->CreateBlendState(&blendDesc, &pBlendState));
 
         pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
 

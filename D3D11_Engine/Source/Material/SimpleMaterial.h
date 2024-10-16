@@ -16,7 +16,7 @@ struct cb_Material
 
 namespace E_TEXTURE_INDEX
 {
-	enum TEXTUR_INDEX
+	enum TEXTURE_INDEX
 	{
 		Diffuse,
 		Normal,
@@ -67,11 +67,8 @@ private:
 	std::wstring currVS;
 	std::wstring currPS;
 
-	std::wstring currTexture;
-	std::wstring currNormal;
-	std::wstring currSpecular;
-	std::wstring currEmissive;
-	std::wstring currOpacity;
+private:
+	std::array<std::wstring, E_TEXTURE_INDEX::Null> texturesNames{};
 
 private:
 	ID3D11InputLayout* pInputLayout = nullptr;

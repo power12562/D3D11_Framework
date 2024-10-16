@@ -59,7 +59,7 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &m_pVertexBuffer));
 
     m_VertexBufferStride = sizeof(Vertex);
     m_VertexBufferOffset = 0;
@@ -85,10 +85,10 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &m_pIndexBuffer));
 
     //Load Texture
-    CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
+    CheckHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), L"seafloor.dds", nullptr, &m_pTextureRV));
 
     // Create the sample state
     D3D11_SAMPLER_DESC sampDesc = {};
@@ -99,7 +99,7 @@ SimpleCubeShadeObject::SimpleCubeShadeObject()
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    CheackHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&sampDesc, &m_pSamplerLinear));
 }
 
 SimpleCubeShadeObject::~SimpleCubeShadeObject()

@@ -90,22 +90,22 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 		switch (type)
 		{
 		case HLSLManager::EXTENSION_TYPE::hlsl:
-			CheackHRESULT(CompileShaderFromFile(path, "main", shaderModel, &vertexShaderBuffer));
+			CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &vertexShaderBuffer));
 			break;
 		case HLSLManager::EXTENSION_TYPE::cso:
-			CheackHRESULT(LoadShadeFormFile(path, &vertexShaderBuffer));
+			CheckHRESULT(LoadShadeFormFile(path, &vertexShaderBuffer));
 			break;
 		case HLSLManager::EXTENSION_TYPE::null:
 			__debugbreak(); //not shader file
 			*ppOut_VertexShader = nullptr;
 		}
-		CheackHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
+		CheckHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
 		sharingShaderMap[path] = vertexShader;
 		*ppOut_VertexShader = vertexShader;
 
 		// 리플렉션을 사용하여 입력 레이아웃 생성
 		ID3D11ShaderReflection* pReflector = nullptr;
-		CheackHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector));
+		CheckHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector));
 
 		D3D11_SHADER_DESC shaderDesc;
 		pReflector->GetDesc(&shaderDesc);
@@ -128,7 +128,7 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 
 			inputLayoutDesc.push_back(elementDesc);
 		}
-		CheackHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
+		CheckHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
 			vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), ppOut_InputLayout));
 
 		sharingInputLayoutMap[path] = *ppOut_InputLayout;
@@ -158,16 +158,16 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 		switch (type)
 		{
 		case HLSLManager::EXTENSION_TYPE::hlsl:
-			CheackHRESULT(CompileShaderFromFile(path, "main", shaderModel, &pixelShaderBuffer));
+			CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &pixelShaderBuffer));
 			break;
 		case HLSLManager::EXTENSION_TYPE::cso:
-			CheackHRESULT(LoadShadeFormFile(path, &pixelShaderBuffer));
+			CheckHRESULT(LoadShadeFormFile(path, &pixelShaderBuffer));
 			break;
 		case HLSLManager::EXTENSION_TYPE::null:
 			__debugbreak(); //not shader file
 			*ppOutput = nullptr;
 		}
-		CheackHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
+		CheckHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
 		sharingShaderMap[path] = pixelShader;
 		*ppOutput = pixelShader;
 		pixelShaderBuffer->Release();
