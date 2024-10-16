@@ -8,6 +8,7 @@
 
 class D3DRenderer;
 class D3DConstBuffer;
+class SimpleMaterial;
 extern D3DRenderer& d3dRenderer;
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -36,6 +37,7 @@ public:
 
 public:
 	void DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer* cbuffer);
+	void DrawIndex(DRAW_INDEX_DATA_V& data, SimpleMaterial& material);
 
 public:
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };

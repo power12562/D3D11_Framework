@@ -2,6 +2,7 @@
 #include <Component\Camera\Camera.h>
 #include <Framework\WinGameApp.h>
 #include <Framework/D3DConstBuffer.h>
+#include <Material\SimpleMaterial.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
 #include <_Debug\Console.h>
@@ -187,6 +188,22 @@ void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer* cbuffer)
     pDeviceContext->VSSetShader(data.pVertexShader, nullptr, 0);
 
     pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
+
+    pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
+}
+
+void D3DRenderer::DrawIndex(DRAW_INDEX_DATA_V& data, SimpleMaterial& material)
+{
+    material.cbuffer.SetConstBuffer();
+
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
+    pDeviceContext->IASetInputLayout(material.pInputLayout);
+    pDeviceContext->IASetIndexBuffer(data.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+
+    pDeviceContext->VSSetShader(material.pVertexShader, nullptr, 0);
+
+    pDeviceContext->PSSetShader(material.pPixelShader, nullptr, 0);
 
     pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
 }

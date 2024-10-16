@@ -25,6 +25,12 @@ protected:
 	virtual void Render() 		 override;
 
 public:
+	void CreateMesh();
+
+private:
+	DRAW_INDEX_DATA_V meshData;
+
+public:
 	std::vector<Vertex> vertices;	
 	std::vector<UINT> indices;	
 
