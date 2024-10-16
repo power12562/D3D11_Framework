@@ -175,26 +175,14 @@ void D3DRenderer::EndDraw()
     pSwapChain->Present(0, 0);     // Present the information rendered to the back buffer to the front buffer (the screen)
 }
 
-void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, D3DConstBuffer* cbuffer)
-{
-	if (cbuffer)
-		cbuffer->SetConstBuffer(); // 상수 버퍼 바인딩.
-
-    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
-    pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);
-    pDeviceContext->IASetInputLayout(data.pInputLayout);
-    pDeviceContext->IASetIndexBuffer(data.pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-
-    pDeviceContext->VSSetShader(data.pVertexShader, nullptr, 0);
-
-    pDeviceContext->PSSetShader(data.pPixelShader, nullptr, 0);
-
-    pDeviceContext->DrawIndexed(data.indicesCount, 0, 0);
-}
-
-void D3DRenderer::DrawIndex(DRAW_INDEX_DATA_V& data, SimpleMaterial& material)
+void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material)
 {
     material.cbuffer.SetConstBuffer();
+
+    for (int i = 0; i < material.textures.size(); i++)
+    {
+        pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
+    }
 
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);

@@ -3,12 +3,13 @@
 #include <Framework\D3DRenderer.h>
 #include <Framework\TextureManager.h>
 
+using namespace E_TEXTURE_INDEX;
+
 SimpleMaterial::SimpleMaterial()
 {
 	using namespace Utility;
 
 	int index = -1;
-	index = cbuffer.CreatePSConstantBuffers<cb_Light>();
 	index = cbuffer.CreatePSConstantBuffers<cb_Material>();
 
 	// Create the sample state
@@ -28,7 +29,7 @@ SimpleMaterial::~SimpleMaterial()
 	ResetVS();
 	ResetPS();
 
-	ResetTexture();
+	ResetDiffuse();
 	ResetNormalMap();
 	ResetSpecularMap();
 	ResetEmissiveMap();
@@ -42,7 +43,7 @@ void SimpleMaterial::SetVS(const wchar_t* path)
 	if (currVS != path)
 	{
 		ResetVS();
-		hlslManager.CreateSharingShader(path, shaderModel.c_str(), &pVertexShader, &pInputLayout);
+		hlslManager.CreateSharingShader(path, ("vs_" + shaderModel).c_str(), &pVertexShader, &pInputLayout);
 		currVS = path;
 	}
 }
@@ -63,7 +64,7 @@ void SimpleMaterial::SetPS(const wchar_t* path)
 	if (currPS != path)
 	{
 		ResetPS();
-		hlslManager.CreateSharingShader(path, shaderModel.c_str(), &pPixelShader);
+		hlslManager.CreateSharingShader(path, ("ps_" + shaderModel).c_str(), &pPixelShader);
 		currPS = path;
 	}
 }
@@ -78,22 +79,22 @@ void SimpleMaterial::ResetPS()
 	}
 }
 
-void SimpleMaterial::SetTexture(const wchar_t* path)
+void SimpleMaterial::SetDiffuse(const wchar_t* path)
 {
 	if (currTexture != path)
 	{
-		ResetTexture();
-		textureManager.CreateSharingTexture(path, &pTextureMap);	
+		ResetDiffuse();
+		textureManager.CreateSharingTexture(path, &textures[Diffuse]);
 		currTexture = path;
 	}
 }
 
-void SimpleMaterial::ResetTexture()
+void SimpleMaterial::ResetDiffuse()
 {
 	if (!currTexture.empty())
 	{
 		textureManager.ReleaseSharingTexture(currTexture.c_str());
-		pTextureMap = nullptr;
+		textures[Diffuse] = nullptr;
 		currTexture.clear();
 	}
 }
@@ -103,7 +104,7 @@ void SimpleMaterial::SetNormalMap(const wchar_t* path)
 	if (currNormal != path)
 	{
 		ResetNormalMap();
-		textureManager.CreateSharingTexture(path, &pNormalMap);
+		textureManager.CreateSharingTexture(path, &textures[Normal]);
 		currNormal = path;
 	}
 }
@@ -113,7 +114,7 @@ void SimpleMaterial::ResetNormalMap()
 	if (!currNormal.empty())
 	{
 		textureManager.ReleaseSharingTexture(currNormal.c_str());
-		pNormalMap = nullptr;
+		textures[Normal] = nullptr;
 		currNormal.clear();
 	}
 }
@@ -123,7 +124,7 @@ void SimpleMaterial::SetSpecularMap(const wchar_t* path)
 	if (currSpecular != path)
 	{
 		ResetSpecularMap();
-		textureManager.CreateSharingTexture(path, &pSpecularMap);
+		textureManager.CreateSharingTexture(path, &textures[Specular]);
 		currSpecular = path;
 	}
 }
@@ -133,7 +134,7 @@ void SimpleMaterial::ResetSpecularMap()
 	if (!currSpecular.empty())
 	{
 		textureManager.ReleaseSharingTexture(currSpecular.c_str());
-		pSpecularMap = nullptr;
+		textures[Specular] = nullptr;
 		currSpecular.clear();
 	}
 }
@@ -143,7 +144,7 @@ void SimpleMaterial::SetEmissiveMap(const wchar_t* path)
 	if (currEmissive != path)
 	{
 		ResetEmissiveMap();
-		textureManager.CreateSharingTexture(path, &pEmissiveMap);
+		textureManager.CreateSharingTexture(path, &textures[Emissive]);
 		currEmissive = path;
 	}
 }
@@ -153,7 +154,7 @@ void SimpleMaterial::ResetEmissiveMap()
 	if (!currEmissive.empty())
 	{
 		textureManager.ReleaseSharingTexture(currEmissive.c_str());
-		pEmissiveMap = nullptr;
+		textures[Emissive] = nullptr;
 		currEmissive.clear();
 	}
 }
@@ -163,7 +164,7 @@ void SimpleMaterial::SetOpacityMap(const wchar_t* path)
 	if (currOpacity != path)
 	{
 		ResetOpacityMap();
-		textureManager.CreateSharingTexture(path, &pOpacityMap);
+		textureManager.CreateSharingTexture(path, &textures[Opacity]);
 		currOpacity = path;
 	}
 }
@@ -173,7 +174,7 @@ void SimpleMaterial::ResetOpacityMap()
 	if (!currOpacity.empty())
 	{
 		textureManager.ReleaseSharingTexture(currOpacity.c_str());
-		pOpacityMap = nullptr;
+		textures[Opacity] = nullptr;
 		currOpacity.clear();
 	}
 }

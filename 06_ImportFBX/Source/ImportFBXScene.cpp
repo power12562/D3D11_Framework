@@ -18,7 +18,6 @@ ImportFBXScene::ImportFBXScene()
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
-	cam->AddComponent<SimpleDirectionalLight>();
 	cam->transform.position = Vector3(0, 16, -30);
 	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(-3, 0, 0) * Mathf::Deg2Rad);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
@@ -68,6 +67,7 @@ void ImportFBXScene::ImGUIRender()
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
 	cbuffer_bool& cb_bool = SimpleDirectionalLight::cb_bool;
+	cb_Material& cb_material = SimpleDirectionalLight::cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
@@ -89,10 +89,11 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::Checkbox("Use SpecularMap", &cb_bool.UseSpecularMap);
 	ImGui::Checkbox("Use EmissiveMap", &cb_bool.UseEmissiveMap);
 	ImGui::Checkbox("Use OpacityMap", &cb_bool.UseOpacityMap);
-	ImGui::ColorEdit3("MaterialDiffuse", &cb_Light.MaterialDiffuse);
-	ImGui::ColorEdit3("MaterialAmbient", &cb_Light.MaterialAmbient);
-	ImGui::ColorEdit3("MaterialSpecular", &cb_Light.MaterialSpecular);
-	ImGui::DragFloat("MaterialSpecularPower", &cb_Light.MaterialSpecularPower, 10, 50, 500);
+
+	ImGui::ColorEdit3("MaterialDiffuse", &cb_material.MaterialDiffuse);
+	ImGui::ColorEdit3("MaterialAmbient", &cb_material.MaterialAmbient);
+	ImGui::ColorEdit3("MaterialSpecular", &cb_material.MaterialSpecular);
+	ImGui::DragFloat("MaterialSpecularPower", &cb_material.MaterialSpecularPower, 10, 50, 500);
 	ImGui::Text("");
 
 	ImGui::Text("Background");

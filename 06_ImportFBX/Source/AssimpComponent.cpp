@@ -9,6 +9,7 @@
 #include <Math/AssimpMath.h>
 #include <Utility\utfConvert.h>
 #include <Utility\AssimpUtility.h>
+#include <Material\SimpleMaterial.h>
 
 #include "../Source/SimpleMashComponent.h"
 
@@ -101,7 +102,7 @@ void AssimpComponent::LoadFBX(const char* path)
             {
                 unsigned int meshIndex = currNode->mMeshes[i];
                 aiMesh* pMesh = pScene->mMeshes[meshIndex];
-                Vertex vertex;
+                SimpleMashComponent::Vertex vertex;
                 for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
                 {
                     aiVector3D position = pMesh->mVertices[vertexIndex];
@@ -147,7 +148,7 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath = directory;
                         basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
-						Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pTextureRV));
+                        meshComponent.Material->SetDiffuse(basePath.c_str());
 					}                  
                 }
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_NORMALS, 0, &path))
@@ -157,7 +158,7 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath = directory;
                         basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pNormalMap));
+                        meshComponent.Material->SetNormalMap(basePath.c_str());
                     }
                 }
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -168,7 +169,7 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath = directory;
                         basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pSpecularMap));
+                        meshComponent.Material->SetSpecularMap(basePath.c_str());
                     }
                 }
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -178,7 +179,7 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath = directory;
                         basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pEmissiveMap));
+                        meshComponent.Material->SetEmissiveMap(basePath.c_str());
                     }
                 }
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -188,7 +189,7 @@ void AssimpComponent::LoadFBX(const char* path)
                         basePath = directory;
                         basePath += L"\\";
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        Utility::CheackHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), basePath.c_str(), nullptr, &meshComponent.m_pOpacityMap));
+                        meshComponent.Material->SetOpacityMap(basePath.c_str());
                     }
                 }     
             }
@@ -201,7 +202,7 @@ void AssimpComponent::LoadFBX(const char* path)
 
                 objQue.push(childObj);
             }  
-            meshComponent.SetMesh();
+            meshComponent.CreateMesh();
         }
     }
 }

@@ -146,9 +146,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\SimpleDirectionalLight.cpp" />
     <ClCompile Include="Source\SimpleMashComponent.cpp" />
     <ClCompile Include="Source\AssimpComponent.cpp" />
-    <ClCompile Include="Source\SimpleDirectionalLight.cpp" />
     <ClCompile Include="Source\ImportFBXScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\StartApp.cpp" />

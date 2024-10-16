@@ -1,16 +1,9 @@
 #pragma once
 #include <Framework\D3DConstBuffer.h>
 #include <directxtk/simplemath.h>
+#include <array>
 
 #pragma warning( disable : 4305 )
-struct cb_Light
-{
-	DirectX::SimpleMath::Vector4 LightDir{ 0, -1, 1, 0 };
-	DirectX::SimpleMath::Vector4 LightDiffuse{ 1, 1, 1, 1 };
-	DirectX::SimpleMath::Vector4 LightAmbient{ 0.01, 0.01, 0.01, 0.01 };
-	DirectX::SimpleMath::Vector4 LightSpecular{ 1, 1, 1, 1 };
-};
-
 struct cb_Material
 {
 	DirectX::SimpleMath::Vector4 MaterialAmbient{ 1, 1, 1, 1 };
@@ -20,6 +13,19 @@ struct cb_Material
 	DirectX::SimpleMath::Vector3 MaterialSpecularPad;
 };
 #pragma warning( default : 4305 )
+
+namespace E_TEXTURE_INDEX
+{
+	enum TEXTUR_INDEX
+	{
+		Diffuse,
+		Normal,
+		Specular,
+		Emissive,
+		Opacity,
+		Null
+	};
+}
 
 class SimpleMaterial
 {
@@ -35,8 +41,8 @@ public:
 	void SetPS(const wchar_t* path);
 	void ResetPS();
 
-	void SetTexture(const wchar_t* path);
-	void ResetTexture();
+	void SetDiffuse(const wchar_t* path);
+	void ResetDiffuse();
 
 	void SetNormalMap(const wchar_t* path);
 	void ResetNormalMap();
@@ -51,13 +57,12 @@ public:
 	void ResetOpacityMap();
 
 public:
-	std::string shaderModel = "vs_4_0";
+	std::string shaderModel = "4_0";
 
 public:
 	D3DConstBuffer cbuffer;
 
-	cb_Light Light;
-	cb_Material Material;
+	cb_Material cb_material;
 private:
 	std::wstring currVS;
 	std::wstring currPS;
@@ -73,11 +78,17 @@ private:
 	ID3D11VertexShader* pVertexShader = nullptr;	
 	ID3D11PixelShader* pPixelShader = nullptr;	
 
-	ID3D11ShaderResourceView* pTextureMap = nullptr;
-	ID3D11ShaderResourceView* pNormalMap = nullptr;
-	ID3D11ShaderResourceView* pSpecularMap = nullptr;
-	ID3D11ShaderResourceView* pEmissiveMap = nullptr;
-	ID3D11ShaderResourceView* pOpacityMap = nullptr;
-
+	std::array<ID3D11ShaderResourceView*, E_TEXTURE_INDEX::Null> textures{nullptr, };
+private:
 	ID3D11SamplerState* pSamplerLinear = nullptr;
+
+public:
+	 ID3D11SamplerState* GetSampler() { return pSamplerLinear; }
+
+public:
+	bool IsDiffuse() { return !!textures[E_TEXTURE_INDEX::Diffuse]; }
+	bool IsNormalMap() { return !!textures[E_TEXTURE_INDEX::Normal]; }
+	bool IsSpecularMap() { return !!textures[E_TEXTURE_INDEX::Specular]; }
+	bool IsEmissiveMap() { return !!textures[E_TEXTURE_INDEX::Emissive]; }
+	bool IsOpacityMap() { return !!textures[E_TEXTURE_INDEX::Opacity]; }
 };

@@ -28,7 +28,7 @@ public:
 	void CreateMesh();
 
 private:
-	DRAW_INDEX_DATA_V meshData;
+	DRAW_INDEX_DATA meshData;
 
 public:
 	std::vector<Vertex> vertices;	

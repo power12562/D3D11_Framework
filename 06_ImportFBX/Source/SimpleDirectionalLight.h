@@ -1,23 +1,16 @@
 #pragma once
 #include <Component\Base\Component.h>
-#include <Framework\D3DConstBuffer.h>
+#include <Material\SimpleMaterial.h>
 
+#pragma warning(disable : 4305)
 struct cbuffer_Light
 {
-    Vector3 CamPos;
-    float CamPosPad{};
-
     Vector4 LightDir{ 0, -1, 1, 0 };
     Vector4 LightDiffuse{ 1, 1, 1, 1 };
     Vector4 LightAmbient{ 0.01, 0.01, 0.01, 0.01 };
     Vector4 LightSpecular{ 1, 1, 1, 1 };
-
-    Vector4 MaterialAmbient{ 1, 1, 1, 1 };
-    Vector4 MaterialDiffuse{ 1, 1, 1, 1 };
-    Vector4 MaterialSpecular{ 1, 1, 1, 1 };
-    float MaterialSpecularPower{ 300 };
-    Vector3 MaterialSpecularPad;
 };
+#pragma warning(default : 4305)
 
 struct cbuffer_bool
 {
@@ -49,22 +42,12 @@ struct cb_localBool
     bool pad4[3]{};
 };
 
-class SimpleDirectionalLight : public Component
+namespace SimpleDirectionalLight 
 {
-public:
-    inline static D3DConstBuffer cbuffer{};
-
-public:
-    inline static cbuffer_Light cb_Light{};
-    inline static cbuffer_bool cb_bool{};
-    inline static cb_localBool cb_localbool{};
-public:
-    SimpleDirectionalLight();
-    virtual ~SimpleDirectionalLight() override;
-public:
-    virtual void Start() override; 
-protected:
-    virtual void FixedUpdate()override;
-    virtual void Update() override;
-    virtual void LateUpdate() override;
+    extern cbuffer_Light cb_Light;
+    extern cbuffer_bool cb_bool;
+    extern cb_localBool cb_localbool;
+    extern cb_Material cb_material;
 };
+
+

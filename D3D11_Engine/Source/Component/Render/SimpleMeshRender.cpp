@@ -34,8 +34,10 @@ void SimpleMeshRender::Render()
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
     if (Material)
     {
-        Material->cbuffer.UpdateConstBuffer(Material->Light);
-        Material->cbuffer.UpdateConstBuffer(Material->Material);
+        Material->cbuffer.UpdateConstBuffer(Material->cb_material);
+
+		auto sampler = Material->GetSampler();
+		pDeviceContext->PSSetSamplers(0, 1, &sampler);
         d3dRenderer.DrawIndex(meshData, *Material);
     } 
 }
@@ -52,6 +54,8 @@ void SimpleMeshRender::CreateMesh()
 	if (meshData.pVertexBuffer)
 		SafeRelease(meshData.pVertexBuffer);
 
+	meshData.vertexBufferOffset = 0;
+	meshData.vertexBufferStride = sizeof(Vertex);
 	D3D11_BUFFER_DESC bd{};
 	bd.ByteWidth = sizeof(Vertex) * vertices.size();
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -60,7 +64,7 @@ void SimpleMeshRender::CreateMesh()
 	D3D11_SUBRESOURCE_DATA vbData = {};
 	vbData.pSysMem = vertices.data();
 	CheackHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshData.pVertexBuffer));
-
+	
 	meshData.indicesCount = indices.size();
 	bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
