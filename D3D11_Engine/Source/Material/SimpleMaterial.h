@@ -83,9 +83,6 @@ private:
 	ID3D11SamplerState* pSamplerLinear = nullptr;
 
 public:
-	 ID3D11SamplerState* GetSampler() { return pSamplerLinear; }
-
-public:
 	bool IsDiffuse() { return !!textures[E_TEXTURE_INDEX::Diffuse]; }
 	bool IsNormalMap() { return !!textures[E_TEXTURE_INDEX::Normal]; }
 	bool IsSpecularMap() { return !!textures[E_TEXTURE_INDEX::Specular]; }

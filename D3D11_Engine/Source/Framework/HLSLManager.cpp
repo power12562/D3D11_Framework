@@ -64,42 +64,6 @@ ULONG HLSLManager::ReleaseSharingShader(const wchar_t* path)
 	}
 }
 
-void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader)
-{
-	auto findIter = sharingShaderMap.find(path);
-	if (findIter != sharingShaderMap.end())
-	{
-		HRESULT hr = findIter->second->QueryInterface(__uuidof(ID3D11VertexShader), reinterpret_cast<void**>(ppOut_VertexShader));
-		if (FAILED(hr))
-		{
-			*ppOut_VertexShader = nullptr;
-		}
-		return;
-	}
-	else
-	{
-		ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-		ID3D11VertexShader* vertexShader = nullptr;	// 정점 셰이더가 저장될 곳.
-		EXTENSION_TYPE type = ChackShaderFile(path);
-		switch (type)
-		{
-		case HLSLManager::EXTENSION_TYPE::hlsl:	
-			CheackHRESULT(CompileShaderFromFile(path, "main", shaderModel, &vertexShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::cso:
-			CheackHRESULT(LoadShadeFormFile(path, &vertexShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::null:
-			__debugbreak(); //not shader file
-			*ppOut_VertexShader = nullptr;
-		}
-		CheackHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
-		sharingShaderMap[path] = vertexShader;
-		*ppOut_VertexShader = vertexShader;
-		vertexShaderBuffer->Release();
-	}
-}
-
 void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout)
 {
 	auto findIter = sharingShaderMap.find(path);
@@ -114,6 +78,7 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 		else
 		{
 			*ppOut_InputLayout = sharingInputLayoutMap[path];
+			(*ppOut_InputLayout)->AddRef();
 		}
 		return;
 	}

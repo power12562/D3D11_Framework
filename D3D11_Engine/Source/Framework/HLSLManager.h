@@ -17,7 +17,6 @@ class HLSLManager : public TSingleton<HLSLManager>
 	};
 	friend class TSingleton;
 public:
-	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader);
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 
