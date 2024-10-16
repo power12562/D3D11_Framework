@@ -183,6 +183,7 @@ void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material)
     {
         pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
     }
+    pDeviceContext->PSSetSamplers(0, 1, &material.pSamplerLinear);
 
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data.pVertexBuffer, &data.vertexBufferStride, &data.vertexBufferOffset);

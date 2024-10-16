@@ -35,9 +35,6 @@ void SimpleMeshRender::Render()
     if (Material)
     {
         Material->cbuffer.UpdateConstBuffer(Material->cb_material);
-
-		auto sampler = Material->GetSampler();
-		pDeviceContext->PSSetSamplers(0, 1, &sampler);
         d3dRenderer.DrawIndex(meshData, *Material);
     } 
 }
