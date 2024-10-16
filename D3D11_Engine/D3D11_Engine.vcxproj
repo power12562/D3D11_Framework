@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
     <ClInclude Include="Source\Component\Base\Component.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />
