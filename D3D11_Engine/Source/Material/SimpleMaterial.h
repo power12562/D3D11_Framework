@@ -6,9 +6,9 @@
 #pragma warning( disable : 4305 )
 struct cb_Material
 {
-	DirectX::SimpleMath::Vector4 MaterialAmbient{ 1, 1, 1, 1 };
-	DirectX::SimpleMath::Vector4 MaterialDiffuse{ 1, 1, 1, 1 };
-	DirectX::SimpleMath::Vector4 MaterialSpecular{ 1, 1, 1, 1 };
+	DirectX::SimpleMath::Color MaterialAmbient{ 1, 1, 1, 1 };
+	DirectX::SimpleMath::Color MaterialDiffuse{ 1, 1, 1, 1 };
+	DirectX::SimpleMath::Color MaterialSpecular{ 1, 1, 1, 1 };
 	float MaterialSpecularPower{ 300 };
 	DirectX::SimpleMath::Vector3 MaterialSpecularPad;
 };
@@ -61,7 +61,6 @@ public:
 
 public:
 	D3DConstBuffer cbuffer;
-
 	cb_Material cb_material;
 private:
 	std::wstring currVS;

@@ -10,7 +10,6 @@
 #include "../Source/SimpleDirectionalLight.h"
 
 #pragma warning(disable : 4305)
-
 ImportFBXScene::ImportFBXScene()
 {
 	UseImGUI = true;
@@ -100,3 +99,4 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	ImGui::End();
 }
+#pragma warning(default : 4305)
