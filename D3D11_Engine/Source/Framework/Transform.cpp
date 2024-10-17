@@ -75,7 +75,7 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 		Transform* rootParent = parent;
 		while (rootParent->parent != nullptr)
 		{
-			rootParent = parent->parent;
+			rootParent = rootParent->parent;
 		}
 		rootParent->UpdateTransform();
 
@@ -84,7 +84,7 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 		Vector3 scale, translation;
 		Quaternion quaternion;
 		localRotationMatrix.Decompose(scale, quaternion, translation); 	
-		_localRotation;
+		_localRotation = quaternion;
 	}
 	else
 	{
@@ -101,7 +101,7 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 		Transform* rootParent = parent;
 		while (rootParent->parent != nullptr)
 		{
-			rootParent = parent->parent;
+			rootParent = rootParent->parent;
 		}
 		rootParent->UpdateTransform();
 
