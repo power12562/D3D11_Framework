@@ -7,5 +7,6 @@ class GameObject;
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
-	std::vector<SimpleMaterial*> LoadFBX(const char* path, GameObject& _gameObject);
+	void LoadFBX(const char* path, GameObject& _gameObject, bool isStatic = false, SimpleMaterial* material = nullptr);
+	void LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material);
 }

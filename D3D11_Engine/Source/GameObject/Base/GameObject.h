@@ -1,5 +1,6 @@
 #pragma once
 #include <Framework\Transform.h>
+#include <_Debug/Console.h>
 #include <memory>
 #include <string>
 
@@ -17,7 +18,7 @@ public:
 	static GameObject* Find(const wchar_t* name);
 
 public:
-	GameObject() = default; 
+	GameObject(); 
 	virtual ~GameObject();
 
 private:
@@ -58,7 +59,7 @@ public:
 
 	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
 	template <typename T>
-	T& GetComponentAtIndex(int index);
+	T* GetComponentAtIndex(int index);
 	
 	/*이 오브젝트의 컴포넌트 개수*/
 	int GetComponentCount() { return componentList.size(); }
@@ -112,14 +113,15 @@ inline T* GameObject::IsComponent()
 }
 
 template<typename T>
-inline T& GameObject::GetComponentAtIndex(int index)
+inline T* GameObject::GetComponentAtIndex(int index)
 {
 	static_assert(std::is_base_of_v<Component, T>, "is not Component");
 
 	if (0 <= index && index < componentList.size())
 	{
-		T& component = dynamic_cast<T&>(*componentList[index]);
+		T* component = dynamic_cast<T*>(componentList[index].get());
 		return component;
 	}
-	__debugbreak(); //예외) 인덱스가 범위를 벗어남.
+	Debug_printf("warrnig : GetComponentAtIndex(int index), index is out of range!\n");
+	return nullptr;
 }

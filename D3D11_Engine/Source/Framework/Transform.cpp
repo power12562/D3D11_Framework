@@ -1,5 +1,6 @@
 #include "Transform.h"
 #include <Math/Mathf.h>
+#include <GameObject/Base/GameObject.h>	
 				
 Transform::Transform()
 {
@@ -37,6 +38,11 @@ Transform& Transform::operator=(const Transform& rhs)
 	_localScale		= rhs._localScale;
 
 	return *this;
+}
+
+GameObject& Transform::GetGameObject()
+{
+	return *_gameObject;
 }
 
 const Vector3& Transform::SetPosition(const Vector3& value)

@@ -15,17 +15,17 @@ public:
 			friend struct Clip;
 			struct PositionKey
 			{
-				float Time;
+				float Time{};
 				Vector3 position;
 			};
 			struct RotationKey
 			{
-				float Time;
+				float Time{};
 				Quaternion rotation;
 			};
 			struct ScaleKey
 			{
-				float Time;
+				float Time{};
 				Vector3 scale;
 			};
 			std::vector<PositionKey> positionKeys;
@@ -39,8 +39,8 @@ public:
 			int lastScaleIndex = 0;
 		};
 		std::vector<NodeAnimation> nodeAnimations;
-		float Duration;
-		float TickTime;
+		float Duration{};
+		float TickTime{};
 		void ResetCashIndex() 
 		{
 			for (auto& i : nodeAnimations)

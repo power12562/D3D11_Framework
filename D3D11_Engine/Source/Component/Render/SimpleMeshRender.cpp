@@ -9,6 +9,7 @@ SimpleMeshRender::SimpleMeshRender()
 	if (Material == nullptr)
 	{
 		Material = materialManager.GetMaterial(L"Standard");
+		Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 	}
 }
 
@@ -21,6 +22,7 @@ SimpleMeshRender::~SimpleMeshRender()
 
 void SimpleMeshRender::Start()
 {
+	
 }
 
 void SimpleMeshRender::FixedUpdate()
@@ -42,6 +44,7 @@ void SimpleMeshRender::Render()
     {
 		Material->cbuffer.UpdateConstBuffer(SimpleDirectionalLight::cb_Light);
         Material->cbuffer.UpdateConstBuffer(Material->cb_material);
+		Material->cbuffer.UpdateEvent();
         d3dRenderer.DrawIndex(meshData, *Material);
     } 
 }

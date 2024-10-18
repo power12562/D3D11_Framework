@@ -27,11 +27,12 @@ TransAnimationScene::TransAnimationScene()
 	box = NewGameObject<GameObject>(L"BoxHuman");
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, L"Standard");
-	materialManager.GetMaterial(L"Standard")->SetVS(L"VertexShader.hlsl");
-	materialManager.GetMaterial(L"Standard")->SetPS(L"PixelShader.hlsl");
-	materialManager.GetMaterial(L"Standard")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
-	materialManager[L"Standard"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+
+	materialManager.GetMaterial(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
+	materialManager.GetMaterial(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
+	materialManager.GetMaterial(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+	materialManager[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, materialManager[L"BoxHuman"]);
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);	
 }

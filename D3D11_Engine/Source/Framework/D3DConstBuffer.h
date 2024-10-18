@@ -94,6 +94,16 @@ public:
 	int GetVSCbufferCount() { return (int)vs_cbufferList.size() + StaticCbufferCount; }
 	int GetPSCbufferCount() { return (int)ps_cbufferList.size() + StaticCbufferCount; }
 
+private:
+	std::vector<std::function<void(void)>> cb_updateEvents;
+
+public:
+	template<typename T>
+	void BindUpdateEvent(T& data);
+	void ClearUpdateEvent() { cb_updateEvents.clear(); }
+
+public:
+	void UpdateEvent();
 };
 
 template<typename T>
@@ -263,4 +273,10 @@ inline int D3DConstBuffer::GetPSConstBufferIndex()
 		index++;
 	}
 	return -1;
+}
+
+template<typename T>
+inline void D3DConstBuffer::BindUpdateEvent(T& data)
+{
+	cb_updateEvents.push_back(std::bind(&D3DConstBuffer::UpdateConstBuffer<T>, this, std::ref(data)));
 }

@@ -2,6 +2,8 @@
 #include <Component/Base/RenderComponent.h>
 #include <vector>
 
+#include "../Source/Global_Cbuffer.h"
+
 class SimpleMaterial;
 class SimpleUpdateCbuffer : public RenderComponent
 {
@@ -10,10 +12,11 @@ public:
 	virtual ~SimpleUpdateCbuffer() override;
 
 public:
-	std::vector<SimpleMaterial*> list;
+	SimpleMaterial* Material = nullptr;
+	cb_localBool cb_localbool;
 
 public:
-	virtual void Start() {}
+	virtual void Start();
 protected:
 	virtual void FixedUpdate() {}
 	virtual void Update() {}

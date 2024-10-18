@@ -16,17 +16,19 @@ SimpleUpdateCbuffer::~SimpleUpdateCbuffer()
 	
 }
 
+void SimpleUpdateCbuffer::Start()
+{
+	
+}
+
 void SimpleUpdateCbuffer::Render()
 {
-	for (auto& Material : list)
+	if (Material)
 	{
-		Global_Cbuffer::cb_localbool.loaclNormalMap = Material->IsNormalMap();
-		Global_Cbuffer::cb_localbool.loaclSpecularMap = Material->IsSpecularMap();
-		Global_Cbuffer::cb_localbool.loaclEmissiveMap = Material->IsEmissiveMap();
-		Global_Cbuffer::cb_localbool.loaclOpacityMap = Material->IsOpacityMap();
-
-		Material->cbuffer.UpdateConstBuffer(Global_Cbuffer::cb_bool);
-		Material->cbuffer.UpdateConstBuffer(Global_Cbuffer::cb_localbool);
+		cb_localbool.loaclNormalMap = Material->IsNormalMap();
+		cb_localbool.loaclSpecularMap = Material->IsSpecularMap();
+		cb_localbool.loaclEmissiveMap = Material->IsEmissiveMap();
+		cb_localbool.loaclOpacityMap = Material->IsOpacityMap();
 
 		Material->cb_material = Global_Cbuffer::cb_material;
 	}

@@ -36,10 +36,8 @@ bool Utility::ParseFileName(aiString& str)
 		return false;
 }
 
-std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gameObject)
+void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, SimpleMaterial* material)
 {
-    std::vector<SimpleMaterial*> materialList;
-
     Assimp::Importer importer;
     unsigned int importFlags =
         aiProcess_Triangulate |         // vertex 삼각형 으로 출력
@@ -47,12 +45,13 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
         aiProcess_GenUVCoords |         // 텍스처 좌표 생성
         aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
         aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
-    //|  aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
+    if(isStatic)
+        importFlags |= aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
 
     std::string fileName(path);
     const aiScene* pScene = importer.ReadFile(fileName, importFlags);
     if (pScene == nullptr)
-        return materialList;
+        return;
 
     std::wstring directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
 
@@ -80,8 +79,15 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
         if (currNode)
         {
             SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
-            meshComponent.Material = materialManager.GetMaterial(currObj->Name.c_str());
-            materialList.push_back(meshComponent.Material);
+
+            if (material)
+            {
+                meshComponent.Material = material;
+            }
+            else
+            {
+                meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+            }
 
             Vector3 pos;
             Quaternion rot;
@@ -95,7 +101,7 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
             }
 
             for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
-            {
+            {            
                 unsigned int meshIndex = currNode->mMeshes[i];
                 aiMesh* pMesh = pScene->mMeshes[meshIndex];
                 SimpleMeshRender::Vertex vertex;
@@ -188,6 +194,8 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
                         meshComponent.Material->SetOpacityMap(basePath.c_str());
                     }
                 }
+
+                meshComponent.CreateMesh();
             }
             for (unsigned int i = 0; i < currNode->mNumChildren; i++)
             {
@@ -198,7 +206,6 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
 
                 objQue.push(childObj);
             }
-            meshComponent.CreateMesh();
         }
     }
 
@@ -249,6 +256,9 @@ std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gam
             anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
         }
     }       
+}
 
-    return materialList;
+void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material)
+{
+    LoadFBX(path, _gameObject, false, material);
 }

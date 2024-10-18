@@ -1,5 +1,6 @@
 #pragma once
 #include <Component\Base\RenderComponent.h>
+#include <functional>
 
 class SimpleMaterial;
 class SimpleMeshRender : public RenderComponent
@@ -26,7 +27,7 @@ protected:
 
 public:
 	void CreateMesh();
-
+	
 private:
 	DRAW_INDEX_DATA meshData;
 

@@ -28,6 +28,11 @@ GameObject* GameObject::Find(const wchar_t* name)
 	return sceneManager.FindObject(name);
 }
 
+GameObject::GameObject()
+{
+	transform._gameObject = this;
+}
+
 GameObject::~GameObject()
 {
 	//Debug_printf("%s, destroy\n", Name);

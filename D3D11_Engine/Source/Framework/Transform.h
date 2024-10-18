@@ -5,6 +5,8 @@ using namespace DirectX::SimpleMath;
 
 class Transform
 {
+	friend class GameObject;
+	GameObject* _gameObject = nullptr;
 public:
 	Transform();
 	~Transform();
@@ -12,8 +14,10 @@ public:
 	Transform(const Transform& rhs);
 
 	Transform& operator=(const Transform& rhs);
-	
 public:
+	GameObject& GetGameObject();
+	__declspec(property(get = GetGameObject)) GameObject& gameObject;
+
 	const Vector3& SetPosition(const Vector3& value);
 	const Vector3& GetPosition() const { return _position; }
 	__declspec(property(get = GetPosition, put = SetPosition)) const Vector3& position;
@@ -58,6 +62,9 @@ public:
 
 	/**해당 인덱스의 자식을 반환합니다. 실패하면 nullptr을 반환합니다.*/
 	Transform* GetChild(unsigned int index);
+
+	/** 자식 트랜스폼의 개수*/
+	unsigned int GetChildCount() { return (unsigned int)childList.size(); }
 
 	/*부모 트랜스폼*/
 	Transform* GetParent() { return parent; }

@@ -35,7 +35,6 @@ struct cb_localBool
 namespace Global_Cbuffer
 {
     extern cbuffer_bool cb_bool;
-    extern cb_localBool cb_localbool;
     extern cb_Material cb_material;
 };
 
