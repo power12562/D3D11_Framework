@@ -1,7 +1,7 @@
 #include "StartApp.h"
 #include <Framework\SceneManager.h>
 
-#include "..\Source\ImportFBXScene.h"
+#include "..\Source\TransAnimationScene.h"
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
 {
@@ -10,7 +10,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
 
     ImportFBXapp app;
     app.Initialize(hInst);
-    sceneManager.LoadScene<ImportFBXScene>();
+    sceneManager.LoadScene<TransAnimationScene>();
     app.Run();
     app.Uninitialize();
 

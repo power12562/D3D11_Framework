@@ -151,7 +151,8 @@ void D3DRenderer::Uninit()
     SafeRelease(pDepthStencilView);
     SafeRelease(pSwapChain);
     SafeRelease(pDeviceContext);
-    if (SafeRelease(pDevice) != 0)
+    ULONG refcount = SafeRelease(pDevice);
+    if (refcount != 0)
     {
         __debugbreak(); //Device refcounter err.
     }

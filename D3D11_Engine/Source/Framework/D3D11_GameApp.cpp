@@ -5,6 +5,7 @@
 #include <GameObject\Base\CameraObject.h>
 #include <Framework\DXTKInputSystem.h>
 #include <Framework\ImguiHelper.h>
+#include <Framework\MaterialManager.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
@@ -22,6 +23,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		sceneManager.currScene.reset();
+		materialManager.Clear();
 		WinGameApp::GameEnd();
 		break;
 #pragma endregion

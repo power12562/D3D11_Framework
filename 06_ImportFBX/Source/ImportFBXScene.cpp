@@ -5,9 +5,12 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
 #include <Math\Mathf.h>
+#include <Light\SimpleDirectionalLight.h>
+#include <Utility\AssimpUtility.h>
+#include <Component\Render\SimpleMeshRender.h>
 
-#include "../Source/AssimpComponent.h"
-#include "../Source/SimpleDirectionalLight.h"
+#include "../Source/SimpleUpdateCbuffer.h"
+#include "../Source/Global_Cbuffer.h"
 
 #pragma warning(disable : 4305)
 ImportFBXScene::ImportFBXScene()
@@ -24,37 +27,50 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	character->AddComponent<AssimpComponent>().LoadFBX("Resource/Character.fbx");
+	character->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/Character.fbx", *character);
 
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	zelda->AddComponent<AssimpComponent>().LoadFBX("Resource/zeldaPosed001.fbx");
+	zelda->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda);
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	tree->AddComponent<AssimpComponent>().LoadFBX("Resource/Tree.fbx");
+	tree->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/Tree.fbx", *tree);
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	box->AddComponent<AssimpComponent>().LoadFBX("Resource/box.fbx");
+	box->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/box.fbx", *box);
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	monkey->AddComponent<AssimpComponent>().LoadFBX("Resource/Monkey.fbx");
+	monkey->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/Monkey.fbx", *monkey);
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	torus->AddComponent<AssimpComponent>().LoadFBX("Resource/Torus.fbx");
+	torus->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/Torus.fbx", *torus);
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	IcoSphere->AddComponent<AssimpComponent>().LoadFBX("Resource/IcoSphere.fbx");
+	IcoSphere->AddComponent<SimpleUpdateCbuffer>();
+	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere);
+
+	SimpleMeshRender::SharedMaterial->SetVS(L"VertexShader.hlsl");
+	SimpleMeshRender::SharedMaterial->SetPS(L"PixelShader.hlsl");
+
+	SimpleMeshRender::SharedMaterial->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	SimpleMeshRender::SharedMaterial->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 }
 
 ImportFBXScene::~ImportFBXScene()
@@ -65,8 +81,8 @@ void ImportFBXScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
-	cbuffer_bool& cb_bool = SimpleDirectionalLight::cb_bool;
-	cb_Material& cb_material = SimpleDirectionalLight::cb_material;
+	cbuffer_bool& cb_bool = Global_Cbuffer::cb_bool;
+	cb_Material& cb_material = Global_Cbuffer::cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

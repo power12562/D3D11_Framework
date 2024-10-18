@@ -56,6 +56,6 @@ float4 main(PS_INPUT input) : SV_Target
     float4 final = ambient + diffuse + specular;
     final.a = opacity.a;
     
-    //return MaterialDiffuse;
+    //return opacity;
     return final;
 }

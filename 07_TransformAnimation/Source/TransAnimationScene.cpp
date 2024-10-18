@@ -1,44 +1,49 @@
-#include "ImportFBXScene.h"
+#include "TransAnimationScene.h"
 #include <Framework\SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
 #include <Framework/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
 #include <Math\Mathf.h>
-
-#include "../Source/AssimpComponent.h"
-#include "../Source/SimpleDirectionalLight.h"
+#include <Component\TransformAnimation.h>
+#include <Light\SimpleDirectionalLight.h>
+#include <Utility\AssimpUtility.h>
+#include <Component\Render\SimpleMeshRender.h>
+#include <Framework\MaterialManager.h>
 
 #pragma warning(disable : 4305)
-ImportFBXScene::ImportFBXScene()
+TransAnimationScene::TransAnimationScene()
 {
-	SimpleDirectionalLight::cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
-	SimpleDirectionalLight::cb_Light.LightDir = { -1,-1, 1, 0 };
+	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
-	d3dRenderer.backgroundColor = Color(0.5, 0.5, 0.5, 1);
+	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
-	cam->transform.position = Vector3(0, 16, -30);
+	cam->transform.position = Vector3(0, 30, -50);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	auto box = NewGameObject<GameObject>(L"BoxHuman");
-	box->AddComponent<AssimpComponent>().LoadFBX("Resource/BoxHuman.fbx");
+	box = NewGameObject<GameObject>(L"BoxHuman");
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
-	//box->transform.rotation = Quaternion::CreateFromYawPitchRoll(90, 0, 0);
+	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, L"Standard");
+	materialManager.GetMaterial(L"Standard")->SetVS(L"VertexShader.hlsl");
+	materialManager.GetMaterial(L"Standard")->SetPS(L"PixelShader.hlsl");
+	materialManager.GetMaterial(L"Standard")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+
+	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }
 
-ImportFBXScene::~ImportFBXScene()
+TransAnimationScene::~TransAnimationScene()
 {
 }
 
-void ImportFBXScene::ImGUIRender()
+void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
-	cb_Material& cb_material = SimpleDirectionalLight::cb_material;
+	cb_Material& cb_material = materialManager.GetMaterial(L"Standard")->cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
@@ -59,6 +64,10 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::ColorEdit3("MaterialAmbient", &cb_material.MaterialAmbient);
 	ImGui::ColorEdit3("MaterialSpecular", &cb_material.MaterialSpecular);
 	ImGui::DragFloat("MaterialSpecularPower", &cb_material.MaterialSpecularPower, 10, 50, 500);
+	ImGui::Text("");
+
+	ImGui::Text("Box Robot");
+	ImGui::DragQuaternion("Box rotation", &box->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Background");

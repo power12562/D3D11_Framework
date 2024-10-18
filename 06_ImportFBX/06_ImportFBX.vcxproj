@@ -146,17 +146,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\SimpleDirectionalLight.cpp" />
-    <ClCompile Include="Source\SimpleMashComponent.cpp" />
-    <ClCompile Include="Source\AssimpComponent.cpp" />
+    <ClCompile Include="Source\Global_Cbuffer.cpp" />
+    <ClCompile Include="Source\SimpleUpdateCbuffer.cpp" />
     <ClCompile Include="Source\ImportFBXScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\StartApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\SimpleMashComponent.h" />
-    <ClInclude Include="Source\AssimpComponent.h" />
-    <ClInclude Include="Source\SimpleDirectionalLight.h" />
+    <ClInclude Include="Source\SimpleUpdateCbuffer.h" />
+    <ClInclude Include="Source\Global_Cbuffer.h" />
     <ClInclude Include="Source\ImportFBXScene.h" />
     <ClInclude Include="Source\StartApp.h" />
   </ItemGroup>

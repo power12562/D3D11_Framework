@@ -2,8 +2,10 @@
 #include <Math\AssimpMath.h>
 #include <Framework\Transform.h>
 
+class SimpleMaterial;
 class GameObject;
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
+	void LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* material_name);
 }

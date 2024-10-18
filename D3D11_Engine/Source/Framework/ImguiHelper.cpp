@@ -43,12 +43,15 @@ void ImGui::DragVector4(const char* label, const Vector4* pVector, float v_speed
 
 void ImGui::DragQuaternion(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-	Vector3 euler = pQuaternion->ToEuler() * Mathf::Rad2Deg;
 	auto& temp = GetTemp(label, 3);
-	temp.get()[0] = euler.x;
-	temp.get()[1] = euler.y;
-	temp.get()[2] = euler.z;
+	Vector3 previousRotation = pQuaternion->ToEuler() * Mathf::Rad2Deg;
+	
+	temp.get()[0] = previousRotation.x;
+	temp.get()[1] = previousRotation.y;
+	temp.get()[2] = previousRotation.z;
+
 	ImGui::DragFloat3(label, temp.get(), v_speed, v_min, v_max, format, flags);
+
 	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
 	*qu = Quaternion::CreateFromYawPitchRoll(Vector3(temp.get()) * Mathf::Deg2Rad);
 }

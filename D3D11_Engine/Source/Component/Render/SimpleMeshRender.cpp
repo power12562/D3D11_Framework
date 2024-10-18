@@ -1,9 +1,16 @@
 #include "SimpleMeshRender.h"
 #include <Framework\D3DRenderer.h>
 #include <Material\SimpleMaterial.h>
+#include <Light\SimpleDirectionalLight.h>
+#include <Framework\MaterialManager.h>
 
 SimpleMeshRender::SimpleMeshRender()
 {
+	if (Material == nullptr)
+	{
+		Material = materialManager.GetMaterial(L"Standard");
+	}
+	Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 }
 
 SimpleMeshRender::~SimpleMeshRender()
@@ -34,6 +41,7 @@ void SimpleMeshRender::Render()
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
     if (Material)
     {
+		Material->cbuffer.UpdateConstBuffer(SimpleDirectionalLight::cb_Light);
         Material->cbuffer.UpdateConstBuffer(Material->cb_material);
         d3dRenderer.DrawIndex(meshData, *Material);
     } 

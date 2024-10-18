@@ -2,16 +2,6 @@
 #include <Component\Base\Component.h>
 #include <Material\SimpleMaterial.h>
 
-#pragma warning(disable : 4305)
-struct cbuffer_Light
-{
-    Vector4 LightDir{ 0, -1, 1, 0 };
-    Vector4 LightDiffuse{ 1, 1, 1, 1 };
-    Vector4 LightAmbient{ 0.01, 0.01, 0.01, 0.01 };
-    Vector4 LightSpecular{ 1, 1, 1, 1 };
-};
-#pragma warning(default : 4305)
-
 struct cbuffer_bool
 {
     bool UseNormalMap = true;
@@ -42,9 +32,8 @@ struct cb_localBool
     bool pad4[3]{};
 };
 
-namespace SimpleDirectionalLight 
+namespace Global_Cbuffer
 {
-    extern cbuffer_Light cb_Light;
     extern cbuffer_bool cb_bool;
     extern cb_localBool cb_localbool;
     extern cb_Material cb_material;

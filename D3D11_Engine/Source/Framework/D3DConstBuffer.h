@@ -158,6 +158,14 @@ inline int D3DConstBuffer::CreateVSConstantBuffers()
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
 	}
+	else
+	{
+		for (int i = 0; i < vs_cbufferList.size(); i++)
+		{
+			if (vs_cbufferList[i] == key)
+				return i;
+		}
+	}
 	vs_cbufferList.emplace_back(key);
 	return regIndex;
 }
@@ -189,6 +197,14 @@ inline int D3DConstBuffer::CreatePSConstantBuffers()
 		ID3D11Buffer* cBufferTemp{};
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
 		cBufferMap[key] = cBufferTemp;
+	}
+	else
+	{
+		for (int i = 0; i < ps_cbufferList.size(); i++)
+		{
+			if (ps_cbufferList[i] == key)
+				return i;
+		}
 	}
 	ps_cbufferList.emplace_back(key);
 	return regIndex;

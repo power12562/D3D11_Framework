@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Component\TransformAnimation.h" />
+    <ClInclude Include="Source\Framework\MaterialManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
@@ -168,12 +170,15 @@
     <ClInclude Include="Source\Framework\WinGameApp.h" />
     <ClInclude Include="Source\GameObject\Base\GameObject.h" />
     <ClInclude Include="Source\Math\Mathf.h" />
+    <ClInclude Include="Source\Light\SimpleDirectionalLight.h" />
     <ClInclude Include="Source\Utility\AssimpUtility.h" />
     <ClInclude Include="Source\Utility\D3D11Utility.h" />
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Component\TransformAnimation.cpp" />
+    <ClCompile Include="Source\Framework\MaterialManager.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
@@ -197,6 +202,7 @@
     <ClCompile Include="Source\Framework\WinGameApp.cpp" />
     <ClCompile Include="Source\GameObject\Base\GameObject.cpp" />
     <ClCompile Include="Source\Math\Mathf.cpp" />
+    <ClCompile Include="Source\Light\SimpleDirectionalLight.cpp" />
     <ClCompile Include="Source\Utility\AssimpUtility.cpp" />
     <ClCompile Include="Source\Utility\D3D11Utility.cpp" />
     <ClCompile Include="Source\Utility\MemoryUtility.cpp" />
