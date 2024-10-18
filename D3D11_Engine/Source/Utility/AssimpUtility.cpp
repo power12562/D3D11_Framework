@@ -36,8 +36,10 @@ bool Utility::ParseFileName(aiString& str)
 		return false;
 }
 
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* material_name)
+std::vector<SimpleMaterial*> Utility::LoadFBX(const char* path, GameObject& _gameObject)
 {
+    std::vector<SimpleMaterial*> materialList;
+
     Assimp::Importer importer;
     unsigned int importFlags =
         aiProcess_Triangulate |         // vertex 삼각형 으로 출력
@@ -50,7 +52,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* 
     std::string fileName(path);
     const aiScene* pScene = importer.ReadFile(fileName, importFlags);
     if (pScene == nullptr)
-        return;
+        return materialList;
 
     std::wstring directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
 
@@ -63,7 +65,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* 
     GameObject* currObj = nullptr;
 
     std::unordered_map<std::wstring, GameObject*> addMap;
-
+   
     while (!nodeQue.empty())
     {
         currNode = nodeQue.front();
@@ -78,7 +80,8 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* 
         if (currNode)
         {
             SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
-            meshComponent.Material = materialManager.GetMaterial(material_name);
+            meshComponent.Material = materialManager.GetMaterial(currObj->Name.c_str());
+            materialList.push_back(meshComponent.Material);
 
             Vector3 pos;
             Quaternion rot;
@@ -245,5 +248,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, const wchar_t* 
             }
             anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
         }
-    }
+    }       
+
+    return materialList;
 }

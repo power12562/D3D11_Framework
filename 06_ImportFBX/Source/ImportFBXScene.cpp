@@ -28,79 +28,100 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	character->AddComponent<SimpleUpdateCbuffer>().myKey = L"Character";
-	Utility::LoadFBX("Resource/Character.fbx", *character, L"Character");
-	materialManager[L"Character"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"Character"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	auto list = Utility::LoadFBX("Resource/Character.fbx", *character);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	character->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	zelda->AddComponent<SimpleUpdateCbuffer>().myKey = L"zelda";
-	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda, L"zelda");
-	materialManager[L"zelda"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"zelda"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	zelda->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	tree->AddComponent<SimpleUpdateCbuffer>().myKey = L"Tree";
-	Utility::LoadFBX("Resource/Tree.fbx", *tree, L"Tree");
-	materialManager[L"Tree"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"Tree"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/Tree.fbx", *tree);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	tree->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	box->AddComponent<SimpleUpdateCbuffer>().myKey = L"box";
-	Utility::LoadFBX("Resource/box.fbx", *box, L"box");
-	materialManager[L"box"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"box"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/box.fbx", *box);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	box->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	monkey->AddComponent<SimpleUpdateCbuffer>().myKey = L"Monkey";
-	Utility::LoadFBX("Resource/Monkey.fbx", *monkey, L"Monkey");
-	materialManager[L"Monkey"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"Monkey"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/Monkey.fbx", *monkey);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	monkey->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	torus->AddComponent<SimpleUpdateCbuffer>().myKey = L"Torus";
-	Utility::LoadFBX("Resource/Torus.fbx", *torus, L"Torus");
-	materialManager[L"Torus"]->SetVS(L"VertexShader.hlsl");
-	materialManager[L"Torus"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/Torus.fbx", *torus);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	torus->AddComponent<SimpleUpdateCbuffer>().list = list;
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	IcoSphere->AddComponent<SimpleUpdateCbuffer>().myKey = L"IcoSphere";
-	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere, L"IcoSphere");
-	materialManager[ L"IcoSphere"]->SetVS(L"VertexShader.hlsl");
-	materialManager[ L"IcoSphere"]->SetPS(L"PixelShader.hlsl");
-	materialManager[L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	materialManager[ L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	materialManager[ L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	list = Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere);
+	for (auto& i : list)
+	{
+		i->SetVS(L"VertexShader.hlsl");
+		i->SetPS(L"PixelShader.hlsl");
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+		i->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+		i->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	}
+	IcoSphere->AddComponent<SimpleUpdateCbuffer>().list = list;
 }
 
 ImportFBXScene::~ImportFBXScene()
@@ -118,12 +139,12 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::Text("Camera");
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
-	ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);  
+	ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
 	ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
 	ImGui::Text("");
 
 	ImGui::Text("Light");
-	ImGui::DragFloat3("LightDir", (float *)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
+	ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
 	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
 	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
 	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);

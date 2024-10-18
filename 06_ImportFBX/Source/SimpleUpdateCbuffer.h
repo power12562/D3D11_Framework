@@ -1,6 +1,8 @@
 #pragma once
 #include <Component/Base/RenderComponent.h>
+#include <vector>
 
+class SimpleMaterial;
 class SimpleUpdateCbuffer : public RenderComponent
 {
 public:
@@ -8,7 +10,7 @@ public:
 	virtual ~SimpleUpdateCbuffer() override;
 
 public:
-	std::wstring myKey{};
+	std::vector<SimpleMaterial*> list;
 
 public:
 	virtual void Start() {}
