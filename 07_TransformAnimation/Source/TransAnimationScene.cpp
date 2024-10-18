@@ -45,7 +45,7 @@ void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
-	cb_Material& cb_material = materialManager.GetMaterial(L"Standard")->cb_material;
+	cb_Material& cb_material = materialManager[L"BoxHuman"]->cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
