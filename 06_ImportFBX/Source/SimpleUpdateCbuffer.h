@@ -8,6 +8,9 @@ public:
 	virtual ~SimpleUpdateCbuffer() override;
 
 public:
+	std::wstring myKey{};
+
+public:
 	virtual void Start() {}
 protected:
 	virtual void FixedUpdate() {}

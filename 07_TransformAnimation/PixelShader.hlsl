@@ -18,22 +18,6 @@ cbuffer cbuffer_Light : register(b3)
     float4 LightSpecular;
 }
 
-cbuffer cbuffer_bool : register(b4)
-{
-    bool UseNormalMap;
-    bool UseSpecularMap;
-    bool UseEmissive;
-    bool UseOpacity;
-}
-
-cbuffer cb_localBool : register(b5)
-{
-    bool loaclNormal;
-    bool loaclSpecular;
-    bool loaclEmissive;
-    bool loaclOpacity;
-};
-
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------

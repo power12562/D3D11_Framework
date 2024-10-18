@@ -2,6 +2,7 @@
 #include <Material\SimpleMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Component\Render\SimpleMeshRender.h>
+#include <Framework\MaterialManager.h>
 
 #include "../Source/Global_Cbuffer.h"
 
@@ -17,7 +18,7 @@ SimpleUpdateCbuffer::~SimpleUpdateCbuffer()
 
 void SimpleUpdateCbuffer::Render()
 {
-	auto& Material = SimpleMeshRender::SharedMaterial;
+	auto* Material = materialManager.GetMaterial(myKey.c_str());
 
 	Global_Cbuffer::cb_localbool.loaclNormalMap = Material->IsNormalMap();
 	Global_Cbuffer::cb_localbool.loaclSpecularMap = Material->IsSpecularMap();

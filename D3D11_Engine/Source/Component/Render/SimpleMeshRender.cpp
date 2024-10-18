@@ -10,7 +10,6 @@ SimpleMeshRender::SimpleMeshRender()
 	{
 		Material = materialManager.GetMaterial(L"Standard");
 	}
-	Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 }
 
 SimpleMeshRender::~SimpleMeshRender()

@@ -19,4 +19,6 @@ private:
 public:
 	void Clear();
 	SimpleMaterial* GetMaterial(const wchar_t* name);
+
+	SimpleMaterial* operator[](const wchar_t* key) { return GetMaterial(key); }
 };

@@ -31,8 +31,9 @@ TransAnimationScene::TransAnimationScene()
 	materialManager.GetMaterial(L"Standard")->SetVS(L"VertexShader.hlsl");
 	materialManager.GetMaterial(L"Standard")->SetPS(L"PixelShader.hlsl");
 	materialManager.GetMaterial(L"Standard")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+	materialManager[L"Standard"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 
-	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
+	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);	
 }
 
 TransAnimationScene::~TransAnimationScene()

@@ -8,6 +8,7 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
+#include <Framework\MaterialManager.h>
 
 #include "../Source/SimpleUpdateCbuffer.h"
 #include "../Source/Global_Cbuffer.h"
@@ -27,50 +28,79 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	character->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/Character.fbx", *character);
+	character->AddComponent<SimpleUpdateCbuffer>().myKey = L"Character";
+	Utility::LoadFBX("Resource/Character.fbx", *character, L"Character");
+	materialManager[L"Character"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"Character"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"Character"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	zelda->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda);
+	zelda->AddComponent<SimpleUpdateCbuffer>().myKey = L"zelda";
+	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda, L"zelda");
+	materialManager[L"zelda"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"zelda"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"zelda"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	tree->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/Tree.fbx", *tree);
+	tree->AddComponent<SimpleUpdateCbuffer>().myKey = L"Tree";
+	Utility::LoadFBX("Resource/Tree.fbx", *tree, L"Tree");
+	materialManager[L"Tree"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"Tree"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"Tree"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	box->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/box.fbx", *box);
+	box->AddComponent<SimpleUpdateCbuffer>().myKey = L"box";
+	Utility::LoadFBX("Resource/box.fbx", *box, L"box");
+	materialManager[L"box"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"box"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"box"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	monkey->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/Monkey.fbx", *monkey);
+	monkey->AddComponent<SimpleUpdateCbuffer>().myKey = L"Monkey";
+	Utility::LoadFBX("Resource/Monkey.fbx", *monkey, L"Monkey");
+	materialManager[L"Monkey"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"Monkey"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"Monkey"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	torus->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/Torus.fbx", *torus);
+	torus->AddComponent<SimpleUpdateCbuffer>().myKey = L"Torus";
+	Utility::LoadFBX("Resource/Torus.fbx", *torus, L"Torus");
+	materialManager[L"Torus"]->SetVS(L"VertexShader.hlsl");
+	materialManager[L"Torus"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[L"Torus"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	IcoSphere->AddComponent<SimpleUpdateCbuffer>();
-	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere);
-
-	SimpleMeshRender::SharedMaterial->SetVS(L"VertexShader.hlsl");
-	SimpleMeshRender::SharedMaterial->SetPS(L"PixelShader.hlsl");
-
-	SimpleMeshRender::SharedMaterial->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-	SimpleMeshRender::SharedMaterial->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+	IcoSphere->AddComponent<SimpleUpdateCbuffer>().myKey = L"IcoSphere";
+	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere, L"IcoSphere");
+	materialManager[ L"IcoSphere"]->SetVS(L"VertexShader.hlsl");
+	materialManager[ L"IcoSphere"]->SetPS(L"PixelShader.hlsl");
+	materialManager[L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	materialManager[ L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+	materialManager[ L"IcoSphere"]->cbuffer.CreatePSConstantBuffers<cb_localBool>();
 }
 
 ImportFBXScene::~ImportFBXScene()
