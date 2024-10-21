@@ -2,6 +2,7 @@
 #include <Component/Base/RenderComponent.h>
 #include <Framework\D3DRenderer.h>
 #include <Framework\D3DConstBuffer.h>
+#include <Material\SimpleMaterial.h>
 
 struct TestCbuffer
 {
@@ -30,4 +31,5 @@ private:
 private:
 	D3DConstBuffer cbuffer;
 	TestCbuffer testColor;
+	SimpleMaterial material;
 };

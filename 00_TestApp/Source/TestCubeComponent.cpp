@@ -26,41 +26,41 @@ void TestCubeComponent::Start()
 {
     struct Vertex
     {
-        Vector3 position;		// 정점 위치 정보.
+        Vector4 position;		// 정점 위치 정보.
         Vector4 color;			// 정점 색상 정보.
     };
 
     Vertex vertices[] =
     {
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector4(0.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector4(1.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
-
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, -1.0f), Vector4(0.0f, 0.0f, 1.0, 1.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector4(-1.0f, 1.0f, -1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { Vector4(1.0f, 1.0f, -1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { Vector4(1.0f, 1.0f, 1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { Vector4(-1.0f, 1.0f, 1.0f, 1.0f),	Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+                
+        { Vector4(-1.0f, -1.0f, -1.0f, 1.0f), Vector4(0.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(1.0f, -1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(1.0f, -1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(-1.0f, -1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 0.0, 1.0f) },
+                
+        { Vector4(-1.0f, -1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(-1.0f, -1.0f, -1.0f, 1.0f), Vector4(1.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(-1.0f, 1.0f, -1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
+        { Vector4(-1.0f, 1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0, 1.0f) },
+                
+        { Vector4(1.0f, -1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { Vector4(1.0f, -1.0f, -1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { Vector4(1.0f, 1.0f, -1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { Vector4(1.0f, 1.0f, 1.0f, 1.0f),	Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+                
+        { Vector4(-1.0f, -1.0f, -1.0f, 1.0f), Vector4(0.0f, 0.0f, 1.0, 1.0f) },
+        { Vector4(1.0f, -1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
+        { Vector4(1.0f, 1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
+        { Vector4(-1.0f, 1.0f, -1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0, 1.0f) },
+                
+        { Vector4(-1.0f, -1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector4(1.0f, -1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector4(1.0f, 1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector4(-1.0f, 1.0f, 1.0f, 1.0f),	Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
     };
 
     D3D11_BUFFER_DESC bd{};
@@ -98,31 +98,8 @@ void TestCubeComponent::Start()
     ibData.pSysMem = indices;
     CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &drawData.pIndexBuffer));
 
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
-    auto pDevice = d3dRenderer.GetDevice();
-    ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-    CheckHRESULT(CompileShaderFromFile(L"VertexShader.hlsl", "main", "vs_4_0", &vertexShaderBuffer));
-    CheckHRESULT(pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &drawData.pInputLayout));
-
-    //버텍스 셰이더 생성
-    CheckHRESULT(pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-        vertexShaderBuffer->GetBufferSize(), NULL, &drawData.pVertexShader));
-    SafeRelease(vertexShaderBuffer);
-
-    // 픽셀 셰이더 컴파일
-    ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
-    CheckHRESULT(CompileShaderFromFile(L"PixelShader.hlsl", "main", "ps_4_0", &pixelShaderBuffer));
-    // 픽셸 셰이더 생성
-    CheckHRESULT(pDevice->CreatePixelShader(
-        pixelShaderBuffer->GetBufferPointer(),
-        pixelShaderBuffer->GetBufferSize(), NULL, &drawData.pPixelShader));
-    SafeRelease(pixelShaderBuffer);
+    material.SetVS(L"VertexShader.hlsl");
+    material.SetPS(L"PixelShader.hlsl");
 
     cbuffer.CreatePSConstantBuffers<TestCbuffer>();
 }
@@ -144,6 +121,7 @@ void TestCubeComponent::Update()
     }
 
     cbuffer.UpdateConstBuffer(testColor);
+    material.cbuffer = cbuffer;
 }
 
 void TestCubeComponent::LateUpdate()
@@ -153,5 +131,5 @@ void TestCubeComponent::LateUpdate()
 
 void TestCubeComponent::Render()
 {
-    d3dRenderer.DrawIndex(drawData, &cbuffer);
+    d3dRenderer.DrawIndex(drawData, material);
 }

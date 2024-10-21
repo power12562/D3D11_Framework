@@ -219,8 +219,8 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
         {
             aiAnimation* currAnimation = pScene->mAnimations[i];
             Clip clip;
-            clip.Duration = currAnimation->mDuration;
-            clip.TickTime = currAnimation->mTicksPerSecond;
+            clip.Duration = (float)currAnimation->mDuration;
+            clip.TickTime = (float)currAnimation->mTicksPerSecond;
             for (unsigned int j = 0; j < currAnimation->mNumChannels; j++)
             {
                 aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
@@ -233,7 +233,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                     key.position.x = currNodeAnim->mPositionKeys[k].mValue.x;
                     key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
                     key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
-                    key.Time = currNodeAnim->mPositionKeys[k].mTime;
+                    key.Time = (float)currNodeAnim->mPositionKeys[k].mTime;
                     nodeAnime.positionKeys.push_back(key);
                 }
                 for (unsigned int k = 0; k < currNodeAnim->mNumRotationKeys; k++)
@@ -244,7 +244,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                     key.rotation.z = currNodeAnim->mRotationKeys[k].mValue.z;
                     key.rotation.w = currNodeAnim->mRotationKeys[k].mValue.w;
 
-                    key.Time = currNodeAnim->mRotationKeys[k].mTime;
+                    key.Time = (float)currNodeAnim->mRotationKeys[k].mTime;
                     nodeAnime.rotationKeys.push_back(key);
                 }
                 for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
@@ -253,7 +253,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                     key.scale.x = currNodeAnim->mScalingKeys[k].mValue.x;
                     key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
                     key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
-                    key.Time = currNodeAnim->mScalingKeys[k].mTime;
+                    key.Time = (float)currNodeAnim->mScalingKeys[k].mTime;
                     nodeAnime.scaleKeys.push_back(key);
                 }
                 clip.nodeAnimations.push_back(nodeAnime);

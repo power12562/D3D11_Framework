@@ -82,6 +82,7 @@ inline T& GameObject::AddComponent()
 	return *nComponent;
 }
 
+#pragma warning(disable : 4715)
 template<typename T>
 inline T& GameObject::GetComponent()
 {
@@ -96,6 +97,7 @@ inline T& GameObject::GetComponent()
 	}
 	__debugbreak(); //예외) 존재하지 않는 컴포넌트
 }
+#pragma warning(default : 4715)
 
 template<typename T>
 inline T* GameObject::IsComponent()
@@ -125,3 +127,4 @@ inline T* GameObject::GetComponentAtIndex(int index)
 	Debug_printf("warrnig : GetComponentAtIndex(int index), index is out of range!\n");
 	return nullptr;
 }
+
