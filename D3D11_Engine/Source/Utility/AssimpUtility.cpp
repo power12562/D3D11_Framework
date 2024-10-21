@@ -111,6 +111,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                     vertex.position.x = position.x;
                     vertex.position.y = position.y;
                     vertex.position.z = position.z;
+                    vertex.position.w = 1.0f;
 
                     aiVector3D normal = pMesh->mNormals[vertexIndex];
                     vertex.normal.x = normal.x;
@@ -229,7 +230,9 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                 for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
                 {
                     NodeAnime::PositionKey key;
-                    key.position = Vector3(&currNodeAnim->mPositionKeys[k].mValue.x);
+                    key.position.x = currNodeAnim->mPositionKeys[k].mValue.x;
+                    key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
+                    key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
                     key.Time = currNodeAnim->mPositionKeys[k].mTime;
                     nodeAnime.positionKeys.push_back(key);
                 }
@@ -247,7 +250,9 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                 for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
                 {
                     NodeAnime::ScaleKey key;
-                    key.scale = Vector3(&currNodeAnim->mScalingKeys[k].mValue.x);
+                    key.scale.x = currNodeAnim->mScalingKeys[k].mValue.x;
+                    key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
+                    key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
                     key.Time = currNodeAnim->mScalingKeys[k].mTime;
                     nodeAnime.scaleKeys.push_back(key);
                 }

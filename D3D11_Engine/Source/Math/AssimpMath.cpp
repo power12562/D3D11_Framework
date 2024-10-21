@@ -10,5 +10,6 @@ void AssimpMath::DecomposeTransform(const aiNode* node, Vector3& position, Quate
 
     Matrix dxTransform = Matrix(&aiTransform.a1).Transpose();
 
-    assert(dxTransform.Decompose(scale, rotation, position));
+    bool decompose_result = dxTransform.Decompose(scale, rotation, position);
+    assert(decompose_result && "Fail decomposeTransform");
 }

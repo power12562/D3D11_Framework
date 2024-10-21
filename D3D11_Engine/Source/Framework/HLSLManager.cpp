@@ -105,7 +105,7 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 
 		// 리플렉션을 사용하여 입력 레이아웃 생성
 		ID3D11ShaderReflection* pReflector = nullptr;
-		CheckHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&pReflector));
+		CheckHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_PPV_ARGS(&pReflector)));
 
 		D3D11_SHADER_DESC shaderDesc;
 		pReflector->GetDesc(&shaderDesc);

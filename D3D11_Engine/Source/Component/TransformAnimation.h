@@ -16,17 +16,17 @@ public:
 			struct PositionKey
 			{
 				float Time{};
-				Vector3 position;
+				Vector3 position{};
 			};
 			struct RotationKey
 			{
 				float Time{};
-				Quaternion rotation;
+				Quaternion rotation{};
 			};
 			struct ScaleKey
 			{
 				float Time{};
-				Vector3 scale;
+				Vector3 scale{};
 			};
 			std::vector<PositionKey> positionKeys;
 			std::vector<RotationKey> rotationKeys;

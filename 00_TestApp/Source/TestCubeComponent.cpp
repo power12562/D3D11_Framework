@@ -20,9 +20,6 @@ TestCubeComponent::~TestCubeComponent()
     using namespace Utility;
     SafeRelease(drawData.pIndexBuffer);
     SafeRelease(drawData.pVertexBuffer);
-    SafeRelease(drawData.pPixelShader);
-    SafeRelease(drawData.pVertexShader);
-    SafeRelease(drawData.pInputLayout);
 }
 
 void TestCubeComponent::Start()
