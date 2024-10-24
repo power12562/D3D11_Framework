@@ -5,6 +5,7 @@
 #include <Material\SimpleMaterial.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
+#include <Framework/TextureManager.h>
 #include <_Debug\Console.h>
 #include <cassert>
 
@@ -151,6 +152,9 @@ void D3DRenderer::Uninit()
     SafeRelease(pDepthStencilView);
     SafeRelease(pSwapChain);
     SafeRelease(pDeviceContext);
+
+    textureManager.Get1x1Texture()->Release();
+
     ULONG refcount = SafeRelease(pDevice);
     if (refcount != 0)
     {
@@ -180,9 +184,20 @@ void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material)
 {
     material.cbuffer.SetConstBuffer();
 
-    for (int i = 0; i < material.textures.size(); i++)
-    {
-        pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
+    auto noneTexture = textureManager.Get1x1Texture();
+    for (int i = 0; i < (E_TEXTURE_INDEX::Null); i++)
+    {       
+        if (i != E_TEXTURE_INDEX::Emissive)
+        {
+            if (material.textures[i])
+                pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
+            else
+                pDeviceContext->PSSetShaderResources(i, 1, &noneTexture);
+        }
+        else
+        {
+            pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
+        }
     }
     pDeviceContext->PSSetSamplers(0, 1, &material.pSamplerLinear);
 

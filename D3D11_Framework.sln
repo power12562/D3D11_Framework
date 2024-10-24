@@ -45,6 +45,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "07_TransformAnimation", "07
 		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "08_SkinningAnimation", "08_SkinningAnimation\08_SkinningAnimation.vcxproj", "{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -125,6 +130,14 @@ Global
 		{69797541-B6D4-4161-90CA-B82C57ADE045}.Release|x64.Build.0 = Release|x64
 		{69797541-B6D4-4161-90CA-B82C57ADE045}.Release|x86.ActiveCfg = Release|Win32
 		{69797541-B6D4-4161-90CA-B82C57ADE045}.Release|x86.Build.0 = Release|Win32
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Debug|x64.ActiveCfg = Debug|x64
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Debug|x64.Build.0 = Debug|x64
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Debug|x86.ActiveCfg = Debug|Win32
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Debug|x86.Build.0 = Debug|Win32
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Release|x64.ActiveCfg = Release|x64
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Release|x64.Build.0 = Release|x64
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Release|x86.ActiveCfg = Release|Win32
+		{C1187BD0-AC88-46DE-B4E6-9B2CBAF5F116}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

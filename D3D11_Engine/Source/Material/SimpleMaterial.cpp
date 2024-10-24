@@ -2,6 +2,7 @@
 #include <Framework\HLSLManager.h>
 #include <Framework\D3DRenderer.h>
 #include <Framework\TextureManager.h>
+#include <Light/SimpleDirectionalLight.h>
 
 using namespace E_TEXTURE_INDEX;
 
@@ -11,6 +12,10 @@ SimpleMaterial::SimpleMaterial()
 
 	int index = -1;
 	index = cbuffer.CreatePSConstantBuffers<cb_Material>();
+	cbuffer.BindUpdateEvent(cb_material);
+
+	index = cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	cbuffer.BindUpdateEvent(SimpleDirectionalLight::cb_Light);
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};

@@ -9,7 +9,14 @@ Transform::Transform()
 }
 
 Transform::~Transform()
-{								 
+{			
+	if (!childList.empty())
+	{
+		for (auto child : childList)
+		{
+			child->parent = nullptr;
+		}
+	}
 	ClearParent();
 }
 

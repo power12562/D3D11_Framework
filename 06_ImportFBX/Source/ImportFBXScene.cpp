@@ -75,13 +75,13 @@ ImportFBXScene::ImportFBXScene()
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	Utility::LoadFBX("Resource/Tree.fbx", *tree, true);
+	Utility::LoadFBX("Resource/Tree.fbx", *tree, nullptr, true);
 	AddUpdateCbufferAllChild(tree);
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	Utility::LoadFBX("Resource/box.fbx", *box, true);
+	Utility::LoadFBX("Resource/box.fbx", *box, nullptr, true);
 	AddUpdateCbufferAllChild(box);
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");

@@ -36,7 +36,8 @@ bool Utility::ParseFileName(aiString& str)
 		return false;
 }
 
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, SimpleMaterial* material)
+void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material, bool isStatic,
+    std::function<void(SimpleMaterial*)> initMaterial)
 {
     Assimp::Importer importer;
     unsigned int importFlags =
@@ -88,6 +89,7 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
             {
                 meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
             }
+            initMaterial(meshComponent.Material);
 
             Vector3 pos;
             Quaternion rot;
@@ -142,8 +144,10 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                 using namespace utfConvert;
                 //Load Texture
                 aiMaterial* materials = pScene->mMaterials[pMesh->mMaterialIndex];
-                aiString path;
+                aiString path;          
                 std::wstring basePath;
+
+                aiColor3D baseColor;
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_DIFFUSE, 0, &path))
                 {
                     if (Utility::ParseFileName(path))
@@ -153,6 +157,14 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
                         basePath += utfConvert::utf8_to_wstring(path.C_Str());
                         meshComponent.Material->SetDiffuse(basePath.c_str());
                     }
+                }             
+                else if (materials->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
+                {
+                    Color& meshColor = meshComponent.Material->cb_material.MaterialDiffuse;
+                    meshColor.x = baseColor.r;
+                    meshColor.y = baseColor.g;
+                    meshColor.z = baseColor.b;
+                    meshColor.w = 1.f;
                 }
                 if (AI_SUCCESS == materials->GetTexture(aiTextureType_NORMALS, 0, &path))
                 {
@@ -261,9 +273,4 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, bool isStatic, 
             anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
         }
     }       
-}
-
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material)
-{
-    LoadFBX(path, _gameObject, false, material);
 }
