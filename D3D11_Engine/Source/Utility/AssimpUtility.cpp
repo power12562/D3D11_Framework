@@ -36,8 +36,11 @@ bool Utility::ParseFileName(aiString& str)
 		return false;
 }
 
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material, bool isStatic,
-    std::function<void(SimpleMaterial*)> initMaterial)
+void Utility::LoadFBX(const char* path,
+    GameObject& _gameObject,
+    SimpleMaterial* material,
+    std::function<void(SimpleMaterial*)> initMaterial,
+    bool isStatic)
 {
     Assimp::Importer importer;
     unsigned int importFlags =
@@ -273,4 +276,9 @@ void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial*
             anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
         }
     }       
+}
+
+void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material, bool isStatic)
+{
+    LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
 }

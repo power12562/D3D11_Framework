@@ -8,6 +8,14 @@ class GameObject;
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
-	void LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material = nullptr, bool isStatic = false, 
-		std::function<void(SimpleMaterial*)> initMaterial = [](SimpleMaterial* material)->void{ return; });
+	void LoadFBX(const char* path, 
+		GameObject& _gameObject, 
+		SimpleMaterial* material = nullptr, 
+		std::function<void(SimpleMaterial*)> initMaterial = [](SimpleMaterial* material)->void { return; },
+		bool isStatic = false);
+
+	void LoadFBX(const char* path,
+		GameObject& _gameObject,
+		SimpleMaterial* material,
+		bool isStatic);
 }
