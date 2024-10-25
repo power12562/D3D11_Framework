@@ -83,5 +83,7 @@ ID3D11ShaderResourceView* TextureManager::Get1x1Texture()
 
 		Utility::CheckHRESULT(device->CreateShaderResourceView(texture, nullptr, &noneTexture));
 		texture->Release(); // 텍스처는 사용 후 해제
+
+		return noneTexture;
 	}
 }
