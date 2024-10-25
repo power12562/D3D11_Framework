@@ -32,7 +32,7 @@ TransAnimationScene::TransAnimationScene()
 	materialManager.GetMaterial(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
 	materialManager.GetMaterial(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 	materialManager[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, materialManager[L"BoxHuman"]);
+	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, materialManager[L"BoxHuman"], false);
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);	
 }

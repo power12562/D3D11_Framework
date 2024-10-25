@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
     <ClInclude Include="Source\Framework\MaterialManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
     <ClCompile Include="Source\Framework\MaterialManager.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />

@@ -48,6 +48,7 @@ void Utility::LoadFBX(const char* path,
         aiProcess_GenNormals |          // Normal 정보 생성  
         aiProcess_GenUVCoords |         // 텍스처 좌표 생성
         aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
+        aiProcess_LimitBoneWeights |    // 본 영향 정점 개수 제한
         aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
     if(isStatic)
         importFlags |= aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
@@ -63,26 +64,26 @@ void Utility::LoadFBX(const char* path,
     nodeQue.push(pScene->mRootNode);
     const aiNode* currNode = nullptr;
 
-    std::queue<GameObject*> objQue;
-    objQue.push(&_gameObject);
-    GameObject* currObj = nullptr;
+    std::queue<GameObject*> meshObjQue;
+    meshObjQue.push(&_gameObject);
+    GameObject* currMeshObj = nullptr;
 
-    std::unordered_map<std::wstring, GameObject*> addMap;
+    std::unordered_map<std::wstring, GameObject*> addMeshMap;
+
    
     while (!nodeQue.empty())
     {
         currNode = nodeQue.front();
         nodeQue.pop();
 
-        currObj = objQue.front();
-        objQue.pop();
+        currMeshObj = meshObjQue.front();
+        meshObjQue.pop();
 
-        addMap[currObj->Name] = currObj;
+        addMeshMap[currMeshObj->Name] = currMeshObj;
 
-        int childNumber = 0;
         if (currNode)
         {
-            SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
+            SimpleMeshRender& meshComponent = currMeshObj->AddComponent<SimpleMeshRender>();
 
             if (material)
             {
@@ -90,7 +91,7 @@ void Utility::LoadFBX(const char* path,
             }
             else
             {
-                meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+                meshComponent.Material = materialManager.GetMaterial((currMeshObj->Name + L" (" + std::to_wstring(currMeshObj->GetInstanceID())).c_str());
             }
             initMaterial(meshComponent.Material);
 
@@ -98,11 +99,11 @@ void Utility::LoadFBX(const char* path,
             Quaternion rot;
             Vector3 scale;
             AssimpMath::DecomposeTransform(currNode, pos, rot, scale);
-            if (currObj->transform.Parent)
+            if (currMeshObj->transform.Parent)
             {
-                currObj->transform.localPosition = pos;
-                currObj->transform.localRotation = rot;
-                currObj->transform.localScale = scale;
+                currMeshObj->transform.localPosition = pos;
+                currMeshObj->transform.localRotation = rot;
+                currMeshObj->transform.localScale = scale;
             }
 
             for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
@@ -144,6 +145,7 @@ void Utility::LoadFBX(const char* path,
                     }
                 }
 
+                         
                 using namespace utfConvert;
                 //Load Texture
                 aiMaterial* materials = pScene->mMaterials[pMesh->mMaterialIndex];
@@ -218,9 +220,9 @@ void Utility::LoadFBX(const char* path,
                 nodeQue.push(currNode->mChildren[i]);
                 std::wstring childName = utfConvert::utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
                 GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
-                childObj->transform.SetParent(currObj->transform, false);
+                childObj->transform.SetParent(currMeshObj->transform, false);
 
-                objQue.push(childObj);
+                meshObjQue.push(childObj);
             }
         }
     }
@@ -241,7 +243,7 @@ void Utility::LoadFBX(const char* path,
                 aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
                 using NodeAnime = Clip::NodeAnimation;
                 NodeAnime nodeAnime;
-                nodeAnime.objTarget = addMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
+                nodeAnime.objTarget = addMeshMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
                 for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
                 {
                     NodeAnime::PositionKey key;

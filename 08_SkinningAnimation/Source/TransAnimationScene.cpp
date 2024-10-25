@@ -39,8 +39,8 @@ TransAnimationScene::TransAnimationScene()
 			material->SetPS(L"PixelShader.hlsl");	
 		};
 
-	Utility::LoadFBX("Resource/SkinningTest.fbx", *test1, nullptr, testInit);
-	Utility::LoadFBX("Resource/SkinningTest2.fbx", *test2, nullptr, testInit);
+	Utility::LoadFBX("Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
+	Utility::LoadFBX("Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
 }
 
 TransAnimationScene::~TransAnimationScene()

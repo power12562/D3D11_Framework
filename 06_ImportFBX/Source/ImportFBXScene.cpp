@@ -63,13 +63,13 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX("Resource/Character.fbx", *character);
+	Utility::LoadFBX("Resource/Character.fbx", *character, nullptr, false);
 	AddUpdateCbufferAllChild(character);
 	
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda);
+	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda, nullptr, false);
 	AddUpdateCbufferAllChild(zelda);
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
@@ -87,19 +87,19 @@ ImportFBXScene::ImportFBXScene()
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/Monkey.fbx", *monkey);
+	Utility::LoadFBX("Resource/Monkey.fbx", *monkey, nullptr, false);
 	AddUpdateCbufferAllChild(monkey);
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/Torus.fbx", *torus);
+	Utility::LoadFBX("Resource/Torus.fbx", *torus, nullptr, false);
 	AddUpdateCbufferAllChild(torus);
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere);
+	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere, nullptr, false);
 	AddUpdateCbufferAllChild(IcoSphere);
 }
 

@@ -10,9 +10,9 @@ namespace Utility
 	bool ParseFileName(aiString& str);
 	void LoadFBX(const char* path, 
 		GameObject& _gameObject, 
-		SimpleMaterial* material = nullptr, 
-		std::function<void(SimpleMaterial*)> initMaterial = [](SimpleMaterial* material)->void { return; },
-		bool isStatic = false);
+		SimpleMaterial* material, 
+		std::function<void(SimpleMaterial*)> initMaterial,
+		bool);
 
 	void LoadFBX(const char* path,
 		GameObject& _gameObject,
