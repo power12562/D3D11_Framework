@@ -38,6 +38,12 @@ void SimpleMeshRender::LateUpdate()
 
 void SimpleMeshRender::Render()
 {
+	if (!meshData.pVertexBuffer || !meshData.pIndexBuffer)
+	{
+		__debugbreak(); //데이터 없음.
+		return;
+	}
+	
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
     if (Material)
     {

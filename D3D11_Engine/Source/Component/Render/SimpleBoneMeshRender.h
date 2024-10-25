@@ -1,8 +1,9 @@
 #pragma once
 #include <Component/Base/RenderComponent.h>
 
+class BoneComponent;
 class SimpleMaterial;
-class SimpleBoneMeshRender : RenderComponent
+class SimpleBoneMeshRender : public RenderComponent
 {
 public:
 	struct Vertex
@@ -38,4 +39,7 @@ public:
 
 public:
 	SimpleMaterial* Material = nullptr;
+
+public:
+	std::vector<Matrix> offsetMatrices;
 };

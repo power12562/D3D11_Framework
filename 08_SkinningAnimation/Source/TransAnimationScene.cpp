@@ -35,7 +35,8 @@ TransAnimationScene::TransAnimationScene()
 
 	auto testInit = [](SimpleMaterial* material)->void
 		{
-			material->SetVS(L"VertexShader.hlsl");				
+			material->SetVS(L"VertexSkinningShader.hlsl");				
+			//material->SetVS(L"VertexShader.hlsl");				
 			material->SetPS(L"PixelShader.hlsl");	
 		};
 

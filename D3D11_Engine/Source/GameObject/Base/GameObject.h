@@ -63,6 +63,10 @@ public:
 	
 	/*이 오브젝트의 컴포넌트 개수*/
 	int GetComponentCount() { return componentList.size(); }
+
+	void DestroyComponent(Component& component);
+
+	void DestroyComponent(Component* component);
 };
 
 template<typename T>
@@ -127,4 +131,5 @@ inline T* GameObject::GetComponentAtIndex(int index)
 	Debug_printf("warrnig : GetComponentAtIndex(int index), index is out of range!\n");
 	return nullptr;
 }
+
 

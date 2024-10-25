@@ -4,6 +4,7 @@
 #include <Material\SimpleMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Framework\MaterialManager.h>
+#include <Component/BoneComponent.h>
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {
@@ -31,6 +32,7 @@ void SimpleBoneMeshRender::FixedUpdate()
 
 void SimpleBoneMeshRender::Update()
 {
+
 }
 
 void SimpleBoneMeshRender::LateUpdate()
@@ -39,6 +41,12 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
+	if (!meshData.pVertexBuffer || !meshData.pIndexBuffer)
+	{
+		__debugbreak(); //데이터 없음.
+		return;
+	}
+	
 	const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
 	if (Material)
 	{

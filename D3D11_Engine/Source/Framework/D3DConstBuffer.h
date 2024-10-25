@@ -278,5 +278,6 @@ inline int D3DConstBuffer::GetPSConstBufferIndex()
 template<typename T>
 inline void D3DConstBuffer::BindUpdateEvent(T& data)
 {
+	UpdateConstBuffer(data); //정상 유무 확인
 	cb_updateEvents.push_back(std::bind(&D3DConstBuffer::UpdateConstBuffer<T>, this, std::ref(data)));
 }

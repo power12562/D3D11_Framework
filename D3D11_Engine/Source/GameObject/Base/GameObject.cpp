@@ -39,6 +39,39 @@ GameObject::~GameObject()
 	instanceIDManager.returnID(instanceID);
 }
 
+void GameObject::DestroyComponent(Component& component)
+{
+	DestroyComponent(&component);
+}
+
+void GameObject::DestroyComponent(Component* component)
+{
+	int size = (int)componentList.size();
+	int comIndex = 0;
+	for (auto& com : componentList)
+	{
+		if (typeid(*com) == typeid(*component))
+			break;
+
+		++comIndex;
+	}
+	int renderIndex = 0;
+	if (comIndex < size)
+	{
+		size = renderList.size();
+		for (auto& com : renderList)
+		{
+			if (typeid(*com) == typeid(*component))
+				break;
+
+			renderIndex++;
+		}
+		componentList.erase((componentList.begin() + comIndex));
+		if (renderIndex < size)
+			renderList.erase((renderList.begin() + renderIndex));
+	}
+}
+
 void GameObject::FixedUpdate()
 {
 	for (auto& component : componentList)

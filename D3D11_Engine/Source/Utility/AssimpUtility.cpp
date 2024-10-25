@@ -2,6 +2,8 @@
 #include <Framework\SceneManager.h>
 #include <GameObject\Base\GameObject.h>
 #include <Component\Render\SimpleMeshRender.h>
+#include <Component/Render/SimpleBoneMeshRender.h>
+#include <Component/BoneComponent.h>
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
@@ -12,6 +14,156 @@
 #include <Framework\MaterialManager.h>
 #include <filesystem>
 #include <iostream>
+
+namespace Utility
+{
+	std::shared_ptr<MatrixPallete> CheckBoneUsage(const aiScene* scene)
+	{
+		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+		{
+			const aiMesh* mesh = scene->mMeshes[i];
+			if (mesh->mNumBones > 0)
+			{
+				return std::make_shared<MatrixPallete>();
+			}
+		}
+		return std::shared_ptr<MatrixPallete>();
+	}
+
+	void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, SimpleMaterial* material)
+	{
+		aiString path;
+		std::wstring basePath;
+		aiColor3D baseColor;
+
+		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path))
+		{
+			if (Utility::ParseFileName(path))
+			{
+				basePath = directory;
+				basePath += L"\\";
+				basePath += utfConvert::utf8_to_wstring(path.C_Str());
+				material->SetDiffuse(basePath.c_str());
+			}
+		}
+		else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
+		{
+			Color& meshColor = material->cb_material.MaterialDiffuse;
+			meshColor.x = baseColor.r;
+			meshColor.y = baseColor.g;
+			meshColor.z = baseColor.b;
+			meshColor.w = 1.f;
+		}
+		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
+		{
+			if (Utility::ParseFileName(path))
+			{
+				basePath = directory;
+				basePath += L"\\";
+				basePath += utfConvert::utf8_to_wstring(path.C_Str());
+				material->SetNormalMap(basePath.c_str());
+			}
+		}
+		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
+		{
+
+			if (Utility::ParseFileName(path))
+			{
+				basePath = directory;
+				basePath += L"\\";
+				basePath += utfConvert::utf8_to_wstring(path.C_Str());
+				material->SetSpecularMap(basePath.c_str());
+			}
+		}
+		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
+		{
+			if (Utility::ParseFileName(path))
+			{
+				basePath = directory;
+				basePath += L"\\";
+				basePath += utfConvert::utf8_to_wstring(path.C_Str());
+				material->SetEmissiveMap(basePath.c_str());
+			}
+		}
+		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
+		{
+			if (Utility::ParseFileName(path))
+			{
+				basePath = directory;
+				basePath += L"\\";
+				basePath += utfConvert::utf8_to_wstring(path.C_Str());
+				material->SetOpacityMap(basePath.c_str());
+			}
+		}
+	}
+
+	void SetNodeTransform(const aiNode* node, GameObject* objcet)
+	{
+		Vector3 pos;
+		Quaternion rot;
+		Vector3 scale;
+		AssimpMath::DecomposeTransform(node, pos, rot, scale);
+		if (objcet->transform.Parent)
+		{
+			objcet->transform.localPosition = pos;
+			objcet->transform.localRotation = rot;
+			objcet->transform.localScale = scale;
+		}
+	}
+
+	void SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
+	{
+		using Clip = TransformAnimation::Clip;
+
+		TransformAnimation& anime = _gameObject.AddComponent<TransformAnimation>();
+		for (unsigned int i = 0; i < pScene->mNumAnimations; i++)
+		{
+			aiAnimation* currAnimation = pScene->mAnimations[i];
+			Clip clip;
+			clip.Duration = (float)currAnimation->mDuration;
+			clip.TickTime = (float)currAnimation->mTicksPerSecond;
+			for (unsigned int j = 0; j < currAnimation->mNumChannels; j++)
+			{
+				aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
+				using NodeAnime = Clip::NodeAnimation;
+				NodeAnime nodeAnime;
+				nodeAnime.objTarget = addObjMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
+				for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
+				{
+					NodeAnime::PositionKey key;
+					key.position.x = currNodeAnim->mPositionKeys[k].mValue.x;
+					key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
+					key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
+					key.Time = (float)currNodeAnim->mPositionKeys[k].mTime;
+					nodeAnime.positionKeys.push_back(key);
+				}
+				for (unsigned int k = 0; k < currNodeAnim->mNumRotationKeys; k++)
+				{
+					NodeAnime::RotationKey key;
+					key.rotation.x = currNodeAnim->mRotationKeys[k].mValue.x;
+					key.rotation.y = currNodeAnim->mRotationKeys[k].mValue.y;
+					key.rotation.z = currNodeAnim->mRotationKeys[k].mValue.z;
+					key.rotation.w = currNodeAnim->mRotationKeys[k].mValue.w;
+
+					key.Time = (float)currNodeAnim->mRotationKeys[k].mTime;
+					nodeAnime.rotationKeys.push_back(key);
+				}
+				for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
+				{
+					NodeAnime::ScaleKey key;
+					key.scale.x = currNodeAnim->mScalingKeys[k].mValue.x;
+					key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
+					key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
+					key.Time = (float)currNodeAnim->mScalingKeys[k].mTime;
+					nodeAnime.scaleKeys.push_back(key);
+				}
+				clip.nodeAnimations.push_back(nodeAnime);
+			}
+			anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
+		}
+	}
+}
+
 
 bool Utility::ParseFileName(aiString& str)
 {
@@ -37,250 +189,266 @@ bool Utility::ParseFileName(aiString& str)
 }
 
 void Utility::LoadFBX(const char* path,
-    GameObject& _gameObject,
-    SimpleMaterial* material,
-    std::function<void(SimpleMaterial*)> initMaterial,
-    bool isStatic)
+	GameObject& _gameObject,
+	SimpleMaterial* material,
+	std::function<void(SimpleMaterial*)> initMaterial,
+	bool isStatic)
 {
-    Assimp::Importer importer;
-    unsigned int importFlags =
-        aiProcess_Triangulate |         // vertex 삼각형 으로 출력
-        aiProcess_GenNormals |          // Normal 정보 생성  
-        aiProcess_GenUVCoords |         // 텍스처 좌표 생성
-        aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
-        aiProcess_LimitBoneWeights |    // 본 영향 정점 개수 제한
-        aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
-    if(isStatic)
-        importFlags |= aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
+	using namespace utfConvert;
 
-    std::string fileName(path);
-    const aiScene* pScene = importer.ReadFile(fileName, importFlags);
-    if (pScene == nullptr)
-        return;
+	Assimp::Importer importer;
+	unsigned int importFlags =
+		aiProcess_Triangulate |         // vertex 삼각형 으로 출력
+		aiProcess_GenNormals |          // Normal 정보 생성  
+		aiProcess_GenUVCoords |         // 텍스처 좌표 생성
+		aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
+		aiProcess_PopulateArmatureData |// 본 데이터 생성
+		aiProcess_LimitBoneWeights |    // 본 영향 정점 개수 제한
+		aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
+	if (isStatic)
+		importFlags |= aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
 
-    std::wstring directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);    // $assimp_fbx$ 노드 생성안함
 
-    std::queue<aiNode*> nodeQue;
-    nodeQue.push(pScene->mRootNode);
-    const aiNode* currNode = nullptr;
+	std::string fileName(path);
+	const aiScene* pScene = importer.ReadFile(fileName, importFlags);
+	if (pScene == nullptr)
+		return;
 
-    std::queue<GameObject*> meshObjQue;
-    meshObjQue.push(&_gameObject);
-    GameObject* currMeshObj = nullptr;
+	std::wstring directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
 
-    std::unordered_map<std::wstring, GameObject*> addMeshMap;
+	std::queue<aiNode*> nodeQue;
+	nodeQue.push(pScene->mRootNode);
+	const aiNode* currNode = nullptr;
 
-   
-    while (!nodeQue.empty())
-    {
-        currNode = nodeQue.front();
-        nodeQue.pop();
+	std::queue<GameObject*> objQue;
+	objQue.push(&_gameObject);
+	GameObject* currObj = nullptr;
 
-        currMeshObj = meshObjQue.front();
-        meshObjQue.pop();
+	std::unordered_map<std::wstring, GameObject*> addObjMap;
+	std::unordered_map<std::wstring, int> boneIndexMap;
+	int boneIndexManager = 0;
+	auto getBoneIndex = [&boneIndexMap, &boneIndexManager](const std::wstring& name)->int
+		{
+			auto findIter = boneIndexMap.find(name);
+			if (findIter != boneIndexMap.end())
+				return findIter->second;
+			else
+			{
+				boneIndexMap[name] = boneIndexManager;
+				return boneIndexManager++;
+			}
+		};
 
-        addMeshMap[currMeshObj->Name] = currMeshObj;
+	while (!nodeQue.empty())
+	{
+		currNode = nodeQue.front();
+		nodeQue.pop();
 
-        if (currNode)
-        {
-            SimpleMeshRender& meshComponent = currMeshObj->AddComponent<SimpleMeshRender>();
+		currObj = objQue.front();
+		objQue.pop();
 
-            if (material)
-            {
-                meshComponent.Material = material;
-            }
-            else
-            {
-                meshComponent.Material = materialManager.GetMaterial((currMeshObj->Name + L" (" + std::to_wstring(currMeshObj->GetInstanceID())).c_str());
-            }
-            initMaterial(meshComponent.Material);
+		addObjMap[currObj->Name] = currObj;
 
-            Vector3 pos;
-            Quaternion rot;
-            Vector3 scale;
-            AssimpMath::DecomposeTransform(currNode, pos, rot, scale);
-            if (currMeshObj->transform.Parent)
-            {
-                currMeshObj->transform.localPosition = pos;
-                currMeshObj->transform.localRotation = rot;
-                currMeshObj->transform.localScale = scale;
-            }
+		if (currNode)
+		{
+			
+			
+			if (std::shared_ptr<MatrixPallete> rootMatrixPallete = CheckBoneUsage(pScene))
+			{			
+				SetNodeTransform(currNode, currObj);
 
-            for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
-            {            
-                unsigned int meshIndex = currNode->mMeshes[i];
-                aiMesh* pMesh = pScene->mMeshes[meshIndex];
-                SimpleMeshRender::Vertex vertex;
-                for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
-                {
-                    aiVector3D position = pMesh->mVertices[vertexIndex];
-                    vertex.position.x = position.x;
-                    vertex.position.y = position.y;
-                    vertex.position.z = position.z;
-                    vertex.position.w = 1.0f;
+				BoneComponent& bone = currObj->AddComponent<BoneComponent>();
+				bone.matrixPallete = rootMatrixPallete;
+				bone.myIndex = getBoneIndex(utf8_to_wstring(currNode->mName.C_Str()));
+				
+				if (currNode->mNumMeshes > 0) 
+				{			
+					//Create Vertex
+					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
+					{
+						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
 
-                    aiVector3D normal = pMesh->mNormals[vertexIndex];
-                    vertex.normal.x = normal.x;
-                    vertex.normal.y = normal.y;
-                    vertex.normal.z = normal.z;
+						if (material)
+						{
+							meshComponent.Material = material;
+						}
+						else
+						{
+							meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+						}
+						initMaterial(meshComponent.Material);
+						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
 
-                    aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
-                    vertex.biTangent.x = BiTangents.x;
-                    vertex.biTangent.y = BiTangents.y;
-                    vertex.biTangent.z = BiTangents.z;
+						unsigned int meshIndex = currNode->mMeshes[i];
+						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+						SimpleBoneMeshRender::Vertex vertex;
 
-                    aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
-                    vertex.Tex.x = texCoord.x;
-                    vertex.Tex.y = texCoord.y;
+						//cash vertex bone info
+						std::unordered_map<int, std::list<float>> weightsMap;
+						std::unordered_map<int, std::list<std::wstring>> nameMap;
+						for (int j = 0; j < pMesh->mNumBones; j++)
+						{
+							aiBone* pBone = pMesh->mBones[j];
+							for (int k = 0; k < pBone->mNumWeights; k++)
+							{
+								aiVertexWeight weight = pBone->mWeights[k];
+								weightsMap[weight.mVertexId].push_back(weight.mWeight);
+								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));
+							}
+						}
 
-                    meshComponent.vertices.push_back(vertex);
-                }
+						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
+						{
+							aiVector3D position = pMesh->mVertices[vertexIndex];
+							vertex.position.x = position.x;
+							vertex.position.y = position.y;
+							vertex.position.z = position.z;
+							vertex.position.w = 1.0f;
 
-                for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
-                {
-                    const aiFace& face = pMesh->mFaces[faceIndex];
-                    for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
-                    {
-                        meshComponent.indices.push_back(face.mIndices[numIndex]);
-                    }
-                }
+							aiVector3D normal = pMesh->mNormals[vertexIndex];
+							vertex.normal.x = normal.x;
+							vertex.normal.y = normal.y;
+							vertex.normal.z = normal.z;
 
-                         
-                using namespace utfConvert;
-                //Load Texture
-                aiMaterial* materials = pScene->mMaterials[pMesh->mMaterialIndex];
-                aiString path;          
-                std::wstring basePath;
+							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
+							vertex.biTangent.x = BiTangents.x;
+							vertex.biTangent.y = BiTangents.y;
+							vertex.biTangent.z = BiTangents.z;
 
-                aiColor3D baseColor;
-                if (AI_SUCCESS == materials->GetTexture(aiTextureType_DIFFUSE, 0, &path))
-                {
-                    if (Utility::ParseFileName(path))
-                    {
-                        basePath = directory;
-                        basePath += L"\\";
-                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        meshComponent.Material->SetDiffuse(basePath.c_str());
-                    }
-                }             
-                else if (materials->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
-                {
-                    Color& meshColor = meshComponent.Material->cb_material.MaterialDiffuse;
-                    meshColor.x = baseColor.r;
-                    meshColor.y = baseColor.g;
-                    meshColor.z = baseColor.b;
-                    meshColor.w = 1.f;
-                }
-                if (AI_SUCCESS == materials->GetTexture(aiTextureType_NORMALS, 0, &path))
-                {
-                    if (Utility::ParseFileName(path))
-                    {
-                        basePath = directory;
-                        basePath += L"\\";
-                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        meshComponent.Material->SetNormalMap(basePath.c_str());
-                    }
-                }
-                if (AI_SUCCESS == materials->GetTexture(aiTextureType_SPECULAR, 0, &path))
-                {
+							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
+							vertex.Tex.x = texCoord.x;
+							vertex.Tex.y = texCoord.y;
 
-                    if (Utility::ParseFileName(path))
-                    {
-                        basePath = directory;
-                        basePath += L"\\";
-                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        meshComponent.Material->SetSpecularMap(basePath.c_str());
-                    }
-                }
-                if (AI_SUCCESS == materials->GetTexture(aiTextureType_EMISSIVE, 0, &path))
-                {
-                    if (Utility::ParseFileName(path))
-                    {
-                        basePath = directory;
-                        basePath += L"\\";
-                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        meshComponent.Material->SetEmissiveMap(basePath.c_str());
-                    }
-                }
-                if (AI_SUCCESS == materials->GetTexture(aiTextureType_OPACITY, 0, &path))
-                {
-                    if (Utility::ParseFileName(path))
-                    {
-                        basePath = directory;
-                        basePath += L"\\";
-                        basePath += utfConvert::utf8_to_wstring(path.C_Str());
-                        meshComponent.Material->SetOpacityMap(basePath.c_str());
-                    }
-                }
+							int j = 0;
+							auto n = nameMap[vertexIndex].begin();
+							for (auto& weight : weightsMap[vertexIndex])
+							{
+								vertex.BlendWeights[j] = weight;
+								vertex.BlendIndecses[j] = getBoneIndex(*n);
+								j++;
+								n++;
+							}
 
-                meshComponent.CreateMesh();
-            }
-            for (unsigned int i = 0; i < currNode->mNumChildren; i++)
-            {
-                nodeQue.push(currNode->mChildren[i]);
-                std::wstring childName = utfConvert::utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
-                GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
-                childObj->transform.SetParent(currMeshObj->transform, false);
+							meshComponent.vertices.push_back(vertex);	 							
+						}
 
-                meshObjQue.push(childObj);
-            }
-        }
-    }
+						//Create Index
+						for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
+						{
+							const aiFace& face = pMesh->mFaces[faceIndex];
+							for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
+							{
+								meshComponent.indices.push_back(face.mIndices[numIndex]);
+							}
+						}
 
-    if (pScene->mAnimations)
-    {
-        using Clip = TransformAnimation::Clip;
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material);
 
-        TransformAnimation& anime = _gameObject.AddComponent<TransformAnimation>();
-        for (unsigned int i = 0; i < pScene->mNumAnimations; i++)
-        {
-            aiAnimation* currAnimation = pScene->mAnimations[i];
-            Clip clip;
-            clip.Duration = (float)currAnimation->mDuration;
-            clip.TickTime = (float)currAnimation->mTicksPerSecond;
-            for (unsigned int j = 0; j < currAnimation->mNumChannels; j++)
-            {
-                aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
-                using NodeAnime = Clip::NodeAnimation;
-                NodeAnime nodeAnime;
-                nodeAnime.objTarget = addMeshMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
-                for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
-                {
-                    NodeAnime::PositionKey key;
-                    key.position.x = currNodeAnim->mPositionKeys[k].mValue.x;
-                    key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
-                    key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
-                    key.Time = (float)currNodeAnim->mPositionKeys[k].mTime;
-                    nodeAnime.positionKeys.push_back(key);
-                }
-                for (unsigned int k = 0; k < currNodeAnim->mNumRotationKeys; k++)
-                {
-                    NodeAnime::RotationKey key;
-                    key.rotation.x = currNodeAnim->mRotationKeys[k].mValue.x;
-                    key.rotation.y = currNodeAnim->mRotationKeys[k].mValue.y;
-                    key.rotation.z = currNodeAnim->mRotationKeys[k].mValue.z;
-                    key.rotation.w = currNodeAnim->mRotationKeys[k].mValue.w;
+						//offsetMatrices
+						meshComponent.offsetMatrices.resize(boneIndexMap.size());
+						for (int i = 0; i < pMesh->mNumBones; i++)
+						{
+							aiMatrix4x4 ai_matrix = pMesh->mBones[i]->mOffsetMatrix;
+							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mArmature->mName.C_Str());
+							meshComponent.offsetMatrices[getBoneIndex(name)]
+								= Matrix(&ai_matrix.a1).Transpose();
+						}
+						
+						//CreateBuffer
+						meshComponent.CreateMesh();
+					}
+				}
+			}
+			else
+			{
+				SetNodeTransform(currNode, currObj);
 
-                    key.Time = (float)currNodeAnim->mRotationKeys[k].mTime;
-                    nodeAnime.rotationKeys.push_back(key);
-                }
-                for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
-                {
-                    NodeAnime::ScaleKey key;
-                    key.scale.x = currNodeAnim->mScalingKeys[k].mValue.x;
-                    key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
-                    key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
-                    key.Time = (float)currNodeAnim->mScalingKeys[k].mTime;
-                    nodeAnime.scaleKeys.push_back(key);
-                }
-                clip.nodeAnimations.push_back(nodeAnime);
-            }
-            anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
-        }
-    }       
+				if (currNode->mNumMeshes > 0)
+				{
+					//Create Vertex
+					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
+					{
+						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
+
+						if (material)
+						{
+							meshComponent.Material = material;
+						}
+						else
+						{
+							meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+						}
+						initMaterial(meshComponent.Material);
+
+						unsigned int meshIndex = currNode->mMeshes[i];
+						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+						SimpleMeshRender::Vertex vertex;
+						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
+						{
+							aiVector3D position = pMesh->mVertices[vertexIndex];
+							vertex.position.x = position.x;
+							vertex.position.y = position.y;
+							vertex.position.z = position.z;
+							vertex.position.w = 1.0f;
+
+							aiVector3D normal = pMesh->mNormals[vertexIndex];
+							vertex.normal.x = normal.x;
+							vertex.normal.y = normal.y;
+							vertex.normal.z = normal.z;
+
+							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
+							vertex.biTangent.x = BiTangents.x;
+							vertex.biTangent.y = BiTangents.y;
+							vertex.biTangent.z = BiTangents.z;
+
+							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
+							vertex.Tex.x = texCoord.x;
+							vertex.Tex.y = texCoord.y;
+
+							meshComponent.vertices.push_back(vertex);
+						}
+
+						//Create Index
+						for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
+						{
+							const aiFace& face = pMesh->mFaces[faceIndex];
+							for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
+							{
+								meshComponent.indices.push_back(face.mIndices[numIndex]);
+							}
+						}
+
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material);
+
+						meshComponent.CreateMesh();
+					}
+				}
+			}
+			
+			for (unsigned int i = 0; i < currNode->mNumChildren; i++)
+			{
+				nodeQue.push(currNode->mChildren[i]);
+				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
+				GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
+				childObj->transform.SetParent(currObj->transform, false);
+
+				objQue.push(childObj);
+			}
+		}
+	}
+
+	if (pScene->mAnimations)
+	{
+		SetTransformAnimation(pScene, _gameObject, addObjMap);
+	}
 }
 
 void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material, bool isStatic)
 {
-    LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
+	LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
 }
