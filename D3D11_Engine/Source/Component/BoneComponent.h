@@ -1,11 +1,6 @@
 #pragma once
 #include <Component/Base/Component.h>
 
-struct MatrixPallete
-{
-	Matrix MatrixPalleteArray[128];
-};
-
 class BoneComponent : public Component
 {
 public:
@@ -16,7 +11,6 @@ public:
 	Matrix GetBoneMatrix();
 
 public:
-	std::shared_ptr<MatrixPallete> matrixPallete;
 	int myIndex = -1;
 
 public:

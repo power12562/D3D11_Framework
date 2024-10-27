@@ -34,7 +34,7 @@ TransAnimationScene::TransAnimationScene()
 	materialManager[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, materialManager[L"BoxHuman"], false);
 
-	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);	
+	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }
 
 TransAnimationScene::~TransAnimationScene()

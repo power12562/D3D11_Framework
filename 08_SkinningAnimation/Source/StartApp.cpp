@@ -3,7 +3,7 @@
 
 ImportFBXapp::ImportFBXapp()
 {
-    this->windowName = L"07_TransformAnimation";
+    this->windowName = L"08_SkinningAnimation";
 }
 
 ImportFBXapp::~ImportFBXapp()

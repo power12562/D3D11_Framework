@@ -12,24 +12,12 @@
 #include <Material\SimpleMaterial.h>
 #include <Component\TransformAnimation.h>
 #include <Framework\MaterialManager.h>
+#include <Math/Mathf.h>
 #include <filesystem>
 #include <iostream>
 
 namespace Utility
 {
-	std::shared_ptr<MatrixPallete> CheckBoneUsage(const aiScene* scene)
-	{
-		for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
-		{
-			const aiMesh* mesh = scene->mMeshes[i];
-			if (mesh->mNumBones > 0)
-			{
-				return std::make_shared<MatrixPallete>();
-			}
-		}
-		return std::shared_ptr<MatrixPallete>();
-	}
-
 	void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, SimpleMaterial* material)
 	{
 		aiString path;
@@ -240,6 +228,24 @@ void Utility::LoadFBX(const char* path,
 			}
 		};
 
+	//count bone
+	int boneCount = 0;
+	for (unsigned int i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		aiMesh* mesh = pScene->mMeshes[i];
+		for (unsigned int j = 0; j < mesh->mNumBones; ++j)
+		{
+			getBoneIndex(utf8_to_wstring(mesh->mBones[j]->mName.C_Str()));
+		}
+	}
+	boneCount = boneIndexMap.size();
+	std::shared_ptr<MatrixPallete> rootMatrixPallete = nullptr;
+	if (boneCount > 0)
+		rootMatrixPallete = std::make_shared<MatrixPallete>();
+
+	std::vector<BoneComponent*> boneList(boneCount);
+	std::vector<SimpleBoneMeshRender*> meshList;
+
 	while (!nodeQue.empty())
 	{
 		currNode = nodeQue.front();
@@ -251,24 +257,27 @@ void Utility::LoadFBX(const char* path,
 		addObjMap[currObj->Name] = currObj;
 
 		if (currNode)
-		{
-			
-			
-			if (std::shared_ptr<MatrixPallete> rootMatrixPallete = CheckBoneUsage(pScene))
-			{			
+		{			
+			if (boneCount > 0)
+			{					
 				SetNodeTransform(currNode, currObj);
 
-				BoneComponent& bone = currObj->AddComponent<BoneComponent>();
-				bone.matrixPallete = rootMatrixPallete;
-				bone.myIndex = getBoneIndex(utf8_to_wstring(currNode->mName.C_Str()));
-				
+				auto findIndex = boneIndexMap.find(utf8_to_wstring(currNode->mName.C_Str()));
+				if (findIndex != boneIndexMap.end())
+				{
+					int index = findIndex->second;
+					boneList[index] = &currObj->AddComponent<BoneComponent>();
+					boneList[index]->myIndex = index;
+				}
+
 				if (currNode->mNumMeshes > 0) 
 				{			
 					//Create Vertex
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
 						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
-
+						meshList.push_back(&meshComponent);
+						
 						if (material)
 						{
 							meshComponent.Material = material;
@@ -278,28 +287,31 @@ void Utility::LoadFBX(const char* path,
 							meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
 						}
 						initMaterial(meshComponent.Material);
+						meshComponent.matrixPallete = rootMatrixPallete;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
+						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
-						SimpleBoneMeshRender::Vertex vertex;
 
 						//cash vertex bone info
-						std::unordered_map<int, std::list<float>> weightsMap;
+						std::unordered_map<int, std::vector<float>> weightsMap;
 						std::unordered_map<int, std::list<std::wstring>> nameMap;
-						for (int j = 0; j < pMesh->mNumBones; j++)
+						for (unsigned int j = 0; j < pMesh->mNumBones; j++)
 						{
 							aiBone* pBone = pMesh->mBones[j];
-							for (int k = 0; k < pBone->mNumWeights; k++)
+							for (unsigned int k = 0; k < pBone->mNumWeights; k++)
 							{
 								aiVertexWeight weight = pBone->mWeights[k];
 								weightsMap[weight.mVertexId].push_back(weight.mWeight);
-								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));
+								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));				
 							}
 						}
 
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
+							SimpleBoneMeshRender::Vertex vertex;
+
 							aiVector3D position = pMesh->mVertices[vertexIndex];
 							vertex.position.x = position.x;
 							vertex.position.y = position.y;
@@ -320,13 +332,14 @@ void Utility::LoadFBX(const char* path,
 							vertex.Tex.x = texCoord.x;
 							vertex.Tex.y = texCoord.y;
 
-							int j = 0;
 							auto n = nameMap[vertexIndex].begin();
-							for (auto& weight : weightsMap[vertexIndex])
+							for (int j = 0; j < weightsMap[vertexIndex].size(); j++)
 							{
-								vertex.BlendWeights[j] = weight;
+								if(vertex.BlendWeights[j] != 0 )
+									__debugbreak();
+
+								vertex.BlendWeights[j] = weightsMap[vertexIndex][j];
 								vertex.BlendIndecses[j] = getBoneIndex(*n);
-								j++;
 								n++;
 							}
 
@@ -348,13 +361,12 @@ void Utility::LoadFBX(const char* path,
 						LoadTexture(ai_material, directory.c_str(), meshComponent.Material);
 
 						//offsetMatrices
-						meshComponent.offsetMatrices.resize(boneIndexMap.size());
-						for (int i = 0; i < pMesh->mNumBones; i++)
+						meshComponent.offsetMatrices.resize(boneCount);
+						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
 						{
 							aiMatrix4x4 ai_matrix = pMesh->mBones[i]->mOffsetMatrix;
-							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mArmature->mName.C_Str());
-							meshComponent.offsetMatrices[getBoneIndex(name)]
-								= Matrix(&ai_matrix.a1).Transpose();
+							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mName.C_Str());
+							meshComponent.offsetMatrices[getBoneIndex(name)] = Matrix(&ai_matrix.a1).Transpose();
 						}
 						
 						//CreateBuffer
@@ -441,6 +453,12 @@ void Utility::LoadFBX(const char* path,
 			}
 		}
 	}
+	//set bone info
+	for (auto& mesh : meshList)
+	{
+		mesh->boneList = boneList;
+	}
+
 
 	if (pScene->mAnimations)
 	{

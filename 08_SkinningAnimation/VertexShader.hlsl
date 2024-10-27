@@ -21,20 +21,21 @@ PS_INPUT main(VS_INPUT input)
     matWorld += mul(input.BlendWeights.w, MatrixPalleteArray[input.BlendIndecses.w]);
 #else
     matWorld = World;
-#endif       
-    output.World = (float3) mul(input.Pos, matWorld);
-    output.Pos = mul(input.Pos, WVP);
-     
+#endif   
+    float4 pos = mul(input.Pos, matWorld);
+    output.World = (float3)pos;
+       
 #ifdef VERTEX_SKINNING
+    pos = mul(pos, View);
+    output.Pos = mul(pos, Projection);
     output.Normal = normalize(mul(input.Normal, (float3x3) matWorld));
     output.Tangent = normalize(mul(input.Tangent, (float3x3) matWorld));
 #else
+    output.Pos = mul(input.Pos, WVP);
     output.Normal = normalize(mul(input.Normal, (float3x3) WorldInverseTranspose));
     output.Tangent = normalize(mul(input.Tangent, (float3x3) WorldInverseTranspose));
 #endif  
-    output.BiTangent = normalize(cross(output.Normal, output.Tangent));
-    
+    output.BiTangent = normalize(cross(output.Normal, output.Tangent)); 
     output.Tex = input.Tex;
-   
     return output;
 }

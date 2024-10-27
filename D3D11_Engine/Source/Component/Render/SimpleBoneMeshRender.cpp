@@ -41,12 +41,16 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
-	if (!meshData.pVertexBuffer || !meshData.pIndexBuffer)
+	if (!matrixPallete || !meshData.pVertexBuffer || !meshData.pIndexBuffer)
 	{
 		__debugbreak(); //데이터 없음.
 		return;
 	}
 	
+	for (int i = 0; i < boneList.size(); i++)
+	{
+		matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices[i] * boneList[i]->GetBoneMatrix());
+	}
 	const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
 	if (Material)
 	{

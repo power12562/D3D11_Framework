@@ -10,9 +10,7 @@ BoneComponent::~BoneComponent()
 
 Matrix BoneComponent::GetBoneMatrix()
 {
-	return Matrix::CreateScale(transform.scale) * 
-		Matrix::CreateFromQuaternion(transform.rotation) *
-		Matrix::CreateTranslation(transform.position);
+	return transform.GetWM();
 }
 
 void BoneComponent::Start()

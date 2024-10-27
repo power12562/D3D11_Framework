@@ -170,8 +170,8 @@ void D3DRenderer::BegineDraw()
 
     Camera* mainCam = Camera::GetMainCamera();
     cbuffer::camera.MainCamPos = mainCam->transform.position;
-    cbuffer::camera.Projection = mainCam->GetPM();
-    cbuffer::camera.View = mainCam->GetVM();
+    cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
+    cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
     D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 }
 

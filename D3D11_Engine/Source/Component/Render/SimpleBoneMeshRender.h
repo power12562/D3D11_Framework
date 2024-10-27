@@ -1,6 +1,11 @@
 #pragma once
 #include <Component/Base/RenderComponent.h>
 
+struct MatrixPallete
+{
+	Matrix MatrixPalleteArray[128];
+};
+
 class BoneComponent;
 class SimpleMaterial;
 class SimpleBoneMeshRender : public RenderComponent
@@ -12,8 +17,8 @@ public:
 		Vector3 normal;
 		Vector3 biTangent;
 		Vector2 Tex;
-		int BlendIndecses[4] = {};
-		float BlendWeights[4] = {};
+		int BlendIndecses[4] = {0,};
+		float BlendWeights[4] = {0,};
 	};
 public:
 	SimpleBoneMeshRender();
@@ -41,5 +46,7 @@ public:
 	SimpleMaterial* Material = nullptr;
 
 public:
+	std::shared_ptr<MatrixPallete> matrixPallete;
 	std::vector<Matrix> offsetMatrices;
+	std::vector<BoneComponent*> boneList;
 };

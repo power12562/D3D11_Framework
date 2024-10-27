@@ -42,6 +42,9 @@ TransAnimationScene::TransAnimationScene()
 
 	Utility::LoadFBX("Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
 	Utility::LoadFBX("Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
+
+	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
+	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 }
 
 TransAnimationScene::~TransAnimationScene()
@@ -70,10 +73,12 @@ void TransAnimationScene::ImGUIRender()
 
 	ImGui::Text("Test1");
 	ImGui::DragVector3("Test1 Position", &test1->transform.position);
+	ImGui::DragQuaternion("Test1 Rotation", &test1->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Test2");
 	ImGui::DragVector3("Test2 Position", &test2->transform.position);
+	ImGui::DragQuaternion("Test2 Rotation", &test2->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Background");
