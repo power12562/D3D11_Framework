@@ -1,4 +1,5 @@
 #include "BoneComponent.h"
+#include <Utility/D3D11Utility.h>
 
 BoneComponent::BoneComponent()
 {
@@ -8,7 +9,7 @@ BoneComponent::~BoneComponent()
 {
 }
 
-Matrix BoneComponent::GetBoneMatrix()
+const Matrix& BoneComponent::GetBoneMatrix()
 {
 	return transform.GetWM();
 }

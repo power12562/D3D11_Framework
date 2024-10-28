@@ -95,12 +95,13 @@ public:
 	int GetPSCbufferCount() { return (int)ps_cbufferList.size() + StaticCbufferCount; }
 
 private:
-	std::vector<std::function<void(void)>> cb_updateEvents;
+	std::vector<std::function<void(void)>> updateEvents;
+	std::unordered_map<std::string, int> updateEventIndexMap;
 
 public:
 	template<typename T>
 	void BindUpdateEvent(T& data);
-	void ClearUpdateEvent() { cb_updateEvents.clear(); }
+	void ClearUpdateEvent();
 
 public:
 	void UpdateEvent();
@@ -278,6 +279,27 @@ inline int D3DConstBuffer::GetPSConstBufferIndex()
 template<typename T>
 inline void D3DConstBuffer::BindUpdateEvent(T& data)
 {
-	UpdateConstBuffer(data); //정상 유무 확인
-	cb_updateEvents.push_back(std::bind(&D3DConstBuffer::UpdateConstBuffer<T>, this, std::ref(data)));
+	std::string key = typeid(T).name();
+	auto findIter = cBufferMap.find(key);
+	if (findIter != cBufferMap.end())
+	{
+		auto bindFunc = [this, &data]()->void
+			{
+				this->UpdateConstBuffer(data);
+			};
+
+		if (updateEventIndexMap.find(key) != updateEventIndexMap.end())
+		{
+			updateEvents[updateEventIndexMap[key]] = bindFunc;	
+		}
+		else
+		{
+			updateEventIndexMap[key] = (int)updateEvents.size();
+			updateEvents.push_back(bindFunc);			
+		}	
+	}
+	else
+	{
+		__debugbreak();
+	}	
 }

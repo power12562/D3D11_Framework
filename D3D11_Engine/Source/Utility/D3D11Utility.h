@@ -42,6 +42,8 @@ namespace Utility
 	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView);
 
 	DXGI_FORMAT GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, UINT mask);
+
+	bool XMMatrixIsNaN(const DirectX::XMMATRIX& matrix);
 }
 
 struct DRAW_INDEX_DATA

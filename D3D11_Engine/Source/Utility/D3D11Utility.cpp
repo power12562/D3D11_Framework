@@ -154,5 +154,11 @@ namespace Utility
         }
     }
 
+    bool XMMatrixIsNaN(const DirectX::XMMATRIX& matrix)
+    {
+        return DirectX::XMVector4IsNaN(matrix.r[0]) || DirectX::XMVector4IsNaN(matrix.r[1]) ||
+               DirectX::XMVector4IsNaN(matrix.r[2]) || DirectX::XMVector4IsNaN(matrix.r[3]);
+    }
+
 }
 

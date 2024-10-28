@@ -52,6 +52,7 @@ public:
 	Vector3 GetFront();
 	__declspec(property(get = GetFront)) Vector3 Front;
 
+	/* *Get world matrix*/
 	const Matrix& GetWM() const { return _WM; }
 
 public:

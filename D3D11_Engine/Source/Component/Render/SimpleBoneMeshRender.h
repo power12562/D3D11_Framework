@@ -6,6 +6,11 @@ struct MatrixPallete
 	Matrix MatrixPalleteArray[128];
 };
 
+struct BoneWIT
+{
+	Matrix BoneWIT[128];
+};
+
 class BoneComponent;
 class SimpleMaterial;
 class SimpleBoneMeshRender : public RenderComponent
@@ -47,6 +52,7 @@ public:
 
 public:
 	std::shared_ptr<MatrixPallete> matrixPallete;
+	std::shared_ptr<BoneWIT> boneWIT;
 	std::vector<Matrix> offsetMatrices;
 	std::vector<BoneComponent*> boneList;
 };

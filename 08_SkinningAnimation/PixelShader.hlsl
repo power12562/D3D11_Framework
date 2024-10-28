@@ -37,6 +37,8 @@ float4 main(PS_INPUT input) : SV_Target
     float4 opacity = mapOpacity;
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
+    input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+    
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;
 
     float4 ambient = LightAmbient * MaterialAmbient;
@@ -51,5 +53,6 @@ float4 main(PS_INPUT input) : SV_Target
     float4 final = ambient + diffuse + specular + mapEmissive;
     final.a = opacity.a;
     
+    //return float4(abs(input.Normal), 1.0f);
     return final;
 }

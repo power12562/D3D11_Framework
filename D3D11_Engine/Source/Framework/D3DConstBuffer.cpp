@@ -52,9 +52,15 @@ void D3DConstBuffer::SetConstBuffer()
 		pDeviceContext->PSSetConstantBuffers(i + StaticCbufferCount, 1, &cBufferMap[ps_cbufferList[i]]);
 }
 
+void D3DConstBuffer::ClearUpdateEvent()
+{
+	updateEvents.clear(); 
+	updateEventIndexMap.clear();
+}
+
 void D3DConstBuffer::UpdateEvent()
 {
-	for (auto& even : cb_updateEvents)
+	for (auto& even : updateEvents)
 	{
 		even();
 	}

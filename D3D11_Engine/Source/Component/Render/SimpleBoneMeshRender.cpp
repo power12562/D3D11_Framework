@@ -41,21 +41,26 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
-	if (!matrixPallete || !meshData.pVertexBuffer || !meshData.pIndexBuffer)
+	if (boneWIT && matrixPallete && meshData.pVertexBuffer && meshData.pIndexBuffer)
+	{
+		for (int i = 0; i < boneList.size(); i++)
+		{
+			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices[i] * boneList[i]->GetBoneMatrix());
+
+			Matrix Inverse = XMMatrixInverse(nullptr, offsetMatrices[i] * boneList[i]->GetBoneMatrix());
+			Inverse = Utility::XMMatrixIsNaN(Inverse) ? Matrix() : Inverse;
+			boneWIT->BoneWIT[i] = Inverse;
+		}
+		const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
+		if (Material)
+		{
+			Material->cbuffer.UpdateEvent();
+			d3dRenderer.DrawIndex(meshData, *Material);
+		}
+	}
+	else
 	{
 		__debugbreak(); //데이터 없음.
-		return;
-	}
-	
-	for (int i = 0; i < boneList.size(); i++)
-	{
-		matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices[i] * boneList[i]->GetBoneMatrix());
-	}
-	const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-	if (Material)
-	{
-		Material->cbuffer.UpdateEvent();
-		d3dRenderer.DrawIndex(meshData, *Material);
 	}
 }
 

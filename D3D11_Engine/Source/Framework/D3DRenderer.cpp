@@ -153,7 +153,7 @@ void D3DRenderer::Uninit()
     SafeRelease(pSwapChain);
     SafeRelease(pDeviceContext);
 
-    textureManager.Get1x1Texture()->Release();
+    textureManager.ReleaseDefaultTexture();
 
     ULONG refcount = SafeRelease(pDevice);
     if (refcount != 0)
@@ -182,23 +182,21 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material)
 {
+    using namespace E_TEXTURE_INDEX;
+
     material.cbuffer.SetConstBuffer();
 
-    auto noneTexture = textureManager.Get1x1Texture();
-    for (int i = 0; i < (E_TEXTURE_INDEX::Null); i++)
-    {       
-        if (i != E_TEXTURE_INDEX::Emissive)
-        {
-            if (material.textures[i])
-                pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
-            else
-                pDeviceContext->PSSetShaderResources(i, 1, &noneTexture);
-        }
+    for (int i = 0; i < E_TEXTURE_INDEX::Null; i++)
+    {
+        if(material.textures[i])
+            pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
         else
         {
-            pDeviceContext->PSSetShaderResources(i, 1, &material.textures[i]);
+            auto defaultTexture = textureManager.GetDefaultTexture(static_cast<TEXTURE_INDEX>(i));
+            pDeviceContext->PSSetShaderResources(i, 1, &defaultTexture);
         }
     }
+     
     pDeviceContext->PSSetSamplers(0, 1, &material.pSamplerLinear);
 
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.

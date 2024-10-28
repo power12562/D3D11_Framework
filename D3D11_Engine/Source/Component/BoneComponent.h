@@ -8,8 +8,8 @@ public:
 	virtual ~BoneComponent() override;
 
 public:
-	Matrix GetBoneMatrix();
-
+	/*Get world matrix*/
+	const Matrix& GetBoneMatrix();
 public:
 	int myIndex = -1;
 

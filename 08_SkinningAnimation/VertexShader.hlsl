@@ -5,6 +5,11 @@ cbuffer MatrixPallete : register(b2)
 {
     matrix MatrixPalleteArray[128];
 }
+
+cbuffer BoneWIT : register(b3)
+{
+    matrix boneWIT[128];
+}
 #endif
 
 //--------------------------------------------------------------------------------------
@@ -26,10 +31,16 @@ PS_INPUT main(VS_INPUT input)
     output.World = (float3)pos;
        
 #ifdef VERTEX_SKINNING
+    Matrix WIT;
+    WIT = mul(input.BlendWeights.x, boneWIT[input.BlendIndecses.x]);
+    WIT += mul(input.BlendWeights.y, boneWIT[input.BlendIndecses.y]);
+    WIT += mul(input.BlendWeights.z, boneWIT[input.BlendIndecses.z]);
+    WIT += mul(input.BlendWeights.w, boneWIT[input.BlendIndecses.w]);
+    
     pos = mul(pos, View);
     output.Pos = mul(pos, Projection);
-    output.Normal = normalize(mul(input.Normal, (float3x3) matWorld));
-    output.Tangent = normalize(mul(input.Tangent, (float3x3) matWorld));
+    output.Normal = normalize(mul(input.Normal, (float3x3) WIT));
+    output.Tangent = normalize(mul(input.Tangent, (float3x3) WIT));
 #else
     output.Pos = mul(input.Pos, WVP);
     output.Normal = normalize(mul(input.Normal, (float3x3) WorldInverseTranspose));

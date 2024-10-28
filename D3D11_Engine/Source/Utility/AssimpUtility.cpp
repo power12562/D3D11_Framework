@@ -240,9 +240,12 @@ void Utility::LoadFBX(const char* path,
 	}
 	boneCount = boneIndexMap.size();
 	std::shared_ptr<MatrixPallete> rootMatrixPallete = nullptr;
+	std::shared_ptr<BoneWIT> rootBoneWIT = nullptr;
 	if (boneCount > 0)
+	{
 		rootMatrixPallete = std::make_shared<MatrixPallete>();
-
+		rootBoneWIT = std::make_shared<BoneWIT>();
+	}
 	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
 
@@ -284,12 +287,19 @@ void Utility::LoadFBX(const char* path,
 						}
 						else
 						{
-							meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+							wchar_t materialName[50]{};
+							swprintf_s(materialName, L"%s (%d)", currObj->Name.c_str(), currObj->GetInstanceID());
+
+							meshComponent.Material = materialManager.GetMaterial(materialName);
 						}
 						initMaterial(meshComponent.Material);
 						meshComponent.matrixPallete = rootMatrixPallete;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete);
+						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete); 
+
+						meshComponent.boneWIT = rootBoneWIT;
+						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
+						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.boneWIT);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
