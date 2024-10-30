@@ -16,4 +16,5 @@ private:
 private:
 	GameObject* test1 = nullptr;
 	GameObject* test2 = nullptr;
+	GameObject* test3 = nullptr;
 };

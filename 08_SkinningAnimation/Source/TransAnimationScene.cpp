@@ -26,12 +26,16 @@ TransAnimationScene::TransAnimationScene()
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
 	test1 = NewGameObject<GameObject>(L"test1");
-	test1->transform.position = { 10,0,0 };
+	test1->transform.position = { 20,0,0 };
 	test1->transform.scale = { 0.1,0.1,0.1 };
 
 	test2 = NewGameObject<GameObject>(L"test2");
-	test2->transform.position = {-10,0,0 };
+	test2->transform.position = {-20,0,0 };
 	test2->transform.scale = { 0.1,0.1,0.1 };
+
+	test3 = NewGameObject<GameObject>(L"test3");
+	test3->transform.position = { 0,0,0 };
+	test3->transform.scale = { 0.1,0.1,0.1 };
 
 	auto testInit = [](SimpleMaterial* material)->void
 		{
@@ -42,9 +46,11 @@ TransAnimationScene::TransAnimationScene()
 
 	Utility::LoadFBX("Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
 	Utility::LoadFBX("Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
+	Utility::LoadFBX("Resource/Hip Hop Dancing.fbx", *test3, nullptr, testInit, false);
 
 	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
+	test3->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 }
 
 TransAnimationScene::~TransAnimationScene()
