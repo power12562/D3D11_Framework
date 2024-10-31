@@ -27,14 +27,15 @@ protected:
 
 public:
 	void CreateMesh();
-	
+	void SetMeshResource(const char* path);
+
 private:
-	DRAW_INDEX_DATA meshData;
+	DRAW_INDEX_RESOURCE meshResource;
 
 public:
 	std::vector<Vertex> vertices;	
 	std::vector<UINT> indices;	
 
 public:
-	SimpleMaterial* Material = nullptr;
+	std::shared_ptr<SimpleMaterial> Material = nullptr;
 };

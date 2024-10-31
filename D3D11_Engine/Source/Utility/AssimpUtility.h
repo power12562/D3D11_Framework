@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <Math\AssimpMath.h>
 #include <Framework\Transform.h>
 #include <functional>
@@ -10,12 +11,12 @@ namespace Utility
 	bool ParseFileName(aiString& str);
 	void LoadFBX(const char* path, 
 		GameObject& _gameObject, 
-		SimpleMaterial* material, 
+		std::shared_ptr<SimpleMaterial> material,
 		std::function<void(SimpleMaterial*)> initMaterial,
 		bool);
 
 	void LoadFBX(const char* path,
 		GameObject& _gameObject,
-		SimpleMaterial* material,
+		std::shared_ptr<SimpleMaterial> material,
 		bool isStatic);
 }

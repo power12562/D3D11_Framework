@@ -11,7 +11,7 @@
 #include <Utility\utfConvert.h>
 #include <Material\SimpleMaterial.h>
 #include <Component\TransformAnimation.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 #include <Math/Mathf.h>
 #include <filesystem>
 #include <iostream>
@@ -178,7 +178,7 @@ bool Utility::ParseFileName(aiString& str)
 
 void Utility::LoadFBX(const char* path,
 	GameObject& _gameObject,
-	SimpleMaterial* material,
+	std::shared_ptr<SimpleMaterial> material,
 	std::function<void(SimpleMaterial*)> initMaterial,
 	bool isStatic)
 {
@@ -290,9 +290,9 @@ void Utility::LoadFBX(const char* path,
 							wchar_t materialName[50]{};
 							swprintf_s(materialName, L"%s (%d)", currObj->Name.c_str(), currObj->GetInstanceID());
 
-							meshComponent.Material = materialManager.GetMaterial(materialName);
+							meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
 						}
-						initMaterial(meshComponent.Material);
+						initMaterial(meshComponent.Material.get());
 						meshComponent.matrixPallete = rootMatrixPallete;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
 						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete); 
@@ -368,7 +368,7 @@ void Utility::LoadFBX(const char* path,
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material);
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
 
 						//offsetMatrices
 						meshComponent.offsetMatrices.resize(boneCount);
@@ -380,6 +380,7 @@ void Utility::LoadFBX(const char* path,
 						}
 						
 						//CreateBuffer
+						meshComponent.SetMeshResource(path);
 						meshComponent.CreateMesh();
 					}
 				}
@@ -401,9 +402,9 @@ void Utility::LoadFBX(const char* path,
 						}
 						else
 						{
-							meshComponent.Material = materialManager.GetMaterial((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+							meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
 						}
-						initMaterial(meshComponent.Material);
+						initMaterial(meshComponent.Material.get());
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
@@ -445,8 +446,9 @@ void Utility::LoadFBX(const char* path,
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material);
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
 
+						meshComponent.SetMeshResource(path);
 						meshComponent.CreateMesh();
 					}
 				}
@@ -476,7 +478,7 @@ void Utility::LoadFBX(const char* path,
 	}
 }
 
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, SimpleMaterial* material, bool isStatic)
+void Utility::LoadFBX(const char* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
 {
 	LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
 }

@@ -173,11 +173,10 @@ void D3DRenderer::Uninit()
 }
 
 size_t D3DRenderer::GetUsedVram()
-{  
-    const SIZE& clientSize = WinGameApp::GetClientSize();
+{
     DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
     pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
-    return videoMemoryInfo.CurrentUsage / clientSize.cx / clientSize.cy;
+    return videoMemoryInfo.CurrentUsage / (1024 * 1024); // 메가바이트 단위로 반환
 }
 
 void D3DRenderer::BegineDraw()

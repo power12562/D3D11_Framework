@@ -8,7 +8,8 @@
 
 Scene::Scene()
 {
-	
+	objectList.reserve(10);
+	objectFindMap.reserve(10);
 }
 
 Scene::~Scene()

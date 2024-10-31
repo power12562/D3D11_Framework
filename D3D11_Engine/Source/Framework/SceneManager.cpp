@@ -17,11 +17,18 @@ SceneManager::~SceneManager()
 void SceneManager::DestroyObject(GameObject* obj)
 {
 	eraseSet.insert(obj);
+	if (obj->transform.GetChildCount() > 0)
+	{
+		for (Transform* childObj : obj->transform.childList)
+		{
+			DestroyObject(childObj->_gameObject);
+		}
+	}
 }
 
 void SceneManager::DestroyObject(GameObject& obj)
 {
-	eraseSet.insert(&obj);
+	DestroyObject(&obj);
 }
 
 GameObject* SceneManager::FindObject(const wchar_t* name)

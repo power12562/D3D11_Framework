@@ -6,6 +6,7 @@ using namespace DirectX::SimpleMath;
 class Transform
 {
 	friend class GameObject;
+	friend class SceneManager;
 	GameObject* _gameObject = nullptr;
 public:
 	Transform();
@@ -27,6 +28,7 @@ public:
 	__declspec(property(get = GetLocalPosition, put = SetLocalPosition)) const Vector3& localPosition;
 						   
 	const Quaternion& SetRotation(const Quaternion& value);
+	const Quaternion& SetRotation(const Vector3& value);
 	const Quaternion& GetRotation() const { return _rotation; }
 	__declspec(property(get = GetRotation, put = SetRotation)) const Quaternion& rotation;
 

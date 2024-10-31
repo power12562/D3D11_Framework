@@ -9,7 +9,7 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 
 #pragma warning(disable : 4305)
 TransAnimationScene::TransAnimationScene()
@@ -28,11 +28,11 @@ TransAnimationScene::TransAnimationScene()
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
 
-	materialManager.GetMaterial(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
-	materialManager.GetMaterial(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
-	materialManager.GetMaterial(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
-	materialManager[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, materialManager[L"BoxHuman"], false);
+	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], false);
+	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
+	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
+	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+	GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }
@@ -45,7 +45,7 @@ void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
-	cb_Material& cb_material = materialManager[L"BoxHuman"]->cb_material;
+	cb_Material& cb_material = GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

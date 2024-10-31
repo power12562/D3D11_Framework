@@ -106,6 +106,12 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 	return _rotation;
 }
 
+const Quaternion& Transform::SetRotation(const Vector3& value)
+{
+	Quaternion quater = Quaternion::CreateFromYawPitchRoll(value.y * Mathf::Deg2Rad, value.x * Mathf::Deg2Rad, value.z * Mathf::Deg2Rad);
+	return SetRotation(quater);	
+}
+
 const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 {
 	if (parent)

@@ -5,6 +5,7 @@
 #include <exception>
 #include <cstdio>
 #include <wrl.h>
+#include <memory>
 #include <Utility/MemoryUtility.h>
 using namespace Microsoft::WRL;
 
@@ -60,3 +61,5 @@ struct DRAW_INDEX_DATA
 	// ÀÎµ¦½º °³¼ö.
 	int indicesCount = 0;									
 };
+
+using DRAW_INDEX_RESOURCE = std::shared_ptr<DRAW_INDEX_DATA>;

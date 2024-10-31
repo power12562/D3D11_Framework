@@ -2,7 +2,7 @@
 #include <Material\SimpleMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 
 #include "../Source/Global_Cbuffer.h"
 

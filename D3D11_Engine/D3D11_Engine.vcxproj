@@ -148,7 +148,7 @@
     <ClInclude Include="Source\Component\BoneComponent.h" />
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
-    <ClInclude Include="Source\Framework\MaterialManager.h" />
+    <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
@@ -184,8 +184,8 @@
     <ClCompile Include="Source\Component\BoneComponent.cpp" />
     <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
-    <ClCompile Include="Source\Framework\MaterialManager.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
+    <ClCompile Include="Source\Framework\ResourceManager.cpp" />
     <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />

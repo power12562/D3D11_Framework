@@ -9,7 +9,7 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 #include <Material/SimpleMaterial.h>
 
 #pragma warning(disable : 4305)

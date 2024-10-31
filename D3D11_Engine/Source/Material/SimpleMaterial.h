@@ -2,6 +2,7 @@
 #include <Framework\D3DConstBuffer.h>
 #include <directxtk/simplemath.h>
 #include <array>
+#include <memory>
 
 #pragma warning( disable : 4305 )
 struct cb_Material
@@ -84,4 +85,6 @@ public:
 	bool IsSpecularMap() { return !!textures[E_TEXTURE_INDEX::Specular]; }
 	bool IsEmissiveMap() { return !!textures[E_TEXTURE_INDEX::Emissive]; }
 	bool IsOpacityMap() { return !!textures[E_TEXTURE_INDEX::Opacity]; }
-};
+};		  
+
+using sptrSimpleMaterial = std::shared_ptr<SimpleMaterial>;

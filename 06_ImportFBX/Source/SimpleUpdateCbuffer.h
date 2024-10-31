@@ -12,7 +12,7 @@ public:
 	virtual ~SimpleUpdateCbuffer() override;
 
 public:
-	SimpleMaterial* Material = nullptr;
+	sptrSimpleMaterial Material = nullptr;
 	cb_localBool cb_localbool;
 
 public:

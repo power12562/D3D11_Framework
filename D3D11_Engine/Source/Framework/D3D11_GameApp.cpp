@@ -20,7 +20,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		sceneManager.currScene.reset();
-		materialManager.Clear();
+		Resource::ClearResourceManagers();
 		WinGameApp::GameEnd();
 		break;
 #pragma endregion

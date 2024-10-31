@@ -10,7 +10,7 @@
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
 #include <Component/TransformAnimation.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 
 #include "../Source/SimpleUpdateCbuffer.h"
 #include "../Source/Global_Cbuffer.h"
@@ -32,7 +32,7 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			if (SimpleMeshRender* meshRender = curr->GetComponentAtIndex<SimpleMeshRender>(i))
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
-				SimpleMaterial* Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
+				sptrSimpleMaterial Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();
@@ -43,7 +43,7 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			else if(SimpleBoneMeshRender* meshRender = curr->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
-				SimpleMaterial* Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
+				sptrSimpleMaterial Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();

@@ -2,21 +2,21 @@
 #include <Framework\D3DRenderer.h>
 #include <Material\SimpleMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 
 SimpleMeshRender::SimpleMeshRender()
 {
 	if (Material == nullptr)
 	{
-		Material = materialManager.GetMaterial(L"Standard");
+		Material = ResourceManager<SimpleMaterial>::instance().GetResource(L"Standard");
 	}
 }
 
 SimpleMeshRender::~SimpleMeshRender()
 {
 	using namespace Utility;
-	SafeRelease(meshData.pVertexBuffer);
-	SafeRelease(meshData.pIndexBuffer);
+	SafeRelease(meshResource->pVertexBuffer);
+	SafeRelease(meshResource->pIndexBuffer);
 }
 
 void SimpleMeshRender::Start()
@@ -38,7 +38,7 @@ void SimpleMeshRender::LateUpdate()
 
 void SimpleMeshRender::Render()
 {
-	if (!meshData.pVertexBuffer || !meshData.pIndexBuffer)
+	if (!meshResource->pVertexBuffer || !meshResource->pIndexBuffer)
 	{
 		__debugbreak(); //데이터 없음.
 		return;
@@ -48,7 +48,7 @@ void SimpleMeshRender::Render()
     if (Material)
     {
 		Material->cbuffer.UpdateEvent();
-        d3dRenderer.DrawIndex(meshData, *Material);
+        d3dRenderer.DrawIndex(*meshResource, *Material);
     } 
 }
 
@@ -58,14 +58,14 @@ void SimpleMeshRender::CreateMesh()
 	if (vertices.empty() || indices.empty())
 		return;
 
-	if (meshData.pIndexBuffer)
-		SafeRelease(meshData.pIndexBuffer);
+	if (meshResource->pIndexBuffer)
+		SafeRelease(meshResource->pIndexBuffer);
 
-	if (meshData.pVertexBuffer)
-		SafeRelease(meshData.pVertexBuffer);
+	if (meshResource->pVertexBuffer)
+		SafeRelease(meshResource->pVertexBuffer);
 
-	meshData.vertexBufferOffset = 0;
-	meshData.vertexBufferStride = sizeof(Vertex);
+	meshResource->vertexBufferOffset = 0;
+	meshResource->vertexBufferStride = sizeof(Vertex);
 	D3D11_BUFFER_DESC bd{};
 	bd.ByteWidth = sizeof(Vertex) * vertices.size();
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -73,9 +73,9 @@ void SimpleMeshRender::CreateMesh()
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA vbData = {};
 	vbData.pSysMem = vertices.data();
-	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshData.pVertexBuffer));
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshResource->pVertexBuffer));
 	
-	meshData.indicesCount = indices.size();
+	meshResource->indicesCount = indices.size();
 	bd = {};
 	bd.Usage = D3D11_USAGE_DEFAULT;
 	bd.ByteWidth = sizeof(UINT) * indices.size();
@@ -83,5 +83,16 @@ void SimpleMeshRender::CreateMesh()
 	bd.CPUAccessFlags = 0;
 	D3D11_SUBRESOURCE_DATA ibData = {};
 	ibData.pSysMem = indices.data();
-	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshData.pIndexBuffer));
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshResource->pIndexBuffer));
+
+	vertices.clear();
+	indices.clear();
+}
+
+void SimpleMeshRender::SetMeshResource(const char* path)
+{
+	if (meshResource == nullptr)
+	{
+		meshResource = std::make_shared<DRAW_INDEX_DATA>();
+	}
 }

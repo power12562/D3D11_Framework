@@ -39,20 +39,22 @@ protected:
 
 public:
 	void CreateMesh();
+	void SetMeshResource(const char* path);
 
 private:
-	DRAW_INDEX_DATA meshData;
+	DRAW_INDEX_RESOURCE meshResource;
 
 public:
 	std::vector<Vertex> vertices;
-	std::vector<UINT> indices;
+	std::vector<UINT>   indices;
 
 public:
-	SimpleMaterial* Material = nullptr;
+	std::shared_ptr<SimpleMaterial> Material = nullptr;
 
 public:
-	std::shared_ptr<MatrixPallete> matrixPallete;
-	std::shared_ptr<BoneWIT> boneWIT;
+	std::shared_ptr<MatrixPallete> matrixPallete = nullptr;
+	std::shared_ptr<BoneWIT> boneWIT = nullptr;
+
 	std::vector<Matrix> offsetMatrices;
 	std::vector<BoneComponent*> boneList;
 };
