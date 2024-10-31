@@ -8,6 +8,8 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
+#include <Component/Render/SimpleBoneMeshRender.h>
+#include <Component/TransformAnimation.h>
 #include <Framework\MaterialManager.h>
 
 #include "../Source/SimpleUpdateCbuffer.h"
@@ -31,8 +33,17 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
 				SimpleMaterial* Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
-				Material->SetVS(L"VertexShader.hlsl");
-				Material->SetPS(L"PixelShader.hlsl");
+				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+
+				Material->cbuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
+				Material->cbuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
+			}
+			else if(SimpleBoneMeshRender* meshRender = curr->GetComponentAtIndex<SimpleBoneMeshRender>(i))
+			{
+				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
+				SimpleMaterial* Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();
@@ -54,6 +65,12 @@ ImportFBXScene::ImportFBXScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0.5, 0.5, 0.5, 1);
 
+	auto initMaterial = [](SimpleMaterial* material)
+		{
+			material->SetVS(L"VertexShader.hlsl");
+			material->SetPS(L"PixelShader.hlsl");
+		};
+
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->transform.position = Vector3(0, 16, -30);
@@ -63,43 +80,43 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX("Resource/Character.fbx", *character, nullptr, false);
-	AddUpdateCbufferAllChild(character);
+	Utility::LoadFBX("Resource/Character.fbx",*character, nullptr, initMaterial, false);
+	AddUpdateCbufferAllChild(character);										 
 	
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda, nullptr, false);
+	Utility::LoadFBX("Resource/zeldaPosed001.fbx", *zelda, nullptr, initMaterial, false);
 	AddUpdateCbufferAllChild(zelda);
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	Utility::LoadFBX("Resource/Tree.fbx", *tree, nullptr, true);
+	Utility::LoadFBX("Resource/Tree.fbx", *tree, nullptr, initMaterial, true);
 	AddUpdateCbufferAllChild(tree);
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	Utility::LoadFBX("Resource/box.fbx", *box, nullptr, true);
+	Utility::LoadFBX("Resource/box.fbx", *box, nullptr, initMaterial, true);
 	AddUpdateCbufferAllChild(box);
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/Monkey.fbx", *monkey, nullptr, false);
+	Utility::LoadFBX("Resource/Monkey.fbx", *monkey, nullptr, initMaterial, false);
 	AddUpdateCbufferAllChild(monkey);
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/Torus.fbx", *torus, nullptr, false);
+	Utility::LoadFBX("Resource/Torus.fbx", *torus, nullptr, initMaterial, false);
 	AddUpdateCbufferAllChild(torus);
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere, nullptr, false);
+	Utility::LoadFBX("Resource/IcoSphere.fbx", *IcoSphere, nullptr, initMaterial, false);
 	AddUpdateCbufferAllChild(IcoSphere);
 }
 

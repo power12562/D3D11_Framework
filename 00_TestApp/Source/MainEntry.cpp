@@ -34,6 +34,13 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
     cube3->transform.position += Vector3(5, 0, 5);
     cube3->transform.SetParent(cube2->transform);
 
+    auto cube4 = NewGameObject<GameObject>(L"D");
+    cube4->AddComponent<TestCubeComponent>();
+    cube4->transform.position += Vector3(7.5, 0, 5);
+    cube4->transform.SetParent(cube3->transform);
+
+    cube2->transform.SetParent(cube4->transform);
+
     app.Run();
     app.Uninitialize();
 

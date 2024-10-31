@@ -181,8 +181,9 @@ Vector3 Transform::GetFront()
 
 void Transform::SetParent(Transform& parent, bool worldPositionStays)
 {				
-	if (parent.rootParent == this || parent.parent == this || &parent == this->parent)
+	if (parent.rootParent == this || parent.parent == this || parent.IsDescendantOf(this))
 	{
+		Debug_printf("Error : Cannot set a child as a parent.\n");
 		__debugbreak(); //자식을 부모로 설정 불가.
 		return;
 	}
@@ -293,4 +294,16 @@ void Transform::SetChildsRootParent(Transform* _rootParent)
 			child->SetChildsRootParent(_rootParent);
 		}
 	}
+}
+
+bool Transform::IsDescendantOf(Transform* potentialAncestor) const
+{
+	Transform* currentParent = parent;
+	while (currentParent)
+	{
+		if (currentParent == potentialAncestor)
+			return true;
+		currentParent = currentParent->parent;
+	}
+	return false;
 }

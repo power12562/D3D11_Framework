@@ -85,6 +85,9 @@ private:
 	void SetChildsRootParent(Transform* _rootParent);
 
 private:
+	bool IsDescendantOf(Transform* potentialAncestor) const;
+
+private:
 	Transform* parent{ nullptr }; 
 	Transform* rootParent{ nullptr };
 	std::vector<Transform*>	childList{};
