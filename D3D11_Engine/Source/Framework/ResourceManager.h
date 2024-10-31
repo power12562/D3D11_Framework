@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <Utility/utfConvert.h>
 
 class Resource
 {

@@ -103,8 +103,12 @@ void SimpleBoneMeshRender::CreateMesh()
 
 void SimpleBoneMeshRender::SetMeshResource(const char* path)
 {
+	using namespace utfConvert;
 	if (meshResource == nullptr)
 	{
+		//고유의 fbx + mesh 이름으로 키 생성 필요.
+		//meshResource = GetResourceManager<DRAW_INDEX_DATA>().GetResource(utf8_to_wstring(path).c_str());
+
 		meshResource = std::make_shared<DRAW_INDEX_DATA>();
 	}
 }
