@@ -160,29 +160,42 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 
 Vector3 Transform::GetRight()
 {
-	_rotationMatrix = _rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
-
-	return Vector3{ _rotationMatrix._11, _rotationMatrix._21, _rotationMatrix._31 };
+	Vector3 right = Vector3{ _WM._11, _WM._21, _WM._31 };
+	right.Normalize();
+	return right;
 }
 
 Vector3 Transform::GetUp()
 {
-	_rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
-
-	return Vector3{ _rotationMatrix._12, _rotationMatrix._22, _rotationMatrix._32 };
+	Vector3 up = Vector3{_WM._12, _WM._22, _WM._32};
+	up.Normalize();
+	return up;
 }
 
 Vector3 Transform::GetFront()
 {
-	_rotationMatrix = Matrix::CreateFromQuaternion(_rotation);
-
-	return Vector3{ _rotationMatrix._13, _rotationMatrix._23, _rotationMatrix._33 };
+	Vector3 front = Vector3{ _WM._13, _WM._23, _WM._33 };
+	front.Normalize();
+	return front;
 }
 
 void Transform::SetParent(Transform& parent, bool worldPositionStays)
 {				
+	if (parent.rootParent == this || parent.parent == this || &parent == this->parent)
+	{
+		__debugbreak(); //자식을 부모로 설정 불가.
+		return;
+	}
+		
 	ClearParent();
-	this->parent = &parent;
+	this->parent = &parent;	   
+
+	if (parent.rootParent)
+		this->rootParent = parent.rootParent;
+	else
+		this->rootParent = this->parent;
+
+	SetChildsRootParent(rootParent);
 	parent.childList.push_back(this);
 	if (worldPositionStays)
 	{
@@ -265,5 +278,19 @@ void Transform::ClearParent()
 			}
 		}
 		this->parent = nullptr;
+		this->rootParent = nullptr;
+		SetChildsRootParent(this);	
+	}
+}
+
+void Transform::SetChildsRootParent(Transform* _rootParent)
+{
+	if (!childList.empty())
+	{
+		for (auto child : childList)
+		{
+			child->rootParent = _rootParent;
+			child->SetChildsRootParent(_rootParent);
+		}
 	}
 }

@@ -70,6 +70,10 @@ public:
 	/*부모 트랜스폼*/
 	Transform* GetParent() { return parent; }
 	__declspec(property(get = GetParent)) Transform* Parent;
+
+	/*최상위 부모*/
+	Transform* GetRootParent() { return rootParent; }
+	__declspec(property(get = GetRootParent)) Transform* RootParent;
 public:
 	/*Transform 정보로 메트릭스를 업데이트합니다.*/
 	void UpdateTransform();
@@ -78,9 +82,11 @@ private:
 
 private:
 	void ClearParent();
+	void SetChildsRootParent(Transform* _rootParent);
 
 private:
 	Transform* parent{ nullptr }; 
+	Transform* rootParent{ nullptr };
 	std::vector<Transform*>	childList{};
 
 private:
