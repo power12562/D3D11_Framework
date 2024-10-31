@@ -1,11 +1,11 @@
 #pragma once
-#include <Component/Base/RenderComponent.h>
+#include <Component/Base/Component.h>
 #include <vector>
 
 #include "../Source/Global_Cbuffer.h"
 
 class SimpleMaterial;
-class SimpleUpdateCbuffer : public RenderComponent
+class SimpleUpdateCbuffer : public Component
 {
 public:
 	SimpleUpdateCbuffer();
@@ -19,7 +19,6 @@ public:
 	virtual void Start();
 protected:
 	virtual void FixedUpdate() {}
-	virtual void Update() {}
+	virtual void Update() override;
 	virtual void LateUpdate() {}
-	virtual void Render() 		 override;
 };

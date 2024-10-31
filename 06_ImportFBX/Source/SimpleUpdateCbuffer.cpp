@@ -21,7 +21,7 @@ void SimpleUpdateCbuffer::Start()
 	
 }
 
-void SimpleUpdateCbuffer::Render()
+void SimpleUpdateCbuffer::Update()
 {
 	if (Material)
 	{
