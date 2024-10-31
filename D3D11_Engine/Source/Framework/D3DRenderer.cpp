@@ -7,6 +7,7 @@
 #include <Utility\MemoryUtility.h>
 #include <Framework/TextureManager.h>
 #include <_Debug\Console.h>
+#include <dxgi1_4.h>
 #include <cassert>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
@@ -64,6 +65,11 @@ void D3DRenderer::Init()
 #endif
     try
     {
+        //dxgi 디바이스용(Vram 체크)
+        CheckHRESULT(CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pDXGIFactory));
+        CheckHRESULT(pDXGIFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&pDXGIAdapter)));
+
+
         SIZE clientSize = WinGameApp::GetClientSize();
 
         //디바이스, 스왑체인, 디바이스 컨텍스트 생성
@@ -145,8 +151,12 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
+    //Vram용 dxgi 개체
+    SafeRelease(pDXGIAdapter);
+    SafeRelease(pDXGIFactory);
+     
+    //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
-
     SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
@@ -160,6 +170,14 @@ void D3DRenderer::Uninit()
     {
         __debugbreak(); //Device refcounter err.
     }
+}
+
+size_t D3DRenderer::GetUsedVram()
+{  
+    const SIZE& clientSize = WinGameApp::GetClientSize();
+    DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
+    pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
+    return videoMemoryInfo.CurrentUsage / clientSize.cx / clientSize.cy;
 }
 
 void D3DRenderer::BegineDraw()

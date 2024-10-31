@@ -31,6 +31,14 @@ public:
 	ID3D11RenderTargetView* GetRenderTargetView() { return pRenderTargetView; }
 	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
 
+	/** Vram 사용량 확인하기.*/
+	size_t GetUsedVram();
+
+private:
+	//Vram 체크용 dxgi 개체
+	struct IDXGIFactory*  pDXGIFactory = nullptr;        
+	struct IDXGIAdapter3* pDXGIAdapter = nullptr;
+
 public:
 	void BegineDraw();
 	void EndDraw();
