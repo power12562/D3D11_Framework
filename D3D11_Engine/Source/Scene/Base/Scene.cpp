@@ -8,13 +8,14 @@
 
 Scene::Scene()
 {
+	sceneResourceList.reserve(10);
 	objectList.reserve(10);
 	objectFindMap.reserve(10);
 }
 
 Scene::~Scene()
 {
-
+	
 }
 
 void Scene::FixedUpdate()
@@ -90,5 +91,18 @@ void Scene::ImGUIEndDraw()
 {
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Scene::SetResouceObj(GameObject* obj)
+{
+	sceneResourceList.emplace_back(obj->GetWeakPtr().lock());
+	unsigned int childCount = obj->transform.GetChildCount();
+	if (childCount > 0)
+	{
+		for (unsigned int i = 0; i < childCount; i++)
+		{
+			SetResouceObj(&obj->transform.GetChild(i)->gameObject);
+		}
+	}
 }
 

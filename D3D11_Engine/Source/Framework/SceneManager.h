@@ -7,6 +7,7 @@
 #include <functional>
 #include <queue>
 #include <set>
+#include <Utility/AssimpUtility.h>
 
 extern class SceneManager& sceneManager;
 class SceneManager : public TSingleton<SceneManager>
@@ -15,12 +16,15 @@ class SceneManager : public TSingleton<SceneManager>
 	friend class D3D11_GameApp;
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	friend void Utility::LoadFBX(const char* path,
+		GameObject& _gameObject,
+		std::shared_ptr<SimpleMaterial> material,
+		std::function<void(SimpleMaterial*)> initMaterial,
+		bool);
+
 public:	
 	template<typename ObjectType>
 	static ObjectType* NewGameObject(const wchar_t* name);
-
-	template<typename ObjectType>
-	static std::shared_ptr<GameObject> LoadGameObject(const wchar_t* key, const wchar_t* name);
 
 private:
 	SceneManager();
@@ -85,6 +89,7 @@ inline ObjectType* SceneManager::NewGameObject(const wchar_t* name)
 
 	newObject->Name = name;
 	newObject->instanceID = instanceIDManager.getUniqueID();
+	newObject->myptr = newObject;
 
 	return newObject.get();
 }

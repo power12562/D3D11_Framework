@@ -38,6 +38,9 @@ ResourceManagerScene::ResourceManagerScene()
 	Utility::LoadFBX("Resource/Hip Hop Dancing.fbx", *test, nullptr, testInit, false);
 	test->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 	testList.push_back(test);
+
+	//이 씬에서 사용할 리소스로 등록.
+	SetResouceObj(test);
 }
 
 ResourceManagerScene::~ResourceManagerScene()

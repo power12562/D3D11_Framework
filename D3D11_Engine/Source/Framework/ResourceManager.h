@@ -49,9 +49,9 @@ public:
 
         if (findIter != resourceMap.end())
         {
-            if (std::shared_ptr<T> material = findIter->second.lock())
+            if (std::shared_ptr<T> resource = findIter->second.lock())
             {
-                return  material;
+                return  resource;
             }
         }
         std::shared_ptr<T> material = std::make_shared<T>();
@@ -110,9 +110,9 @@ public:
         auto findIter = resourceMap.find(key);
         if (findIter != resourceMap.end())
         {
-            if (std::shared_ptr<DRAW_INDEX_DATA> material = findIter->second[index].lock())
+            if (std::shared_ptr<DRAW_INDEX_DATA> resource = findIter->second[index].lock())
             {
-                return  material;
+                return  resource;
             }
         }
         std::shared_ptr<DRAW_INDEX_DATA> material = std::make_shared<DRAW_INDEX_DATA>();
@@ -155,9 +155,9 @@ public:
         auto findIter = resourceMap.find(key);
         if (findIter != resourceMap.end())
         {
-            if (std::shared_ptr<GameObject> material = findIter->second.lock())
+            if (std::shared_ptr<GameObject> resource = findIter->second.lock())
             {
-                return  material;
+                return  resource;
             }
         }
         return nullptr;
@@ -165,13 +165,20 @@ public:
     std::shared_ptr<GameObject> operator[](const wchar_t* key) { return GetResource(key); }
 
 public:
-    void SetResource(const wchar_t* key, std::shared_ptr<GameObject> pObj)
+    void SetResource(const wchar_t* key, std::weak_ptr<GameObject> pObj)
     {
         auto findIter = resourceMap.find(key);
         if (findIter == resourceMap.end())
+        {
             resourceMap[key] = pObj;
+        }
         else
-            MessageBox(nullptr, L"Resource already loaded.", L"Info", MB_OK);
+        {
+            if (!findIter->second.expired())
+                MessageBox(nullptr, L"Resource already loaded.", L"Info", MB_OK);
+            else
+                resourceMap[key] = pObj;
+        }
     }
 };
 

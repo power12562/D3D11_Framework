@@ -34,6 +34,12 @@ private:
 private:
 	unsigned int instanceID = -1;
 	std::wstring name;
+
+public:
+	std::weak_ptr<GameObject> GetWeakPtr() { return myptr; }
+private:
+	std::weak_ptr<GameObject> myptr;
+
 public:
 	unsigned int GetInstanceID() const { return instanceID; }
 	const std::wstring& GetName() const { return name; }

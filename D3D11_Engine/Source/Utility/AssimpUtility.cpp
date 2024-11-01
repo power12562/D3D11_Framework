@@ -151,32 +151,10 @@ namespace Utility
 		}
 	}
 
-	GameObject* IsResource(std::map<std::wstring, std::list<unsigned int>>& fbxObjMap, const std::wstring& key)
+	GameObject* IsResource(const std::wstring& key)
 	{
-		GameObject* rootObject = nullptr;
-		using IDListIter = std::list<unsigned int>::iterator;
-		std::vector<IDListIter> eraseList;
-		if (fbxObjMap.find(key) != fbxObjMap.end())
-		{
-			for (auto iter = fbxObjMap[key].begin(); iter != fbxObjMap[key].end(); ++iter)
-			{
-				if (GameObject* rootObj = sceneManager.GetObjectToID(*iter))
-				{
-					rootObject = rootObj;
-					break;
-				}
-				else
-				{
-					eraseList.push_back(iter);
-				}
-			}
-
-			for (auto& iter : eraseList)
-			{
-				fbxObjMap[key].erase(iter);
-			}
-		}
-		return rootObject;
+		std::shared_ptr<GameObject> rootObject = GetResourceManager<GameObject>().GetResource(key.c_str());
+		return rootObject.get();
 	}
 
 	bool IsBone(GameObject* obj)
@@ -479,7 +457,7 @@ void Utility::LoadFBX(const char* path,
 
 	std::wstring wstr_path = utf8_to_wstring(path);		 
 	static std::map<std::wstring, std::list<unsigned int>> fbxObjMap;
-	if (GameObject* rootObject = IsResource(fbxObjMap, wstr_path))
+	if (GameObject* rootObject = IsResource(wstr_path))
 	{
 		CopyFBX(&_gameObject ,rootObject, wstr_path.c_str(), material, initMaterial);
 		return;
@@ -536,6 +514,8 @@ void Utility::LoadFBX(const char* path,
 	}
 	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
+	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
+	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
 
 	while (!nodeQue.empty())
 	{
