@@ -4,10 +4,6 @@
 #include <Framework\Transform.h>
 #include <functional>
 
-struct FBXResource
-{
-	std::weak_ptr<GameObject> obj;
-};
 
 class SimpleMaterial;
 class GameObject;

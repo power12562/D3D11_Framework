@@ -15,10 +15,12 @@ class SceneManager : public TSingleton<SceneManager>
 	friend class D3D11_GameApp;
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-public:
-	
+public:	
 	template<typename ObjectType>
 	static ObjectType* NewGameObject(const wchar_t* name);
+
+	template<typename ObjectType>
+	static std::shared_ptr<GameObject> LoadGameObject(const wchar_t* key, const wchar_t* name);
 
 private:
 	SceneManager();
