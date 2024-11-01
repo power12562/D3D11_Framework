@@ -11,6 +11,11 @@ struct BoneWIT
 	Matrix BoneWIT[128];
 };
 
+struct OffsetMatrices
+{
+	std::vector<Matrix> data;
+};
+
 class BoneComponent;
 class SimpleMaterial;
 class SimpleBoneMeshRender : public RenderComponent
@@ -39,7 +44,7 @@ protected:
 
 public:
 	void CreateMesh();
-	void SetMeshResource(const char* path);
+	void SetMeshResource(const wchar_t* path);
 
 private:
 	DRAW_INDEX_RESOURCE meshResource;
@@ -48,13 +53,15 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<UINT>   indices;
 
+	int MeshID = -1;
+
 public:
 	std::shared_ptr<SimpleMaterial> Material = nullptr;
 
 public:
 	std::shared_ptr<MatrixPallete> matrixPallete = nullptr;
 	std::shared_ptr<BoneWIT> boneWIT = nullptr;
+	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
 
-	std::vector<Matrix> offsetMatrices;
 	std::vector<BoneComponent*> boneList;
 };

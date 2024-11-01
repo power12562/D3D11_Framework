@@ -25,7 +25,7 @@ public:
 	bool UseImGUI = false;
 
 protected:
-	std::vector<std::unique_ptr<GameObject>> objectList;
+	std::vector<std::shared_ptr<GameObject>> objectList;
 	std::unordered_map<std::wstring, std::unordered_set<InstanceID>> objectFindMap;
 private:
 	//Update

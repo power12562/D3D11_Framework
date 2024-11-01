@@ -83,40 +83,40 @@ void TransformAnimation::LateUpdate()
 void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 {
 	// 위치, 회전, 스케일에 대한 키를 찾기
-	PositionKey* currPositionKey = nullptr;
-	PositionKey* nextPositionKey = nullptr;
+	std::shared_ptr<PositionKey> currPositionKey = nullptr;
+	std::shared_ptr<PositionKey> nextPositionKey = nullptr;
 	for (int i = lastPosIndex; i < positionKeys.size(); i++)
 	{
-		if (positionKeys[i].Time >= elapsedTime)
+		if (positionKeys[i]->Time >= elapsedTime)
 		{
-			currPositionKey = &positionKeys[i - 1];
-			nextPositionKey = &positionKeys[i];
+			currPositionKey = positionKeys[i - 1];
+			nextPositionKey = positionKeys[i];
 			lastPosIndex = i; 
 			break;
 		}
 	}
 
-	RotationKey* currRotationKey = nullptr;
-	RotationKey* nextRotationKey = nullptr;
+	std::shared_ptr<RotationKey> currRotationKey = nullptr;
+	std::shared_ptr<RotationKey> nextRotationKey = nullptr;
 	for (int i = lastRotIndex; i < rotationKeys.size(); i++)
 	{
-		if (rotationKeys[i].Time >= elapsedTime)
+		if (rotationKeys[i]->Time >= elapsedTime)
 		{
-			currRotationKey = &rotationKeys[i - 1];
-			nextRotationKey = &rotationKeys[i];
+			currRotationKey = rotationKeys[i - 1];
+			nextRotationKey = rotationKeys[i];
 			lastRotIndex = i;
 			break;
 		}
 	}
 
-	ScaleKey* currScaleKey = nullptr;
-	ScaleKey* nextScaleKey = nullptr;
+	std::shared_ptr<ScaleKey> currScaleKey = nullptr;
+	std::shared_ptr<ScaleKey> nextScaleKey = nullptr;
 	for (int i = lastScaleIndex; i < scaleKeys.size(); i++)
 	{
-		if (scaleKeys[i].Time >= elapsedTime)
+		if (scaleKeys[i]->Time >= elapsedTime)
 		{
-			currScaleKey = &scaleKeys[i - 1];
-			nextScaleKey = &scaleKeys[i];
+			currScaleKey = scaleKeys[i - 1];
+			nextScaleKey = scaleKeys[i];
 			lastScaleIndex = i;
 			break;
 		}

@@ -32,7 +32,7 @@ TransAnimationScene::TransAnimationScene()
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
-	GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	//GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }

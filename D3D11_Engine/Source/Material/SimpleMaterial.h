@@ -57,6 +57,8 @@ public:
 	void SetOpacityMap(const wchar_t* path);
 	void ResetOpacityMap();
 
+	std::array<std::wstring, E_TEXTURE_INDEX::Null> GetTexturesNames() {return texturesNames; }
+
 public:
 	std::string shaderModel = "4_0";
 

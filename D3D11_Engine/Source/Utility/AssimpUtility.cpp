@@ -123,7 +123,7 @@ namespace Utility
 					key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
 					key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
 					key.Time = (float)currNodeAnim->mPositionKeys[k].mTime;
-					nodeAnime.positionKeys.push_back(key);
+					nodeAnime.positionKeys.push_back(std::make_shared<NodeAnime::PositionKey>(key));
 				}
 				for (unsigned int k = 0; k < currNodeAnim->mNumRotationKeys; k++)
 				{
@@ -134,7 +134,7 @@ namespace Utility
 					key.rotation.w = currNodeAnim->mRotationKeys[k].mValue.w;
 
 					key.Time = (float)currNodeAnim->mRotationKeys[k].mTime;
-					nodeAnime.rotationKeys.push_back(key);
+					nodeAnime.rotationKeys.push_back(std::make_shared<NodeAnime::RotationKey>(key));
 				}
 				for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
 				{
@@ -143,11 +143,290 @@ namespace Utility
 					key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
 					key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
 					key.Time = (float)currNodeAnim->mScalingKeys[k].mTime;
-					nodeAnime.scaleKeys.push_back(key);
+					nodeAnime.scaleKeys.push_back(std::make_shared<NodeAnime::ScaleKey>(key));
 				}
 				clip.nodeAnimations.push_back(nodeAnime);
 			}
 			anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
+		}
+	}
+
+	GameObject* IsResource(std::map<std::wstring, std::list<unsigned int>>& fbxObjMap, const std::wstring& key)
+	{
+		GameObject* rootObject = nullptr;
+		using IDListIter = std::list<unsigned int>::iterator;
+		std::vector<IDListIter> eraseList;
+		if (fbxObjMap.find(key) != fbxObjMap.end())
+		{
+			for (auto iter = fbxObjMap[key].begin(); iter != fbxObjMap[key].end(); ++iter)
+			{
+				if (GameObject* rootObj = sceneManager.GetObjectToID(*iter))
+				{
+					rootObject = rootObj;
+					break;
+				}
+				else
+				{
+					eraseList.push_back(iter);
+				}
+			}
+
+			for (auto& iter : eraseList)
+			{
+				fbxObjMap[key].erase(iter);
+			}
+		}
+		return rootObject;
+	}
+
+	bool IsBone(GameObject* obj)
+	{
+		std::queue<GameObject*> objQue;
+		objQue.push(obj);
+		GameObject* currObj = nullptr;
+		while (!objQue.empty())
+		{
+			currObj = objQue.front();
+			objQue.pop();
+			if (BoneComponent* bone = currObj->IsComponent<BoneComponent>())
+			{
+				return true;
+			}
+			for (unsigned int i = 0; i < currObj->transform.GetChildCount(); i++)
+			{
+				objQue.push(&currObj->transform.GetChild(i)->gameObject);
+			}
+		}
+		return false;
+	}
+
+	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* key, 
+		std::shared_ptr<SimpleMaterial> material,
+		std::function<void(SimpleMaterial*)> initMaterial)
+	{
+		std::queue<GameObject*> objSourceQue;
+		objSourceQue.push(SourceObj);
+		GameObject* currSourceObj = nullptr;
+
+		std::queue<GameObject*> objDestQue;
+		objDestQue.push(DestinationObj);
+		GameObject* currDestObj = nullptr;
+
+		bool isBone = IsBone(SourceObj);
+		bool isRoot = true;
+
+		if (isBone)
+		{
+			std::vector<SimpleBoneMeshRender*> meshList;
+			std::vector<BoneComponent*> boneList(128);
+			std::vector<TransformAnimation::Clip*> clipList;
+			std::unordered_map<std::wstring, GameObject*> destObjNameMap;
+
+			while (!objSourceQue.empty())
+			{
+				currSourceObj = objSourceQue.front();
+				objSourceQue.pop();
+
+				currDestObj = objDestQue.front();
+				objDestQue.pop();
+
+				if (isRoot)
+				{
+					//copy Animation
+					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
+					{
+						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>(); 
+						destAnime->clips = animation->clips;
+						clipList.reserve(destAnime->clips.size());
+						for (auto& clip : destAnime->clips)
+						{
+							clipList.push_back(&clip.second);
+						}
+					}
+				}	
+				else
+				{
+					//copy local transform
+					currDestObj->transform = currSourceObj->transform;
+				}
+
+				//copy bone
+				if (BoneComponent* sourceBone = currSourceObj->IsComponent<BoneComponent>())
+				{
+					BoneComponent& destBone = currDestObj->AddComponent<BoneComponent>();
+					destBone.myIndex = sourceBone->myIndex;
+					boneList[destBone.myIndex] = &destBone;
+				}
+
+				//copy mesh
+				if (currSourceObj->IsComponent<SimpleBoneMeshRender>())
+				{
+					for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
+					{
+						if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
+						{
+							SimpleBoneMeshRender& destMesh = currDestObj->AddComponent<SimpleBoneMeshRender>();
+							//set material
+							if (material)
+							{
+								destMesh.Material = material;
+							}
+							else
+							{
+								wchar_t materialName[50]{};
+								swprintf_s(materialName, L"%s (%d)", currDestObj->Name.c_str(), currDestObj->GetInstanceID());
+								destMesh.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
+							}
+							initMaterial(destMesh.Material.get());
+							auto texturesPath = sourceMesh->Material->GetTexturesNames();
+							destMesh.Material->SetDiffuse(texturesPath[E_TEXTURE_INDEX::Diffuse].c_str());
+							destMesh.Material->SetNormalMap(texturesPath[E_TEXTURE_INDEX::Normal].c_str());
+							destMesh.Material->SetSpecularMap(texturesPath[E_TEXTURE_INDEX::Specular].c_str());
+							destMesh.Material->SetEmissiveMap(texturesPath[E_TEXTURE_INDEX::Emissive].c_str());
+							destMesh.Material->SetOpacityMap(texturesPath[E_TEXTURE_INDEX::Opacity].c_str());
+
+							destMesh.matrixPallete = sourceMesh->matrixPallete;
+							destMesh.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
+							destMesh.Material->cbuffer.BindUpdateEvent(*destMesh.matrixPallete);
+
+							destMesh.boneWIT = sourceMesh->boneWIT;
+							destMesh.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
+							destMesh.Material->cbuffer.BindUpdateEvent(*destMesh.boneWIT);
+
+							destMesh.MeshID = sourceMesh->MeshID;
+							destMesh.offsetMatrices = sourceMesh->offsetMatrices;
+
+							destMesh.SetMeshResource(key);
+							meshList.push_back(&destMesh);
+						}
+					}			
+				}
+
+				for (unsigned int i = 0;  i < currSourceObj->transform.GetChildCount(); i++)
+				{
+					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
+					objSourceQue.push(sourceChild);
+
+					GameObject* destChild = NewGameObject<GameObject>(sourceChild->Name.c_str());
+					destChild->transform.SetParent(currDestObj->transform);
+					objDestQue.push(destChild);
+				}
+
+				destObjNameMap[currDestObj->Name] = currDestObj;
+				isRoot = false;
+			}
+
+			//set boneList
+			for (int i = 0; i < boneList.size(); i++)
+			{
+				if(boneList[i] == nullptr)
+				{
+					boneList.resize(i);
+					break;
+				}
+			}
+			for (auto& mesh : meshList)
+			{
+				mesh->boneList = boneList;
+			}
+
+			//set clip target
+			for (auto& clip : clipList)
+			{
+				for (auto& animation : clip->nodeAnimations)
+				{
+					animation.objTarget = destObjNameMap[animation.objTarget->Name];
+				}
+			}
+		}
+		else
+		{
+			std::vector<TransformAnimation::Clip*> clipList;
+			std::unordered_map<std::wstring, GameObject*> destObjNameMap;
+
+			while (!objSourceQue.empty())
+			{
+				currSourceObj = objSourceQue.front();
+				objSourceQue.pop();
+
+				currDestObj = objDestQue.front();
+				objDestQue.pop();
+
+				if (isRoot)
+				{
+					//copy Animation
+					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
+					{
+						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>();
+						destAnime->clips = animation->clips;
+						clipList.reserve(destAnime->clips.size());
+						for (auto& clip : destAnime->clips)
+						{
+							clipList.push_back(&clip.second);
+						}
+					}
+				}
+				else
+				{
+					//copy local transform
+					currDestObj->transform = currSourceObj->transform;
+				}
+
+				//copy mesh
+				if (currSourceObj->IsComponent<SimpleMeshRender>())
+				{
+					for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
+					{
+						if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
+						{
+							SimpleMeshRender& destMesh = currDestObj->AddComponent<SimpleMeshRender>();
+							//set material
+							if (material)
+							{
+								destMesh.Material = material;
+							}
+							else
+							{
+								wchar_t materialName[50]{};
+								swprintf_s(materialName, L"%s (%d)", currDestObj->Name.c_str(), currDestObj->GetInstanceID());
+								destMesh.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
+							}
+							initMaterial(destMesh.Material.get());
+							auto texturesPath = sourceMesh->Material->GetTexturesNames();
+							destMesh.Material->SetDiffuse(texturesPath[E_TEXTURE_INDEX::Diffuse].c_str());
+							destMesh.Material->SetNormalMap(texturesPath[E_TEXTURE_INDEX::Normal].c_str());
+							destMesh.Material->SetSpecularMap(texturesPath[E_TEXTURE_INDEX::Specular].c_str());
+							destMesh.Material->SetEmissiveMap(texturesPath[E_TEXTURE_INDEX::Emissive].c_str());
+							destMesh.Material->SetOpacityMap(texturesPath[E_TEXTURE_INDEX::Opacity].c_str());
+
+							destMesh.MeshID = sourceMesh->MeshID;
+							destMesh.SetMeshResource(key);
+						}
+					}
+				}
+
+				for (unsigned int i = 0; i < currSourceObj->transform.GetChildCount(); i++)
+				{
+					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
+					objSourceQue.push(sourceChild);
+
+					GameObject* destChild = NewGameObject<GameObject>(sourceChild->Name.c_str());
+					destChild->transform.SetParent(currDestObj->transform);
+					objDestQue.push(destChild);
+				}
+
+				destObjNameMap[currDestObj->Name] = currDestObj;
+				isRoot = false;
+			}
+
+			//set clip target
+			for (auto& clip : clipList)
+			{
+				for (auto& animation : clip->nodeAnimations)
+				{
+					animation.objTarget = destObjNameMap[animation.objTarget->Name];
+				}
+			}
 		}
 	}
 }
@@ -198,6 +477,15 @@ void Utility::LoadFBX(const char* path,
 
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);    // $assimp_fbx$ 노드 생성안함
 
+	std::wstring wstr_path = utf8_to_wstring(path);		 
+	static std::map<std::wstring, std::list<unsigned int>> fbxObjMap;
+	if (GameObject* rootObject = IsResource(fbxObjMap, wstr_path))
+	{
+		CopyFBX(&_gameObject ,rootObject, wstr_path.c_str(), material, initMaterial);
+		return;
+	}
+	fbxObjMap[wstr_path].push_back(_gameObject.GetInstanceID());
+
 	std::string fileName(path);
 	const aiScene* pScene = importer.ReadFile(fileName, importFlags);
 	if (pScene == nullptr)
@@ -214,7 +502,7 @@ void Utility::LoadFBX(const char* path,
 	GameObject* currObj = nullptr;
 
 	std::unordered_map<std::wstring, GameObject*> addObjMap;
-	std::unordered_map<std::wstring, int> boneIndexMap;
+	std::unordered_map<std::wstring, int> boneIndexMap(128);
 	int boneIndexManager = 0;
 	auto getBoneIndex = [&boneIndexMap, &boneIndexManager](const std::wstring& name)->int
 		{
@@ -275,7 +563,6 @@ void Utility::LoadFBX(const char* path,
 
 				if (currNode->mNumMeshes > 0) 
 				{			
-					//Create Vertex
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
 						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
@@ -293,6 +580,14 @@ void Utility::LoadFBX(const char* path,
 							meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
 						}
 						initMaterial(meshComponent.Material.get());
+
+						unsigned int meshIndex = currNode->mMeshes[i];
+						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+
 						meshComponent.matrixPallete = rootMatrixPallete;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
 						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete); 
@@ -301,12 +596,25 @@ void Utility::LoadFBX(const char* path,
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
 						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.boneWIT);
 
-						unsigned int meshIndex = currNode->mMeshes[i];
-						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+						//offsetMatrices
+						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
+						meshComponent.offsetMatrices->data.resize(boneCount);
+
+						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
+						{
+							aiMatrix4x4 ai_matrix = pMesh->mBones[i]->mOffsetMatrix;
+							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mName.C_Str());
+							meshComponent.offsetMatrices->data[getBoneIndex(name)] = Matrix(&ai_matrix.a1).Transpose();
+						}
 
 						//cash vertex bone info
-						std::unordered_map<int, std::vector<float>> weightsMap;
+						std::unordered_map<int, std::vector<float>>		 weightsMap;
 						std::unordered_map<int, std::list<std::wstring>> nameMap;
+						if (pMesh->mNumVertices > 0)
+						{
+							weightsMap.reserve(pMesh->mNumVertices);
+							nameMap.reserve(pMesh->mNumVertices);
+						}
 						for (unsigned int j = 0; j < pMesh->mNumBones; j++)
 						{
 							aiBone* pBone = pMesh->mBones[j];
@@ -317,7 +625,6 @@ void Utility::LoadFBX(const char* path,
 								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));				
 							}
 						}
-
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
 							SimpleBoneMeshRender::Vertex vertex;
@@ -365,22 +672,9 @@ void Utility::LoadFBX(const char* path,
 								meshComponent.indices.push_back(face.mIndices[numIndex]);
 							}
 						}
-
-						//Load Texture
-						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
-
-						//offsetMatrices
-						meshComponent.offsetMatrices.resize(boneCount);
-						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
-						{
-							aiMatrix4x4 ai_matrix = pMesh->mBones[i]->mOffsetMatrix;
-							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mName.C_Str());
-							meshComponent.offsetMatrices[getBoneIndex(name)] = Matrix(&ai_matrix.a1).Transpose();
-						}
-						
-						//CreateBuffer
-						meshComponent.SetMeshResource(path);
+			
+						meshComponent.MeshID = meshIndex;
+						meshComponent.SetMeshResource(wstr_path.c_str());
 						meshComponent.CreateMesh();
 					}
 				}
@@ -408,9 +702,14 @@ void Utility::LoadFBX(const char* path,
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
-						SimpleMeshRender::Vertex vertex;
+
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+			
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
+							SimpleMeshRender::Vertex vertex;
 							aiVector3D position = pMesh->mVertices[vertexIndex];
 							vertex.position.x = position.x;
 							vertex.position.y = position.y;
@@ -444,11 +743,8 @@ void Utility::LoadFBX(const char* path,
 							}
 						}
 
-						//Load Texture
-						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
-
-						meshComponent.SetMeshResource(path);
+						meshComponent.MeshID = meshIndex;
+						meshComponent.SetMeshResource(wstr_path.c_str());
 						meshComponent.CreateMesh();
 					}
 				}
@@ -470,7 +766,6 @@ void Utility::LoadFBX(const char* path,
 	{
 		mesh->boneList = boneList;
 	}
-
 
 	if (pScene->mAnimations)
 	{

@@ -43,6 +43,16 @@ GameObject* SceneManager::FindObject(const wchar_t* name)
 	return obj;
 }
 
+GameObject* SceneManager::GetObjectToID(unsigned int instanceID)
+{
+	GameObject* obj = nullptr;
+	if (currScene && instanceID < currScene->objectList.size())
+	{
+		obj = currScene->objectList[instanceID].get();
+	}
+	return obj;
+}
+
 std::vector<GameObject*> SceneManager::FindObjects(const wchar_t* name)
 {
 	std::vector<GameObject*> objects;
@@ -80,14 +90,15 @@ void SceneManager::UpdateTransformScene()
 
 void SceneManager::RenderScene()
 {
-	currScene->Render();
+	if(Camera::GetMainCamera())
+		currScene->Render();
 }
 
 void SceneManager::AddObjects()
 {
 	while (!currAddQueue.empty())
 	{
-		GameObject* obj = currAddQueue.front();
+		auto obj = currAddQueue.front();
 		AddObjectCurrScene(obj);
 		currAddQueue.pop();
 	}
@@ -111,7 +122,7 @@ void SceneManager::NextSccene()
 	{
 		while (!nextAddQueue.empty())
 		{
-			GameObject* obj = nextAddQueue.front();
+			auto obj = nextAddQueue.front();
 			AddObjectNextScene(obj);
 			nextAddQueue.pop();
 		}
@@ -119,32 +130,35 @@ void SceneManager::NextSccene()
 		currScene = std::move(nextScene);
 		if (Camera::GetMainCamera() == nullptr)
 		{
-			auto mainCamera = NewGameObject<CameraObject>(L"MainCamera");
+			auto mainCamera = std::make_shared<CameraObject>();
 			mainCamera->SetMainCamera();
-			AddObjectCurrScene(mainCamera);
-			currAddQueue.pop();
+			mainCamera->Name = L"MainCamera";
+			mainCamera->instanceID = instanceIDManager.getUniqueID();
+			AddObjectCurrScene(std::static_pointer_cast<GameObject>(mainCamera));
 		}
 	}
 }
 
-void SceneManager::AddObjectCurrScene(GameObject* obj)
+void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject> obj)
 {
 	int id = obj->GetInstanceID();
 	currScene->objectFindMap[obj->Name].insert(id);
-	if (id < currScene->objectList.size())
-		currScene->objectList[id].reset(obj);
-	else
-		currScene->objectList.emplace_back(obj);
+	if (id >= currScene->objectList.size())
+	{
+		currScene->objectList.resize(id + 1);
+	}
+	currScene->objectList[id] = obj;
 }
 
-void SceneManager::AddObjectNextScene(GameObject* obj)
+void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject> obj)
 {
 	int id = obj->GetInstanceID();
 	nextScene->objectFindMap[obj->Name].insert(id);
-	if (id < nextScene->objectList.size())
-		nextScene->objectList[id].reset(obj);
-	else
-		nextScene->objectList.emplace_back(obj);
+	if (id >= nextScene->objectList.size())
+	{
+		nextScene->objectList.resize(id + 1);
+	}
+	nextScene->objectList[id] = obj;
 }
 
 void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName)

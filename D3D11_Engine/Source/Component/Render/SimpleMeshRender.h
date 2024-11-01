@@ -27,7 +27,7 @@ protected:
 
 public:
 	void CreateMesh();
-	void SetMeshResource(const char* path);
+	void SetMeshResource(const wchar_t* path);
 
 private:
 	DRAW_INDEX_RESOURCE meshResource;
@@ -35,6 +35,7 @@ private:
 public:
 	std::vector<Vertex> vertices;	
 	std::vector<UINT> indices;	
+	int MeshID = -1;
 
 public:
 	std::shared_ptr<SimpleMaterial> Material = nullptr;

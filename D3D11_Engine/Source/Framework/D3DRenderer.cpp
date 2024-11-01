@@ -185,11 +185,12 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-    Camera* mainCam = Camera::GetMainCamera();
-    cbuffer::camera.MainCamPos = mainCam->transform.position;
-    cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
-    cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
-    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
+
+	Camera* mainCam = Camera::GetMainCamera();
+	cbuffer::camera.MainCamPos = mainCam->transform.position;
+	cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
+	cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
+	D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 }
 
 void D3DRenderer::EndDraw()

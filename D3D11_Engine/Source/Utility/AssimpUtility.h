@@ -4,6 +4,11 @@
 #include <Framework\Transform.h>
 #include <functional>
 
+struct FBXResource
+{
+	std::weak_ptr<GameObject> obj;
+};
+
 class SimpleMaterial;
 class GameObject;
 namespace Utility
@@ -19,4 +24,8 @@ namespace Utility
 		GameObject& _gameObject,
 		std::shared_ptr<SimpleMaterial> material,
 		bool isStatic);
+
+	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* path,
+		std::shared_ptr<SimpleMaterial> material,
+		std::function<void(SimpleMaterial*)> initMaterial);
 }

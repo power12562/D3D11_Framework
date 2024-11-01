@@ -1,4 +1,5 @@
 #include <Framework/ResourceManager.h>
+#include <GameObject/Base/GameObject.h>
 
 void Resource::ClearResourceManagers()
 {
@@ -7,3 +8,4 @@ void Resource::ClearResourceManagers()
 		clear();
 	}
 }
+

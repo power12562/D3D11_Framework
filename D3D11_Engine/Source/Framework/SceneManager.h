@@ -27,8 +27,8 @@ private:
 	std::unique_ptr<Scene> currScene;
 	std::unique_ptr<Scene> nextScene;
 
-	std::queue<GameObject*> currAddQueue; //게임 오브젝트 추가 대기열
-	std::queue<GameObject*>	nextAddQueue; //게임 오브젝트 추가 대기열
+	std::queue<std::shared_ptr<GameObject>> currAddQueue; //게임 오브젝트 추가 대기열
+	std::queue<std::shared_ptr<GameObject>>	nextAddQueue; //게임 오브젝트 추가 대기열
 
 	std::set<GameObject*> eraseSet;		  //게임 오브젝트 삭제 대기열
 public:
@@ -39,6 +39,7 @@ public:
 	void DestroyObject(GameObject& obj);
 
 	GameObject* FindObject(const wchar_t* name);
+	GameObject* GetObjectToID(unsigned int instanceID);
 	std::vector<GameObject*> FindObjects(const wchar_t* name);
 
 private:
@@ -55,8 +56,8 @@ private:
 	void NextSccene();
 	
 private:
-	void AddObjectCurrScene(GameObject* obj);
-	void AddObjectNextScene(GameObject* obj);
+	void AddObjectCurrScene(std::shared_ptr<GameObject> obj);
+	void AddObjectNextScene(std::shared_ptr<GameObject> obj);
 	void ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName);
 	void EraseObject(GameObject* obj);
 };
@@ -73,17 +74,17 @@ inline ObjectType* SceneManager::NewGameObject(const wchar_t* name)
 {
 	static_assert(std::is_base_of_v<GameObject, ObjectType>, "is not gameObject");
 
-	ObjectType* newObject = new ObjectType;
+	std::shared_ptr<ObjectType> newObject = std::make_shared<ObjectType>();
 
 	if (sceneManager.nextScene)
-		sceneManager.nextAddQueue.push(newObject);
+		sceneManager.nextAddQueue.push(std::static_pointer_cast<GameObject>(newObject));
 	else
-		sceneManager.currAddQueue.push(newObject);
+		sceneManager.currAddQueue.push(std::static_pointer_cast<GameObject>(newObject));
 
 	newObject->Name = name;
 	newObject->instanceID = instanceIDManager.getUniqueID();
 
-	return newObject;
+	return newObject.get();
 }
 
 template<typename T>

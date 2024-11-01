@@ -35,15 +35,18 @@ Transform& Transform::operator=(const Transform& rhs)
 {
 	if (this == &rhs)
 		return *this;
-
-	_position	= rhs._position;
-	_rotation	= rhs._rotation;
-	_scale		= rhs._scale;
-
-	_localPosition	= rhs._localPosition;
-	_localRotation	= rhs._localRotation;
-	_localScale		= rhs._localScale;
-
+	if (!rhs.parent)
+	{
+		_position = rhs._position;
+		_rotation = rhs._rotation;
+		_scale = rhs._scale;
+	}
+	else
+	{
+		_localPosition = rhs._localPosition;
+		_localRotation = rhs._localRotation;
+		_localScale = rhs._localScale;
+	}
 	return *this;
 }
 

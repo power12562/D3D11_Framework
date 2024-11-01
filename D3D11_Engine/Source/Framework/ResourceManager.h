@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <Framework/D3DRenderer.h>
 #include <Utility/utfConvert.h>
 
 class Resource
@@ -25,54 +26,103 @@ public:
         return instance;
     }
 private:
-    ResourceManager();
-    ~ResourceManager();
+    ResourceManager()
+    {
+        auto clearFunc = [this]() { this->Clear(); };
+        clearList.push_back(clearFunc);
+    }
+    ~ResourceManager()
+    {
+        Clear();
+    }
+
 private:
 	std::map<std::wstring, std::weak_ptr<T>> resourceMap;
 public:
-	void Clear();
-	std::shared_ptr<T> GetResource(const wchar_t* name);
+	void Clear()
+    {
+        resourceMap.clear();
+    }
+	std::shared_ptr<T> GetResource(const wchar_t* key)
+    {
+        auto findIter = resourceMap.find(key);
+
+        if (findIter != resourceMap.end())
+        {
+            if (std::shared_ptr<T> material = findIter->second.lock())
+            {
+                return  material;
+            }
+        }
+        std::shared_ptr<T> material = std::make_shared<T>();
+        resourceMap[key] = material;
+        return material;
+    }
 	std::shared_ptr<T> operator[](const wchar_t* key) { return GetResource(key); }
+};
+
+
+template <>
+class ResourceManager<DRAW_INDEX_DATA> : public Resource
+{
+public:
+    /*GetInstance*/
+    static ResourceManager<DRAW_INDEX_DATA>& instance()
+    {
+        static ResourceManager<DRAW_INDEX_DATA> instance;
+        return instance;
+    }
+private:
+    ResourceManager()
+    {
+        auto clearFunc = [this]() { this->Clear(); };
+        clearList.push_back(clearFunc);
+    }
+    ~ResourceManager()
+    {
+        Clear();
+    }
+
+public:
+    using DRAW_INDEX_DATA_LIST = std::vector<std::weak_ptr<DRAW_INDEX_DATA>>;
+private:
+    std::map<std::wstring, DRAW_INDEX_DATA_LIST> resourceMap;
+public:
+    void Clear()
+    {
+        resourceMap.clear();
+    }
+    bool isResource(const wchar_t* key, int index)
+    {
+        auto findIter = resourceMap.find(key);
+        if (findIter != resourceMap.end())
+        {
+            if (findIter->second.size() > index && !findIter->second[index].expired())
+                    return true;
+        }
+        return false;
+    }
+    std::shared_ptr<DRAW_INDEX_DATA> GetResource(const wchar_t* key, int index)
+    {
+        if (resourceMap[key].size() <= index)
+            resourceMap[key].resize(index + 1);
+
+        auto findIter = resourceMap.find(key);
+        if (findIter != resourceMap.end())
+        {
+            if (std::shared_ptr<DRAW_INDEX_DATA> material = findIter->second[index].lock())
+            {
+                return  material;
+            }
+        }
+        std::shared_ptr<DRAW_INDEX_DATA> material = std::make_shared<DRAW_INDEX_DATA>();
+        resourceMap[key][index] = material;
+        return material;
+    }
 };
 
 template<typename T>
 ResourceManager<T>& GetResourceManager()
 {
     return ResourceManager<T>::instance();
-}
-
-template<typename T>
-inline ResourceManager<T>::ResourceManager()
-{
-    auto clearFunc = [this](){ this->Clear(); };
-    clearList.push_back(clearFunc);
-}
-
-template<typename T>
-inline ResourceManager<T>::~ResourceManager()
-{
-    Clear();
-}
-
-template<typename T>
-inline void ResourceManager<T>::Clear()
-{
-    resourceMap.clear();
-}
-
-template <typename T>
-std::shared_ptr<T> ResourceManager<T>::GetResource(const wchar_t* name)
-{
-    auto findIter = resourceMap.find(name);
-
-    if (findIter != resourceMap.end())
-    {
-        if (std::shared_ptr<T> material = findIter->second.lock())
-        {
-            return  material;
-        }
-    }
-    std::shared_ptr<T> material = std::make_shared<T>();
-    resourceMap[name] = material;
-    return material;
 }

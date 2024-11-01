@@ -16,8 +16,11 @@ SimpleBoneMeshRender::SimpleBoneMeshRender()
 SimpleBoneMeshRender::~SimpleBoneMeshRender()
 {
 	using namespace Utility;
-	SafeRelease(meshResource->pVertexBuffer);
-	SafeRelease(meshResource->pIndexBuffer);
+	if (meshResource.use_count() == 1)
+	{
+		SafeRelease(meshResource->pVertexBuffer);
+		SafeRelease(meshResource->pIndexBuffer);
+	}
 }
 
 void SimpleBoneMeshRender::Start()
@@ -44,9 +47,9 @@ void SimpleBoneMeshRender::Render()
 	{
 		for (int i = 0; i < boneList.size(); i++)
 		{
-			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices[i] * boneList[i]->GetBoneMatrix());
+			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices->data[i] * boneList[i]->GetBoneMatrix());
 
-			Matrix Inverse = XMMatrixInverse(nullptr, offsetMatrices[i] * boneList[i]->GetBoneMatrix());
+			Matrix Inverse = XMMatrixInverse(nullptr, offsetMatrices->data[i] * boneList[i]->GetBoneMatrix());
 			Inverse = Utility::XMMatrixIsNaN(Inverse) ? Matrix() : Inverse;
 			boneWIT->BoneWIT[i] = Inverse;
 		}
@@ -101,14 +104,18 @@ void SimpleBoneMeshRender::CreateMesh()
 	indices.clear();
 }
 
-void SimpleBoneMeshRender::SetMeshResource(const char* path)
+void SimpleBoneMeshRender::SetMeshResource(const wchar_t* path)
 {
+	if (MeshID < 0)
+	{
+		__debugbreak();
+		return;
+	}
+
 	using namespace utfConvert;
 	if (meshResource == nullptr)
 	{
-		//고유의 fbx + mesh 이름으로 키 생성 필요.
-		//meshResource = GetResourceManager<DRAW_INDEX_DATA>().GetResource(utf8_to_wstring(path).c_str());
-
-		meshResource = std::make_shared<DRAW_INDEX_DATA>();
+		//고유의 fbx 경로 + index
+		meshResource = GetResourceManager<DRAW_INDEX_DATA>().GetResource(path, MeshID);
 	}
 }

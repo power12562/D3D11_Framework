@@ -1,4 +1,5 @@
 #pragma once
+#include <Utility/AssimpUtility.h>
 #include <Component\Base\Component.h>
 #include <string>
 #include <unordered_map>
@@ -7,9 +8,35 @@ struct aiAnimation;
 
 class TransformAnimation : public Component
 {
+	friend void Utility::CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* path,
+		std::shared_ptr<SimpleMaterial> material,
+		std::function<void(SimpleMaterial*)> initMaterial);
 public:
 	struct Clip
 	{
+		Clip() = default;
+		~Clip() = default;
+		Clip(const Clip& rhs)
+		{
+			if (this == &rhs)
+				return;
+
+			this->Duration = rhs.Duration;
+			this->nodeAnimations = rhs.nodeAnimations;
+			this->TickTime = rhs.TickTime;
+			this->ResetCashIndex();
+		}
+		Clip& operator=(const Clip& rhs)
+		{
+			if (this == &rhs)
+				return *this;
+
+			this->Duration = rhs.Duration;
+			this->nodeAnimations = rhs.nodeAnimations;
+			this->TickTime = rhs.TickTime;
+			this->ResetCashIndex();
+			return *this;
+		}
 		struct NodeAnimation
 		{
 			friend struct Clip;
@@ -28,15 +55,16 @@ public:
 				float Time{};
 				Vector3 scale{};
 			};
-			std::vector<PositionKey> positionKeys;
-			std::vector<RotationKey> rotationKeys;
-			std::vector<ScaleKey> scaleKeys;
-			GameObject* objTarget = nullptr;
+			std::vector<std::shared_ptr<PositionKey>> positionKeys;
+			std::vector<std::shared_ptr<RotationKey>> rotationKeys;
+			std::vector<std::shared_ptr<ScaleKey>> scaleKeys;
 			void Evaluate(float elapsedTime);
 		private:
 			int lastPosIndex = 0;
 			int lastRotIndex = 0;
 			int lastScaleIndex = 0;
+		public:
+			GameObject* objTarget = nullptr;
 		};
 		std::vector<NodeAnimation> nodeAnimations;
 		float Duration{};
@@ -58,6 +86,7 @@ public:
 	bool PlayClip(const wchar_t* clipName, bool isLoop = true);
 	void StopClip();
 	void AddClip(const wchar_t* name, Clip& clip);
+	const Clip* GetCurrClip() { return currClip; }
 
 public:
 	virtual void Start() 		 override;

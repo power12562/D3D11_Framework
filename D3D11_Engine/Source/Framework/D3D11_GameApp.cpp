@@ -5,7 +5,7 @@
 #include <GameObject\Base\CameraObject.h>
 #include <Framework\DXTKInputSystem.h>
 #include <Framework\ImguiHelper.h>
-#include <Framework\MaterialManager.h>
+#include <Framework\ResourceManager.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
