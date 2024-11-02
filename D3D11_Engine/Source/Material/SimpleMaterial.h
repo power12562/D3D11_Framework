@@ -87,6 +87,9 @@ public:
 	bool IsSpecularMap() { return !!textures[E_TEXTURE_INDEX::Specular]; }
 	bool IsEmissiveMap() { return !!textures[E_TEXTURE_INDEX::Emissive]; }
 	bool IsOpacityMap() { return !!textures[E_TEXTURE_INDEX::Opacity]; }
+
+public:
+	bool IsShader() { return pInputLayout && pVertexShader && pPixelShader; }
 };		  
 
 using sptrSimpleMaterial = std::shared_ptr<SimpleMaterial>;

@@ -5,10 +5,12 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <GameObject\Base\GameObject.h>
+#include <Utility/AssimpUtility.h>
 
 class Scene
 {
 	friend class SceneManager;
+	friend void Utility::LoadFBXResource(const wchar_t* path, Scene* scene);
 	using InstanceID = unsigned int;
 public:
 	Scene();
@@ -43,5 +45,4 @@ private:
 
 	//Render
 	void Render();
-
 };

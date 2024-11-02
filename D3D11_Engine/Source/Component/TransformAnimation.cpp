@@ -2,6 +2,11 @@
 #include <Framework\TimeSystem.h>
 #include <Utility\AssimpUtility.h>
 
+void TransformAnimation::CopyClips(TransformAnimation* dest, TransformAnimation* source)
+{
+	dest->clips = source->clips;
+}
+
 TransformAnimation::TransformAnimation()
 {
 }
@@ -39,6 +44,11 @@ void TransformAnimation::StopClip()
 void TransformAnimation::AddClip(const wchar_t* name, Clip& clip)
 {
 	clips[name] = clip;
+}
+
+void TransformAnimation::CopyClips(TransformAnimation* source)
+{
+	this->clips = source->clips;
 }
 
 void TransformAnimation::Start()

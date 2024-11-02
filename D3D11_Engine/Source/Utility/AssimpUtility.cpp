@@ -214,11 +214,11 @@ namespace Utility
 					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 					{
 						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>(); 
-						destAnime->clips = animation->clips;
-						clipList.reserve(destAnime->clips.size());
-						for (auto& clip : destAnime->clips)
+						destAnime->CopyClips(animation);
+						clipList.reserve(destAnime->GetClipsCount());
+						for (auto& clip : destAnime->GetClips())
 						{
-							clipList.push_back(&clip.second);
+							clipList.push_back(const_cast<TransformAnimation::Clip*>(&clip.second));
 						}
 					}
 				}	
@@ -336,11 +336,11 @@ namespace Utility
 					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 					{
 						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>();
-						destAnime->clips = animation->clips;
-						clipList.reserve(destAnime->clips.size());
-						for (auto& clip : destAnime->clips)
+						destAnime->CopyClips(animation);
+						clipList.reserve(destAnime->GetClipsCount());
+						for (auto& clip : destAnime->GetClips())
 						{
-							clipList.push_back(&clip.second);
+							clipList.push_back(const_cast<TransformAnimation::Clip*>(&clip.second));
 						}
 					}
 				}
@@ -433,7 +433,7 @@ bool Utility::ParseFileName(aiString& str)
 		return false;
 }
 
-void Utility::LoadFBX(const char* path,
+void Utility::LoadFBX(const wchar_t* path,
 	GameObject& _gameObject,
 	std::shared_ptr<SimpleMaterial> material,
 	std::function<void(SimpleMaterial*)> initMaterial,
@@ -455,21 +455,19 @@ void Utility::LoadFBX(const char* path,
 
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);    // $assimp_fbx$ 노드 생성안함
 
-	std::wstring wstr_path = utf8_to_wstring(path);		 
-	static std::map<std::wstring, std::list<unsigned int>> fbxObjMap;
+	std::wstring wstr_path = path;		
+	std::string str_path = wstring_to_utf8(path);
 	if (GameObject* rootObject = IsResource(wstr_path))
 	{
 		CopyFBX(&_gameObject ,rootObject, wstr_path.c_str(), material, initMaterial);
 		return;
 	}
-	fbxObjMap[wstr_path].push_back(_gameObject.GetInstanceID());
 
-	std::string fileName(path);
-	const aiScene* pScene = importer.ReadFile(fileName, importFlags);
+	const aiScene* pScene = importer.ReadFile(str_path, importFlags);
 	if (pScene == nullptr)
 		return;
 
-	std::wstring directory = utfConvert::utf8_to_wstring(fileName.substr(0, fileName.find_last_of("/\\")));
+	std::wstring directory = utfConvert::utf8_to_wstring(str_path.substr(0, str_path.find_last_of("/\\")));
 
 	std::queue<aiNode*> nodeQue;
 	nodeQue.push(pScene->mRootNode);
@@ -753,7 +751,309 @@ void Utility::LoadFBX(const char* path,
 	}
 }
 
-void Utility::LoadFBX(const char* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
+void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
 {
 	LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
+}
+
+void Utility::LoadFBXResource(const wchar_t* path, Scene* scene)
+{
+	using namespace utfConvert;
+
+	Assimp::Importer importer;
+	unsigned int importFlags =
+		aiProcess_Triangulate |         // vertex 삼각형 으로 출력
+		aiProcess_GenNormals |          // Normal 정보 생성  
+		aiProcess_GenUVCoords |         // 텍스처 좌표 생성
+		aiProcess_CalcTangentSpace |    // 탄젠트 벡터 생성
+		aiProcess_PopulateArmatureData |// 본 데이터 생성
+		aiProcess_LimitBoneWeights |    // 본 영향 정점 개수 제한
+		aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
+
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);    // $assimp_fbx$ 노드 생성안함
+
+	GameObject& _gameObject = *NewGameObject<GameObject>(path);
+
+	std::wstring wstr_path = path;
+	std::string str_path = wstring_to_utf8(path);
+	if (GameObject* rootObject = IsResource(wstr_path))
+	{
+		Debug_printf("Resource already loaded.\n");
+		return;
+	}
+
+	const aiScene* pScene = importer.ReadFile(str_path, importFlags);
+	if (pScene == nullptr)
+		return;
+
+	std::wstring directory = utfConvert::utf8_to_wstring(str_path.substr(0, str_path.find_last_of("/\\")));
+
+	std::queue<aiNode*> nodeQue;
+	nodeQue.push(pScene->mRootNode);
+	const aiNode* currNode = nullptr;
+
+	std::queue<GameObject*> objQue;
+	objQue.push(&_gameObject);
+	GameObject* currObj = nullptr;
+
+	std::unordered_map<std::wstring, GameObject*> addObjMap;
+	std::unordered_map<std::wstring, int> boneIndexMap(128);
+	int boneIndexManager = 0;
+	auto getBoneIndex = [&boneIndexMap, &boneIndexManager](const std::wstring& name)->int
+		{
+			auto findIter = boneIndexMap.find(name);
+			if (findIter != boneIndexMap.end())
+				return findIter->second;
+			else
+			{
+				boneIndexMap[name] = boneIndexManager;
+				return boneIndexManager++;
+			}
+		};
+
+	//count bone
+	int boneCount = 0;
+	for (unsigned int i = 0; i < pScene->mNumMeshes; ++i)
+	{
+		aiMesh* mesh = pScene->mMeshes[i];
+		for (unsigned int j = 0; j < mesh->mNumBones; ++j)
+		{
+			getBoneIndex(utf8_to_wstring(mesh->mBones[j]->mName.C_Str()));
+		}
+	}
+	boneCount = boneIndexMap.size();
+	std::shared_ptr<MatrixPallete> rootMatrixPallete = nullptr;
+	std::shared_ptr<BoneWIT> rootBoneWIT = nullptr;
+	if (boneCount > 0)
+	{
+		rootMatrixPallete = std::make_shared<MatrixPallete>();
+		rootBoneWIT = std::make_shared<BoneWIT>();
+	}
+	std::vector<BoneComponent*> boneList(boneCount);
+	std::vector<SimpleBoneMeshRender*> meshList;
+	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
+	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
+
+	while (!nodeQue.empty())
+	{
+		currNode = nodeQue.front();
+		nodeQue.pop();
+
+		currObj = objQue.front();
+		objQue.pop();
+
+		addObjMap[currObj->Name] = currObj;
+
+		if (currNode)
+		{
+			if (boneCount > 0)
+			{
+				SetNodeTransform(currNode, currObj);
+
+				auto findIndex = boneIndexMap.find(utf8_to_wstring(currNode->mName.C_Str()));
+				if (findIndex != boneIndexMap.end())
+				{
+					int index = findIndex->second;
+					boneList[index] = &currObj->AddComponent<BoneComponent>();
+					boneList[index]->myIndex = index;
+				}
+
+				if (currNode->mNumMeshes > 0)
+				{
+					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
+					{
+						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
+						meshList.push_back(&meshComponent);
+
+						wchar_t materialName[50]{};
+						swprintf_s(materialName, L"%s (%d)", currObj->Name.c_str(), currObj->GetInstanceID());
+
+						meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
+
+						unsigned int meshIndex = currNode->mMeshes[i];
+						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+
+						meshComponent.matrixPallete = rootMatrixPallete;
+						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
+						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete);
+
+						meshComponent.boneWIT = rootBoneWIT;
+						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
+						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.boneWIT);
+
+						//offsetMatrices
+						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
+						meshComponent.offsetMatrices->data.resize(boneCount);
+
+						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
+						{
+							aiMatrix4x4 ai_matrix = pMesh->mBones[i]->mOffsetMatrix;
+							std::wstring name = utf8_to_wstring(pMesh->mBones[i]->mName.C_Str());
+							meshComponent.offsetMatrices->data[getBoneIndex(name)] = Matrix(&ai_matrix.a1).Transpose();
+						}
+
+						//cash vertex bone info
+						std::unordered_map<int, std::vector<float>>		 weightsMap;
+						std::unordered_map<int, std::list<std::wstring>> nameMap;
+						if (pMesh->mNumVertices > 0)
+						{
+							weightsMap.reserve(pMesh->mNumVertices);
+							nameMap.reserve(pMesh->mNumVertices);
+						}
+						for (unsigned int j = 0; j < pMesh->mNumBones; j++)
+						{
+							aiBone* pBone = pMesh->mBones[j];
+							for (unsigned int k = 0; k < pBone->mNumWeights; k++)
+							{
+								aiVertexWeight weight = pBone->mWeights[k];
+								weightsMap[weight.mVertexId].push_back(weight.mWeight);
+								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));
+							}
+						}
+						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
+						{
+							SimpleBoneMeshRender::Vertex vertex;
+
+							aiVector3D position = pMesh->mVertices[vertexIndex];
+							vertex.position.x = position.x;
+							vertex.position.y = position.y;
+							vertex.position.z = position.z;
+							vertex.position.w = 1.0f;
+
+							aiVector3D normal = pMesh->mNormals[vertexIndex];
+							vertex.normal.x = normal.x;
+							vertex.normal.y = normal.y;
+							vertex.normal.z = normal.z;
+
+							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
+							vertex.biTangent.x = BiTangents.x;
+							vertex.biTangent.y = BiTangents.y;
+							vertex.biTangent.z = BiTangents.z;
+
+							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
+							vertex.Tex.x = texCoord.x;
+							vertex.Tex.y = texCoord.y;
+
+							auto n = nameMap[vertexIndex].begin();
+							for (int j = 0; j < weightsMap[vertexIndex].size(); j++)
+							{
+								if (vertex.BlendWeights[j] != 0)
+									__debugbreak();
+
+								vertex.BlendWeights[j] = weightsMap[vertexIndex][j];
+								vertex.BlendIndecses[j] = getBoneIndex(*n);
+								n++;
+							}
+
+							meshComponent.vertices.push_back(vertex);
+						}
+
+						//Create Index
+						for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
+						{
+							const aiFace& face = pMesh->mFaces[faceIndex];
+							for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
+							{
+								meshComponent.indices.push_back(face.mIndices[numIndex]);
+							}
+						}
+
+						meshComponent.MeshID = meshIndex;
+						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.CreateMesh();
+					}
+				}
+			}
+			else
+			{
+				SetNodeTransform(currNode, currObj);
+
+				if (currNode->mNumMeshes > 0)
+				{
+					//Create Vertex
+					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
+					{
+						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
+
+						meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
+	
+						unsigned int meshIndex = currNode->mMeshes[i];
+						aiMesh* pMesh = pScene->mMeshes[meshIndex];
+
+						//Load Texture
+						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
+						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+
+						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
+						{
+							SimpleMeshRender::Vertex vertex;
+							aiVector3D position = pMesh->mVertices[vertexIndex];
+							vertex.position.x = position.x;
+							vertex.position.y = position.y;
+							vertex.position.z = position.z;
+							vertex.position.w = 1.0f;
+
+							aiVector3D normal = pMesh->mNormals[vertexIndex];
+							vertex.normal.x = normal.x;
+							vertex.normal.y = normal.y;
+							vertex.normal.z = normal.z;
+
+							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
+							vertex.biTangent.x = BiTangents.x;
+							vertex.biTangent.y = BiTangents.y;
+							vertex.biTangent.z = BiTangents.z;
+
+							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
+							vertex.Tex.x = texCoord.x;
+							vertex.Tex.y = texCoord.y;
+
+							meshComponent.vertices.push_back(vertex);
+						}
+
+						//Create Index
+						for (unsigned int faceIndex = 0; faceIndex < pMesh->mNumFaces; faceIndex++)
+						{
+							const aiFace& face = pMesh->mFaces[faceIndex];
+							for (unsigned int numIndex = 0; numIndex < face.mNumIndices; numIndex++)
+							{
+								meshComponent.indices.push_back(face.mIndices[numIndex]);
+							}
+						}
+
+						meshComponent.MeshID = meshIndex;
+						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.CreateMesh();
+					}
+				}
+			}
+
+			for (unsigned int i = 0; i < currNode->mNumChildren; i++)
+			{
+				nodeQue.push(currNode->mChildren[i]);
+				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
+				GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
+				childObj->transform.SetParent(currObj->transform, false);
+
+				objQue.push(childObj);
+			}
+		}
+	}
+	//set bone info
+	for (auto& mesh : meshList)
+	{
+		mesh->boneList = boneList;
+	}
+
+	if (pScene->mAnimations)
+	{
+		SetTransformAnimation(pScene, _gameObject, addObjMap);
+	}
+
+	//Move ResouceObj
+	scene->SetResouceObj(&_gameObject);
+	sceneManager.DestroyObject(_gameObject);
 }

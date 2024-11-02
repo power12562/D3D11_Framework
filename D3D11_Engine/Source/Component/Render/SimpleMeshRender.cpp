@@ -48,7 +48,7 @@ void SimpleMeshRender::Render()
 	}
 	
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-    if (Material)
+    if (Material && Material->IsShader())
     {
 		Material->cbuffer.UpdateEvent();
         d3dRenderer.DrawIndex(*meshResource, *Material);

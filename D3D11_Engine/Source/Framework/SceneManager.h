@@ -16,12 +16,8 @@ class SceneManager : public TSingleton<SceneManager>
 	friend class D3D11_GameApp;
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	friend void Utility::LoadFBX(const char* path,
-		GameObject& _gameObject,
-		std::shared_ptr<SimpleMaterial> material,
-		std::function<void(SimpleMaterial*)> initMaterial,
-		bool);
 
+	friend void Utility::LoadFBXResource(const wchar_t* path, Scene* scene);
 public:	
 	template<typename ObjectType>
 	static ObjectType* NewGameObject(const wchar_t* name);

@@ -54,7 +54,7 @@ void SimpleBoneMeshRender::Render()
 			boneWIT->BoneWIT[i] = Inverse;
 		}
 		const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-		if (Material)
+		if (Material && Material->IsShader())
 		{
 			Material->cbuffer.UpdateEvent();
 			d3dRenderer.DrawIndex(*meshResource, *Material);

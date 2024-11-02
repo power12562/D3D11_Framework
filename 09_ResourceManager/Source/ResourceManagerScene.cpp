@@ -15,6 +15,9 @@
 #pragma warning(disable : 4305)
 ResourceManagerScene::ResourceManagerScene()
 {
+	//리소스 미리 로드
+	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", this);
+
 	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
@@ -26,21 +29,7 @@ ResourceManagerScene::ResourceManagerScene()
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	test = NewGameObject<GameObject>(L"test");
-	test->transform.position = { 0,0,0 };
-	test->transform.scale = { 0.1,0.1,0.1 };
-	auto testInit = [this](SimpleMaterial* material)->void
-		{
-			material->SetVS(L"VertexSkinningShader.hlsl");				
-			//material->SetVS(L"VertexShader.hlsl");				
-			material->SetPS(L"PixelShader.hlsl");	
-		};
-	Utility::LoadFBX("Resource/Hip Hop Dancing.fbx", *test, nullptr, testInit, false);
-	test->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
-	testList.push_back(test);
-
-	//이 씬에서 사용할 리소스로 등록.
-	SetResouceObj(test);
+	AddTestObject();
 }
 
 ResourceManagerScene::~ResourceManagerScene()
@@ -100,7 +89,7 @@ void ResourceManagerScene::AddTestObject()
 			//material->SetVS(L"VertexShader.hlsl");				
 			material->SetPS(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX("Resource/Hip Hop Dancing.fbx", *obj, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, nullptr, testInit, false);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);

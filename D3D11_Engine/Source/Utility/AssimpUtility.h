@@ -6,22 +6,21 @@
 
 
 class SimpleMaterial;
+class Scene;
 class GameObject;
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
-	void LoadFBX(const char* path, 
+	void LoadFBX(const wchar_t* path, 
 		GameObject& _gameObject, 
 		std::shared_ptr<SimpleMaterial> material,
 		std::function<void(SimpleMaterial*)> initMaterial,
 		bool);
 
-	void LoadFBX(const char* path,
+	void LoadFBX(const wchar_t* path,
 		GameObject& _gameObject,
 		std::shared_ptr<SimpleMaterial> material,
 		bool isStatic);
 
-	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* path,
-		std::shared_ptr<SimpleMaterial> material,
-		std::function<void(SimpleMaterial*)> initMaterial);
+	void LoadFBXResource(const wchar_t* path, Scene* scene);
 }

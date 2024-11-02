@@ -8,9 +8,6 @@ struct aiAnimation;
 
 class TransformAnimation : public Component
 {
-	friend void Utility::CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* path,
-		std::shared_ptr<SimpleMaterial> material,
-		std::function<void(SimpleMaterial*)> initMaterial);
 public:
 	struct Clip
 	{
@@ -80,13 +77,20 @@ public:
 		}
 	};
 public:
+	static void CopyClips(TransformAnimation* dest, TransformAnimation* source);
+
+public:
 	TransformAnimation();
 	virtual ~TransformAnimation() override;
+
 public:
 	bool PlayClip(const wchar_t* clipName, bool isLoop = true);
 	void StopClip();
 	void AddClip(const wchar_t* name, Clip& clip);
 	const Clip* GetCurrClip() { return currClip; }
+	const std::unordered_map<std::wstring, Clip>& GetClips() { return clips; }
+	void CopyClips(TransformAnimation* source);
+	size_t GetClipsCount() { return clips.size(); }
 
 public:
 	virtual void Start() 		 override;
