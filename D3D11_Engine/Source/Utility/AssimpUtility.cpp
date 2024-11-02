@@ -457,10 +457,13 @@ void Utility::LoadFBX(const wchar_t* path,
 
 	std::wstring wstr_path = path;		
 	std::string str_path = wstring_to_utf8(path);
-	if (GameObject* rootObject = IsResource(wstr_path))
+	if (!isStatic)
 	{
-		CopyFBX(&_gameObject ,rootObject, wstr_path.c_str(), material, initMaterial);
-		return;
+		if (GameObject* rootObject = IsResource(wstr_path))
+		{
+			CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), material, initMaterial);
+			return;
+		}
 	}
 
 	const aiScene* pScene = importer.ReadFile(str_path, importFlags);

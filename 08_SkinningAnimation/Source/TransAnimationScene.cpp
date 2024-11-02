@@ -44,9 +44,9 @@ TransAnimationScene::TransAnimationScene()
 			material->SetPS(L"PixelShader.hlsl");	
 		};
 
-	Utility::LoadFBX("Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
-	Utility::LoadFBX("Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
-	Utility::LoadFBX("Resource/Hip Hop Dancing.fbx", *test3, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, nullptr, testInit, false);
 
 	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");

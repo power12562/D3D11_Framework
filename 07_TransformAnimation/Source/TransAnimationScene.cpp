@@ -28,7 +28,7 @@ TransAnimationScene::TransAnimationScene()
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
 
-	Utility::LoadFBX("Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], false);
+	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], false);
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
