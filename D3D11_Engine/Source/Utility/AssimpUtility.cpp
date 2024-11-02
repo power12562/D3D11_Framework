@@ -752,6 +752,9 @@ void Utility::LoadFBX(const wchar_t* path,
 	{
 		SetTransformAnimation(pScene, _gameObject, addObjMap);
 	}
+
+	//리소스 등록
+	sceneManager.SetResouceObj(path, &_gameObject);
 }
 
 void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
@@ -759,7 +762,7 @@ void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, std::shared_
 	LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
 }
 
-void Utility::LoadFBXResource(const wchar_t* path, Scene* scene)
+void Utility::LoadFBXResource(const wchar_t* path)
 {
 	using namespace utfConvert;
 
@@ -1057,6 +1060,6 @@ void Utility::LoadFBXResource(const wchar_t* path, Scene* scene)
 	}
 
 	//Move ResouceObj
-	scene->SetResouceObj(&_gameObject);
+	sceneManager.SetResouceObj(path, &_gameObject);
 	sceneManager.DestroyObject(_gameObject);
 }

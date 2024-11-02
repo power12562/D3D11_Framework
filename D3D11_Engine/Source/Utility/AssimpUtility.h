@@ -22,5 +22,5 @@ namespace Utility
 		std::shared_ptr<SimpleMaterial> material,
 		bool isStatic);
 
-	void LoadFBXResource(const wchar_t* path, Scene* scene);
+	void LoadFBXResource(const wchar_t* path);
 }

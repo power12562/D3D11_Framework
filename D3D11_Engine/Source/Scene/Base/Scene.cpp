@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
+#include <_Debug/Console.h>
 
 Scene::Scene()
 {
@@ -93,16 +94,30 @@ void Scene::ImGUIEndDraw()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Scene::SetResouceObj(GameObject* obj)
+void Scene::SetResouceObj(const wchar_t* key, GameObject* obj)
 {
-	sceneResourceList.emplace_back(obj->GetWeakPtr().lock());
+	sceneResourceList[key].emplace_back(obj->GetWeakPtr().lock());
 	unsigned int childCount = obj->transform.GetChildCount();
 	if (childCount > 0)
 	{
 		for (unsigned int i = 0; i < childCount; i++)
 		{
-			SetResouceObj(&obj->transform.GetChild(i)->gameObject);
+			SetResouceObj(key, &obj->transform.GetChild(i)->gameObject);
 		}
+	}
+}
+
+void Scene::RemoveResouceObj(const wchar_t* key)
+{
+	auto findIter = sceneResourceList.find(key);
+	if (findIter != sceneResourceList.end())
+	{
+		findIter->second.clear();
+	}
+	else
+	{
+		__debugbreak();
+		Debug_printf("Resource not found.\n");
 	}
 }
 

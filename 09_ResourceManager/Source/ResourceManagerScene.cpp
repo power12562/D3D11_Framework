@@ -15,12 +15,13 @@
 #pragma warning(disable : 4305)
 ResourceManagerScene::ResourceManagerScene()
 {
+	UseImGUI = true;
+
 	//리소스 미리 로드
-	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", this);
+	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx");
 
 	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
 
-	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
@@ -28,8 +29,6 @@ ResourceManagerScene::ResourceManagerScene()
 	cam->transform.position = Vector3(0, 30, -25);
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
-
-	AddTestObject();
 }
 
 ResourceManagerScene::~ResourceManagerScene()
@@ -85,8 +84,7 @@ void ResourceManagerScene::AddTestObject()
 
 	auto testInit = [this](SimpleMaterial* material)->void
 		{
-			material->SetVS(L"VertexSkinningShader.hlsl");
-			//material->SetVS(L"VertexShader.hlsl");				
+			material->SetVS(L"VertexSkinningShader.hlsl");			
 			material->SetPS(L"PixelShader.hlsl");
 		};
 	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, nullptr, testInit, false);

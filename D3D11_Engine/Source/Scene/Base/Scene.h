@@ -10,7 +10,6 @@
 class Scene
 {
 	friend class SceneManager;
-	friend void Utility::LoadFBXResource(const wchar_t* path, Scene* scene);
 	using InstanceID = unsigned int;
 public:
 	Scene();
@@ -26,12 +25,13 @@ private:
 public:
 	bool UseImGUI = false;
 
-protected:
-	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
-	void SetResouceObj(GameObject* obj);
-
 private:
-	std::vector<std::shared_ptr<GameObject>> sceneResourceList;
+	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
+	void SetResouceObj(const wchar_t* key, GameObject* obj);
+
+	void RemoveResouceObj(const wchar_t* key);
+private:
+	std::unordered_map<std::wstring, std::list<std::shared_ptr<GameObject>>> sceneResourceList;
 
 protected:
 	std::vector<std::shared_ptr<GameObject>> objectList;

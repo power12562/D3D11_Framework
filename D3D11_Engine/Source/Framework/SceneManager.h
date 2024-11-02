@@ -17,7 +17,6 @@ class SceneManager : public TSingleton<SceneManager>
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	friend void Utility::LoadFBXResource(const wchar_t* path, Scene* scene);
 public:	
 	template<typename ObjectType>
 	static ObjectType* NewGameObject(const wchar_t* name);
@@ -33,9 +32,17 @@ private:
 	std::queue<std::shared_ptr<GameObject>>	nextAddQueue; //게임 오브젝트 추가 대기열
 
 	std::set<GameObject*> eraseSet;		  //게임 오브젝트 삭제 대기열
+
+	std::list<std::pair<std::wstring, GameObject*>> resourceObjectList; //리소스로 등록할 오브젝트 대기열
 public:
 	template <typename T>
 	void LoadScene();
+
+	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
+	void SetResouceObj(const wchar_t* key, GameObject* obj);
+
+	/*리소스에서 제거합니다.*/
+	void RemoveResouceObj(const wchar_t* key);
 
 	void DestroyObject(GameObject* obj);
 	void DestroyObject(GameObject& obj);
@@ -96,4 +103,10 @@ inline void SceneManager::LoadScene()
 	static_assert(std::is_base_of_v<Scene, T>, "T is not Scene");
 
 	nextScene.reset(new T);
+
+	for (auto& pair : resourceObjectList)
+	{
+		nextScene->SetResouceObj(pair.first.c_str(), pair.second);
+	}
+	resourceObjectList.clear();
 }

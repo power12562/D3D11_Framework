@@ -14,6 +14,38 @@ SceneManager::~SceneManager()
 
 }
 
+void SceneManager::SetResouceObj(const wchar_t* key, GameObject* obj)
+{
+	if (nextScene)
+	{
+		nextScene->SetResouceObj(key, obj);
+	}
+	else if (currScene)
+	{
+		currScene->SetResouceObj(key, obj);
+	}
+	else
+	{
+		resourceObjectList.push_back(std::make_pair(key, obj));
+	}
+}
+
+void SceneManager::RemoveResouceObj(const wchar_t* key)
+{
+	if (nextScene)
+	{
+		nextScene->RemoveResouceObj(key);
+	}
+	else if (currScene)
+	{
+		currScene->RemoveResouceObj(key);
+	}
+	else
+	{
+		__debugbreak(); //씬이 존재하지 않음.
+	}
+}
+
 void SceneManager::DestroyObject(GameObject* obj)
 {
 	eraseSet.insert(obj);
