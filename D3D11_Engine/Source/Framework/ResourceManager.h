@@ -54,9 +54,9 @@ public:
                 return  resource;
             }
         }
-        std::shared_ptr<T> material = std::make_shared<T>();
-        resourceMap[key] = material;
-        return material;
+        std::shared_ptr<T> resource = std::make_shared<T>();
+        resourceMap[key] = resource;
+        return resource;
     }
 	std::shared_ptr<T> operator[](const wchar_t* key) { return GetResource(key); }
 };

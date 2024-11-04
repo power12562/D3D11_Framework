@@ -22,4 +22,5 @@ private:
 private:
 	void AddTestObject();
 	void SubTestObject();
+	void ClearTestObject();
 };

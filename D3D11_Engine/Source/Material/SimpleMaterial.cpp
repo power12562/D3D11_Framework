@@ -57,7 +57,6 @@ void SimpleMaterial::ResetVS()
 {
 	if (!currVS.empty())
 	{
-		hlslManager.ReleaseSharingShader(currVS.c_str());
 		pVertexShader = nullptr;
 		pInputLayout = nullptr;
 		currVS.clear();
@@ -78,7 +77,6 @@ void SimpleMaterial::ResetPS()
 {
 	if (!currPS.empty())
 	{
-		hlslManager.ReleaseSharingShader(currPS.c_str());
 		pPixelShader = nullptr;
 		currPS.clear();
 	}

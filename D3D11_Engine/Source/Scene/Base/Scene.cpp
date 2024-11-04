@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include <Framework\SceneManager.h>
 #include <Framework/D3DRenderer.h>
+#include <Framework/HLSLManager.h>
 #include <typeinfo>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -16,7 +17,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-	
+	hlslManager.ClearSharingShader();
 }
 
 void Scene::FixedUpdate()

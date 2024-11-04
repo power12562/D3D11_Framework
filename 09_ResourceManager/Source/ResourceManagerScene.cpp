@@ -41,7 +41,7 @@ void ResourceManagerScene::ImGUIRender()
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
 
 	ImGui::Begin("Debug");
-	ImGui::Text("vram : %zu MB", d3dRenderer.GetUsedVram());
+	ImGui::Text("vram : %zu MB	Obj Count : %zu", d3dRenderer.GetUsedVram(), testList.size());
 	ImGui::Text("");
 
 	if (mainCam)
@@ -66,6 +66,8 @@ void ResourceManagerScene::ImGUIRender()
 		AddTestObject();
 	if (ImGui::Button("Sub Charater"))
 		SubTestObject();
+	if (ImGui::Button("Clear Charater"))
+		ClearTestObject();
 	ImGui::Text("");
 
 	ImGui::Text("Background");
@@ -78,7 +80,19 @@ void ResourceManagerScene::AddTestObject()
 	if (!testList.empty())
 	{
 		obj->transform.position = testList.back()->transform.position;
-		obj->transform.position += Vector3::Forward * -10;
+		if (std::abs(obj->transform.position.x - 30.f) <= Mathf::Epsilon)
+		{
+			obj->transform.position += Vector3::Left * 60;
+			obj->transform.position += Vector3::Backward * 10;
+		}
+		else
+		{
+			obj->transform.position += Vector3::Right * 10;
+		}
+	}
+	else
+	{
+		obj->transform.position = Vector3(-30, 0, 0);
 	}
 	obj->transform.scale = { 0.1,0.1,0.1 };
 
@@ -100,5 +114,12 @@ void ResourceManagerScene::SubTestObject()
 	GameObject* obj = testList.back();
 	sceneManager.DestroyObject(obj);
 	testList.erase(--testList.end());
+}
+void ResourceManagerScene::ClearTestObject()
+{
+	while (!testList.empty())
+	{
+		SubTestObject();
+	}
 }
 #pragma warning(default : 4305)

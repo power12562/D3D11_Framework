@@ -38,29 +38,32 @@ HLSLManager::EXTENSION_TYPE HLSLManager::ChackShaderFile(const wchar_t* extensio
 	}
 }
 
-ULONG HLSLManager::ReleaseSharingShader(const wchar_t* path)
+void HLSLManager::ClearSharingShader()
 {
-	auto inputLayoutIter = sharingInputLayoutMap.find(path);
-	if (inputLayoutIter != sharingInputLayoutMap.end())
+	if (!sharingInputLayoutMap.empty())
 	{
-		ULONG refcount = inputLayoutIter->second->Release();
-		if(refcount == 0)
-			sharingInputLayoutMap.erase(path);
-	}
-	auto shaderIter = sharingShaderMap.find(path);
-	if (shaderIter != sharingShaderMap.end())
-	{
-		ULONG refcount = shaderIter->second->Release();
-		if (refcount == 0)
+		for (auto& item : sharingInputLayoutMap)
 		{
-			sharingShaderMap.erase(shaderIter);
+			ULONG refcount = item.second->Release();
+			while (refcount != 0)
+			{
+				refcount = item.second->Release();
+			}		
 		}
-		return refcount;
+		sharingInputLayoutMap.clear();
 	}
-	else
+
+	if (!sharingShaderMap.empty())
 	{
-		Debug_printf("ReleaseSharingShader Error. 존재하지 않는 키값입니다.\n");
-		return -1;
+		for (auto& item : sharingShaderMap)
+		{
+			ULONG refcount = item.second->Release();
+			while (refcount != 0)
+			{
+				refcount = item.second->Release();
+			}
+		}
+		sharingShaderMap.clear();
 	}
 }
 

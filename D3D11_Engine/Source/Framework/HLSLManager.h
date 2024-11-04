@@ -20,7 +20,8 @@ public:
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 
-	ULONG ReleaseSharingShader(const wchar_t* path);
+	/*사용중인 Shader 객체들을 Release 합니다. 씬 소멸자에서 호출됩니다.*/
+	void ClearSharingShader();
 private:
 	std::map<std::wstring, ID3D11DeviceChild*> sharingShaderMap;
 	std::map<std::wstring, ID3D11InputLayout*> sharingInputLayoutMap;
