@@ -142,7 +142,8 @@ void D3DRenderer::Init()
     }
     catch (const std::exception& ex)
     {
-        Debug_printf("%s\n", ex.what());
+        const char* er = ex.what();
+        Debug_printf("%s\n", er);
         assert(!"D3D Init Error");
         return;
     }

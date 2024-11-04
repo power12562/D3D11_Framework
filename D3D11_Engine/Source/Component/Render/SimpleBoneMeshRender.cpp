@@ -47,9 +47,11 @@ void SimpleBoneMeshRender::Render()
 	{
 		for (int i = 0; i < boneList.size(); i++)
 		{
-			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(offsetMatrices->data[i] * boneList[i]->GetBoneMatrix());
+			Matrix BoneMatrix = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
 
-			Matrix Inverse = XMMatrixInverse(nullptr, offsetMatrices->data[i] * boneList[i]->GetBoneMatrix());
+			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(BoneMatrix);
+
+			Matrix Inverse = XMMatrixInverse(nullptr, BoneMatrix);
 			Inverse = Utility::XMMatrixIsNaN(Inverse) ? Matrix() : Inverse;
 			boneWIT->BoneWIT[i] = Inverse;
 		}

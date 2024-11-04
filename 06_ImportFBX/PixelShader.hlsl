@@ -85,7 +85,7 @@ float4 main(PS_INPUT input) : SV_Target
         specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular;
     }
       
-    //return float4(input.Normal, 1);
+    return float4((input.Normal + 1) / 2, 1.0f);
     //return specular;
     //return emissive;
     //return opacity;

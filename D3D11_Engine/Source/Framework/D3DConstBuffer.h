@@ -13,7 +13,7 @@ struct cb_Transform
 struct cb_Camera
 {
 	DirectX::SimpleMath::Vector3 MainCamPos;
-	float camPad;
+	float camPad{};
 
 	DirectX::SimpleMath::Matrix View;
 	DirectX::SimpleMath::Matrix Projection;
