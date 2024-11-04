@@ -35,44 +35,43 @@ struct PS_INPUT
 
 inline float GammaToLinearSpaceExact(float value)
 {
-    if (value <= 0.04045F)
-        return value / 12.92F;
-    else if (value < 1.0F)
-        return pow((value + 0.055F) / 1.055F, 2.4F);
+    if (value <= 0.04045f)
+        return value / 12.92f;
+    else if (value < 1.0f)
+        return pow((value + 0.055f) / 1.055f, 2.4f);
     else
-        return pow(value, 2.2F);
-}
-
-inline float4 GammaToLinearSpace(float4 rgba)
-{
-    return rgba * (rgba * (rgba * 0.305306011h + 0.682171111h) + 0.012522878h);
+        return pow(value, 2.2f);
 }
 
 inline float3 GammaToLinearSpace(float3 rgb)
 {
-    return rgb * (rgb * (rgb * 0.305306011h + 0.682171111h) + 0.012522878h);
+    return rgb * (rgb * (rgb * 0.305306011f + 0.682171111f) + 0.012522878f);
+
+    //Precise version, useful for debugging.
+    //return float3(GammaToLinearSpaceExact(rgb.r),
+    //GammaToLinearSpaceExact(rgb.g),
+    //GammaToLinearSpaceExact(rgb.b));
 }
 
 inline float LinearToGammaSpaceExact(float value)
 {
-    if (value <= 0.0F)
-        return 0.0F;
-    else if (value <= 0.0031308F)
-        return 12.92F * value;
-    else if (value < 1.0F)
-        return 1.055F * pow(value, 0.4166667F) - 0.055F;
+    if (value <= 0.0f)
+        return 0.0f;
+    else if (value <= 0.0031308f)
+        return 12.92f * value;
+    else if (value < 1.0f)
+        return 1.055f * pow(value, 0.4166667f) - 0.055f;
     else
-        return pow(value, 0.45454545F);
-}
-
-inline float4 LinearToGammaSpace(float4 rgba)
-{
-    rgba = max(rgba, float4(0.f, 0.f, 0.f, 0.f));
-    return max(1.055h * pow(rgba, 0.416666667h) - 0.055h, 0.f);
+        return pow(value, 0.45454545f);
 }
 
 inline float3 LinearToGammaSpace(float3 rgb)
 {
-    rgb = max(rgb, half3(0.f, 0.f, 0.f));
-    return max(1.055h * pow(rgb, 0.416666667h) - 0.055h, 0.f);
+    rgb = max(rgb, float3(0.f, 0.f, 0.f));
+    return max(1.055f * pow(rgb, 0.416666667f) - 0.055f, 0.f);
+
+    //Precise version, useful for debugging.
+    //return float3(LinearToGammaSpaceExact(rgb.r),
+    //LinearToGammaSpaceExact(rgb.g),
+    //LinearToGammaSpaceExact(rgb.b));
 }

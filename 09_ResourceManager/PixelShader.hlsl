@@ -28,13 +28,15 @@ cbuffer cbuffer_Light : register(b3)
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {   
-    float4 txColor = GammaToLinearSpace(txDiffuse.Sample(samLinear, input.Tex));
+    float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
+    txColor.rgb  = GammaToLinearSpace(txColor.rgb);
+    
     float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
-    float4 mapEmissive = GammaToLinearSpace(emissiveMap.Sample(samLinear, input.Tex));
-    float4 mapOpacity = opacityMap.Sample(samLinear, input.Tex);
+    float4 mapEmissive =emissiveMap.Sample(samLinear, input.Tex);
+    mapEmissive.rgb = GammaToLinearSpace(mapEmissive.rgb);
     
-    float4 opacity = mapOpacity;
+    float opacity = opacityMap.Sample(samLinear, input.Tex).a;
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
@@ -50,9 +52,9 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular;
     specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular * mapSpecular;
  
-    float4 final = ambient + diffuse + specular + mapEmissive;
-    final.a = opacity.a;
-    
+    float4 final = diffuse + specular + mapEmissive + ambient;
+    final.rgb = LinearToGammaSpace(final.rgb);
+    final.a = opacity;
     //return float4((input.Normal + 1) / 2, 1.0f);
-    return LinearToGammaSpace(final);
+    return final;
 }
