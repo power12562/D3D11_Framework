@@ -5,7 +5,7 @@
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {
-    float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
+    float4 txColor = GammaToLinearSpace(txDiffuse.Sample(samLinear, input.Tex));
     float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     
@@ -36,5 +36,5 @@ float4 main(PS_INPUT input) : SV_Target
     //return specular;
     float4 final = ambient + diffuse + specular;
     final.a = 1;
-    return final;
+    return LinearToGammaSpace(final);
 }

@@ -28,10 +28,10 @@ cbuffer cbuffer_Light : register(b3)
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {   
-    float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
+    float4 txColor = GammaToLinearSpace(txDiffuse.Sample(samLinear, input.Tex));
     float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
-    float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
+    float4 mapEmissive = GammaToLinearSpace(emissiveMap.Sample(samLinear, input.Tex));
     float4 mapOpacity = opacityMap.Sample(samLinear, input.Tex);
     
     float4 opacity = mapOpacity;
@@ -54,6 +54,5 @@ float4 main(PS_INPUT input) : SV_Target
     final.a = opacity.a;
     
     //return float4((input.Normal + 1) / 2, 1.0f);
-    //return specular;
-    return final;
+    return LinearToGammaSpace(final);
 }
