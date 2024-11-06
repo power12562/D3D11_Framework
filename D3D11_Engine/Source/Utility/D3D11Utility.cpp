@@ -1,8 +1,11 @@
 #include "D3D11Utility.h"
 #include <comdef.h>
 #include <d3dcompiler.h>
+#include <DirectXTex.h>
 #include <Directxtk/DDSTextureLoader.h>
 #include <Directxtk/WICTextureLoader.h>
+#include <iostream>
+#include <filesystem>
 
 namespace Utility
 {
@@ -62,18 +65,69 @@ namespace Utility
 	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView)
 	{
 		HRESULT hr = S_OK;
+        auto ShowErrorMessageBox = [&]()
+            {
+                MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
+            };
 
-		// Load the Texture
-		hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, texture, textureView);
-		if (FAILED(hr))
+        std::filesystem::path filePath = szFileName;
+        DX_TEXTURE_EXTENSION extension = GetTexureExtension(filePath.extension().wstring());
+
+
+        switch (extension)
+        {
+		case Utility::DX_TEXTURE_EXTENSION::tga:
 		{
-			hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, texture, textureView);
-			if (FAILED(hr))
+			DirectX::TexMetadata metaData;
+			DirectX::ScratchImage scratchImage;
+			hr = DirectX::LoadFromTGAFile(szFileName, &metaData, scratchImage);
+			if (SUCCEEDED(hr))
 			{
-				MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
+				if (texture)
+				{
+					hr = DirectX::CreateTexture(d3dDevice, scratchImage.GetImages(), scratchImage.GetImageCount(), metaData, texture);
+					if (FAILED(hr))
+					{
+						ShowErrorMessageBox();
+						return hr;
+					}
+				}
+				if (textureView)
+				{
+					hr = DirectX::CreateShaderResourceView(d3dDevice, scratchImage.GetImages(), scratchImage.GetImageCount(), metaData, textureView);
+					if (FAILED(hr))
+					{
+						ShowErrorMessageBox();
+						return hr;
+					}
+				}
+			}
+			else
+			{
+				ShowErrorMessageBox();
 				return hr;
 			}
 		}
+            break;
+
+        case Utility::DX_TEXTURE_EXTENSION::dds:
+            hr = DirectX::CreateDDSTextureFromFile(d3dDevice, szFileName, texture, textureView); 
+            if (FAILED(hr))
+            {
+                ShowErrorMessageBox();
+                return hr;
+            }
+            break;
+
+        default:
+            hr = DirectX::CreateWICTextureFromFile(d3dDevice, szFileName, texture, textureView);
+            if (FAILED(hr))
+            {
+                ShowErrorMessageBox();
+                return hr;
+            }
+            break;
+        }
 		return S_OK;
 	}
 
@@ -160,5 +214,14 @@ namespace Utility
                DirectX::XMVector4IsNaN(matrix.r[2]) || DirectX::XMVector4IsNaN(matrix.r[3]);
     }
 
+    DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString)
+    {
+        if (flieString.compare(L".tga") == 0)
+            return DX_TEXTURE_EXTENSION::tga;
+        else if (flieString.compare(L".dds") == 0)
+            return DX_TEXTURE_EXTENSION::dds;
+        else
+            return DX_TEXTURE_EXTENSION::null;
+    }
 }
 

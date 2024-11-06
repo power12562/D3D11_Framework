@@ -33,7 +33,7 @@ private:
 private:
 	std::unordered_map<std::wstring, std::list<std::shared_ptr<GameObject>>> sceneResourceList;
 
-protected:
+private:
 	std::vector<std::shared_ptr<GameObject>> objectList;
 	std::unordered_map<std::wstring, std::unordered_set<InstanceID>> objectFindMap;
 private:

@@ -18,7 +18,7 @@ MappingTestScene::MappingTestScene()
 	mainCam->AddComponent<LightManager>();
 	mainCam->AddComponent<CameraMoveHelper>();
 
-	auto cube1 = NewGameObject<GameObject>(L"cube1");
+	cube1 = NewGameObject<GameObject>(L"cube1");
 	cube1->AddComponent<MappingCubeObject>();
 	cube1->transform.position = Vector3{ 0,0,3 };
 }
@@ -39,9 +39,9 @@ void MappingTestScene::ImGUIRender()
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::Text("");
 	ImGui::Text("Cube");	
-	ImGui::DragQuaternion("Cube Rotation", &objectList[1]->transform.rotation);
+	ImGui::DragQuaternion("Cube Rotation", &cube1->transform.rotation);
 	ImGui::SliderFloat("Cube Scale", &cubeScale, 1.0f, 10.0f);
-	objectList[1]->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
+	cube1->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");
 	ImGui::Text("Light");	
 	ImGui::DragFloat3("LightDir", LightDir, 0.01f, -1.0f, 1.0f);

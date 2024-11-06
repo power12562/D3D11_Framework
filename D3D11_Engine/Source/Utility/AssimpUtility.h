@@ -15,7 +15,7 @@ namespace Utility
 		GameObject& _gameObject, 
 		std::shared_ptr<SimpleMaterial> material,
 		std::function<void(SimpleMaterial*)> initMaterial,
-		bool);
+		bool isStatic);
 
 	void LoadFBX(const wchar_t* path,
 		GameObject& _gameObject,

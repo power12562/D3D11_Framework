@@ -5,6 +5,7 @@
 #include <Framework\SceneManager.h>
 
 #include "../Source/TestCubeComponent.h"
+#include "../Source/TestMainScene.h"
 
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
@@ -14,34 +15,8 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cm
 
     TestApp app;
     app.Initialize(hInst);
-
-    auto mainCam = NewGameObject<CameraObject>(L"Camera");
-    mainCam->GetComponent<Camera>().SetMainCamera();
-    mainCam->transform.position += Vector3(0, 3, 0);
-    mainCam->AddComponent<CameraMoveHelper>();
-
-    auto cube = NewGameObject<GameObject>(L"A");
-    cube->AddComponent<TestCubeComponent>();
-    cube->transform.position += Vector3(0, 0, 5);
-
-    auto cube2 = NewGameObject<GameObject>(L"B");
-    cube2->AddComponent<TestCubeComponent>();
-    cube2->transform.position += Vector3(2.5, 0, 5);
-    cube2->transform.SetParent(cube->transform);
-
-    auto cube3 = NewGameObject<GameObject>(L"C");
-    cube3->AddComponent<TestCubeComponent>();
-    cube3->transform.position += Vector3(5, 0, 5);
-    cube3->transform.SetParent(cube2->transform);
-
-    auto cube4 = NewGameObject<GameObject>(L"D");
-    cube4->AddComponent<TestCubeComponent>();
-    cube4->transform.position += Vector3(7.5, 0, 5);
-    cube4->transform.SetParent(cube3->transform);
-
-    cube2->transform.SetParent(cube4->transform);
-
-    app.Run();
+    sceneManager.LoadScene<TestMainScene>();
+    app.Run();             
     app.Uninitialize();
 
     return 0;

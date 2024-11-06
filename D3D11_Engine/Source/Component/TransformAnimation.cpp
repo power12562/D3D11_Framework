@@ -27,6 +27,8 @@ bool TransformAnimation::PlayClip(const wchar_t* clipName, bool _isLoop)
 	}
 	else
 	{
+		__debugbreak();
+		Debug_printf("존재하지 않는 클립.\n");
 		return false;
 	}
 }

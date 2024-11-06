@@ -14,4 +14,6 @@ private:
 private:
 	float LightDir[4]{ 0, 0, 1, 0 };
 
+private:
+	GameObject* cube1;
 };

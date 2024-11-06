@@ -6,11 +6,19 @@
 #include <cstdio>
 #include <wrl.h>
 #include <memory>
+#include <string>
 #include <Utility/MemoryUtility.h>
 using namespace Microsoft::WRL;
 
 namespace Utility
 {
+	enum class DX_TEXTURE_EXTENSION
+	{
+		tga,
+		dds,
+		null
+	};
+
 	// Helper class for COM exceptions
 	class com_exception : public std::exception
 	{
@@ -45,6 +53,8 @@ namespace Utility
 	DXGI_FORMAT GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, UINT mask);
 
 	bool XMMatrixIsNaN(const DirectX::XMMATRIX& matrix);
+
+	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString);
 }
 
 struct DRAW_INDEX_DATA

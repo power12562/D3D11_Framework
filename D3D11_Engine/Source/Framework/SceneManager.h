@@ -71,7 +71,7 @@ private:
 	void EraseObject(GameObject* obj);
 };
 
-template<typename ObjectType>
+template<typename ObjectType = GameObject>
 ObjectType* NewGameObject(const wchar_t* name)
 {
 	return SceneManager::NewGameObject<ObjectType>(name);
