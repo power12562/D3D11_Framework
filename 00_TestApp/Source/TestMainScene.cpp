@@ -5,6 +5,8 @@
 #include <Utility/AssimpUtility.h>
 #include <Material/SimpleMaterial.h>
 #include <Component/TransformAnimation.h>
+#include <Framework/ImguiHelper.h>
+#include <Framework/TimeSystem.h>
 
 TestMainScene::TestMainScene()
 {
@@ -32,4 +34,9 @@ TestMainScene::~TestMainScene()
 
 void TestMainScene::ImGUIRender()
 {
+    ImGui::Begin("Debug");
+    {
+        ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
+    }
+    ImGui::End();
 }

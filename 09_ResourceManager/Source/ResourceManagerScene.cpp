@@ -11,6 +11,7 @@
 #include <Component\Render\SimpleMeshRender.h>
 #include <Framework\ResourceManager.h>
 #include <Material/SimpleMaterial.h>
+#include <Framework/TimeSystem.h>
 
 #pragma warning(disable : 4305)
 ResourceManagerScene::ResourceManagerScene()
@@ -41,37 +42,39 @@ void ResourceManagerScene::ImGUIRender()
 	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
 
 	ImGui::Begin("Debug");
-	ImGui::Text("vram : %zu MB	Obj Count : %zu", d3dRenderer.GetUsedVram(), testList.size());
-	ImGui::Text("");
-
-	if (mainCam)
 	{
-		ImGui::Text("Camera");
-		ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
-		ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
-		ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
-		ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
+		ImGui::Text("vram : %zu MB	Obj Count : %zu  FPS : %d", d3dRenderer.GetUsedVram(), testList.size(), TimeSystem::Time.GetFrameRate());
 		ImGui::Text("");
+
+		if (mainCam)
+		{
+			ImGui::Text("Camera");
+			ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
+			ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
+			ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
+			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
+			ImGui::Text("");
+		}
+
+		ImGui::Text("Light");
+		ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
+		ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
+		ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
+		ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
+		ImGui::Text("");
+
+		ImGui::Text("Test");
+		if (ImGui::Button("Add Charater"))
+			AddTestObject();
+		if (ImGui::Button("Sub Charater"))
+			SubTestObject();
+		if (ImGui::Button("Clear Charater"))
+			ClearTestObject();
+		ImGui::Text("");
+
+		ImGui::Text("Background");
+		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	}
-
-	ImGui::Text("Light");
-	ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
-	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
-	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
-	ImGui::Text("");
-
-	ImGui::Text("Test");
-	if (ImGui::Button("Add Charater"))
-		AddTestObject();
-	if (ImGui::Button("Sub Charater"))
-		SubTestObject();
-	if (ImGui::Button("Clear Charater"))
-		ClearTestObject();
-	ImGui::Text("");
-
-	ImGui::Text("Background");
-	ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	ImGui::End();
 }
 void ResourceManagerScene::AddTestObject()

@@ -1,20 +1,22 @@
 #pragma once
+#include <Framework/TSingleton.h>
 #include <windows.h>
 #include <cmath>
 
-class QPCTime
+class QPCTime : public TSingleton<QPCTime>
 {
-
-public:
+	friend class TSingleton;
+private:
 	QPCTime();
 	~QPCTime() = default; 
 
+public:
 	void UpdateTime();
-	const float GetFrameRate()
+	const int GetFrameRate() const
 	{
 		if (deltaTime_ms == 0) return 0;
 
-		return ceil(((1000.0f / deltaTime_ms) * 1000.f) / 1000.f);
+		return static_cast<int>(std::ceil(((1000.0f / deltaTime_ms) * 1000.f) / 1000.f));
 	}
 
 	float GetDeltaTime_ms(bool isScale = true) const;
@@ -45,6 +47,6 @@ private:
 
 namespace TimeSystem
 {
-	extern QPCTime Time;
+	extern QPCTime& Time;
 	extern float FixedTimeStep; //fixed Update 호출 주기.
 }

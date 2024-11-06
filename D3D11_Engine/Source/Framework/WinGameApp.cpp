@@ -17,6 +17,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 {
 	if (RunApp != nullptr)
 	{
+		__debugbreak(); //실행중 초기화 불가능.
 		return;
 	}
 		
@@ -33,6 +34,12 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 
 void WinGameApp::Run()
 {
+	if (RunApp)
+	{
+		__debugbreak(); //2개의 앱 루프 실행 불가.
+		return;
+	}
+
 	using namespace TimeSystem;
 	RunApp = this;
 	Time.UpdateTime();
@@ -84,7 +91,17 @@ void WinGameApp::GameEnd()
 	if (RunApp)
 	{
 		RunApp->isEnd = true;
+		RunApp = nullptr;
 	}
+}
+
+int WinGameApp::GetFPS()
+{
+	if (RunApp)
+	{
+		TimeSystem::Time.GetFrameRate();
+	}
+	return -1;
 }
 
 bool WinGameApp::WinInit()

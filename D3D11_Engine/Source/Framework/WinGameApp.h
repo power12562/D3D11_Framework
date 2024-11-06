@@ -25,6 +25,8 @@ public:
 	/** 현재 실행중인 게임루프를 종료시킵니다.*/
 	static void GameEnd();
 
+	static int GetFPS();
+
 protected:
 	/** 클래스 스타일. Initialize() 실행전에만 적용됩니다.*/
 	UINT winClassStyle = CS_HREDRAW | CS_VREDRAW;
@@ -53,6 +55,7 @@ protected:
 	bool isEnd = false;
 private:
 	MSG msg{};
+
 private:
 	bool WinInit();
 
