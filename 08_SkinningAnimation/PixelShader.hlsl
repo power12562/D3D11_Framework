@@ -53,6 +53,6 @@ float4 main(PS_INPUT input) : SV_Target
     float4 final = ambient + diffuse + specular + mapEmissive;
     final.a = opacity.a;
     
-    return float4((input.Normal + 1) / 2, 1.0f);
+    //return float4((input.Normal + 1) / 2, 1.0f);
     return final;
 }
