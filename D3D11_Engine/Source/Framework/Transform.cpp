@@ -60,15 +60,9 @@ const Vector3& Transform::SetPosition(const Vector3& value)
 {
 	if (Vector3::Distance(value, _position) > Mathf::Epsilon)
 	{
+		_position = value;
 		if (parent)
-		{
-			_position = value;
-			_localPosition = _position - parent->position;		
-		}
-		else
-		{
-			_position = value;
-		}
+			_localPosition = _position - parent->_position;
 		transformChanged = true;
 	}
 	return _position;
@@ -81,7 +75,7 @@ const Vector3& Transform::SetLocalPosition(const Vector3& value)
 		if (parent)
 		{
 			_localPosition = value;
-			_position = parent->position + value;
+			_position = parent->_position + _localPosition;
 			rootParent->transformChanged = true;
 		}
 	}
@@ -92,29 +86,12 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 {
 	if (_localRotation.Dot(value) < 1.f - Mathf::Epsilon)
 	{
+		_rotation = value;
 		if (parent)
 		{
-			_rotation = value;
-			Transform* rootParent = parent;
-			while (rootParent->parent != nullptr)
-			{
-				rootParent = rootParent->parent;
-			}
-
-			//성능 문제가 있음..
-			//rootParent->transformChanged = true;
-			//rootParent->UpdateTransform();
-
-			// 부모의 역메트릭스을 자식의 메트릭스에 적용하여 로컬 회전을 계산
-			//Matrix localRotationMatrix = _WM * parent->_WM.Invert();
-			//Vector3 scale, translation;
-			//Quaternion quaternion;
-			//localRotationMatrix.Decompose(scale, quaternion, translation);
-			//_localRotation = quaternion;
-		}
-		else
-		{
-			_rotation = value;	  
+			Quaternion IProtation;
+			parent->_rotation.Inverse(IProtation);
+			_localRotation = _rotation * IProtation;
 		}
 		transformChanged = true;
 	}
@@ -134,22 +111,8 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 		if (parent)
 		{
 			_localRotation = value;
-			Transform* rootParent = parent;
-			while (rootParent->parent != nullptr)
-			{
-				rootParent = rootParent->parent;
-			}
+			_rotation = parent->_rotation * _localRotation;
 			rootParent->transformChanged = true;
-
-			//성능 문제가 있음..
-			//rootParent->UpdateTransform();
-			//
-			//Vector3 scale, translation;
-			//Quaternion quaternion;
-			//_WM.Decompose(scale, quaternion, translation);
-			//_rotation = quaternion;
-
-			//rootParent->transformChanged = true;
 		}
 	}
 	return _localRotation;
@@ -165,15 +128,10 @@ const Vector3& Transform::SetScale(const Vector3& value)
 {
 	if (Vector3::Distance(value, _scale) > Mathf::Epsilon)
 	{
-		if (parent)
-		{
-			_scale = value;
+		_scale = value;
+		if (parent)	
 			_localScale = _scale / parent->scale;
-		}
-		else
-		{
-			_scale = value;
-		}
+
 		transformChanged = true;
 	}
 	return _scale;

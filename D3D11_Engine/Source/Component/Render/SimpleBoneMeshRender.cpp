@@ -45,15 +45,16 @@ void SimpleBoneMeshRender::Render()
 {
 	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer)
 	{
+		Matrix temp{};
 		for (int i = 0; i < boneList.size(); i++)
 		{
-			Matrix BoneMatrix = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
+			temp = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
 
-			matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(BoneMatrix);
+			matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(temp);
 
-			Matrix Inverse = XMMatrixInverse(nullptr, BoneMatrix);
-			Inverse = Utility::XMMatrixIsNaN(Inverse) ? Matrix() : Inverse;
-			boneWIT.BoneWIT[i] = Inverse;
+			temp = XMMatrixInverse(nullptr, temp);
+			temp = Utility::XMMatrixIsNaN(temp) ? Matrix() : temp;
+			boneWIT.BoneWIT[i] = temp;
 		}
 		const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
 		if (Material && Material->IsShader())
