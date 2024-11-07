@@ -35,6 +35,7 @@ Transform& Transform::operator=(const Transform& rhs)
 {
 	if (this == &rhs)
 		return *this;
+
 	if (!rhs.parent)
 	{
 		_position = rhs._position;
@@ -57,54 +58,65 @@ GameObject& Transform::GetGameObject()
 
 const Vector3& Transform::SetPosition(const Vector3& value)
 {
-	if (parent)
+	if (Vector3::Distance(value, _position) > Mathf::Epsilon)
 	{
-		_position = value;
-		_localPosition = _position - parent->position;
-	}
-	else
-	{
-		_position = value;
+		if (parent)
+		{
+			_position = value;
+			_localPosition = _position - parent->position;		
+		}
+		else
+		{
+			_position = value;
+		}
+		transformChanged = true;
 	}
 	return _position;
 }
 
 const Vector3& Transform::SetLocalPosition(const Vector3& value)
-{
-	if (parent)
+{							  
+	if (Vector3::Distance(value, _localPosition) > Mathf::Epsilon)
 	{
-		_localPosition = value;
-		_position = parent->position + value;
-	}
-	else
-	{
-		
+		if (parent)
+		{
+			_localPosition = value;
+			_position = parent->position + value;
+			rootParent->transformChanged = true;
+		}
 	}
 	return _localPosition;
 }
 
 const Quaternion& Transform::SetRotation(const Quaternion& value)
 {
-	if (parent)
+	if (_localRotation.Dot(value) < 1.f - Mathf::Epsilon)
 	{
-		_rotation = value;
-		Transform* rootParent = parent;
-		while (rootParent->parent != nullptr)
+		if (parent)
 		{
-			rootParent = rootParent->parent;
-		}
-		rootParent->UpdateTransform();
+			_rotation = value;
+			Transform* rootParent = parent;
+			while (rootParent->parent != nullptr)
+			{
+				rootParent = rootParent->parent;
+			}
+			rootParent->transformChanged = true;
+			rootParent->UpdateTransform();
 
-		// 부모의 역메트릭스을 자식의 메트릭스에 적용하여 로컬 회전을 계산
-		Matrix localRotationMatrix = _WM * parent->_WM.Invert();
-		Vector3 scale, translation;
-		Quaternion quaternion;
-		localRotationMatrix.Decompose(scale, quaternion, translation); 	
-		_localRotation = quaternion;
-	}
-	else
-	{
-		_rotation = value;
+			// 부모의 역메트릭스을 자식의 메트릭스에 적용하여 로컬 회전을 계산
+			Matrix localRotationMatrix = _WM * parent->_WM.Invert();
+			Vector3 scale, translation;
+			Quaternion quaternion;
+			localRotationMatrix.Decompose(scale, quaternion, translation);
+			_localRotation = quaternion;
+
+			//transformChanged = true;
+		}
+		else
+		{
+			_rotation = value;	  
+			transformChanged = true;
+		}
 	}
 	return _rotation;
 }
@@ -117,52 +129,64 @@ const Quaternion& Transform::SetRotation(const Vector3& value)
 
 const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 {
-	if (parent)
+	if (_localRotation.Dot(value) < 1.f - Mathf::Epsilon)
 	{
-		_localRotation = value;
-		Transform* rootParent = parent;
-		while (rootParent->parent != nullptr)
+		if (parent)
 		{
-			rootParent = rootParent->parent;
-		}
-		rootParent->UpdateTransform();
+			_localRotation = value;
+			Transform* rootParent = parent;
+			while (rootParent->parent != nullptr)
+			{
+				rootParent = rootParent->parent;
+			}
+			rootParent->transformChanged = true;
+			rootParent->UpdateTransform();
 
-		Vector3 scale, translation;
-		Quaternion quaternion;
-		_WM.Decompose(scale, quaternion, translation);
-		_rotation = quaternion;
-	}
-	else
-	{
-		
+			Vector3 scale, translation;
+			Quaternion quaternion;
+			_WM.Decompose(scale, quaternion, translation);
+			_rotation = quaternion;
+
+			rootParent->transformChanged = true;
+		}
 	}
 	return _localRotation;
 }
 
+const Quaternion& Transform::SetLocalRotation(const Vector3& value)
+{
+	Quaternion quater = Quaternion::CreateFromYawPitchRoll(value.y * Mathf::Deg2Rad, value.x * Mathf::Deg2Rad, value.z * Mathf::Deg2Rad);
+	return SetLocalRotation(quater);
+}
+
 const Vector3& Transform::SetScale(const Vector3& value)
 {
-	if (parent)
+	if (Vector3::Distance(value, _scale) > Mathf::Epsilon)
 	{
-		_scale = value;
-		_localScale = _scale / parent->scale;
-	}
-	else
-	{
-		_scale = value;
+		if (parent)
+		{
+			_scale = value;
+			_localScale = _scale / parent->scale;
+		}
+		else
+		{
+			_scale = value;
+		}
+		transformChanged = true;
 	}
 	return _scale;
 }
 
 const Vector3& Transform::SetLocalScale(const Vector3& value)
 {
-	if (parent)
+	if (Vector3::Distance(value, _scale) > Mathf::Epsilon)
 	{
-		_localScale = value;
-		_scale = parent->scale * _localScale;
-	}
-	else
-	{
-		
+		if (parent)
+		{
+			_localScale = value;
+			_scale = parent->scale * _localScale;
+			transformChanged = true;
+		}
 	}
 	return _localScale;
 }
@@ -247,12 +271,14 @@ Transform* Transform::GetChild(unsigned int index)
 
 void Transform::UpdateTransform()
 {
-	if (parent == nullptr)
+	if (transformChanged && parent == nullptr)
 	{
 		_WM = DirectX::XMMatrixScalingFromVector(scale) *
 			DirectX::XMMatrixRotationQuaternion(rotation) *
 			DirectX::XMMatrixTranslationFromVector(position);
+
 		UpdateChildTransform();
+		transformChanged = false;
 	}
 }
 

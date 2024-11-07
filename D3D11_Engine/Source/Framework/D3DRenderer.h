@@ -6,6 +6,7 @@
 #include <string>
 #include <cassert>
 
+class Transform;
 class D3DRenderer;
 class D3DConstBuffer;
 class SimpleMaterial;
@@ -23,7 +24,7 @@ protected:
 private:
 	void Init();
 	void Uninit();	   
-
+	
 public:
 	ID3D11Device*			GetDevice() { return pDevice; }
 	ID3D11DeviceContext*	GetDeviceContext() { return pDeviceContext; }
@@ -34,6 +35,7 @@ public:
 	/** Vram 사용량 확인하기.*/
 	size_t GetUsedVram();
 
+	void reserveRenderQueue(size_t size);
 private:
 	//Vram 체크용 dxgi 개체
 	struct IDXGIFactory*  pDXGIFactory = nullptr;        
@@ -41,10 +43,9 @@ private:
 
 public:
 	void BegineDraw();
+	void DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material, Transform& transform);
 	void EndDraw();
-
-public:
-	void DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material);
+	void Present() { pSwapChain->Present(0, 0); }
 
 public:
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
@@ -56,5 +57,10 @@ private:
 	ID3D11RenderTargetView*  pRenderTargetView;	  // 렌더링 타겟뷰
 	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
 	ID3D11BlendState*		 pBlendState;		  // 블렌드 상태
+
+private:
+	std::vector<std::tuple<DRAW_INDEX_DATA*, SimpleMaterial*, const Transform*>> opaquerenderOueue; //불투명 오브젝트
+	std::vector<std::tuple<DRAW_INDEX_DATA*, SimpleMaterial*, const Transform*>> alphaRenderQueue;  //반투명 오브젝트
+	void Draw(DRAW_INDEX_DATA* data, SimpleMaterial* material);
 
 };

@@ -3,9 +3,10 @@
 #include <vector>
 using namespace DirectX::SimpleMath;
 
+class GameObject;
 class Transform
 {
-	friend class GameObject;
+	friend GameObject;
 	friend class SceneManager;
 	GameObject* _gameObject = nullptr;
 public:
@@ -33,6 +34,7 @@ public:
 	__declspec(property(get = GetRotation, put = SetRotation)) const Quaternion& rotation;
 
 	const Quaternion& SetLocalRotation(const Quaternion& value);
+	const Quaternion& SetLocalRotation(const Vector3& value);
 	const Quaternion& GetLocalRotation() const { return _localRotation; }
 	__declspec(property(get = GetLocalRotation, put = SetLocalRotation)) const Quaternion& localRotation;
 
@@ -108,5 +110,8 @@ private:
 	Matrix _WM{};
 	Matrix _LM{};
 	Matrix _rotationMatrix{};
+
+private:
+	bool transformChanged = false;
 
 };

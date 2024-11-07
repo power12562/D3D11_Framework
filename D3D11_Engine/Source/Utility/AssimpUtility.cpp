@@ -263,13 +263,11 @@ namespace Utility
 							destMesh.Material->SetEmissiveMap(texturesPath[E_TEXTURE_INDEX::Emissive].c_str());
 							destMesh.Material->SetOpacityMap(texturesPath[E_TEXTURE_INDEX::Opacity].c_str());
 
-							destMesh.matrixPallete = sourceMesh->matrixPallete;
 							destMesh.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-							destMesh.Material->cbuffer.BindUpdateEvent(*destMesh.matrixPallete);
+							destMesh.Material->cbuffer.BindUpdateEvent(destMesh.matrixPallete);
 
-							destMesh.boneWIT = sourceMesh->boneWIT;
 							destMesh.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-							destMesh.Material->cbuffer.BindUpdateEvent(*destMesh.boneWIT);
+							destMesh.Material->cbuffer.BindUpdateEvent(destMesh.boneWIT);
 
 							destMesh.MeshID = sourceMesh->MeshID;
 							destMesh.offsetMatrices = sourceMesh->offsetMatrices;
@@ -506,13 +504,7 @@ void Utility::LoadFBX(const wchar_t* path,
 		}
 	}
 	boneCount = boneIndexMap.size();
-	std::shared_ptr<MatrixPallete> rootMatrixPallete = nullptr;
-	std::shared_ptr<BoneWIT> rootBoneWIT = nullptr;
-	if (boneCount > 0)
-	{
-		rootMatrixPallete = std::make_shared<MatrixPallete>();
-		rootBoneWIT = std::make_shared<BoneWIT>();
-	}
+
 	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
 	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
@@ -569,13 +561,11 @@ void Utility::LoadFBX(const wchar_t* path,
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
 						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
 
-						meshComponent.matrixPallete = rootMatrixPallete;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete); 
+						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.matrixPallete); 
 
-						meshComponent.boneWIT = rootBoneWIT;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.boneWIT);
+						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.boneWIT);
 
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
@@ -882,14 +872,12 @@ void Utility::LoadFBXResource(const wchar_t* path)
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
 						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
-
-						meshComponent.matrixPallete = rootMatrixPallete;
+;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.matrixPallete);
+						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.matrixPallete);
 
-						meshComponent.boneWIT = rootBoneWIT;
 						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(*meshComponent.boneWIT);
+						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.boneWIT);
 
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();

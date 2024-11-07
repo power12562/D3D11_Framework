@@ -2,6 +2,7 @@
 #include <Framework\SceneManager.h>
 #include <Framework/D3DRenderer.h>
 #include <Framework/HLSLManager.h>
+#include <Framework/ResourceManager.h>
 #include <typeinfo>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -13,11 +14,13 @@ Scene::Scene()
 	sceneResourceList.reserve(10);
 	objectList.reserve(10);
 	objectFindMap.reserve(10);
+	d3dRenderer.reserveRenderQueue(10);
 }
 
 Scene::~Scene()
 {
 	hlslManager.ClearSharingShader();
+	Resource::ClearResourceManagers();
 }
 
 void Scene::FixedUpdate()
@@ -69,13 +72,14 @@ void Scene::Render()
 			if (obj->Active)
 				obj->Render();
 	}
+	d3dRenderer.EndDraw();
 	if (UseImGUI) 
 	{
 		ImGUIBegineDraw();
 		ImGUIRender();
 		ImGUIEndDraw();
 	}
-	d3dRenderer.EndDraw();
+	d3dRenderer.Present();
 }
 
 void Scene::ImGUIBegineDraw()

@@ -30,6 +30,8 @@ ResourceManagerScene::ResourceManagerScene()
 	cam->transform.position = Vector3(0, 30, -25);
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
+
+	//for (size_t i = 0; i < 100; i++) { AddTestObject(); }
 }
 
 ResourceManagerScene::~ResourceManagerScene()

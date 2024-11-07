@@ -59,8 +59,8 @@ public:
 	std::shared_ptr<SimpleMaterial> Material = nullptr;
 
 public:
-	std::shared_ptr<MatrixPallete> matrixPallete = nullptr;
-	std::shared_ptr<BoneWIT> boneWIT = nullptr;
+	MatrixPallete matrixPallete = {};
+	BoneWIT boneWIT = {};
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
 
 	std::vector<BoneComponent*> boneList;

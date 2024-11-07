@@ -43,23 +43,22 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
-	if (boneWIT && matrixPallete && meshResource->pVertexBuffer && meshResource->pIndexBuffer)
+	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer)
 	{
 		for (int i = 0; i < boneList.size(); i++)
 		{
 			Matrix BoneMatrix = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
 
-			matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(BoneMatrix);
+			matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(BoneMatrix);
 
 			Matrix Inverse = XMMatrixInverse(nullptr, BoneMatrix);
 			Inverse = Utility::XMMatrixIsNaN(Inverse) ? Matrix() : Inverse;
-			boneWIT->BoneWIT[i] = Inverse;
+			boneWIT.BoneWIT[i] = Inverse;
 		}
 		const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
 		if (Material && Material->IsShader())
 		{
-			Material->cbuffer.UpdateEvent();
-			d3dRenderer.DrawIndex(*meshResource, *Material);
+			d3dRenderer.DrawIndex(*meshResource, *Material, gameObject.transform);
 		}
 	}
 	else

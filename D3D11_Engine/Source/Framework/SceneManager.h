@@ -51,6 +51,8 @@ public:
 	GameObject* GetObjectToID(unsigned int instanceID);
 	std::vector<GameObject*> FindObjects(const wchar_t* name);
 
+	size_t GetObjectsCount() { return currScene ? currScene->objectList.size() : 0; }
+
 private:
 	//Update
 	void FixedUpdateScene();
