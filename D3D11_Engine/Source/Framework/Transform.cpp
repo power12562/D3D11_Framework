@@ -100,23 +100,23 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 			{
 				rootParent = rootParent->parent;
 			}
-			rootParent->transformChanged = true;
-			rootParent->UpdateTransform();
+
+			//성능 문제가 있음..
+			//rootParent->transformChanged = true;
+			//rootParent->UpdateTransform();
 
 			// 부모의 역메트릭스을 자식의 메트릭스에 적용하여 로컬 회전을 계산
-			Matrix localRotationMatrix = _WM * parent->_WM.Invert();
-			Vector3 scale, translation;
-			Quaternion quaternion;
-			localRotationMatrix.Decompose(scale, quaternion, translation);
-			_localRotation = quaternion;
-
-			//transformChanged = true;
+			//Matrix localRotationMatrix = _WM * parent->_WM.Invert();
+			//Vector3 scale, translation;
+			//Quaternion quaternion;
+			//localRotationMatrix.Decompose(scale, quaternion, translation);
+			//_localRotation = quaternion;
 		}
 		else
 		{
 			_rotation = value;	  
-			transformChanged = true;
 		}
+		transformChanged = true;
 	}
 	return _rotation;
 }
@@ -140,14 +140,16 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 				rootParent = rootParent->parent;
 			}
 			rootParent->transformChanged = true;
-			rootParent->UpdateTransform();
 
-			Vector3 scale, translation;
-			Quaternion quaternion;
-			_WM.Decompose(scale, quaternion, translation);
-			_rotation = quaternion;
+			//성능 문제가 있음..
+			//rootParent->UpdateTransform();
+			//
+			//Vector3 scale, translation;
+			//Quaternion quaternion;
+			//_WM.Decompose(scale, quaternion, translation);
+			//_rotation = quaternion;
 
-			rootParent->transformChanged = true;
+			//rootParent->transformChanged = true;
 		}
 	}
 	return _localRotation;
