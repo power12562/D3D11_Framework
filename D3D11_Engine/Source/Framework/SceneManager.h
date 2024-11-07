@@ -44,6 +44,9 @@ public:
 	/*리소스에서 제거합니다.*/
 	void RemoveResouceObj(const wchar_t* key);
 
+	/*씬에 있는 리소스를 전부 정리합니다.*/
+	void ClearResouceObj();
+
 	void DestroyObject(GameObject* obj);
 	void DestroyObject(GameObject& obj);
 

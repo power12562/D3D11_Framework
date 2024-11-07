@@ -9,7 +9,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-
+#include <Framework/ImguiHelper.h>
 
 LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -205,6 +205,7 @@ void WinGameApp::UninitImGUI()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+	ImGui::ClearTempMap();
 }
 
 //

@@ -46,6 +46,22 @@ void SceneManager::RemoveResouceObj(const wchar_t* key)
 	}
 }
 
+void SceneManager::ClearResouceObj()
+{
+	if (nextScene)
+	{
+		nextScene->ClearResouceObj();
+	}
+	else if (currScene)
+	{
+		currScene->ClearResouceObj();
+	}
+	else
+	{
+		__debugbreak(); //씬이 존재하지 않음.
+	}
+}
+
 void SceneManager::DestroyObject(GameObject* obj)
 {
 	eraseSet.insert(obj);

@@ -126,3 +126,8 @@ void Scene::RemoveResouceObj(const wchar_t* key)
 	}
 }
 
+void Scene::ClearResouceObj()
+{
+	sceneResourceList.clear();
+}
+

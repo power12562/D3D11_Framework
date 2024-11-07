@@ -12,6 +12,10 @@ class D3DConstBuffer;
 class SimpleMaterial;
 extern D3DRenderer& d3dRenderer;
 
+struct USAGE_VRAM_INFO;
+struct SYSTEM_VRAM_INFO;
+struct SYSTEM_MEMORY_INFO;
+
 class D3DRenderer : public TSingleton<D3DRenderer>
 {
 	friend class WinGameApp;
@@ -32,8 +36,14 @@ public:
 	ID3D11RenderTargetView* GetRenderTargetView() { return pRenderTargetView; }
 	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
 
-	/** Vram 사용량 확인하기.*/
-	size_t GetUsedVram();
+	/** Vram 사용량 확인용.*/
+	USAGE_VRAM_INFO GetLocalVramUsage();
+	/** Vram 사용량 확인용.*/
+	USAGE_VRAM_INFO GetNonLocalVramUsage();
+	/** gpu 메모리 영역 확인용*/
+	SYSTEM_VRAM_INFO GetSystemVramInfo();
+	/** 시스템 메모리 영역 확인용*/
+	SYSTEM_MEMORY_INFO GetSystemMemoryInfo();
 
 	void reserveRenderQueue(size_t size);
 private:
@@ -63,4 +73,34 @@ private:
 	std::vector<std::tuple<DRAW_INDEX_DATA*, SimpleMaterial*, const Transform*>> alphaRenderQueue;  //반투명 오브젝트
 	void Draw(DRAW_INDEX_DATA* data, SimpleMaterial* material);
 
+};
+
+struct USAGE_VRAM_INFO
+{
+	/*할당 가능한 크기 / MB*/
+	UINT64 Budget;
+
+	/*사용중인 메모리 / MB*/
+	UINT64 Usage;
+};
+
+struct SYSTEM_VRAM_INFO
+{
+	/*공유 GPU 메모리 영역 / MB*/
+	SIZE_T SharedSystemMemory;
+
+	/*전용 GPU 메모리 영역 / MB*/
+	SIZE_T DedicatedVideoMemory;
+};
+
+struct SYSTEM_MEMORY_INFO
+{
+	/*현재 할당중인 Private bytes 사이즈*/
+	SIZE_T PrivateUsage;
+
+	/*실제 사용중인 Working Set 사이즈*/
+	SIZE_T WorkingSetSize;
+	
+	/*메모리 커밋 사이즈*/
+	SIZE_T PagefileUsage;
 };

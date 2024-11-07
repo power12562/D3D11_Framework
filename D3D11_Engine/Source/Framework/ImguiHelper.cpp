@@ -26,6 +26,11 @@ namespace ImGui
 	}
 };
 
+void ImGui::ClearTempMap()
+{
+	tempFloatMap.clear();
+}
+
 void ImGui::DragVector2(const char* label, const Vector2* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
 	ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);

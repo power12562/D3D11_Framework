@@ -23,4 +23,6 @@ private:
 	void AddTestObject();
 	void SubTestObject();
 	void ClearTestObject();
+
+	void ClearAllResource();
 };

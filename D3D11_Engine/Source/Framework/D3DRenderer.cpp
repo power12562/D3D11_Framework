@@ -11,6 +11,7 @@
 #include <_Debug\Console.h>
 #include <dxgi1_4.h>
 #include <cassert>
+#include <Psapi.h>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -185,11 +186,58 @@ void D3DRenderer::reserveRenderQueue(size_t size)
     alphaRenderQueue.reserve(size);
 }
 
-size_t D3DRenderer::GetUsedVram()
+namespace BytesHelp
+{
+    constexpr UINT64 toMB = 1024 * 1024;  // 메가바이트 단위로 변환용
+}
+
+USAGE_VRAM_INFO D3DRenderer::GetLocalVramUsage()
 {
     DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
     pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
-    return videoMemoryInfo.CurrentUsage / (1024 * 1024); // 메가바이트 단위로 반환
+    USAGE_VRAM_INFO info{};
+    info.Budget = videoMemoryInfo.Budget / BytesHelp::toMB;
+    info.Usage = videoMemoryInfo.CurrentUsage / BytesHelp::toMB;
+    return info;
+}
+
+USAGE_VRAM_INFO D3DRenderer::GetNonLocalVramUsage()
+{
+    DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
+    pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &videoMemoryInfo);
+
+    USAGE_VRAM_INFO info{};
+    info.Budget = videoMemoryInfo.Budget / BytesHelp::toMB;
+    info.Usage = videoMemoryInfo.CurrentUsage / BytesHelp::toMB;
+
+    return info;
+}
+
+SYSTEM_VRAM_INFO D3DRenderer::GetSystemVramInfo()
+{
+    DXGI_ADAPTER_DESC desc;
+    pDXGIAdapter->GetDesc(&desc);
+
+    SYSTEM_VRAM_INFO info{};
+    info.DedicatedVideoMemory = desc.DedicatedVideoMemory / BytesHelp::toMB;
+    info.SharedSystemMemory = desc.SharedSystemMemory / BytesHelp::toMB;
+
+    return info;
+}
+
+SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
+{
+    HANDLE hProcess = GetCurrentProcess();
+    PROCESS_MEMORY_COUNTERS_EX pmc{};
+    pmc.cb = sizeof(PROCESS_MEMORY_COUNTERS_EX);
+    GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));          
+
+    SYSTEM_MEMORY_INFO info{}; 
+    info.PagefileUsage = pmc.PagefileUsage / BytesHelp::toMB;
+    info.PrivateUsage = pmc.PrivateUsage / BytesHelp::toMB;
+    info.WorkingSetSize = pmc.WorkingSetSize / BytesHelp::toMB;     
+
+    return info;
 }
 
 void D3DRenderer::BegineDraw()

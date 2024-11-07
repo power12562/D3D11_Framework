@@ -19,7 +19,7 @@ ResourceManagerScene::ResourceManagerScene()
 	UseImGUI = true;
 
 	//리소스 미리 로드
-	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx");
+	//Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx");
 
 	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
 
@@ -31,7 +31,7 @@ ResourceManagerScene::ResourceManagerScene()
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	//for (size_t i = 0; i < 100; i++) { AddTestObject(); }
+	for (size_t i = 0; i < 1400; i++) { AddTestObject(); }
 }
 
 ResourceManagerScene::~ResourceManagerScene()
@@ -45,8 +45,32 @@ void ResourceManagerScene::ImGUIRender()
 
 	ImGui::Begin("Debug");
 	{
-		ImGui::Text("vram : %zu MB	Obj Count : %zu  FPS : %d", d3dRenderer.GetUsedVram(), testList.size(), TimeSystem::Time.GetFrameRate());
+		ImGui::Text("Obj Count : %zu  FPS : %d", testList.size(), TimeSystem::Time.GetFrameRate());
+		SYSTEM_VRAM_INFO vram = d3dRenderer.GetSystemVramInfo();
+		ImGui::Text("Dedicated Video Memory : %zu", vram.DedicatedVideoMemory);
+		ImGui::Text("Shared System Memory : %zu", vram.SharedSystemMemory);
+		USAGE_VRAM_INFO local = d3dRenderer.GetLocalVramUsage();
+		ImGui::Text("Local Video Memory : %llu MB / %llu MB", local.Budget, local.Usage);
+		USAGE_VRAM_INFO nonlocal = d3dRenderer.GetNonLocalVramUsage();
+		ImGui::Text("NonLocal Video Memory : %llu MB / %llu MB", nonlocal.Budget, nonlocal.Usage);
+
+		SYSTEM_MEMORY_INFO memory = d3dRenderer.GetSystemMemoryInfo();
+		ImGui::Text("PrivateUsage : %zu", memory.PrivateUsage);
+		ImGui::Text("WorkingSetSize : %zu", memory.WorkingSetSize);
+		ImGui::Text("PagefileUsage : %zu", memory.PagefileUsage);
 		ImGui::Text("");
+
+		ImGui::Text("Object");
+		if (ImGui::Button("Add Charater"))
+			AddTestObject();
+		if (ImGui::Button("Sub Charater"))
+			SubTestObject();
+		if (ImGui::Button("Clear Charater"))
+			ClearTestObject();
+
+		ImGui::Text("Resource Manager");
+		if (ImGui::Button("Clear Resource"))
+			ClearAllResource();
 
 		if (mainCam)
 		{
@@ -63,15 +87,6 @@ void ResourceManagerScene::ImGUIRender()
 		ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
 		ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
 		ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
-		ImGui::Text("");
-
-		ImGui::Text("Test");
-		if (ImGui::Button("Add Charater"))
-			AddTestObject();
-		if (ImGui::Button("Sub Charater"))
-			SubTestObject();
-		if (ImGui::Button("Clear Charater"))
-			ClearTestObject();
 		ImGui::Text("");
 
 		ImGui::Text("Background");
@@ -126,5 +141,11 @@ void ResourceManagerScene::ClearTestObject()
 	{
 		SubTestObject();
 	}
+}
+void ResourceManagerScene::ClearAllResource()
+{
+	ClearTestObject();
+	ClearResouceObj();	//이 씬의 리소스 정리
+	Resource::ClearResourceManagers(); //리소스 매니져 리소스 정리
 }
 #pragma warning(default : 4305)

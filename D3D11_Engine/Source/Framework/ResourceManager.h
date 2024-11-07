@@ -6,6 +6,7 @@
 #include <functional>
 #include <Framework/D3DRenderer.h>
 #include <Utility/utfConvert.h>
+#include <_Debug/Console.h>
 
 class Resource
 {
@@ -115,9 +116,9 @@ public:
                 return  resource;
             }
         }
-        std::shared_ptr<DRAW_INDEX_DATA> material = std::make_shared<DRAW_INDEX_DATA>();
-        resourceMap[key][index] = material;
-        return material;
+        std::shared_ptr<DRAW_INDEX_DATA> resource = std::make_shared<DRAW_INDEX_DATA>();
+        resourceMap[key][index] = resource;
+        return resource;
     }
 };
 
@@ -175,7 +176,7 @@ public:
         else
         {
             if (!findIter->second.expired())
-                MessageBox(nullptr, L"Resource already loaded.", L"Info", MB_OK);
+                Debug_wprintf(L"Resource already loaded.\n");
             else
                 resourceMap[key] = pObj;
         }
