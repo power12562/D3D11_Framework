@@ -62,7 +62,7 @@ void ThreadManager::Uninitialize()
 void ThreadManager::PushJob(std::function<void()> job)
 {
 	jobsQueue.push(job);
-	cv_jobs.notify_all(); //이벤트 시그널
+	cv_jobs.notify_one(); //이벤트 시그널
 }
 
 unsigned int ThreadManager::GetWaitingThreadCount() const
