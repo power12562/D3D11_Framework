@@ -1,4 +1,5 @@
 #include "ResourceManagerScene.h"
+#include "_Debug/Console.h"
 #include <Framework\SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
 #include <Framework/D3DRenderer.h>
@@ -12,6 +13,7 @@
 #include <Framework\ResourceManager.h>
 #include <Material/SimpleMaterial.h>
 #include <Framework/TimeSystem.h>
+#include <Framework/ThreadManager.h>
 
 #pragma warning(disable : 4305)
 ResourceManagerScene::ResourceManagerScene()

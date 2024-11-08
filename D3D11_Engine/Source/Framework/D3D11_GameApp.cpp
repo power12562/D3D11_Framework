@@ -6,8 +6,16 @@
 #include <Framework\DXTKInputSystem.h>
 #include <Framework\ImguiHelper.h>
 #include <Framework\ResourceManager.h>
+#include <Framework/ThreadManager.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+static void ClearGame()
+{
+	Resource::ClearResourceManagers();
+	threadManager.Uninitialize();
+	WinGameApp::GameEnd();
+}
 
 LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -20,8 +28,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		sceneManager.currScene.reset();
-		Resource::ClearResourceManagers();
-		WinGameApp::GameEnd();
+		ClearGame();
 		break;
 #pragma endregion
 #pragma region DXTKInputSystem 사용시 포함
@@ -96,3 +103,5 @@ void D3D11_GameApp::Render()
 	sceneManager.EraseObjects(); //오브젝트 삭제.
 	sceneManager.NextSccene(); //다음 씬 있으면 전환 
 }
+
+

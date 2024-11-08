@@ -150,6 +150,7 @@
     <ClInclude Include="Source\Component\TransformAnimation.h" />
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
+    <ClInclude Include="Source\Framework\ThreadManager.h" />
     <ClInclude Include="Source\Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
     <ClInclude Include="Source\Component\Base\Component.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Framework\ResourceManager.cpp" />
+    <ClCompile Include="Source\Framework\ThreadManager.cpp" />
     <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />

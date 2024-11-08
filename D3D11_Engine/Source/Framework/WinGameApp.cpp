@@ -2,6 +2,7 @@
 
 #include <Framework\D3DRenderer.h>
 #include <Framework/TimeSystem.h>
+#include <Framework/ThreadManager.h>
 #include <cassert>
 #include <cstdio>
 #include <clocale>
@@ -29,6 +30,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 #endif // _DEBUG
 	WinInit();
 	d3dRenderer.Init();
+	threadManager.Initialize();
 	InitImGUI();
 }
 
