@@ -6,14 +6,12 @@
 #include <Framework\DXTKInputSystem.h>
 #include <Framework\ImguiHelper.h>
 #include <Framework\ResourceManager.h>
-#include <Framework/ThreadManager.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static void ClearGame()
 {
 	Resource::ClearResourceManagers();
-	threadManager.Uninitialize();
 	WinGameApp::GameEnd();
 }
 

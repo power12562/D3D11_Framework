@@ -6,6 +6,7 @@
 #include <Framework/TimeSystem.h>
 #include <cassert>
 #include "SimpleObject.h"
+#include <Windows.h>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -33,7 +34,7 @@ namespace G_ImGUI
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
@@ -144,7 +145,8 @@ bool TransformTest::InitD3D()
     }
     catch (const std::exception& ex)
     {
-        Debug_printf("%s\n", ex.what());
+        const char* log = ex.what();
+        Debug_printf("%s\n", log);
         assert(!"D3D Init Error");
         return false;
     }
@@ -217,7 +219,8 @@ bool TransformTest::InitScene()
     }
     catch (const std::exception& ex)
     {
-        Debug_printf("%s\n", ex.what());
+        const char* log = ex.what()
+        Debug_printf("%s\n", log);
         assert(!"InitScene Error");
         return false;
     }

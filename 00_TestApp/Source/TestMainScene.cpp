@@ -25,7 +25,7 @@ TestMainScene::TestMainScene()
         };
     Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, initMaterial, false);
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
-    HipHopDancing->transform.scale = Vector3(0.1, 0.1, 0.1);
+    HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
 
 TestMainScene::~TestMainScene()

@@ -13,7 +13,6 @@
 #include <Framework\ResourceManager.h>
 #include <Material/SimpleMaterial.h>
 #include <Framework/TimeSystem.h>
-#include <Framework/ThreadManager.h>
 
 #pragma warning(disable : 4305)
 ResourceManagerScene::ResourceManagerScene()

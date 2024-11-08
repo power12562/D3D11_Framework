@@ -8,6 +8,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 #include <Utility/Console.h>
+#include <Utility/SpinLock.h>
 
 Scene::Scene()
 {
@@ -59,7 +60,9 @@ void Scene::UpdateTransform()
 	{
 		if (obj)
 			if (obj->Active)
+			{
 				obj->transform.UpdateTransform();
+			}		
 	}
 }
 

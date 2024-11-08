@@ -150,7 +150,7 @@
     <ClInclude Include="Source\Component\TransformAnimation.h" />
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
-    <ClInclude Include="Source\Framework\ThreadManager.h" />
+    <ClInclude Include="Source\Framework\ThreadPool.h" />
     <ClInclude Include="Source\Material\SimpleMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
     <ClInclude Include="Source\Component\Base\Component.h" />
@@ -180,6 +180,7 @@
     <ClInclude Include="Source\Utility\Console.h" />
     <ClInclude Include="Source\Utility\D3D11Utility.h" />
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
+    <ClInclude Include="Source\Utility\SpinLock.h" />
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
@@ -188,7 +189,7 @@
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Framework\ResourceManager.cpp" />
-    <ClCompile Include="Source\Framework\ThreadManager.cpp" />
+    <ClCompile Include="Source\Framework\ThreadPool.cpp" />
     <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />
@@ -215,6 +216,7 @@
     <ClCompile Include="Source\Utility\AssimpUtility.cpp" />
     <ClCompile Include="Source\Utility\D3D11Utility.cpp" />
     <ClCompile Include="Source\Utility\MemoryUtility.cpp" />
+    <ClCompile Include="Source\Utility\SpinLock.cpp" />
     <ClCompile Include="Source\Utility\utfConvert.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
