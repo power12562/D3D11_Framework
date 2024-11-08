@@ -8,7 +8,7 @@
 #include <Utility\MemoryUtility.h>
 #include <Framework/TextureManager.h>
 #include <Framework/SceneManager.h>
-#include <_Debug\Console.h>
+#include <Utility/Console.h>
 #include <dxgi1_4.h>
 #include <cassert>
 #include <Psapi.h>

@@ -2,7 +2,7 @@
 #include <Framework\D3DRenderer.h>
 #include <d3d11shader.h>
 #include <d3dcompiler.h>
-#include <_Debug\Console.h>
+#include <Utility/Console.h>
 #include <intrin.h>
 
 HLSLManager& hlslManager = HLSLManager::GetInstance();

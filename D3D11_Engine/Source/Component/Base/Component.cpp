@@ -1,6 +1,6 @@
 #include "Component.h"
 #include <GameObject\Base\GameObject.h>
-#include <_Debug\Console.h>
+#include <Utility/Console.h>
 
 void Component::SetOwner(GameObject* gameObject)
 {

@@ -3,7 +3,7 @@
 #include <Framework\TimeSystem.h>
 #include <GameObject\Base\CameraObject.h>
 #include <Math/Mathf.h>
-#include <_Debug/Console.h>
+#include <Utility/Console.h>
 
 #include "../Source/TestComponent.h"
 
@@ -131,5 +131,5 @@ void TestCubeComponent::LateUpdate()
 
 void TestCubeComponent::Render()
 {
-    d3dRenderer.DrawIndex(drawData, material);
+    d3dRenderer.DrawIndex(drawData, material, gameObject.transform);
 }

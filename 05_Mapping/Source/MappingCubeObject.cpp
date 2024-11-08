@@ -122,6 +122,6 @@ void MappingCubeObject::Render()
     dd.vertexBufferStride = vertexBufferStride;
 
     material.cbuffer = LightManager::cbuffer;
-    d3dRenderer.DrawIndex(dd, material);
+    d3dRenderer.DrawIndex(dd, material, gameObject.transform);
 }
 

@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-#include <_Debug/Console.h>
+#include <Utility/Console.h>
 
 Scene::Scene()
 {

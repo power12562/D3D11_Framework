@@ -2,7 +2,7 @@
 #include <Utility/D3D11Utility.h>
 #include <Utility/MemoryUtility.h>
 #include <Math/Mathf.h>
-#include <_Debug/Console.h>
+#include <Utility/Console.h>
 #include <Framework/TimeSystem.h>
 #include <cassert>
 #include "SimpleObject.h"

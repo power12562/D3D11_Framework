@@ -6,7 +6,7 @@
 #include <functional>
 #include <Framework/D3DRenderer.h>
 #include <Utility/utfConvert.h>
-#include <_Debug/Console.h>
+#include <Utility/Console.h>
 
 class Resource
 {

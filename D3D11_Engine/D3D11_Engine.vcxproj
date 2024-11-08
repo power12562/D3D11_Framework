@@ -177,6 +177,7 @@
     <ClInclude Include="Source\Math\Mathf.h" />
     <ClInclude Include="Source\Light\SimpleDirectionalLight.h" />
     <ClInclude Include="Source\Utility\AssimpUtility.h" />
+    <ClInclude Include="Source\Utility\Console.h" />
     <ClInclude Include="Source\Utility\D3D11Utility.h" />
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
     <ClInclude Include="Source\Utility\utfConvert.h" />

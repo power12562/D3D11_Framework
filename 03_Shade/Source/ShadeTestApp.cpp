@@ -1,7 +1,7 @@
 ﻿#include "ShadeTestApp.h"
 #include "SimpleShadeCube.h"
 
-#include <_Debug\Console.h>
+#include <Utility/Console.h>
 #include <Math\Mathf.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility/MemoryUtility.h>

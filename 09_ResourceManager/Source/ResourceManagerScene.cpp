@@ -1,5 +1,5 @@
 #include "ResourceManagerScene.h"
-#include "_Debug/Console.h"
+#include "Utility/Console.h"
 #include <Framework\SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
 #include <Framework/D3DRenderer.h>
