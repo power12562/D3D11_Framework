@@ -7,25 +7,38 @@
 #include <Component/TransformAnimation.h>
 #include <Framework/ImguiHelper.h>
 #include <Framework/TimeSystem.h>
+#include <Light/SimpleDirectionalLight.h>
 
 TestMainScene::TestMainScene()
 {
 	Scene::UseImGUI = true;
+    d3dRenderer.backgroundColor = { 1.f,1.f,1.f,1.f };
 
-    auto mainCam = NewGameObject<CameraObject>(L"Camera");
+    mainCam = NewGameObject<CameraObject>(L"Camera");
     mainCam->GetComponent<Camera>().SetMainCamera();
-    mainCam->transform.position += Vector3(0, 3, 0);
+    mainCam->transform.position = Vector3(10.f, 40.f, -63.f);
+    mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
     mainCam->AddComponent<CameraMoveHelper>();
 
     auto HipHopDancing = NewGameObject(L"Hip Hop Dancing.fbx");
-    auto initMaterial = [this](SimpleMaterial* material)->void
+    auto SkinningMaterial = [this](SimpleMaterial* material)->void
         {
             material->SetVS(L"VertexSkinningShader.hlsl");
             material->SetPS(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, initMaterial, false);
+    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, SkinningMaterial, false);
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+
+    auto House = NewGameObject(L"House");
+    auto objMaterial = [this](SimpleMaterial* material)
+        {
+            material->SetVS(L"VertexShader.hlsl");
+            material->SetPS(L"PixelShader.hlsl");
+        };
+    Utility::LoadFBX(L"Resource/house.fbx", *House, nullptr, objMaterial, true);
+    House->transform.position = Vector3(50.0f, 0.f, 0.f);
+    House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
 
 TestMainScene::~TestMainScene()
@@ -37,6 +50,10 @@ void TestMainScene::ImGUIRender()
     ImGui::Begin("Debug");
     {
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
+        ImGui::DragVector3("Camera Position", &mainCam->transform.position);
+        ImGui::DragQuaternion("Camera Rotation", &mainCam->transform.rotation);
+        ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
+        ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
     }
     ImGui::End();
 }

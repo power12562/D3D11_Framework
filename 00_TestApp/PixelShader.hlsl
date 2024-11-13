@@ -27,13 +27,13 @@ cbuffer cbuffer_Light : register(b3)
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
-{   
+{
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    txColor.rgb  = GammaToLinearSpace(txColor.rgb);
+    txColor.rgb = GammaToLinearSpace(txColor.rgb);
     
     float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
-    float4 mapEmissive =emissiveMap.Sample(samLinear, input.Tex);
+    float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
     mapEmissive.rgb = GammaToLinearSpace(mapEmissive.rgb);
     
     float opacity = opacityMap.Sample(samLinear, input.Tex).a;
@@ -46,7 +46,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 ambient = LightAmbient * MaterialAmbient;
     
     float3 View = normalize(MainCamPos.xyz - input.World);
-    float3 HalfVector = normalize(-LightDir.xyz+View);
+    float3 HalfVector = normalize(-LightDir.xyz + View);
     float fHDotN = max(0.0f, dot(HalfVector, input.Normal * mapNormal));
  
     float4 specular;

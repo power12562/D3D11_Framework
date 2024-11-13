@@ -17,7 +17,7 @@ cbuffer BoneWIT : register(b3)
 //--------------------------------------------------------------------------------------
 PS_INPUT main(VS_INPUT input)
 {
-    PS_INPUT output;  
+    PS_INPUT output;
     Matrix matWorld;
 #ifdef VERTEX_SKINNING
     matWorld = mul(input.BlendWeights.x, MatrixPalleteArray[input.BlendIndecses.x]);
@@ -28,7 +28,7 @@ PS_INPUT main(VS_INPUT input)
     matWorld = World;
 #endif   
     float4 pos = mul(input.Pos, matWorld);
-    output.World = (float3)pos;
+    output.World = (float3) pos;
        
 #ifdef VERTEX_SKINNING
     Matrix WIT;
@@ -46,7 +46,7 @@ PS_INPUT main(VS_INPUT input)
     output.Normal = normalize(mul(input.Normal, (float3x3) WorldInverseTranspose));
     output.Tangent = normalize(mul(input.Tangent, (float3x3) WorldInverseTranspose));
 #endif  
-    output.BiTangent = normalize(cross(output.Normal, output.Tangent)); 
+    output.BiTangent = normalize(cross(output.Normal, output.Tangent));
     output.Tex = input.Tex;
     return output;
 }

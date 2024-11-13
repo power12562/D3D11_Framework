@@ -7,4 +7,7 @@ public:
 	TestMainScene();
 	virtual ~TestMainScene() override;
 	virtual void ImGUIRender() override;
+
+private:
+	GameObject* mainCam;
 };
