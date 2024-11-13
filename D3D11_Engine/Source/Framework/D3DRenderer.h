@@ -46,6 +46,9 @@ public:
 	SYSTEM_MEMORY_INFO GetSystemMemoryInfo();
 
 	void reserveRenderQueue(size_t size);
+
+	/*레스터화 규칙 설정*/
+	void SetRSState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC);
 private:
 	//Vram 체크용 dxgi 개체
 	struct IDXGIFactory*  pDXGIFactory = nullptr;        

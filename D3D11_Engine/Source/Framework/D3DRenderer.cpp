@@ -98,6 +98,14 @@ void D3DRenderer::Init()
         //뷰포트 할당
         pDeviceContext->RSSetViewports(1, &viewport);
 
+        //레스터화 기본 규칙
+        D3D11_RASTERIZER_DESC rasterDesc;
+        ZeroMemory(&rasterDesc, sizeof(rasterDesc));
+        rasterDesc.FillMode = D3D11_FILL_SOLID;
+        rasterDesc.CullMode = D3D11_CULL_NONE;  // 컬링 없음
+        rasterDesc.FrontCounterClockwise = false; // 기본값
+        SetRSState(rasterDesc);
+
         //깊이 스텐실 버퍼
         D3D11_TEXTURE2D_DESC descDepth = {};
         descDepth.Width = clientSize.cx;
@@ -184,6 +192,16 @@ void D3DRenderer::reserveRenderQueue(size_t size)
 
     alphaRenderQueue.clear();
     alphaRenderQueue.reserve(size);
+}
+
+void D3DRenderer::SetRSState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC)
+{
+    ID3D11RasterizerState* rasterState;
+    pDevice->CreateRasterizerState(&RASTERIZER_DESC, &rasterState);
+
+    // 렌더링 파이프라인에 적용
+    pDeviceContext->RSSetState(rasterState);
+    SafeRelease(rasterState);
 }
 
 namespace BytesHelp
