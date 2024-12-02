@@ -100,7 +100,7 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 
 const Quaternion& Transform::SetRotation(const Vector3& value)
 {
-	Quaternion quater = Quaternion::CreateFromYawPitchRoll(value.y * Mathf::Deg2Rad, value.x * Mathf::Deg2Rad, value.z * Mathf::Deg2Rad);
+	Quaternion quater = Quaternion::CreateFromYawPitchRoll(value * Mathf::Deg2Rad);
 	return SetRotation(quater);	
 }
 

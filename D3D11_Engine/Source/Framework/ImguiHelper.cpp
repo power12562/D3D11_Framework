@@ -50,7 +50,7 @@ void ImGui::DragQuaternion(const char* label, const Quaternion* pQuaternion, flo
 {
 	auto& temp = GetTemp(label, 3);
 	Vector3 previousRotation = pQuaternion->ToEuler() * Mathf::Rad2Deg;
-	
+
 	temp.get()[0] = previousRotation.x;
 	temp.get()[1] = previousRotation.y;
 	temp.get()[2] = previousRotation.z;
