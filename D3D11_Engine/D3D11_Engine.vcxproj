@@ -146,8 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Component\BoneComponent.h" />
+    <ClInclude Include="Source\Component\Render\MeshRender.h" />
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
+    <ClInclude Include="Source\Framework\D3DSamplerState.h" />
+    <ClInclude Include="Source\Framework\D3DTexture2D.h" />
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
@@ -185,8 +188,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Component\BoneComponent.cpp" />
+    <ClCompile Include="Source\Component\Render\MeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
+    <ClCompile Include="Source\Framework\D3DSamplerState.cpp" />
+    <ClCompile Include="Source\Framework\D3DTexture2D.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Framework\ResourceManager.cpp" />
     <ClCompile Include="Source\Framework\ThreadPool.cpp" />
