@@ -2,6 +2,7 @@
 #include <Component/Base/RenderComponent.h>
 #include <Framework/D3DConstBuffer.h>
 #include <Framework/D3DTexture2D.h>
+#include <Framework/D3DSamplerState.h>
 
 class MeshRender : public RenderComponent
 {
@@ -26,8 +27,9 @@ public:
 	void SetMeshResource(const wchar_t* path);
 	int MeshID = -1;
 public:
-	D3DConstBuffer cbuffer;
+	D3DConstBuffer constBuffer;
 	D3DTexture2D texture2D;
+	D3DSamplerState samplerState;
 public:
 	void SetVertexShader(const wchar_t* path);
 	void SetPixelShader(const wchar_t* path);

@@ -34,4 +34,5 @@ void D3DSamplerState::SetSamplerState(int index, D3D11_SAMPLER_DESC& desc)
 void D3DSamplerState::ResetSamplerState(int index)
 {
 	samplerList[index]->Release();
+	samplerList[index] = nullptr;
 }
