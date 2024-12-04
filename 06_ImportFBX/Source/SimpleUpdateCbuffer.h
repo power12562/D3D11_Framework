@@ -5,6 +5,7 @@
 #include "../Source/Global_Cbuffer.h"
 
 class SimpleMaterial;
+class MeshRender;
 class SimpleUpdateCbuffer : public Component
 {
 public:
@@ -12,7 +13,7 @@ public:
 	virtual ~SimpleUpdateCbuffer() override;
 
 public:
-	sptrSimpleMaterial Material = nullptr;
+	MeshRender* meshRender = nullptr;
 	cb_localBool cb_localbool;
 
 public:

@@ -4,9 +4,7 @@
 #include <Component\Camera\CameraMoveHelper.h>
 #include <Framework\SceneManager.h>
 
-#include "../Source/TestCubeComponent.h"
 #include "../Source/TestMainScene.h"
-
 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
 {

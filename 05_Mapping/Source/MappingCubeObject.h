@@ -1,6 +1,9 @@
 #pragma once
 #include <Component\Base\RenderComponent.h>
 #include <Material\SimpleMaterial.h>
+#include <Framework/D3DConstBuffer.h>
+#include <Framework/D3DSamplerState.h>
+#include <Framework/D3DTexture2D.h>
 
 class MappingCubeObject	: public RenderComponent
 {
@@ -24,6 +27,12 @@ private:
 	ID3D11Buffer* pIndexBuffer = nullptr;					// 인덱스 버퍼.
 	int indicesCount = 0;									// 인덱스 개수.
 
+	ID3D11InputLayout*  pInputLayout = nullptr;
+	ID3D11VertexShader* pVertexShader = nullptr;
+	ID3D11PixelShader*  pPixelShader = nullptr;
+
 private:
-	SimpleMaterial material;
+	D3DConstBuffer cbuffer;
+	D3DSamplerState sampler;
+	D3DTexture2D texture2D;
 };

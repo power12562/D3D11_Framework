@@ -3,6 +3,7 @@
 #include <Framework/D3DRenderer.h>
 #include <Framework/HLSLManager.h>
 #include <Framework/ResourceManager.h>
+#include <Framework/D3DSamplerState.h>
 #include <typeinfo>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -12,16 +13,17 @@
 
 Scene::Scene()
 {
-	sceneResourceList.reserve(10);
-	objectList.reserve(10);
-	objectFindMap.reserve(10);
-	d3dRenderer.reserveRenderQueue(10);
+	sceneResourceList.reserve(100);
+	objectList.reserve(100);
+	objectFindMap.reserve(100);
+	d3dRenderer.reserveRenderQueue(100);
 }
 
 Scene::~Scene()
 {
 	hlslManager.ClearSharingShader();
 	Resource::ClearResourceManagers();
+	D3DSamplerState::ClearSamplerResources();
 }
 
 void Scene::FixedUpdate()

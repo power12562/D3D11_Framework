@@ -8,6 +8,7 @@
 #include <Framework/ImguiHelper.h>
 #include <Framework/TimeSystem.h>
 #include <Light/SimpleDirectionalLight.h>
+#include <Component/Render/MeshRender.h>
 
 TestMainScene::TestMainScene()
 {
@@ -21,22 +22,22 @@ TestMainScene::TestMainScene()
     mainCam->AddComponent<CameraMoveHelper>();
 
     auto HipHopDancing = NewGameObject(L"Hip Hop Dancing.fbx");
-    auto SkinningMaterial = [this](SimpleMaterial* material)->void
+    auto SkinningMesh = [this](MeshRender* mesh)->void
         {
-            material->SetVS(L"VertexSkinningShader.hlsl");
-            material->SetPS(L"PixelShader.hlsl");
+            mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
+            mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, SkinningMaterial, false);
+    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, SkinningMesh, false);
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
     auto House = NewGameObject(L"House");
-    auto objMaterial = [this](SimpleMaterial* material)
+    auto objMesh = [this](MeshRender* mesh)
         {
-            material->SetVS(L"VertexShader.hlsl");
-            material->SetPS(L"PixelShader.hlsl");
+            mesh->SetVertexShader(L"VertexShader.hlsl");
+            mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/house.fbx", *House, nullptr, objMaterial, true);
+    Utility::LoadFBX(L"Resource/house.fbx", *House, nullptr, objMesh, true);
     House->transform.position = Vector3(50.0f, 0.f, 0.f);
     House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
@@ -52,7 +53,7 @@ void TestMainScene::ImGUIRender()
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
         ImGui::DragVector3("Camera Position", &mainCam->transform.position);
         ImGui::DragQuaternion("Camera Rotation", &mainCam->transform.rotation);
-        ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
+        ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
     }
     ImGui::End();

@@ -1,6 +1,7 @@
 #include "MappingCubeObject.h"
 #include <Utility/MemoryUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
+#include <Framework/HLSLManager.h>
 
 #include "../Source/LightManager.h"
 
@@ -89,13 +90,28 @@ void MappingCubeObject::Start()
     CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &pIndexBuffer));
 
     //Load Textures
-    material.SetDiffuse(L"Bricks059_1K-JPG_Color.jpg");
-    material.SetNormalMap(L"Bricks059_1K-JPG_NormalDX.jpg");
-    material.SetSpecularMap(L"Bricks059_Specular.png");
+    texture2D.resize(5);
+    texture2D.SetTexture2D(E_TEXTURE_INDEX::Diffuse, L"Bricks059_1K-JPG_Color.jpg");
+    texture2D.SetTexture2D(E_TEXTURE_INDEX::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
+    texture2D.SetTexture2D(E_TEXTURE_INDEX::Specular, L"Bricks059_Specular.png");
+    texture2D.SetOneTexture(E_TEXTURE_INDEX::Opacity);
+    texture2D.SetZeroTexture(E_TEXTURE_INDEX::Emissive);
 
-    material.SetVS(L"VertexShader.hlsl");
+    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &pVertexShader, &pInputLayout);
+    hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &pPixelShader);
 
-    material.SetPS(L"PixelShader.hlsl");
+    //Set sampler
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    sampler.resize(1);
+    sampler.SetSamplerState(0, sampDesc);
 }
 
 void MappingCubeObject::FixedUpdate()
@@ -121,7 +137,17 @@ void MappingCubeObject::Render()
     dd.vertexBufferOffset = vertexBufferOffset;
     dd.vertexBufferStride = vertexBufferStride;
 
-    material.cbuffer = LightManager::cbuffer;
-    d3dRenderer.DrawIndex(dd, material, gameObject.transform);
+    RENDERER_DRAW_DESC draw_desc{};
+    draw_desc.pVertexIndex = &dd;
+    draw_desc.pConstBuffer = &cbuffer;
+    draw_desc.pD3DTexture2D = &texture2D;
+    draw_desc.pSamperState = &sampler;
+    draw_desc.pInputLayout = pInputLayout;
+    draw_desc.pVertexShader = pVertexShader;
+    draw_desc.pPixelShader = pPixelShader;
+    draw_desc.pTransform = &gameObject.transform;
+
+    cbuffer = LightManager::cbuffer;
+    d3dRenderer.DrawIndex(draw_desc, false);
 }
 

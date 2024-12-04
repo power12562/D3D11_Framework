@@ -8,6 +8,7 @@
 #include <Utility\AssimpUtility.h>
 #include <Material/SimpleMaterial.h>
 #include <Framework/TimeSystem.h>
+#include <Component/Render/MeshRender.h>
 
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
@@ -23,10 +24,10 @@ PBRTestScene::PBRTestScene()
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
 	auto cerberus = NewGameObject(L"cerberus");
-	auto initShader = [](SimpleMaterial* material)
+	auto initShader = [](MeshRender* mesh)
 		{ 
-			material->SetVS(L"Shader/PBRVertexShader.hlsl");
-			material->SetPS(L"Shader/PBRPixelShader.hlsl");
+			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
+			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 		};
 	Utility::LoadFBX(L"Resource/cerberus.fbx", *cerberus, nullptr, initShader, false);
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };

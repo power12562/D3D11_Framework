@@ -30,8 +30,8 @@ void SimpleMeshRender::Start()
 	int index = constBuffer.CreatePSConstantBuffers<cb_Material>();
 	constBuffer.BindUpdateEvent(Material->cb_material);
 
-	index = constBuffer.CreatePSConstantBuffers<cbuffer_Light>();
-	constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_Light);
+	index = constBuffer.CreatePSConstantBuffers<cb_Light>();
+	constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};

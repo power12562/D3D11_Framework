@@ -31,25 +31,25 @@ void AddUpdateCbufferAllChild(GameObject* root)
 		{
 			if (SimpleMeshRender* meshRender = curr->GetComponentAtIndex<SimpleMeshRender>(i))
 			{
-				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
-				sptrSimpleMaterial Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
-				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
 
-				Material->cbuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
-				Material->cbuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_Light>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
+
+				meshRender->constBuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
+				meshRender->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
 			}
 			else if(SimpleBoneMeshRender* meshRender = curr->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 			{
-				curr->AddComponent<SimpleUpdateCbuffer>().Material = meshRender->Material;
-				sptrSimpleMaterial Material = curr->GetComponent<SimpleUpdateCbuffer>().Material;
-				Material->cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
-				Material->cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
-				Material->cbuffer.CreatePSConstantBuffers<cb_localBool>();
+				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
 
-				Material->cbuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
-				Material->cbuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_Light>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
+
+				meshRender->constBuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
+				meshRender->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
 			}
 		}
 
@@ -65,10 +65,10 @@ ImportFBXScene::ImportFBXScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0.5, 0.5, 0.5, 1);
 
-	auto initMaterial = [](SimpleMaterial* material)
+	auto initMaterial = [](MeshRender* mesh)
 		{
-			material->SetVS(L"VertexShader.hlsl");
-			material->SetPS(L"PixelShader.hlsl");
+			mesh->SetVertexShader(L"VertexShader.hlsl");
+			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
@@ -127,7 +127,7 @@ ImportFBXScene::~ImportFBXScene()
 void ImportFBXScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
+	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
 	cbuffer_bool& cb_bool = Global_Cbuffer::cb_bool;
 	cb_Material& cb_material = Global_Cbuffer::cb_material;
 
@@ -140,10 +140,10 @@ void ImportFBXScene::ImGUIRender()
 	ImGui::Text("");
 
 	ImGui::Text("Light");
-	ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
-	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
-	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
+	ImGui::DragFloat3("LightDir", (float*)&cb_light.LightDir, 0.01f, -1.0f, 1.0f);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
+	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 
 	ImGui::Text("SimpleMaterial");

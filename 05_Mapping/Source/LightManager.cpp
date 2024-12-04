@@ -12,7 +12,7 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    cbuffer.CreatePSConstantBuffers<cbuffer_Light>();
+    cbuffer.CreatePSConstantBuffers<cb_Light>();
     cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 }
 
@@ -22,8 +22,8 @@ void LightManager::FixedUpdate()
 
 void LightManager::Update()
 {
-    cb_Light.CamPos = { Camera::GetMainCamera()->transform.position };
-    cbuffer.UpdateConstBuffer(cb_Light);
+    cb_light.CamPos = { Camera::GetMainCamera()->transform.position };
+    cbuffer.UpdateConstBuffer(cb_light);
     cbuffer.UpdateConstBuffer(cb_bool);
 }
 

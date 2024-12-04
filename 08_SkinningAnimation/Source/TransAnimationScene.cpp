@@ -15,7 +15,7 @@
 #pragma warning(disable : 4305)
 TransAnimationScene::TransAnimationScene()
 {
-	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
+	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
@@ -60,7 +60,7 @@ TransAnimationScene::~TransAnimationScene()
 void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
+	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
@@ -71,10 +71,10 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::Text("");
 
 	ImGui::Text("Light");
-	ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
-	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
-	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
+	ImGui::DragFloat3("LightDir", (float*)&cb_light.LightDir, 0.01f, -1.0f, 1.0f);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
+	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 
 	ImGui::Text("Test1");

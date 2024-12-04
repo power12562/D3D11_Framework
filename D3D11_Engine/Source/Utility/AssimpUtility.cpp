@@ -268,12 +268,11 @@ namespace Utility
 							destMesh.offsetMatrices = sourceMesh->offsetMatrices;
 
 							destMesh.CopyShader(*sourceMesh);
-
 							destMesh.SetMeshResource(key);
 
-							initMesh(&destMesh);
-
 							meshList.push_back(&destMesh);
+
+							initMesh(&destMesh);
 						}
 					}			
 				}
@@ -540,8 +539,7 @@ void Utility::LoadFBX(const wchar_t* path,
 						{
 							meshComponent.Material = material;
 						}
-						initMesh(&meshComponent);
-
+						
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
@@ -629,6 +627,8 @@ void Utility::LoadFBX(const wchar_t* path,
 						meshComponent.MeshID = meshIndex;
 						meshComponent.SetMeshResource(wstr_path.c_str());
 						meshComponent.CreateMesh();
+
+						initMesh(&meshComponent);
 					}
 				}
 			}
@@ -647,8 +647,7 @@ void Utility::LoadFBX(const wchar_t* path,
 						{
 							meshComponent.Material = material;
 						}
-						initMesh(&meshComponent);
-
+					
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
@@ -695,6 +694,8 @@ void Utility::LoadFBX(const wchar_t* path,
 						meshComponent.MeshID = meshIndex;
 						meshComponent.SetMeshResource(wstr_path.c_str());
 						meshComponent.CreateMesh();
+
+						initMesh(&meshComponent);
 					}
 				}
 			}

@@ -219,7 +219,7 @@ bool TransformTest::InitScene()
     }
     catch (const std::exception& ex)
     {
-        const char* log = ex.what()
+        const char* log = ex.what();
         Debug_printf("%s\n", log);
         assert(!"InitScene Error");
         return false;

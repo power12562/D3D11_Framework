@@ -3,7 +3,7 @@
 #include <Material\SimpleMaterial.h>
 
 #pragma warning(disable : 4305)
-struct cbuffer_Light
+struct cb_Light
 {
     Vector4 LightDir{ 0, -1, 1, 0 };
     Vector4 LightDiffuse{ 1, 1, 1, 1 };
@@ -14,7 +14,7 @@ struct cbuffer_Light
 
 namespace SimpleDirectionalLight 
 {
-    extern cbuffer_Light cb_Light;
+    extern cb_Light cb_light;
 };
 
 

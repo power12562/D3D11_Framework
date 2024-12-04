@@ -2,7 +2,7 @@
 #include <Component\Base\Component.h>
 #include <Framework\D3DConstBuffer.h>
 
-struct cbuffer_Light
+struct cb_Light
 {
     Vector3 CamPos;
     float CamPosPad{};
@@ -33,7 +33,7 @@ public:
     inline static D3DConstBuffer cbuffer{};
 
 public:
-    inline static cbuffer_Light cb_Light{};
+    inline static cb_Light cb_light{};
     inline static cbuffer_bool cb_bool{};
 public:
     LightManager();

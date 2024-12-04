@@ -58,43 +58,34 @@ GameObject& Transform::GetGameObject()
 
 const Vector3& Transform::SetPosition(const Vector3& value)
 {
-	if (Vector3::Distance(value, _position) > Mathf::Epsilon)
-	{
-		_position = value;
-		if (parent)
-			_localPosition = _position - parent->_position;
-		transformChanged = true;
-	}
+	_position = value;
+	if (parent)
+		_localPosition = _position - parent->_position;
+
 	return _position;
 }
 
 const Vector3& Transform::SetLocalPosition(const Vector3& value)
 {							  
-	if (Vector3::Distance(value, _localPosition) > Mathf::Epsilon)
+	if (parent)
 	{
-		if (parent)
-		{
-			_localPosition = value;
-			_position = parent->_position + _localPosition;
-			rootParent->transformChanged = true;
-		}
+		_localPosition = value;
+		_position = parent->_position + _localPosition;
 	}
+
 	return _localPosition;
 }
 
 const Quaternion& Transform::SetRotation(const Quaternion& value)
 {
-	if (_localRotation.Dot(value) < 1.f - Mathf::Epsilon)
+	_rotation = value;
+	if (parent)
 	{
-		_rotation = value;
-		if (parent)
-		{
-			Quaternion IProtation;
-			parent->_rotation.Inverse(IProtation);
-			_localRotation = _rotation * IProtation;
-		}
-		transformChanged = true;
+		Quaternion IProtation;
+		parent->_rotation.Inverse(IProtation);
+		_localRotation = _rotation * IProtation;
 	}
+
 	return _rotation;
 }
 
@@ -106,15 +97,12 @@ const Quaternion& Transform::SetRotation(const Vector3& value)
 
 const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 {
-	if (_localRotation.Dot(value) < 1.f - Mathf::Epsilon)
+	if (parent)
 	{
-		if (parent)
-		{
-			_localRotation = value;
-			_rotation = parent->_rotation * _localRotation;
-			rootParent->transformChanged = true;
-		}
+		_localRotation = value;
+		_rotation = parent->_rotation * _localRotation;
 	}
+
 	return _localRotation;
 }
 
@@ -126,28 +114,21 @@ const Quaternion& Transform::SetLocalRotation(const Vector3& value)
 
 const Vector3& Transform::SetScale(const Vector3& value)
 {
-	if (Vector3::Distance(value, _scale) > Mathf::Epsilon)
-	{
-		_scale = value;
-		if (parent)	
-			_localScale = _scale / parent->scale;
+	_scale = value;
+	if (parent)
+		_localScale = _scale / parent->scale;
 
-		transformChanged = true;
-	}
 	return _scale;
 }
 
 const Vector3& Transform::SetLocalScale(const Vector3& value)
 {
-	if (Vector3::Distance(value, _scale) > Mathf::Epsilon)
+	if (parent)
 	{
-		if (parent)
-		{
-			_localScale = value;
-			_scale = parent->scale * _localScale;
-			transformChanged = true;
-		}
+		_localScale = value;
+		_scale = parent->scale * _localScale;
 	}
+
 	return _localScale;
 }
 
@@ -231,14 +212,13 @@ Transform* Transform::GetChild(unsigned int index)
 
 void Transform::UpdateTransform()
 {
-	if (transformChanged && parent == nullptr)
+	if (parent == nullptr)
 	{
 		_WM = DirectX::XMMatrixScalingFromVector(scale) *
 			DirectX::XMMatrixRotationQuaternion(rotation) *
 			DirectX::XMMatrixTranslationFromVector(position);
 
 		UpdateChildTransform();
-		transformChanged = false;
 	}
 }
 

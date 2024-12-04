@@ -31,7 +31,7 @@ MappingTestScene::~MappingTestScene()
 void MappingTestScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cbuffer_Light& cb_Light = LightManager::cb_Light;
+	cb_Light& cb_light = LightManager::cb_light;
 	cbuffer_bool& cb_bool = LightManager::cb_bool;
 
 	ImGui::Begin("Debug");
@@ -39,24 +39,25 @@ void MappingTestScene::ImGUIRender()
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::Text("");
 	ImGui::Text("Cube");	
+	ImGui::DragVector3("Cube Position", &cube1->transform.position);
 	ImGui::DragQuaternion("Cube Rotation", &cube1->transform.rotation);
 	ImGui::SliderFloat("Cube Scale", &cubeScale, 1.0f, 10.0f);
 	cube1->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");
 	ImGui::Text("Light");	
 	ImGui::DragFloat3("LightDir", LightDir, 0.01f, -1.0f, 1.0f);
-	cb_Light.LightDir = Vector4(LightDir);
-	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
-	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
-	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
+	cb_light.LightDir = Vector4(LightDir);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
+	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 	ImGui::Text("SimpleMaterial");
 	ImGui::Checkbox("Use NormalMap", &cb_bool.UseNormalMap);
 	ImGui::Checkbox("Use SpecularMap", &cb_bool.UseSpecularMap);
-	ImGui::ColorEdit3("MaterialDiffuse", &cb_Light.MaterialDiffuse);
-	ImGui::ColorEdit3("MaterialAmbient", &cb_Light.MaterialAmbient);
-	ImGui::ColorEdit3("MaterialSpecular", &cb_Light.MaterialSpecular);
-	ImGui::DragFloat("MaterialSpecularPower", &cb_Light.MaterialSpecularPower, 10, 50, 500);
+	ImGui::ColorEdit3("MaterialDiffuse", &cb_light.MaterialDiffuse);
+	ImGui::ColorEdit3("MaterialAmbient", &cb_light.MaterialAmbient);
+	ImGui::ColorEdit3("MaterialSpecular", &cb_light.MaterialSpecular);
+	ImGui::DragFloat("MaterialSpecularPower", &cb_light.MaterialSpecularPower, 10, 50, 500);
 	ImGui::Text("");
 	ImGui::Text("Background");
 	ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);

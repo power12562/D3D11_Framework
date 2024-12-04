@@ -110,8 +110,4 @@ private:
 	Matrix _WM{};
 	Matrix _LM{};
 	Matrix _rotationMatrix{};
-
-private:
-	bool transformChanged = false;
-
 };

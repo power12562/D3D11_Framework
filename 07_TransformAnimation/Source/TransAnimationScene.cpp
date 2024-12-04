@@ -14,7 +14,7 @@
 #pragma warning(disable : 4305)
 TransAnimationScene::TransAnimationScene()
 {
-	SimpleDirectionalLight::cb_Light.LightDir = { 0.5, 0, 1, 0 };
+	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
@@ -28,9 +28,13 @@ TransAnimationScene::TransAnimationScene()
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
 
-	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], false);
-	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetVS(L"VertexShader.hlsl");
-	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->SetPS(L"PixelShader.hlsl");
+	auto meshInit = [](MeshRender* mesh) 
+		{
+			mesh->SetVertexShader(L"VertexShader.hlsl");
+			mesh->SetPixelShader(L"PixelShader.hlsl");
+			mesh->constBuffer.BindUpdateEvent(GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material);
+		};
+	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], meshInit, false);
 	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
@@ -43,7 +47,7 @@ TransAnimationScene::~TransAnimationScene()
 void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cbuffer_Light& cb_Light = SimpleDirectionalLight::cb_Light;
+	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
 	cb_Material& cb_material = GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cb_material;
 
 	ImGui::Begin("Debug");
@@ -55,10 +59,10 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::Text("");
 
 	ImGui::Text("Light");
-	ImGui::DragFloat3("LightDir", (float*)&cb_Light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_Light.LightDiffuse);
-	ImGui::ColorEdit3("LightAmbient", &cb_Light.LightAmbient);
-	ImGui::ColorEdit3("LightSpecular", &cb_Light.LightSpecular);
+	ImGui::DragFloat3("LightDir", (float*)&cb_light.LightDir, 0.01f, -1.0f, 1.0f);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
+	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 
 	ImGui::ColorEdit3("MaterialDiffuse", &cb_material.MaterialDiffuse);
