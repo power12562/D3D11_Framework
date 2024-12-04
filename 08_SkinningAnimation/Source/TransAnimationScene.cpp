@@ -37,11 +37,11 @@ TransAnimationScene::TransAnimationScene()
 	test3->transform.position = { 0,0,0 };
 	test3->transform.scale = { 0.1,0.1,0.1 };
 
-	auto testInit = [](SimpleMaterial* material)->void
+	auto testInit = [](MeshRender* material)->void
 		{
-			material->SetVS(L"VertexSkinningShader.hlsl");				
+			material->SetVertexShader(L"VertexSkinningShader.hlsl");				
 			//material->SetVS(L"VertexShader.hlsl");				
-			material->SetPS(L"PixelShader.hlsl");	
+			material->SetPixelShader(L"PixelShader.hlsl");	
 		};
 
 	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);

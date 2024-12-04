@@ -1,5 +1,5 @@
 #pragma once
-#include <Component/Base/RenderComponent.h>
+#include <Component/Render/MeshRender.h>
 
 struct MatrixPallete
 {
@@ -18,7 +18,7 @@ struct OffsetMatrices
 
 class BoneComponent;
 class SimpleMaterial;
-class SimpleBoneMeshRender : public RenderComponent
+class SimpleBoneMeshRender : public MeshRender
 {
 public:
 	struct Vertex
@@ -32,7 +32,7 @@ public:
 	};
 public:
 	SimpleBoneMeshRender();
-	virtual ~SimpleBoneMeshRender() override;
+	virtual ~SimpleBoneMeshRender() override = default;
 
 public:
 	virtual void Start() 		 override;
@@ -43,17 +43,11 @@ protected:
 	virtual void Render() 		 override;
 
 public:
-	void CreateMesh();
-	void SetMeshResource(const wchar_t* path);
-
-private:
-	DRAW_INDEX_RESOURCE meshResource;
+	virtual void CreateMesh() override;
 
 public:
 	std::vector<Vertex> vertices;
 	std::vector<UINT>   indices;
-
-	int MeshID = -1;
 
 public:
 	std::shared_ptr<SimpleMaterial> Material = nullptr;
@@ -62,6 +56,5 @@ public:
 	MatrixPallete matrixPallete = {};
 	BoneWIT boneWIT = {};
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
-
 	std::vector<BoneComponent*> boneList;
 };

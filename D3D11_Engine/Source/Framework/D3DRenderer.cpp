@@ -12,6 +12,8 @@
 #include <dxgi1_4.h>
 #include <cassert>
 #include <Psapi.h>
+#include <Framework/D3DSamplerState.h>
+#include <Framework/D3DTexture2D.h>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -178,6 +180,15 @@ void D3DRenderer::Uninit()
 
     textureManager.ReleaseDefaultTexture();
 
+#ifdef _DEBUG
+    //ID3D11Debug* debug = nullptr;
+    //pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
+    //if (debug)
+    //{
+    //    debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
+    //    debug->Release();
+    //}
+#endif // _DEBUG
     ULONG refcount = SafeRelease(pDevice);
     if (refcount != 0)
     {
@@ -281,75 +292,63 @@ void D3DRenderer::BegineDraw()
     }
 }
 
-void D3DRenderer::DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material, Transform& transform)
+void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
 {
-    if (material.IsOpacityMap())
-        alphaRenderQueue.emplace_back(&data, &material, &transform);
+    if (isAlpha)
+        alphaRenderQueue.emplace_back(darwDesc);
     else
-        opaquerenderOueue.emplace_back(&data, &material, &transform);
+        opaquerenderOueue.emplace_back(darwDesc);
 }
 
 void D3DRenderer::EndDraw()
 {
     for (auto& item : opaquerenderOueue)
     {
-        const Transform* transform = std::get<const Transform*>(item);
-        DRAW_INDEX_DATA* data = std::get<DRAW_INDEX_DATA*>(item);
-        SimpleMaterial* material = std::get<SimpleMaterial*>(item);
-
-        cbuffer::transform.World = XMMatrixTranspose(transform->GetWM());
-        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, transform->GetWM());
-        cbuffer::transform.WVP = XMMatrixTranspose(transform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+        cbuffer::transform.World = XMMatrixTranspose(item.pTransform->GetWM());
+        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, item.pTransform->GetWM());
+        cbuffer::transform.WVP = XMMatrixTranspose(item.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
 
-        Draw(data, material);
+        Draw(item);
     }
-
     for (auto& item : alphaRenderQueue)
     {
-        const Transform* transform = std::get<const Transform*>(item);
-        DRAW_INDEX_DATA* data = std::get<DRAW_INDEX_DATA*>(item);
-        SimpleMaterial* material = std::get<SimpleMaterial*>(item);
-
-        cbuffer::transform.World = XMMatrixTranspose(transform->GetWM());
-        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, transform->GetWM());
-        cbuffer::transform.WVP = XMMatrixTranspose(transform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+        cbuffer::transform.World = XMMatrixTranspose(item.pTransform->GetWM());
+        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, item.pTransform->GetWM());
+        cbuffer::transform.WVP = XMMatrixTranspose(item.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
 
-        Draw(data, material);
+        Draw(item);
     }
     opaquerenderOueue.clear();
     alphaRenderQueue.clear();
 }
 
-void D3DRenderer::Draw(DRAW_INDEX_DATA* data, SimpleMaterial* material)
+void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
     using namespace E_TEXTURE_INDEX;
 
-    material->cbuffer.UpdateEvent();
-    material->cbuffer.SetConstBuffer();
-
-    for (int i = 0; i < E_TEXTURE_INDEX::Null; i++)
+    drawDesc.pConstBuffer->UpdateEvent();
+    drawDesc.pConstBuffer->SetConstBuffer();
+    for (int i = 0; i < drawDesc.pSamperState->size(); i++)
     {
-        if (material->textures[i])
-            pDeviceContext->PSSetShaderResources(i, 1, &material->textures[i]);
-        else
-        {
-            auto defaultTexture = textureManager.GetDefaultTexture(static_cast<TEXTURE_INDEX>(i));
-            pDeviceContext->PSSetShaderResources(i, 1, &defaultTexture);
-        }
+        ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
+        pDeviceContext->VSSetSamplers(i, 1, &sampler);
+        pDeviceContext->PSSetSamplers(i, 1, &sampler);
     }
-
-    pDeviceContext->PSSetSamplers(0, 1, &material->pSamplerLinear);
-
+    for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
+    {
+        ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
+        pDeviceContext->VSSetShaderResources(i, 1, &srv);
+        pDeviceContext->PSSetShaderResources(i, 1, &srv);
+    }
+ 
+    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
-    pDeviceContext->IASetInputLayout(material->pInputLayout);
     pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-
-    pDeviceContext->VSSetShader(material->pVertexShader, nullptr, 0);
-
-    pDeviceContext->PSSetShader(material->pPixelShader, nullptr, 0);
-
+    pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
+    pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
+    pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
     pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
 }

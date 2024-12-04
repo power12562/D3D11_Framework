@@ -32,64 +32,10 @@ class SimpleMaterial
 {
 	friend class D3DRenderer;
 public:
-	SimpleMaterial();
-	virtual ~SimpleMaterial();
-
+	SimpleMaterial() = default;
+	~SimpleMaterial() = default;
 public:
-	void SetVS(const wchar_t* path);
-	void ResetVS();
-
-	void SetPS(const wchar_t* path);
-	void ResetPS();
-
-	void SetDiffuse(const wchar_t* path);
-	void ResetDiffuse();
-
-	void SetNormalMap(const wchar_t* path);
-	void ResetNormalMap();
-
-	void SetSpecularMap(const wchar_t* path);
-	void ResetSpecularMap();
-
-	void SetEmissiveMap(const wchar_t* path);
-	void ResetEmissiveMap();
-
-	void SetOpacityMap(const wchar_t* path);
-	void ResetOpacityMap();
-
-	std::array<std::wstring, E_TEXTURE_INDEX::Null> GetTexturesNames() {return texturesNames; }
-
-public:
-	std::string shaderModel = "4_0";
-
-public:
-	D3DConstBuffer cbuffer;
 	cb_Material cb_material;
-private:
-	std::wstring currVS;
-	std::wstring currPS;
-
-private:
-	std::array<std::wstring, E_TEXTURE_INDEX::Null> texturesNames{};
-
-private:
-	ID3D11InputLayout* pInputLayout = nullptr;
-	ID3D11VertexShader* pVertexShader = nullptr;	
-	ID3D11PixelShader* pPixelShader = nullptr;	
-
-	std::array<ID3D11ShaderResourceView*, E_TEXTURE_INDEX::Null> textures{nullptr, };
-private:
-	ID3D11SamplerState* pSamplerLinear = nullptr;
-
-public:
-	bool IsDiffuse() { return !!textures[E_TEXTURE_INDEX::Diffuse]; }
-	bool IsNormalMap() { return !!textures[E_TEXTURE_INDEX::Normal]; }
-	bool IsSpecularMap() { return !!textures[E_TEXTURE_INDEX::Specular]; }
-	bool IsEmissiveMap() { return !!textures[E_TEXTURE_INDEX::Emissive]; }
-	bool IsOpacityMap() { return !!textures[E_TEXTURE_INDEX::Opacity]; }
-
-public:
-	bool IsShader() { return pInputLayout && pVertexShader && pPixelShader; }
 };		  
 
 using sptrSimpleMaterial = std::shared_ptr<SimpleMaterial>;

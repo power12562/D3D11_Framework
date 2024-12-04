@@ -117,10 +117,10 @@ void ResourceManagerScene::AddTestObject()
 	}
 	obj->transform.scale = { 0.1,0.1,0.1 };
 
-	auto testInit = [this](SimpleMaterial* material)->void
+	auto testInit = [this](MeshRender* mesh)->void
 		{
-			material->SetVS(L"VertexSkinningShader.hlsl");			
-			material->SetPS(L"PixelShader.hlsl");
+			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
+			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
 	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, nullptr, testInit, false);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");

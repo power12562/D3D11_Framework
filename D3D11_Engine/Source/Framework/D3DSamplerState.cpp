@@ -27,12 +27,45 @@ void D3DSamplerState::resize(size_t newsize)
 
 void D3DSamplerState::SetSamplerState(int index, D3D11_SAMPLER_DESC& desc)
 {
-	samplerList[index]->Release();
+	ResetSamplerState(index);
 	CheckHRESULT(d3dRenderer.GetDevice()->CreateSamplerState(&desc, &samplerList[index]));
 }
 
 void D3DSamplerState::ResetSamplerState(int index)
 {
-	samplerList[index]->Release();
-	samplerList[index] = nullptr;
+	if (samplerList[index])
+	{
+		samplerList[index]->Release();
+		samplerList[index] = nullptr;
+	}
+}
+
+D3DSamplerState::D3DSamplerState(const D3DSamplerState& rhs)
+{
+	if (this == &rhs)
+		return;
+
+	this->samplerList = rhs.samplerList;
+	for (auto& sampler : samplerList)
+	{
+		sampler->AddRef();
+	}
+}
+
+D3DSamplerState& D3DSamplerState::operator=(const D3DSamplerState& rhs)
+{
+	if (this == &rhs)
+		return *this;
+
+	for (auto& sampler : samplerList)
+	{
+		sampler->Release();
+	}
+	this->samplerList = rhs.samplerList;
+	for (auto& sampler : samplerList)
+	{
+		sampler->AddRef();
+	}
+
+	return *this;
 }

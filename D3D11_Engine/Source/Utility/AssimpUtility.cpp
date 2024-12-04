@@ -1,4 +1,5 @@
 #include "AssimpUtility.h"
+#include <Light/SimpleDirectionalLight.h>
 #include <Framework\SceneManager.h>
 #include <GameObject\Base\GameObject.h>
 #include <Component\Render\SimpleMeshRender.h>
@@ -18,11 +19,18 @@
 
 namespace Utility
 {
-	void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, SimpleMaterial* material)
+	void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender)
 	{
 		aiString path;
 		std::wstring basePath;
 		aiColor3D baseColor;
+
+		meshRender->texture2D.resize(E_TEXTURE_INDEX::Null);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Diffuse);
+		meshRender->texture2D.SetDefaultNormalTexture(E_TEXTURE_INDEX::Normal);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Specular);
+		meshRender->texture2D.SetZeroTexture(E_TEXTURE_INDEX::Emissive);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Opacity);
 
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path))
 		{
@@ -31,12 +39,14 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				material->SetDiffuse(basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Diffuse, basePath.c_str());
 			}
 		}
 		else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
 		{
-			Color& meshColor = material->cb_material.MaterialDiffuse;
+			SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
+			Color& meshColor = simpleMeshRender->Material->cb_material.MaterialDiffuse;
+
 			meshColor.x = baseColor.r;
 			meshColor.y = baseColor.g;
 			meshColor.z = baseColor.b;
@@ -49,7 +59,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				material->SetNormalMap(basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Normal, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -60,7 +70,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				material->SetSpecularMap(basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Specular, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -70,7 +80,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				material->SetEmissiveMap(basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Emissive, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -80,7 +90,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				material->SetOpacityMap(basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Opacity, basePath.c_str());
 			}
 		}
 	}
@@ -180,7 +190,7 @@ namespace Utility
 
 	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* key, 
 		std::shared_ptr<SimpleMaterial> material,
-		std::function<void(SimpleMaterial*)> initMaterial)
+		std::function<void(MeshRender*)> initMesh)
 	{
 		std::queue<GameObject*> objSourceQue;
 		objSourceQue.push(SourceObj);
@@ -249,30 +259,20 @@ namespace Utility
 							{
 								destMesh.Material = material;
 							}
-							else
-							{
-								wchar_t materialName[50]{};
-								swprintf_s(materialName, L"%s (%d)", currDestObj->Name.c_str(), currDestObj->GetInstanceID());
-								destMesh.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
-							}
-							initMaterial(destMesh.Material.get());
-							auto texturesPath = sourceMesh->Material->GetTexturesNames();
-							destMesh.Material->SetDiffuse(texturesPath[E_TEXTURE_INDEX::Diffuse].c_str());
-							destMesh.Material->SetNormalMap(texturesPath[E_TEXTURE_INDEX::Normal].c_str());
-							destMesh.Material->SetSpecularMap(texturesPath[E_TEXTURE_INDEX::Specular].c_str());
-							destMesh.Material->SetEmissiveMap(texturesPath[E_TEXTURE_INDEX::Emissive].c_str());
-							destMesh.Material->SetOpacityMap(texturesPath[E_TEXTURE_INDEX::Opacity].c_str());
 
-							destMesh.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-							destMesh.Material->cbuffer.BindUpdateEvent(destMesh.matrixPallete);
-
-							destMesh.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-							destMesh.Material->cbuffer.BindUpdateEvent(destMesh.boneWIT);
+							destMesh.Material->cb_material = sourceMesh->Material->cb_material;
+							destMesh.texture2D = sourceMesh->texture2D;
+							destMesh.samplerState = sourceMesh->samplerState;
 
 							destMesh.MeshID = sourceMesh->MeshID;
 							destMesh.offsetMatrices = sourceMesh->offsetMatrices;
 
+							destMesh.CopyShader(*sourceMesh);
+
 							destMesh.SetMeshResource(key);
+
+							initMesh(&destMesh);
+
 							meshList.push_back(&destMesh);
 						}
 					}			
@@ -361,22 +361,17 @@ namespace Utility
 							{
 								destMesh.Material = material;
 							}
-							else
-							{
-								wchar_t materialName[50]{};
-								swprintf_s(materialName, L"%s (%d)", currDestObj->Name.c_str(), currDestObj->GetInstanceID());
-								destMesh.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
-							}
-							initMaterial(destMesh.Material.get());
-							auto texturesPath = sourceMesh->Material->GetTexturesNames();
-							destMesh.Material->SetDiffuse(texturesPath[E_TEXTURE_INDEX::Diffuse].c_str());
-							destMesh.Material->SetNormalMap(texturesPath[E_TEXTURE_INDEX::Normal].c_str());
-							destMesh.Material->SetSpecularMap(texturesPath[E_TEXTURE_INDEX::Specular].c_str());
-							destMesh.Material->SetEmissiveMap(texturesPath[E_TEXTURE_INDEX::Emissive].c_str());
-							destMesh.Material->SetOpacityMap(texturesPath[E_TEXTURE_INDEX::Opacity].c_str());
+							
+							destMesh.Material->cb_material = sourceMesh->Material->cb_material;
+							destMesh.texture2D = sourceMesh->texture2D;
+							destMesh.samplerState = sourceMesh->samplerState;
 
 							destMesh.MeshID = sourceMesh->MeshID;
 							destMesh.SetMeshResource(key);
+							
+							destMesh.CopyShader(*sourceMesh);
+
+							initMesh(&destMesh);
 						}
 					}
 				}
@@ -434,7 +429,7 @@ bool Utility::ParseFileName(aiString& str)
 void Utility::LoadFBX(const wchar_t* path,
 	GameObject& _gameObject,
 	std::shared_ptr<SimpleMaterial> material,
-	std::function<void(SimpleMaterial*)> initMaterial,
+	std::function<void(MeshRender*)> initMesh,
 	bool isStatic)
 {
 	using namespace utfConvert;
@@ -459,7 +454,7 @@ void Utility::LoadFBX(const wchar_t* path,
 	{
 		if (GameObject* rootObject = IsResource(wstr_path))
 		{
-			CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), material, initMaterial);
+			CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), material, initMesh);
 			return;
 		}
 	}
@@ -545,27 +540,14 @@ void Utility::LoadFBX(const wchar_t* path,
 						{
 							meshComponent.Material = material;
 						}
-						else
-						{
-							wchar_t materialName[50]{};
-							swprintf_s(materialName, L"%s (%d)", currObj->Name.c_str(), currObj->GetInstanceID());
-
-							meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
-						}
-						initMaterial(meshComponent.Material.get());
+						initMesh(&meshComponent);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
-
-						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.matrixPallete); 
-
-						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.boneWIT);
+						LoadTexture(ai_material, directory.c_str(), &meshComponent);
 
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
@@ -665,18 +647,14 @@ void Utility::LoadFBX(const wchar_t* path,
 						{
 							meshComponent.Material = material;
 						}
-						else
-						{
-							meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
-						}
-						initMaterial(meshComponent.Material.get());
+						initMesh(&meshComponent);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+						LoadTexture(ai_material, directory.c_str(), &meshComponent);
 			
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
@@ -749,7 +727,7 @@ void Utility::LoadFBX(const wchar_t* path,
 
 void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
 {
-	LoadFBX(path, _gameObject, material, [](SimpleMaterial* material)->void { return; }, isStatic);
+	LoadFBX(path, _gameObject, material, [](MeshRender* mesh)->void { return; }, isStatic);
 }
 
 void Utility::LoadFBXResource(const wchar_t* path)
@@ -871,14 +849,8 @@ void Utility::LoadFBXResource(const wchar_t* path)
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+						LoadTexture(ai_material, directory.c_str(), &meshComponent);
 ;
-						meshComponent.Material->cbuffer.CreateVSConstantBuffers<MatrixPallete>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.matrixPallete);
-
-						meshComponent.Material->cbuffer.CreateVSConstantBuffers<BoneWIT>();
-						meshComponent.Material->cbuffer.BindUpdateEvent(meshComponent.boneWIT);
-
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
 						meshComponent.offsetMatrices->data.resize(boneCount);
@@ -980,7 +952,7 @@ void Utility::LoadFBXResource(const wchar_t* path)
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), meshComponent.Material.get());
+						LoadTexture(ai_material, directory.c_str(), &meshComponent);
 
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{

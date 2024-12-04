@@ -9,12 +9,16 @@
 class Transform;
 class D3DRenderer;
 class D3DConstBuffer;
+class D3DSamplerState;
+class D3DTexture2D;
 class SimpleMaterial;
 extern D3DRenderer& d3dRenderer;
 
 struct USAGE_VRAM_INFO;
 struct SYSTEM_VRAM_INFO;
 struct SYSTEM_MEMORY_INFO;
+
+struct RENDERER_DRAW_DESC;
 
 class D3DRenderer : public TSingleton<D3DRenderer>
 {
@@ -56,7 +60,7 @@ private:
 
 public:
 	void BegineDraw();
-	void DrawIndex(DRAW_INDEX_DATA& data, SimpleMaterial& material, Transform& transform);
+	void DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha);
 	void EndDraw();
 	void Present() { pSwapChain->Present(0, 0); }
 
@@ -72,9 +76,9 @@ private:
 	ID3D11BlendState*		 pBlendState;		  // 블렌드 상태
 
 private:
-	std::vector<std::tuple<DRAW_INDEX_DATA*, SimpleMaterial*, const Transform*>> opaquerenderOueue; //불투명 오브젝트
-	std::vector<std::tuple<DRAW_INDEX_DATA*, SimpleMaterial*, const Transform*>> alphaRenderQueue;  //반투명 오브젝트
-	void Draw(DRAW_INDEX_DATA* data, SimpleMaterial* material);
+	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
+	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
+	void Draw(RENDERER_DRAW_DESC& drawDesc);
 
 };
 
@@ -106,4 +110,16 @@ struct SYSTEM_MEMORY_INFO
 	
 	/*메모리 커밋 사이즈*/
 	SIZE_T PagefileUsage;
+};
+
+struct RENDERER_DRAW_DESC 
+{
+	DRAW_INDEX_DATA* pVertexIndex;
+	D3DConstBuffer*  pConstBuffer;
+	D3DTexture2D*	 pD3DTexture2D;
+	D3DSamplerState* pSamperState;
+	const Transform* pTransform;
+	ID3D11InputLayout* pInputLayout;
+	ID3D11VertexShader* pVertexShader;
+	ID3D11PixelShader* pPixelShader;
 };

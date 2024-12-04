@@ -13,6 +13,13 @@ public:
 
 	void SetSamplerState(int index, D3D11_SAMPLER_DESC& desc);
 	void ResetSamplerState(int index);
+
+	ID3D11SamplerState* operator[](int index) { return samplerList[index]; }
+
+public:
+	D3DSamplerState(const D3DSamplerState& rhs);
+	D3DSamplerState& operator=(const D3DSamplerState& rhs);
+
 private:
 	std::vector<ID3D11SamplerState*> samplerList;
 };

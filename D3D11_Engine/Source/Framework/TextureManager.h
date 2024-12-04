@@ -22,15 +22,15 @@ public:
 
 public:
 	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE_INDEX::TEXTURE_INDEX texture);
+	ID3D11ShaderResourceView* GetOneTexture();
+	ID3D11ShaderResourceView* GetDefaultNormalTexture();
+	ID3D11ShaderResourceView* GetZeroTexture();
 	void ReleaseDefaultTexture();
 
 private:
 	std::unordered_map<std::wstring, ID3D11ShaderResourceView*> resourceMap;
 
 	void CreateDefaultTexture(const float (&pixel)[4], ID3D11ShaderResourceView** ppSRV);
-	ID3D11ShaderResourceView* GetOneTexture();
-	ID3D11ShaderResourceView* GetdefaultNormalTexture();
-	ID3D11ShaderResourceView* GetZeroTexture();
 
 	ID3D11ShaderResourceView* oneTexture = nullptr;
 	ID3D11ShaderResourceView* defaultNormalTexture = nullptr;

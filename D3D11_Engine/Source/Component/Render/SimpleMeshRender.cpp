@@ -6,10 +6,7 @@
 
 SimpleMeshRender::SimpleMeshRender()
 {
-	if (Material == nullptr)
-	{
-		Material = ResourceManager<SimpleMaterial>::instance().GetResource(L"Standard");
-	}
+	
 }
 
 SimpleMeshRender::~SimpleMeshRender()
@@ -24,7 +21,30 @@ SimpleMeshRender::~SimpleMeshRender()
 
 void SimpleMeshRender::Start()
 {
-	
+	using namespace Utility;
+
+	wchar_t materialName[50]{};
+	swprintf_s(materialName, L"%s (%d)", gameObject.Name.c_str(), gameObject.GetInstanceID());
+	Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
+
+	int index = constBuffer.CreatePSConstantBuffers<cb_Material>();
+	constBuffer.BindUpdateEvent(Material->cb_material);
+
+	index = constBuffer.CreatePSConstantBuffers<cbuffer_Light>();
+	constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_Light);
+
+	// Create the sample state
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	samplerState.resize(1);
+	samplerState.SetSamplerState(0, sampDesc);
 }
 
 void SimpleMeshRender::FixedUpdate()
@@ -48,9 +68,11 @@ void SimpleMeshRender::Render()
 	}
 	
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-    if (Material && Material->IsShader())
+    if (Material && IsVSShader() && IsPSShader())
     {
-        d3dRenderer.DrawIndex(*meshResource, *Material, gameObject.transform);
+		constBuffer.UpdateEvent();
+		RENDERER_DRAW_DESC desc = GetRendererDesc();
+        d3dRenderer.DrawIndex(desc, false);
     } 
 }
 
@@ -89,20 +111,4 @@ void SimpleMeshRender::CreateMesh()
 
 	vertices.clear();
 	indices.clear();
-}
-
-void SimpleMeshRender::SetMeshResource(const wchar_t* path)
-{
-	if (MeshID < 0)
-	{
-		__debugbreak();
-		return;
-	}
-
-	using namespace utfConvert;
-	if (meshResource == nullptr)
-	{
-		//°íÀ¯ÀÇ fbx + mesh index
-		meshResource = GetResourceManager<DRAW_INDEX_DATA>().GetResource(path, MeshID);
-	}
 }

@@ -1,9 +1,9 @@
 #pragma once
-#include <Component\Base\RenderComponent.h>
+#include <Component\Render\MeshRender.h>
 #include <functional>
 
 class SimpleMaterial;
-class SimpleMeshRender : public RenderComponent
+class SimpleMeshRender : public MeshRender
 {
 public:
 	struct Vertex
@@ -27,15 +27,10 @@ protected:
 
 public:
 	void CreateMesh();
-	void SetMeshResource(const wchar_t* path);
-
-private:
-	DRAW_INDEX_RESOURCE meshResource;
 
 public:
 	std::vector<Vertex> vertices;	
 	std::vector<UINT> indices;	
-	int MeshID = -1;
 
 public:
 	std::shared_ptr<SimpleMaterial> Material = nullptr;

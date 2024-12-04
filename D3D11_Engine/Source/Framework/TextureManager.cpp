@@ -57,7 +57,7 @@ ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_INDEX::TEX
 	case E_TEXTURE_INDEX::Diffuse:
 		return GetOneTexture();
 	case E_TEXTURE_INDEX::Normal:
-		return GetdefaultNormalTexture();
+		return GetDefaultNormalTexture();
 	case E_TEXTURE_INDEX::Specular:
 		return GetOneTexture();
 	case E_TEXTURE_INDEX::Emissive:
@@ -118,7 +118,7 @@ ID3D11ShaderResourceView* TextureManager::GetOneTexture()
 	}
 }
 
-ID3D11ShaderResourceView* TextureManager::GetdefaultNormalTexture()
+ID3D11ShaderResourceView* TextureManager::GetDefaultNormalTexture()
 {
 	if (defaultNormalTexture)
 		return defaultNormalTexture;

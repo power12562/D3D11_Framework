@@ -31,10 +31,22 @@ public:
 	D3DTexture2D texture2D;
 	D3DSamplerState samplerState;
 public:
+	bool IsVSShader() { return pInputLayout && pVertexShader; }
+	bool IsPSShader() { return !!pPixelShader; }
+
+public:
+	void CopyShader(MeshRender& rhs);
+public:
 	void SetVertexShader(const wchar_t* path);
 	void SetPixelShader(const wchar_t* path);
+public:
+	void ResetVertexShader();
+	void ResetPixelShader();
 private:
 	ID3D11InputLayout* pInputLayout = nullptr;
 	ID3D11VertexShader* pVertexShader = nullptr;
 	ID3D11PixelShader* pPixelShader = nullptr;
+public:
+	RENDERER_DRAW_DESC GetRendererDesc();
+
 };
