@@ -326,8 +326,6 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
-    using namespace E_TEXTURE_INDEX;
-
     drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
     for (int i = 0; i < drawDesc.pSamperState->size(); i++)

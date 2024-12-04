@@ -25,12 +25,12 @@ namespace Utility
 		std::wstring basePath;
 		aiColor3D baseColor;
 
-		meshRender->texture2D.resize(E_TEXTURE_INDEX::Null);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Diffuse);
-		meshRender->texture2D.SetDefaultNormalTexture(E_TEXTURE_INDEX::Normal);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Specular);
-		meshRender->texture2D.SetZeroTexture(E_TEXTURE_INDEX::Emissive);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE_INDEX::Opacity);
+		meshRender->texture2D.resize(SimpleMaterial::Null);
+		meshRender->texture2D.SetOneTexture(SimpleMaterial::Diffuse);
+		meshRender->texture2D.SetDefaultNormalTexture(SimpleMaterial::Normal);
+		meshRender->texture2D.SetOneTexture(SimpleMaterial::Specular);
+		meshRender->texture2D.SetZeroTexture(SimpleMaterial::Emissive);
+		meshRender->texture2D.SetOneTexture(SimpleMaterial::Opacity);
 
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path))
 		{
@@ -39,7 +39,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Diffuse, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(SimpleMaterial::Diffuse, basePath.c_str());
 			}
 		}
 		else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
@@ -59,7 +59,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Normal, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(SimpleMaterial::Normal, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -70,7 +70,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Specular, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(SimpleMaterial::Specular, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -80,7 +80,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Emissive, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(SimpleMaterial::Emissive, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -90,7 +90,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE_INDEX::Opacity, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(SimpleMaterial::Opacity, basePath.c_str());
 			}
 		}
 	}

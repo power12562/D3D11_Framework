@@ -50,21 +50,21 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 	}
 }
 
-ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_INDEX::TEXTURE_INDEX texture)
+ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(SimpleMaterial::TEXTURE_INDEX texture)
 {
 	switch (texture)
 	{
-	case E_TEXTURE_INDEX::Diffuse:
+	case SimpleMaterial::Diffuse:
 		return GetOneTexture();
-	case E_TEXTURE_INDEX::Normal:
+	case SimpleMaterial::Normal:
 		return GetDefaultNormalTexture();
-	case E_TEXTURE_INDEX::Specular:
+	case SimpleMaterial::Specular:
 		return GetOneTexture();
-	case E_TEXTURE_INDEX::Emissive:
+	case SimpleMaterial::Emissive:
 		return GetZeroTexture();
-	case E_TEXTURE_INDEX::Opacity:
+	case SimpleMaterial::Opacity:
 		return GetOneTexture();
-	case E_TEXTURE_INDEX::Null:	 
+	case SimpleMaterial::Null:	 
 		return GetZeroTexture();
 	default:
 		return GetZeroTexture();

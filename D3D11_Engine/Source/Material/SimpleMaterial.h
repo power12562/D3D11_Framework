@@ -15,8 +15,10 @@ struct cb_Material
 };
 #pragma warning( default : 4305 )
 
-namespace E_TEXTURE_INDEX
+class SimpleMaterial
 {
+	friend class D3DRenderer;
+public:
 	enum TEXTURE_INDEX
 	{
 		Diffuse,
@@ -26,11 +28,7 @@ namespace E_TEXTURE_INDEX
 		Opacity,
 		Null
 	};
-}
 
-class SimpleMaterial
-{
-	friend class D3DRenderer;
 public:
 	SimpleMaterial() = default;
 	~SimpleMaterial() = default;

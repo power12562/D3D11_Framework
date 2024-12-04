@@ -21,7 +21,7 @@ public:
 	ULONG ReleaseSharingTexture(const wchar_t* path);
 
 public:
-	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE_INDEX::TEXTURE_INDEX texture);
+	ID3D11ShaderResourceView* GetDefaultTexture(SimpleMaterial::TEXTURE_INDEX texture);
 	ID3D11ShaderResourceView* GetOneTexture();
 	ID3D11ShaderResourceView* GetDefaultNormalTexture();
 	ID3D11ShaderResourceView* GetZeroTexture();

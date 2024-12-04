@@ -25,10 +25,10 @@ void SimpleUpdateCbuffer::Update()
 {
 	if (meshRender)
 	{
-		cb_localbool.loaclNormalMap = !!(meshRender->texture2D)[E_TEXTURE_INDEX::Normal];
-		cb_localbool.loaclSpecularMap = !!(meshRender->texture2D)[E_TEXTURE_INDEX::Specular];
-		cb_localbool.loaclEmissiveMap = !!(meshRender->texture2D)[E_TEXTURE_INDEX::Emissive];
-		cb_localbool.loaclOpacityMap = !!(meshRender->texture2D)[E_TEXTURE_INDEX::Opacity];
+		cb_localbool.loaclNormalMap = !!(meshRender->texture2D)[SimpleMaterial::Normal];
+		cb_localbool.loaclSpecularMap = !!(meshRender->texture2D)[SimpleMaterial::Specular];
+		cb_localbool.loaclEmissiveMap = !!(meshRender->texture2D)[SimpleMaterial::Emissive];
+		cb_localbool.loaclOpacityMap = !!(meshRender->texture2D)[SimpleMaterial::Opacity];
 		
 		SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
 		simpleMeshRender->Material->cb_material = Global_Cbuffer::cb_material;	

@@ -4,4 +4,3 @@
 #include <Framework\TextureManager.h>
 #include <Light/SimpleDirectionalLight.h>
 
-using namespace E_TEXTURE_INDEX;
