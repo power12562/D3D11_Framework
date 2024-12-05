@@ -63,6 +63,8 @@ void PBRTestScene::ImGUIRender()
 		{
 			ImGui::Text("Camera");
 			ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
+			ImGui::SliderFloat("CamNear", &mainCam->Near, 0.01f, 100.f);
+			ImGui::SliderFloat("CamFar", &mainCam->Far, 100.f, 10000.f);
 			ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 			ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
 			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
