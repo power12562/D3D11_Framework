@@ -19,6 +19,16 @@ PBRTestScene::PBRTestScene()
 
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
+	ID3D11RasterizerState* pRRState;
+	D3D11_RASTERIZER_DESC rasterDesc;
+	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.CullMode = D3D11_CULL_BACK; 
+	rasterDesc.FrontCounterClockwise = false; 
+	d3dRenderer.CreateRRState(rasterDesc, &pRRState);
+	d3dRenderer.SetRRState(pRRState);
+	Utility::SafeRelease(pRRState);
+
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->transform.position = Vector3(0.f, 8.f, -20.f);

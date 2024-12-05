@@ -52,7 +52,9 @@ public:
 	void reserveRenderQueue(size_t size);
 
 	/*레스터화 규칙 설정*/
-	void SetRSState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC);
+	void SetRRState(ID3D11RasterizerState* rasterState);
+	/*레스터화 규칙 생성*/
+	void CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState);
 private:
 	//Vram 체크용 dxgi 개체
 	struct IDXGIFactory*  pDXGIFactory = nullptr;        
@@ -74,6 +76,7 @@ private:
 	ID3D11RenderTargetView*  pRenderTargetView;	  // 렌더링 타겟뷰
 	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
 	ID3D11BlendState*		 pBlendState;		  // 블렌드 상태
+	ID3D11RasterizerState*   pDefaultRRState;    // 기본 레스터화 규칙
 
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트

@@ -33,6 +33,7 @@ D3DRenderer::D3DRenderer()
     pRenderTargetView = nullptr;
     pDepthStencilView = nullptr;
     pBlendState = nullptr;
+    pDefaultRRState = nullptr;
 }
 
 D3DRenderer::~D3DRenderer()
@@ -106,7 +107,8 @@ void D3DRenderer::Init()
         rasterDesc.FillMode = D3D11_FILL_SOLID;
         rasterDesc.CullMode = D3D11_CULL_NONE;  // 컬링 없음
         rasterDesc.FrontCounterClockwise = false; // 기본값
-        SetRSState(rasterDesc);
+        CreateRRState(rasterDesc, &pDefaultRRState);
+        SetRRState(pDefaultRRState);
 
         //깊이 스텐실 버퍼
         D3D11_TEXTURE2D_DESC descDepth = {};
@@ -172,6 +174,7 @@ void D3DRenderer::Uninit()
      
     //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
+    SafeRelease(pDefaultRRState);
     SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
     SafeRelease(pDepthStencilView);
@@ -205,14 +208,21 @@ void D3DRenderer::reserveRenderQueue(size_t size)
     alphaRenderQueue.reserve(size);
 }
 
-void D3DRenderer::SetRSState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC)
+void D3DRenderer::SetRRState(ID3D11RasterizerState* rasterState)
 {
-    ID3D11RasterizerState* rasterState;
-    pDevice->CreateRasterizerState(&RASTERIZER_DESC, &rasterState);
+    if (rasterState)
+    {
+        pDeviceContext->RSSetState(rasterState);
+    }
+    else
+    {
+        pDeviceContext->RSSetState(pDefaultRRState);
+    }
+}
 
-    // 렌더링 파이프라인에 적용
-    pDeviceContext->RSSetState(rasterState);
-    SafeRelease(rasterState);
+void D3DRenderer::CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState)
+{
+    pDevice->CreateRasterizerState(&RASTERIZER_DESC, rasterState);
 }
 
 namespace BytesHelp
