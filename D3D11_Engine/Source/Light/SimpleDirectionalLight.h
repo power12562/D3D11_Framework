@@ -1,6 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
-#include <Material\SimpleMaterial.h>
+#include <Material\BlingPhongMaterial.h>
 
 #pragma warning(disable : 4305)
 struct cb_Light

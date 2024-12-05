@@ -1,6 +1,6 @@
 #pragma once
 #include <Scene\Base\Scene.h>
-#include <Material/SimpleMaterial.h>
+#include <Material/BlingPhongMaterial.h>
 
 class TransAnimationScene : public Scene
 {

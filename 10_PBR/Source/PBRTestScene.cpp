@@ -6,7 +6,7 @@
 #include <Framework\ImguiHelper.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
-#include <Material/SimpleMaterial.h>
+#include <Material/BlingPhongMaterial.h>
 #include <Framework/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
 #include <Framework/ResourceManager.h>

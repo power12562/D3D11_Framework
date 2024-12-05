@@ -3,17 +3,20 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Component/Camera/CameraMoveHelper.h>
 #include <Utility/AssimpUtility.h>
-#include <Material/SimpleMaterial.h>
+#include <Material/BlingPhongMaterial.h>
 #include <Component/TransformAnimation.h>
 #include <Framework/ImguiHelper.h>
 #include <Framework/TimeSystem.h>
 #include <Light/SimpleDirectionalLight.h>
 #include <Component/Render/MeshRender.h>
+#include <Framework/ResourceManager.h>
 
 TestMainScene::TestMainScene()
 {
 	Scene::UseImGUI = true;
     d3dRenderer.backgroundColor = { 1.f,1.f,1.f,1.f };
+
+    material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
     mainCam = NewGameObject<CameraObject>(L"Camera");
     mainCam->GetComponent<Camera>().SetMainCamera();
@@ -24,20 +27,32 @@ TestMainScene::TestMainScene()
     auto HipHopDancing = NewGameObject(L"Hip Hop Dancing.fbx");
     auto SkinningMesh = [this](MeshRender* mesh)->void
         {
+            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+            mesh->constBuffer.BindUpdateEvent(*material);
+
+            index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+            mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
             mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
             mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, nullptr, SkinningMesh, false);
+    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, SkinningMesh, false);
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
     auto House = NewGameObject(L"House");
     auto objMesh = [this](MeshRender* mesh)
         {
+            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+            mesh->constBuffer.BindUpdateEvent(*material);
+
+            index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+            mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
             mesh->SetVertexShader(L"VertexShader.hlsl");
             mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/house.fbx", *House, nullptr, objMesh, true);
+    Utility::LoadFBX(L"Resource/house.fbx", *House, objMesh, true);
     House->transform.position = Vector3(50.0f, 0.f, 0.f);
     House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }

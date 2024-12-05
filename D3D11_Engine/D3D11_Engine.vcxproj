@@ -154,7 +154,7 @@
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
-    <ClInclude Include="Source\Material\SimpleMaterial.h" />
+    <ClInclude Include="Source\Material\BlingPhongMaterial.h" />
     <ClInclude Include="Source\Component\Camera\CameraMoveHelper.h" />
     <ClInclude Include="Source\Component\Base\Component.h" />
     <ClInclude Include="Source\Component\Base\RenderComponent.h" />

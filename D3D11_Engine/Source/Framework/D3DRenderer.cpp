@@ -3,7 +3,7 @@
 #include <Framework\WinGameApp.h>
 #include <Framework/D3DConstBuffer.h>
 #include <Framework/Transform.h>
-#include <Material\SimpleMaterial.h>
+#include <Material\BlingPhongMaterial.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
 #include <Framework/TextureManager.h>

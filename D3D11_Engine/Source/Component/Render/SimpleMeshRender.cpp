@@ -1,6 +1,6 @@
 #include "SimpleMeshRender.h"
 #include <Framework\D3DRenderer.h>
-#include <Material\SimpleMaterial.h>
+#include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Framework\ResourceManager.h>
 

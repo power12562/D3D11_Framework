@@ -1,7 +1,5 @@
 #pragma once
-#include <Framework\D3DConstBuffer.h>
 #include <directxtk/simplemath.h>
-#include <array>
 #include <memory>
 
 #pragma warning( disable : 4305 )
@@ -15,4 +13,4 @@ struct cb_BlingPhongMaterial
 };
 #pragma warning( default : 4305 )
 
-using sptrSimpleMaterial = std::shared_ptr<SimpleMaterial>;
+using sptrBlingPhongMaterial = std::shared_ptr<cb_BlingPhongMaterial>;

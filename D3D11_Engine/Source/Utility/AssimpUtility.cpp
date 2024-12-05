@@ -10,7 +10,7 @@
 #include <assimp\postprocess.h>
 #include <Math/AssimpMath.h>
 #include <Utility\utfConvert.h>
-#include <Material\SimpleMaterial.h>
+#include <Material\BlingPhongMaterial.h>
 #include <Component\TransformAnimation.h>
 #include <Framework\ResourceManager.h>
 #include <Math/Mathf.h>

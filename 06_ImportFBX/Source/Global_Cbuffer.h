@@ -1,6 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
-#include <Material\SimpleMaterial.h>
+#include <Material\BlingPhongMaterial.h>
 
 struct cbuffer_bool
 {

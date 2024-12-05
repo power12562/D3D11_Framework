@@ -11,7 +11,7 @@
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Framework\ResourceManager.h>
-#include <Material/SimpleMaterial.h>
+#include <Material/BlingPhongMaterial.h>
 #include <Framework/TimeSystem.h>
 
 #pragma warning(disable : 4305)

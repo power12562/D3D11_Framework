@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <minwindef.h>
-#include <Material/SimpleMaterial.h>
+#include <Material/BlingPhongMaterial.h>
 #include <Utility/AssimpUtility.h>
 
 class TextureManager;
