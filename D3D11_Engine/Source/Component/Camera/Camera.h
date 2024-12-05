@@ -13,8 +13,8 @@ private:
 
 public:
 	float FOV = 90;
-	float Near = 0.01f;
-	float Far = 100.f;
+	float Near = 0.001f;
+	float Far = 1000.f;
 
 public:
 	Camera();

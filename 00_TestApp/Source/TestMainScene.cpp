@@ -19,7 +19,8 @@ TestMainScene::TestMainScene()
     material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
     mainCam = NewGameObject<CameraObject>(L"Camera");
-    mainCam->GetComponent<Camera>().SetMainCamera();
+    camera = &mainCam->GetComponent<Camera>();
+    camera->SetMainCamera();
     mainCam->transform.position = Vector3(10.f, 40.f, -63.f);
     mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
     mainCam->AddComponent<CameraMoveHelper>();
@@ -40,7 +41,7 @@ TestMainScene::TestMainScene()
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
-    auto House = NewGameObject(L"House");
+    auto House = NewGameObject(L"char");
     auto objMesh = [this](MeshRender* mesh)
         {
             int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
@@ -52,7 +53,7 @@ TestMainScene::TestMainScene()
             mesh->SetVertexShader(L"VertexShader.hlsl");
             mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/house.fbx", *House, objMesh, true);
+    Utility::LoadFBX(L"Resource/char/char.fbx", *House, objMesh, true);
     House->transform.position = Vector3(50.0f, 0.f, 0.f);
     House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
@@ -68,6 +69,9 @@ void TestMainScene::ImGUIRender()
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
         ImGui::DragVector3("Camera Position", &mainCam->transform.position);
         ImGui::DragQuaternion("Camera Rotation", &mainCam->transform.rotation);
+        ImGui::SliderFloat("Camera Near", &camera->Near, 0.001f, 100.f);
+        ImGui::SliderFloat("Camera Far", &camera->Far, 100.f, 10000.f);
+
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
     }
