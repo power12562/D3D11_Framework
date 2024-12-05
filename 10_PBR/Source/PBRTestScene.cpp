@@ -38,12 +38,12 @@ PBRTestScene::PBRTestScene()
 		};
 
 	auto cerberus = NewGameObject(L"cerberus");
-	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, nullptr, initShader, false);
+	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, initShader, false);
 	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 
 	auto charater = NewGameObject(L"charater");
-	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, nullptr, initShader, false);
+	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initShader, false);
 	charater->transform.position += Vector3::Right * 10.f;
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
