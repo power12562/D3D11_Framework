@@ -9,6 +9,7 @@
 #include <Material/SimpleMaterial.h>
 #include <Framework/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
+#include <Framework/ResourceManager.h>
 
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
@@ -23,12 +24,20 @@ PBRTestScene::PBRTestScene()
 	cam->transform.rotation = Vector3(0.f, 0.f, 0.f);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	auto cerberus = NewGameObject(L"cerberus");
-	auto initShader = [](MeshRender* mesh)
+	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+	auto initShader = [this](MeshRender* mesh)
 		{ 
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+			mesh->constBuffer.BindUpdateEvent(*material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 		};
+
+	auto cerberus = NewGameObject(L"cerberus");
 	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, nullptr, initShader, false);
 	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
@@ -51,19 +60,6 @@ void PBRTestScene::ImGUIRender()
 	ImGui::Begin("Debug");
 	{
 		ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
-		SYSTEM_VRAM_INFO vram = d3dRenderer.GetSystemVramInfo();
-		ImGui::Text("Dedicated Video Memory : %zu", vram.DedicatedVideoMemory);
-		ImGui::Text("Shared System Memory : %zu", vram.SharedSystemMemory);
-		USAGE_VRAM_INFO local = d3dRenderer.GetLocalVramUsage();
-		ImGui::Text("Local Video Memory : %llu MB / %llu MB", local.Budget, local.Usage);
-		USAGE_VRAM_INFO nonlocal = d3dRenderer.GetNonLocalVramUsage();
-		ImGui::Text("NonLocal Video Memory : %llu MB / %llu MB", nonlocal.Budget, nonlocal.Usage);
-
-		SYSTEM_MEMORY_INFO memory = d3dRenderer.GetSystemMemoryInfo();
-		ImGui::Text("PrivateUsage : %zu", memory.PrivateUsage);
-		ImGui::Text("WorkingSetSize : %zu", memory.WorkingSetSize);
-		ImGui::Text("PagefileUsage : %zu", memory.PagefileUsage);
-		ImGui::Text("");
 
 		if (mainCam)
 		{
@@ -74,6 +70,9 @@ void PBRTestScene::ImGUIRender()
 			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
 			ImGui::Text("");
 		}
+
+		ImGui::Text("Material");
+		ImGui::ColorEdit3("Base Color", &material->MaterialDiffuse);
 
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);

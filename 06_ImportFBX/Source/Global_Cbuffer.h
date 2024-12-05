@@ -35,7 +35,7 @@ struct cb_localBool
 namespace Global_Cbuffer
 {
     extern cbuffer_bool cb_bool;
-    extern cb_Material cb_material;
+    extern cb_BlingPhongMaterial cb_material;
 };
 
 

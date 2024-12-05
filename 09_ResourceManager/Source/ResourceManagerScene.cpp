@@ -31,6 +31,8 @@ ResourceManagerScene::ResourceManagerScene()
 	cam->transform.position = Vector3(0, 30, -25);
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
+	
+	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
 	for (size_t i = 0; i < 50; i++) { AddTestObject(); }
 }
@@ -119,10 +121,16 @@ void ResourceManagerScene::AddTestObject()
 
 	auto testInit = [this](MeshRender* mesh)->void
 		{
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+			mesh->constBuffer.BindUpdateEvent(*material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);

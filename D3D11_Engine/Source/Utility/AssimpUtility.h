@@ -9,18 +9,30 @@ class SimpleMaterial;
 class MeshRender;
 class Scene;
 class GameObject;
+
+namespace E_TEXTURE
+{
+	enum TEXTURE_INDEX
+	{
+		Diffuse,
+		Normal,
+		Specular,
+		Emissive,
+		Opacity,
+		Null
+	};
+}
+
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
 	void LoadFBX(const wchar_t* path, 
 		GameObject& _gameObject, 
-		std::shared_ptr<SimpleMaterial> material,
 		std::function<void(MeshRender*)> initMesh,
 		bool isStatic);
 
 	void LoadFBX(const wchar_t* path,
 		GameObject& _gameObject,
-		std::shared_ptr<SimpleMaterial> material,
 		bool isStatic);
 
 	void LoadFBXResource(const wchar_t* path);

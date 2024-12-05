@@ -56,6 +56,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "09_ResourceManager", "09_Re
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_PBR", "10_PBR\10_PBR.vcxproj", "{E3EF8583-AB88-4E65-A3FE-3FD36D7543EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

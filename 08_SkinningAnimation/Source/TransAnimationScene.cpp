@@ -20,6 +20,8 @@ TransAnimationScene::TransAnimationScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
+	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->transform.position = Vector3(0, 10, -25);
@@ -37,16 +39,22 @@ TransAnimationScene::TransAnimationScene()
 	test3->transform.position = { 0,0,0 };
 	test3->transform.scale = { 0.1,0.1,0.1 };
 
-	auto testInit = [](MeshRender* material)->void
+	auto testInit = [this](MeshRender* mesh)->void
 		{
-			material->SetVertexShader(L"VertexSkinningShader.hlsl");				
-			//material->SetVS(L"VertexShader.hlsl");				
-			material->SetPixelShader(L"PixelShader.hlsl");	
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+			mesh->constBuffer.BindUpdateEvent(*material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
+			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");				
+			//mesh->SetVS(L"VertexShader.hlsl");				
+			mesh->SetPixelShader(L"PixelShader.hlsl");	
 		};
 
-	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, nullptr, testInit, false);
-	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, nullptr, testInit, false);
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, nullptr, testInit, false);
+	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, testInit, false);
+	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, testInit, false);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, testInit, false);
 
 	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");

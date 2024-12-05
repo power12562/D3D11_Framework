@@ -19,6 +19,8 @@ TransAnimationScene::TransAnimationScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
+	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->transform.position = Vector3(0, 30, -50);
@@ -28,14 +30,19 @@ TransAnimationScene::TransAnimationScene()
 	box->transform.position = { 0,0,0 };
 	box->transform.scale = { 0.05,0.05,0.05 };
 
-	auto meshInit = [](MeshRender* mesh) 
+	auto meshInit = [this](MeshRender* mesh) 
 		{
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+			mesh->constBuffer.BindUpdateEvent(*material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
-			mesh->constBuffer.BindUpdateEvent(GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material);
 		};
-	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, GetResourceManager<SimpleMaterial>()[L"BoxHuman"], meshInit, false);
-	GetResourceManager<SimpleMaterial>().GetResource(L"BoxHuman")->cb_material.MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, meshInit, false);
+	material->MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }
@@ -48,7 +55,6 @@ void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
-	cb_Material& cb_material = GetResourceManager<SimpleMaterial>()[L"BoxHuman"]->cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
@@ -65,10 +71,10 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 
-	ImGui::ColorEdit3("MaterialDiffuse", &cb_material.MaterialDiffuse);
-	ImGui::ColorEdit3("MaterialAmbient", &cb_material.MaterialAmbient);
-	ImGui::ColorEdit3("MaterialSpecular", &cb_material.MaterialSpecular);
-	ImGui::DragFloat("MaterialSpecularPower", &cb_material.MaterialSpecularPower, 10, 50, 500);
+	ImGui::ColorEdit3("MaterialDiffuse", &material->MaterialDiffuse);
+	ImGui::ColorEdit3("MaterialAmbient", &material->MaterialAmbient);
+	ImGui::ColorEdit3("MaterialSpecular", &material->MaterialSpecular);
+	ImGui::DragFloat("MaterialSpecularPower", &material->MaterialSpecularPower, 10, 50, 500);
 	ImGui::Text("");
 
 	ImGui::Text("Box Robot");

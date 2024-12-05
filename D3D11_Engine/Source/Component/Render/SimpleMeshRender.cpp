@@ -25,13 +25,6 @@ void SimpleMeshRender::Start()
 
 	wchar_t materialName[50]{};
 	swprintf_s(materialName, L"%s (%d)", gameObject.Name.c_str(), gameObject.GetInstanceID());
-	Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
-
-	int index = constBuffer.CreatePSConstantBuffers<cb_Material>();
-	constBuffer.BindUpdateEvent(Material->cb_material);
-
-	index = constBuffer.CreatePSConstantBuffers<cb_Light>();
-	constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -68,7 +61,7 @@ void SimpleMeshRender::Render()
 	}
 	
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-    if (Material && IsVSShader() && IsPSShader())
+    if (IsVSShader() && IsPSShader())
     {
 		constBuffer.UpdateEvent();
 		RENDERER_DRAW_DESC desc = GetRendererDesc();

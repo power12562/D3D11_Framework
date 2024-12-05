@@ -55,6 +55,10 @@ public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
 
+public:
+	D3DConstBuffer(const D3DConstBuffer& rhs) = delete;
+	D3DConstBuffer& operator=(const D3DConstBuffer& rhs) = delete;
+
 private:
 	inline static constexpr int StaticCbufferCount = 2;
 	inline static ID3D11Buffer* cBufferTransform = nullptr;

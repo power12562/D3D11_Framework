@@ -196,7 +196,6 @@
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Framework\ResourceManager.cpp" />
     <ClCompile Include="Source\Framework\ThreadPool.cpp" />
-    <ClCompile Include="Source\Material\SimpleMaterial.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />
     <ClCompile Include="Source\Component\Base\Component.cpp" />

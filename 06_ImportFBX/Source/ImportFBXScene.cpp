@@ -67,6 +67,12 @@ ImportFBXScene::ImportFBXScene()
 
 	auto initMaterial = [](MeshRender* mesh)
 		{
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+			mesh->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
@@ -80,43 +86,43 @@ ImportFBXScene::ImportFBXScene()
 	auto character = NewGameObject<GameObject>(L"Character");
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX(L"Resource/Character.fbx",*character, nullptr, initMaterial, false);
+	Utility::LoadFBX(L"Resource/Character.fbx",*character, initMaterial, false);
 	AddUpdateCbufferAllChild(character);										 
 	
 	auto zelda = NewGameObject<GameObject>(L"zelda");
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX(L"Resource/zeldaPosed001.fbx", *zelda, nullptr, initMaterial, false);
+	Utility::LoadFBX(L"Resource/zeldaPosed001.fbx", *zelda, initMaterial, false);
 	AddUpdateCbufferAllChild(zelda);
 
 	auto tree = NewGameObject<GameObject>(L"Tree");
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	Utility::LoadFBX(L"Resource/Tree.fbx", *tree, nullptr, initMaterial, true);
+	Utility::LoadFBX(L"Resource/Tree.fbx", *tree, initMaterial, true);
 	AddUpdateCbufferAllChild(tree);
 
 	auto box = NewGameObject<GameObject>(L"box");
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	Utility::LoadFBX(L"Resource/box.fbx", *box, nullptr, initMaterial, true);
+	Utility::LoadFBX(L"Resource/box.fbx", *box, initMaterial, true);
 	AddUpdateCbufferAllChild(box);
 
 	auto monkey = NewGameObject<GameObject>(L"Monkey");
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/Monkey.fbx", *monkey, nullptr, initMaterial, false);
+	Utility::LoadFBX(L"Resource/Monkey.fbx", *monkey, initMaterial, false);
 	AddUpdateCbufferAllChild(monkey);
 
 	auto torus = NewGameObject<GameObject>(L"Torus");
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/Torus.fbx", *torus, nullptr, initMaterial, false);
+	Utility::LoadFBX(L"Resource/Torus.fbx", *torus, initMaterial, false);
 	AddUpdateCbufferAllChild(torus);
 
 	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/IcoSphere.fbx", *IcoSphere, nullptr, initMaterial, false);
+	Utility::LoadFBX(L"Resource/IcoSphere.fbx", *IcoSphere, initMaterial, false);
 	AddUpdateCbufferAllChild(IcoSphere);
 }
 
@@ -129,7 +135,7 @@ void ImportFBXScene::ImGUIRender()
 	Camera* mainCam = Camera::GetMainCamera();
 	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
 	cbuffer_bool& cb_bool = Global_Cbuffer::cb_bool;
-	cb_Material& cb_material = Global_Cbuffer::cb_material;
+	cb_BlingPhongMaterial& cb_material = Global_Cbuffer::cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

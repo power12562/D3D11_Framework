@@ -3,6 +3,7 @@
 #include <set>
 
 class SimpleMaterial;
+struct cb_BlingPhongMaterial;
 class ResourceManagerScene : public Scene
 {
 public:
@@ -18,6 +19,7 @@ private:
 private:
 	GameObject* test = nullptr;
 	std::vector<GameObject*> testList;
+	std::shared_ptr<cb_BlingPhongMaterial> material;
 
 private:
 	void AddTestObject();

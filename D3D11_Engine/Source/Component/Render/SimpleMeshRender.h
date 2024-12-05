@@ -32,6 +32,4 @@ public:
 	std::vector<Vertex> vertices;	
 	std::vector<UINT> indices;	
 
-public:
-	std::shared_ptr<SimpleMaterial> Material = nullptr;
 };

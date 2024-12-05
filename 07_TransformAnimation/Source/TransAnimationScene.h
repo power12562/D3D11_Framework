@@ -1,5 +1,6 @@
 #pragma once
 #include <Scene\Base\Scene.h>
+#include <Material/SimpleMaterial.h>
 
 class TransAnimationScene : public Scene
 {
@@ -12,6 +13,7 @@ protected:
 
 private:
 	float* pCamSpeed = nullptr;
+	std::shared_ptr<cb_BlingPhongMaterial> material;
 
 private:
 	GameObject* box = nullptr;

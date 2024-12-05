@@ -50,9 +50,6 @@ public:
 	std::vector<UINT>   indices;
 
 public:
-	std::shared_ptr<SimpleMaterial> Material = nullptr;
-
-public:
 	MatrixPallete matrixPallete = {};
 	BoneWIT boneWIT = {};
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;

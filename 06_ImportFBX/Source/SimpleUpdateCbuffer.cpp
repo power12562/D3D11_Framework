@@ -3,6 +3,7 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Framework\ResourceManager.h>
+#include <Utility/AssimpUtility.h>
 
 #include "../Source/Global_Cbuffer.h"
 
@@ -25,12 +26,11 @@ void SimpleUpdateCbuffer::Update()
 {
 	if (meshRender)
 	{
-		cb_localbool.loaclNormalMap = !!(meshRender->texture2D)[SimpleMaterial::Normal];
-		cb_localbool.loaclSpecularMap = !!(meshRender->texture2D)[SimpleMaterial::Specular];
-		cb_localbool.loaclEmissiveMap = !!(meshRender->texture2D)[SimpleMaterial::Emissive];
-		cb_localbool.loaclOpacityMap = !!(meshRender->texture2D)[SimpleMaterial::Opacity];
+		cb_localbool.loaclNormalMap = !!(meshRender->texture2D)[E_TEXTURE::Normal];
+		cb_localbool.loaclSpecularMap = !!(meshRender->texture2D)[E_TEXTURE::Specular];
+		cb_localbool.loaclEmissiveMap = !!(meshRender->texture2D)[E_TEXTURE::Emissive];
+		cb_localbool.loaclOpacityMap = !!(meshRender->texture2D)[E_TEXTURE::Opacity];
 		
 		SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
-		simpleMeshRender->Material->cb_material = Global_Cbuffer::cb_material;	
 	}
 }

@@ -25,12 +25,12 @@ namespace Utility
 		std::wstring basePath;
 		aiColor3D baseColor;
 
-		meshRender->texture2D.resize(SimpleMaterial::Null);
-		meshRender->texture2D.SetOneTexture(SimpleMaterial::Diffuse);
-		meshRender->texture2D.SetDefaultNormalTexture(SimpleMaterial::Normal);
-		meshRender->texture2D.SetOneTexture(SimpleMaterial::Specular);
-		meshRender->texture2D.SetZeroTexture(SimpleMaterial::Emissive);
-		meshRender->texture2D.SetOneTexture(SimpleMaterial::Opacity);
+		meshRender->texture2D.resize(E_TEXTURE::Null);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE::Diffuse);
+		meshRender->texture2D.SetDefaultNormalTexture(E_TEXTURE::Normal);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE::Specular);
+		meshRender->texture2D.SetZeroTexture(E_TEXTURE::Emissive);
+		meshRender->texture2D.SetOneTexture(E_TEXTURE::Opacity);
 
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path))
 		{
@@ -39,19 +39,13 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(SimpleMaterial::Diffuse, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE::Diffuse, basePath.c_str());
 			}
 		}
-		else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
-		{
-			SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
-			Color& meshColor = simpleMeshRender->Material->cb_material.MaterialDiffuse;
-
-			meshColor.x = baseColor.r;
-			meshColor.y = baseColor.g;
-			meshColor.z = baseColor.b;
-			meshColor.w = 1.f;
-		}
+		//else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
+		//{
+		//
+		//}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
 		{
 			if (Utility::ParseFileName(path))
@@ -59,7 +53,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(SimpleMaterial::Normal, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -70,7 +64,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(SimpleMaterial::Specular, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -80,7 +74,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(SimpleMaterial::Emissive, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
 			}
 		}
 		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -90,7 +84,7 @@ namespace Utility
 				basePath = directory;
 				basePath += L"\\";
 				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(SimpleMaterial::Opacity, basePath.c_str());
+				meshRender->texture2D.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
 			}
 		}
 	}
@@ -188,8 +182,8 @@ namespace Utility
 		return false;
 	}
 
-	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, const wchar_t* key, 
-		std::shared_ptr<SimpleMaterial> material,
+	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, 
+		const wchar_t* key, 
 		std::function<void(MeshRender*)> initMesh)
 	{
 		std::queue<GameObject*> objSourceQue;
@@ -254,13 +248,7 @@ namespace Utility
 						if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 						{
 							SimpleBoneMeshRender& destMesh = currDestObj->AddComponent<SimpleBoneMeshRender>();
-							//set material
-							if (material)
-							{
-								destMesh.Material = material;
-							}
 
-							destMesh.Material->cb_material = sourceMesh->Material->cb_material;
 							destMesh.texture2D = sourceMesh->texture2D;
 							destMesh.samplerState = sourceMesh->samplerState;
 
@@ -355,13 +343,6 @@ namespace Utility
 						if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
 						{
 							SimpleMeshRender& destMesh = currDestObj->AddComponent<SimpleMeshRender>();
-							//set material
-							if (material)
-							{
-								destMesh.Material = material;
-							}
-							
-							destMesh.Material->cb_material = sourceMesh->Material->cb_material;
 							destMesh.texture2D = sourceMesh->texture2D;
 							destMesh.samplerState = sourceMesh->samplerState;
 
@@ -427,7 +408,6 @@ bool Utility::ParseFileName(aiString& str)
 
 void Utility::LoadFBX(const wchar_t* path,
 	GameObject& _gameObject,
-	std::shared_ptr<SimpleMaterial> material,
 	std::function<void(MeshRender*)> initMesh,
 	bool isStatic)
 {
@@ -449,13 +429,11 @@ void Utility::LoadFBX(const wchar_t* path,
 
 	std::wstring wstr_path = path;		
 	std::string str_path = wstring_to_utf8(path);
-	if (!isStatic)
+
+	if (GameObject* rootObject = IsResource(wstr_path))
 	{
-		if (GameObject* rootObject = IsResource(wstr_path))
-		{
-			CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), material, initMesh);
-			return;
-		}
+		CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), initMesh);
+		return;
 	}
 
 	const aiScene* pScene = importer.ReadFile(str_path, importFlags);
@@ -534,12 +512,7 @@ void Utility::LoadFBX(const wchar_t* path,
 					{
 						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
 						meshList.push_back(&meshComponent);
-						
-						if (material)
-						{
-							meshComponent.Material = material;
-						}
-						
+
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
@@ -643,11 +616,6 @@ void Utility::LoadFBX(const wchar_t* path,
 					{
 						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
 
-						if (material)
-						{
-							meshComponent.Material = material;
-						}
-					
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
@@ -726,9 +694,9 @@ void Utility::LoadFBX(const wchar_t* path,
 	sceneManager.SetResouceObj(path, &_gameObject);
 }
 
-void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, std::shared_ptr<SimpleMaterial> material, bool isStatic)
+void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, bool isStatic)
 {
-	LoadFBX(path, _gameObject, material, [](MeshRender* mesh)->void { return; }, isStatic);
+	LoadFBX(path, _gameObject,[](MeshRender* mesh)->void { return; }, isStatic);
 }
 
 void Utility::LoadFBXResource(const wchar_t* path)
@@ -843,8 +811,6 @@ void Utility::LoadFBXResource(const wchar_t* path)
 						wchar_t materialName[50]{};
 						swprintf_s(materialName, L"%s (%d)", currObj->Name.c_str(), currObj->GetInstanceID());
 
-						meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource(materialName);
-
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
@@ -946,8 +912,6 @@ void Utility::LoadFBXResource(const wchar_t* path)
 					{
 						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
 
-						meshComponent.Material = ResourceManager<SimpleMaterial>::instance().GetResource((currObj->Name + L" (" + std::to_wstring(currObj->GetInstanceID())).c_str());
-	
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 

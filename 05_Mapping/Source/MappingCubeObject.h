@@ -32,7 +32,6 @@ private:
 	ID3D11PixelShader*  pPixelShader = nullptr;
 
 private:
-	D3DConstBuffer cbuffer;
 	D3DSamplerState sampler;
 	D3DTexture2D texture2D;
 };

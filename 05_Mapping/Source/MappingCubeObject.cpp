@@ -2,6 +2,7 @@
 #include <Utility/MemoryUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Framework/HLSLManager.h>
+#include <Utility/AssimpUtility.h>
 
 #include "../Source/LightManager.h"
 
@@ -91,11 +92,11 @@ void MappingCubeObject::Start()
 
     //Load Textures
     texture2D.resize(5);
-    texture2D.SetTexture2D(SimpleMaterial::Diffuse, L"Bricks059_1K-JPG_Color.jpg");
-    texture2D.SetTexture2D(SimpleMaterial::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
-    texture2D.SetTexture2D(SimpleMaterial::Specular, L"Bricks059_Specular.png");
-    texture2D.SetOneTexture(SimpleMaterial::Opacity);
-    texture2D.SetZeroTexture(SimpleMaterial::Emissive);
+    texture2D.SetTexture2D(E_TEXTURE::Diffuse, L"Bricks059_1K-JPG_Color.jpg");
+    texture2D.SetTexture2D(E_TEXTURE::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
+    texture2D.SetTexture2D(E_TEXTURE::Specular, L"Bricks059_Specular.png");
+    texture2D.SetOneTexture(E_TEXTURE::Opacity);
+    texture2D.SetZeroTexture(E_TEXTURE::Emissive);
 
     hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &pVertexShader, &pInputLayout);
     hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &pPixelShader);
@@ -139,7 +140,7 @@ void MappingCubeObject::Render()
 
     RENDERER_DRAW_DESC draw_desc{};
     draw_desc.pVertexIndex = &dd;
-    draw_desc.pConstBuffer = &cbuffer;
+    draw_desc.pConstBuffer = &LightManager::cbuffer;
     draw_desc.pD3DTexture2D = &texture2D;
     draw_desc.pSamperState = &sampler;
     draw_desc.pInputLayout = pInputLayout;
@@ -147,7 +148,6 @@ void MappingCubeObject::Render()
     draw_desc.pPixelShader = pPixelShader;
     draw_desc.pTransform = &gameObject.transform;
 
-    cbuffer = LightManager::cbuffer;
     d3dRenderer.DrawIndex(draw_desc, false);
 }
 
