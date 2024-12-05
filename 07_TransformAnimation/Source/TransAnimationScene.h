@@ -13,7 +13,7 @@ protected:
 
 private:
 	float* pCamSpeed = nullptr;
-	std::shared_ptr<cb_BlingPhongMaterial> material;
+	std::shared_ptr<cb_BlingPhongMaterial> material_01;
 
 private:
 	GameObject* box = nullptr;

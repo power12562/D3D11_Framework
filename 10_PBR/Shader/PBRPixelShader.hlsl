@@ -25,6 +25,11 @@ cbuffer cbuffer_Light : register(b2)
     float4 LightSpecular;
 }
 
+cbuffer cb_PBRMaterial : register(b3)
+{
+    float4 baseColor;
+};
+
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
@@ -45,7 +50,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     input.Normal = normalize(mul(normalSample, WorldNormalTransform));
     
-    float4 final = albedoSample;
+    float4 final = albedoSample * baseColor;
     final.rgb = LinearToGammaSpace(final.rgb);
     final.a = opacitySample;
     return final;

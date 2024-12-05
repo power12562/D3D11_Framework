@@ -1,4 +1,4 @@
-#include "TransAnimationScene.h"
+#include "SkinningAnimationScene.h"
 #include <Framework\SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
 #include <Framework/D3DRenderer.h>
@@ -13,14 +13,12 @@
 #include <Material/BlingPhongMaterial.h>
 
 #pragma warning(disable : 4305)
-TransAnimationScene::TransAnimationScene()
+SkinningAnimationScene::SkinningAnimationScene()
 {
 	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
-
-	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -41,14 +39,16 @@ TransAnimationScene::TransAnimationScene()
 
 	auto testInit = [this](MeshRender* mesh)->void
 		{
+			MaterialList.emplace_back();
+			cb_BlingPhongMaterial& material = MaterialList.back();
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(*material);
-
+			mesh->constBuffer.BindUpdateEvent(material);
+			material.MaterialDiffuse = mesh->baseColor;
+				
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
-			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");				
-			//mesh->SetVS(L"VertexShader.hlsl");				
+			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");					
 			mesh->SetPixelShader(L"PixelShader.hlsl");	
 		};
 
@@ -61,11 +61,11 @@ TransAnimationScene::TransAnimationScene()
 	test3->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 }
 
-TransAnimationScene::~TransAnimationScene()
+SkinningAnimationScene::~SkinningAnimationScene()
 {
 }
 
-void TransAnimationScene::ImGUIRender()
+void SkinningAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
 	cb_Light& cb_light = SimpleDirectionalLight::cb_light;

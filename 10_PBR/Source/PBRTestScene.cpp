@@ -25,8 +25,8 @@ PBRTestScene::PBRTestScene()
 	cam->transform.rotation = Vector3(0.f, 0.f, 0.f);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	material = GetResourceManager<cb_PBRMaterial>().GetResource(L"PBR");
-	auto initShader = [this](MeshRender* mesh)
+	shared_material = GetResourceManager<cb_PBRMaterial>().GetResource(L"PBR");
+	auto initCerberusShader = [this](MeshRender* mesh)
 		{ 
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
@@ -34,14 +34,25 @@ PBRTestScene::PBRTestScene()
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 		};
-
 	auto cerberus = NewGameObject(L"cerberus");
-	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, initShader, false);
+	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, initCerberusShader, false);
 	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 
+	auto initCharShader = [this](MeshRender* mesh)
+		{
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+
+			charMaterialList[mesh->gameObject.Name] = cb_PBRMaterial(mesh->baseColor);
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
+			mesh->constBuffer.BindUpdateEvent(charMaterialList[mesh->gameObject.Name]);
+
+			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
+			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
+		};
 	auto charater = NewGameObject(L"charater");
-	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initShader, false);
+	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initCharShader, false);
 	charater->transform.position += Vector3::Right * 10.f;
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
@@ -63,7 +74,7 @@ void PBRTestScene::ImGUIRender()
 		{
 			ImGui::Text("Camera");
 			ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
-			ImGui::SliderFloat("CamNear", &mainCam->Near, 0.01f, 100.f);
+			ImGui::SliderFloat("CamNear", &mainCam->Near, 0.05f, 10.f);
 			ImGui::SliderFloat("CamFar", &mainCam->Far, 100.f, 10000.f);
 			ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 			ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);

@@ -13,7 +13,7 @@ private:
 
 public:
 	float FOV = 90;
-	float Near = 0.001f;
+	float Near = 0.05f;
 	float Far = 1000.f;
 
 public:

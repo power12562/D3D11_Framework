@@ -23,8 +23,6 @@ namespace Utility
 	{
 		aiString path;
 		std::wstring basePath;
-		aiColor3D baseColor;
-
 		{
 			meshRender->texture2D.resize(E_TEXTURE::Null);
 			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
@@ -45,6 +43,15 @@ namespace Utility
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->texture2D.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
 				}
+			}
+			else if (aiColor4D baseColor; ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
+			{
+				SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
+				
+				simpleMeshRender->baseColor.x = baseColor.r;
+				simpleMeshRender->baseColor.y = baseColor.g;
+				simpleMeshRender->baseColor.z = baseColor.b;
+				simpleMeshRender->baseColor.w = baseColor.a;
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
 			{

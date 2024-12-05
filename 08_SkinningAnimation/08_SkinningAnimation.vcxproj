@@ -148,12 +148,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\TransAnimationScene.cpp" />
+    <ClCompile Include="Source\SkinningAnimationScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\StartApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\TransAnimationScene.h" />
+    <ClInclude Include="Source\SkinningAnimationScene.h" />
     <ClInclude Include="Source\StartApp.h" />
   </ItemGroup>
   <ItemGroup>

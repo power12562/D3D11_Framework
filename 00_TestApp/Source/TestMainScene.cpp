@@ -10,6 +10,7 @@
 #include <Light/SimpleDirectionalLight.h>
 #include <Component/Render/MeshRender.h>
 #include <Framework/ResourceManager.h>
+#include <Utility/utfConvert.h>
 
 TestMainScene::TestMainScene()
 {
@@ -24,6 +25,7 @@ TestMainScene::TestMainScene()
     mainCam->transform.position = Vector3(10.f, 40.f, -63.f);
     mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
     mainCam->AddComponent<CameraMoveHelper>();
+    pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
     auto HipHopDancing = NewGameObject(L"Hip Hop Dancing.fbx");
     auto SkinningMesh = [this](MeshRender* mesh)->void
@@ -44,8 +46,13 @@ TestMainScene::TestMainScene()
     auto House = NewGameObject(L"char");
     auto objMesh = [this](MeshRender* mesh)
         {
+            charObjectList[utfConvert::wstring_to_utf8(mesh->gameObject.Name).c_str()] = &mesh->gameObject;
+            charMaterialList.emplace_back(cb_BlingPhongMaterial());
+
+            cb_BlingPhongMaterial& my_meterial = charMaterialList.back();
+            my_meterial.MaterialDiffuse = mesh->baseColor;
             int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-            mesh->constBuffer.BindUpdateEvent(*material);
+            mesh->constBuffer.BindUpdateEvent(my_meterial);
 
             index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
             mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
@@ -53,7 +60,7 @@ TestMainScene::TestMainScene()
             mesh->SetVertexShader(L"VertexShader.hlsl");
             mesh->SetPixelShader(L"PixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/char/char.fbx", *House, objMesh, true);
+    Utility::LoadFBX(L"Resource/char/char.fbx", *House, objMesh, false);
     House->transform.position = Vector3(50.0f, 0.f, 0.f);
     House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
@@ -69,8 +76,9 @@ void TestMainScene::ImGUIRender()
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
         ImGui::DragVector3("Camera Position", &mainCam->transform.position);
         ImGui::DragQuaternion("Camera Rotation", &mainCam->transform.rotation);
-        ImGui::SliderFloat("Camera Near", &camera->Near, 0.001f, 100.f);
+        ImGui::SliderFloat("Camera Near", &camera->Near, 0.001f, 10.f);
         ImGui::SliderFloat("Camera Far", &camera->Far, 100.f, 10000.f);
+        ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);

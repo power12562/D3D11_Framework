@@ -30,6 +30,8 @@ public:
 	D3DConstBuffer constBuffer;
 	D3DTexture2D texture2D;
 	D3DSamplerState samplerState;
+
+	DirectX::SimpleMath::Color baseColor{1,1,1,1};
 public:
 	bool IsVSShader() { return pInputLayout && pVertexShader; }
 	bool IsPSShader() { return !!pPixelShader; }

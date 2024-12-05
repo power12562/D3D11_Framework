@@ -19,7 +19,7 @@ TransAnimationScene::TransAnimationScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
-	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+	material_01 = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -33,7 +33,7 @@ TransAnimationScene::TransAnimationScene()
 	auto meshInit = [this](MeshRender* mesh) 
 		{
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(*material);
+			mesh->constBuffer.BindUpdateEvent(*material_01);
 
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
@@ -42,7 +42,7 @@ TransAnimationScene::TransAnimationScene()
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
 	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, meshInit, false);
-	material->MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
+	material_01->MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);
 }
@@ -71,10 +71,10 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");
 
-	ImGui::ColorEdit3("MaterialDiffuse", &material->MaterialDiffuse);
-	ImGui::ColorEdit3("MaterialAmbient", &material->MaterialAmbient);
-	ImGui::ColorEdit3("MaterialSpecular", &material->MaterialSpecular);
-	ImGui::DragFloat("MaterialSpecularPower", &material->MaterialSpecularPower, 10, 50, 500);
+	ImGui::ColorEdit3("MaterialDiffuse", &material_01->MaterialDiffuse);
+	ImGui::ColorEdit3("MaterialAmbient", &material_01->MaterialAmbient);
+	ImGui::ColorEdit3("MaterialSpecular", &material_01->MaterialSpecular);
+	ImGui::DragFloat("MaterialSpecularPower", &material_01->MaterialSpecularPower, 10, 50, 500);
 	ImGui::Text("");
 
 	ImGui::Text("Box Robot");
