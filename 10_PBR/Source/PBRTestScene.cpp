@@ -19,8 +19,8 @@ PBRTestScene::PBRTestScene()
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
-	cam->transform.position = Vector3(7.7f, 0.f, 13.6f);
-	cam->transform.rotation = Vector3(10.176f, 124.5f, -14.43f);
+	cam->transform.position = Vector3(0.f, 8.f, -20.f);
+	cam->transform.rotation = Vector3(0.f, 0.f, 0.f);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
 	auto cerberus = NewGameObject(L"cerberus");
@@ -29,8 +29,15 @@ PBRTestScene::PBRTestScene()
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/cerberus.fbx", *cerberus, nullptr, initShader, false);
+	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, nullptr, initShader, false);
+	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+
+	auto charater = NewGameObject(L"charater");
+	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, nullptr, initShader, false);
+	charater->transform.position += Vector3::Right * 10.f;
+	charater->transform.rotation = Vector3::Up * 23.f;
+	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 }
 
 PBRTestScene::~PBRTestScene()
