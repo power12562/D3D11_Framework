@@ -127,6 +127,8 @@ void ResourceManagerScene::AddTestObject()
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
+			mesh->texture2D.resize(E_TEXTURE::BlingPhongTextureCount);
+
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};

@@ -92,11 +92,11 @@ void MappingCubeObject::Start()
 
     //Load Textures
     texture2D.resize(5);
-    texture2D.SetTexture2D(E_TEXTURE::Diffuse, L"Bricks059_1K-JPG_Color.jpg");
+    texture2D.SetTexture2D(E_TEXTURE::Albedo, L"Bricks059_1K-JPG_Color.jpg");
     texture2D.SetTexture2D(E_TEXTURE::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
     texture2D.SetTexture2D(E_TEXTURE::Specular, L"Bricks059_Specular.png");
-    texture2D.SetOneTexture(E_TEXTURE::Opacity);
-    texture2D.SetZeroTexture(E_TEXTURE::Emissive);
+    texture2D.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
+    texture2D.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 
     hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &pVertexShader, &pInputLayout);
     hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &pPixelShader);

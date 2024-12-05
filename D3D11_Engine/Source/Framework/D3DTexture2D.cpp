@@ -1,4 +1,5 @@
 #include "D3DTexture2D.h"
+#include <Utility/AssimpUtility.h>
 #include <Framework/TextureManager.h>
 
 D3DTexture2D::~D3DTexture2D()
@@ -31,22 +32,11 @@ void D3DTexture2D::SetTexture2D(int index, const wchar_t* path)
 	pathList[index] = path;
 }
 
-void D3DTexture2D::SetOneTexture(int index)
-{
-	ResetTexture2D(index);
-	SRVList[index] = textureManager.GetOneTexture();
-}
 
-void D3DTexture2D::SetZeroTexture(int index)
+void D3DTexture2D::SetDefaultTexture(int index, E_TEXTURE_DEFAULT::DEFAULT_TEXTURE type)
 {
 	ResetTexture2D(index);
-	SRVList[index] = textureManager.GetZeroTexture();
-}
-
-void D3DTexture2D::SetDefaultNormalTexture(int index)
-{
-	ResetTexture2D(index);
-	SRVList[index] = textureManager.GetDefaultNormalTexture();
+	SRVList[index] = textureManager.GetDefaultTexture(type);
 }
 
 void D3DTexture2D::ResetTexture2D(int index)

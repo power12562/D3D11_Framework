@@ -10,19 +10,6 @@ class MeshRender;
 class Scene;
 class GameObject;
 
-namespace E_TEXTURE
-{
-	enum TEXTURE_INDEX
-	{
-		Diffuse,
-		Normal,
-		Specular,
-		Emissive,
-		Opacity,
-		Null
-	};
-}
-
 namespace Utility
 {
 	bool ParseFileName(aiString& str);

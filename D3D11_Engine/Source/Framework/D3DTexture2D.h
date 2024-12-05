@@ -2,6 +2,41 @@
 #include <Utility/D3D11Utility.h>
 #include <string>
 
+namespace E_TEXTURE
+{
+	constexpr int BlingPhongTextureCount = 5;
+
+	//Texture2D albedoTexture : register(t0);
+	//Texture2D normalTexture : register(t1);
+	//Texture2D specularTexture : register(t2);
+	//Texture2D emissiveTexture : register(t3);
+	//Texture2D opacityTexture : register(t4);
+	//Texture2D metalnessTexture : register(t5);
+	//Texture2D roughnessTexture : register(t6);
+
+	enum TEXTURE_INDEX
+	{
+		Albedo,
+		Normal,
+		Specular,
+		Emissive,
+		Opacity,
+		Metalness,
+		Roughness,
+		Null
+	};
+}
+
+namespace E_TEXTURE_DEFAULT
+{
+	enum DEFAULT_TEXTURE
+	{
+		ZERO,
+		ONE,
+		NORMAL
+	};
+}
+
 class D3DTexture2D
 {
 	static const size_t MAX_SIZE = 128;
@@ -13,9 +48,7 @@ public:
 	constexpr size_t size() { return SRVList.size(); }
 
 	void SetTexture2D(int index, const wchar_t* path);
-	void SetOneTexture(int index);
-	void SetZeroTexture(int index);
-	void SetDefaultNormalTexture(int index);
+	void SetDefaultTexture(int index, E_TEXTURE_DEFAULT::DEFAULT_TEXTURE type);
 	void ResetTexture2D(int index);
 
 	ID3D11ShaderResourceView* operator[](int index) { return SRVList[index]; }

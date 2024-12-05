@@ -2,7 +2,7 @@
 #include <Scene\Base\Scene.h>
 #include <set>
 
-struct cb_BlingPhongMaterial;
+struct cb_PBRMaterial;
 class SimpleMaterial;
 class PBRTestScene : public Scene
 {
@@ -15,5 +15,5 @@ protected:
 
 private:
 	float* pCamSpeed = nullptr;
-	std::shared_ptr<cb_BlingPhongMaterial> material;
+	std::shared_ptr<cb_PBRMaterial> material;
 };

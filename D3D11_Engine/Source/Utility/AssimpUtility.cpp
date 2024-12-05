@@ -25,66 +25,87 @@ namespace Utility
 		std::wstring basePath;
 		aiColor3D baseColor;
 
-		meshRender->texture2D.resize(E_TEXTURE::Null);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE::Diffuse);
-		meshRender->texture2D.SetDefaultNormalTexture(E_TEXTURE::Normal);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE::Specular);
-		meshRender->texture2D.SetZeroTexture(E_TEXTURE::Emissive);
-		meshRender->texture2D.SetOneTexture(E_TEXTURE::Opacity);
+		{
+			meshRender->texture2D.resize(E_TEXTURE::Null);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::NORMAL);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Roughness, E_TEXTURE_DEFAULT::ZERO);
 
-		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path))
-		{
-			if (Utility::ParseFileName(path))
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path) ||
+				AI_SUCCESS == ai_material->GetTexture(aiTextureType_BASE_COLOR, 0, &path))
 			{
-				basePath = directory;
-				basePath += L"\\";
-				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE::Diffuse, basePath.c_str());
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
+				}
 			}
-		}
-		//else if (ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
-		//{
-		//
-		//}
-		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
-		{
-			if (Utility::ParseFileName(path))
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
 			{
-				basePath = directory;
-				basePath += L"\\";
-				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
+				}
 			}
-		}
-		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
-		{
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
+			{
 
-			if (Utility::ParseFileName(path))
-			{
-				basePath = directory;
-				basePath += L"\\";
-				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
+				}
 			}
-		}
-		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
-		{
-			if (Utility::ParseFileName(path))
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
 			{
-				basePath = directory;
-				basePath += L"\\";
-				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
+				}
 			}
-		}
-		if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
-		{
-			if (Utility::ParseFileName(path))
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
 			{
-				basePath = directory;
-				basePath += L"\\";
-				basePath += utfConvert::utf8_to_wstring(path.C_Str());
-				meshRender->texture2D.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
+				}
+			}
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_METALNESS, 0, &path))
+			{
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
+				}
+			}
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path))
+			{
+				if (Utility::ParseFileName(path))
+				{
+					basePath = directory;
+					basePath += L"\\";
+					basePath += utfConvert::utf8_to_wstring(path.C_Str());
+					meshRender->texture2D.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
+				}
 			}
 		}
 	}
@@ -422,6 +443,7 @@ void Utility::LoadFBX(const wchar_t* path,
 		aiProcess_PopulateArmatureData |// 본 데이터 생성
 		aiProcess_LimitBoneWeights |    // 본 영향 정점 개수 제한
 		aiProcess_ConvertToLeftHanded;  // DX용 왼손좌표계 변환
+
 	if (isStatic)
 		importFlags |= aiProcess_PreTransformVertices;   // 노드의 변환행렬을 적용한 버텍스 생성한다.  *사용하면 모든 메쉬가 합쳐져서 애니메이션 사용이 불가능하다.
 

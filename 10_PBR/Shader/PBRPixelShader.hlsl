@@ -1,21 +1,23 @@
 #include "PBRShared.fxh"
-SamplerState samLinear : register(s0);
-Texture2D txDiffuse : register(t0);
-Texture2D normalMap : register(t1);
-Texture2D specularMap : register(t2);
-Texture2D emissiveMap : register(t3);
-Texture2D opacityMap : register(t4);
 
-cbuffer cb_Material : register(b2)
-{
-    float4 MaterialAmbient;
-    float4 MaterialDiffuse;
-    float4 MaterialSpecular;
-    float MaterialSpecularPower;
-    float3 MaterialSpecularPad;
-}
+static const float PI = 3.141592;
+static const float Epsilon = 0.00001;
 
-cbuffer cbuffer_Light : register(b3)
+static const uint NumLights = 3;
+
+static const float3 Fdielectric = 0.04;
+
+SamplerState defaultSampler : register(s0);
+
+Texture2D albedoTexture : register(t0);
+Texture2D normalTexture : register(t1);
+Texture2D specularTexture : register(t2);
+Texture2D emissiveTexture : register(t3);
+Texture2D opacityTexture : register(t4);
+Texture2D metalnessTexture : register(t5);
+Texture2D roughnessTexture : register(t6);
+
+cbuffer cbuffer_Light : register(b2)
 {
     float4 LightDir;
     float4 LightDiffuse;
@@ -28,33 +30,23 @@ cbuffer cbuffer_Light : register(b3)
 //--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {   
-    float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    txColor.rgb  = GammaToLinearSpace(txColor.rgb);
+    float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
+    albedoSample.rgb = GammaToLinearSpace(albedoSample.rgb);
     
-    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
-    float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
-    float4 mapEmissive =emissiveMap.Sample(samLinear, input.Tex);
-    mapEmissive.rgb = GammaToLinearSpace(mapEmissive.rgb);
+    float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb * 2.0f - 1.0f;
     
-    float opacity = opacityMap.Sample(samLinear, input.Tex).a;
+    float4 specularSample = specularTexture.Sample(defaultSampler, input.Tex);
+    
+    float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
+    emissiveSample.rgb = GammaToLinearSpace(emissiveSample.rgb);
+   
+    float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
-    input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+    input.Normal = normalize(mul(normalSample, WorldNormalTransform));
     
-    float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;
-
-    float4 ambient = LightAmbient * MaterialAmbient;
-    
-    float3 View = normalize(MainCamPos.xyz - input.World);
-    float3 HalfVector = normalize(-LightDir.xyz+View);
-    float fHDotN = max(0.0f, dot(HalfVector, input.Normal * mapNormal));
- 
-    float4 specular;
-    specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular * mapSpecular;
- 
-    float4 final = diffuse + specular + mapEmissive + ambient;
+    float4 final = albedoSample;
     final.rgb = LinearToGammaSpace(final.rgb);
-    final.a = opacity;
-    //return float4((input.Normal + 1) / 2, 1.0f);
+    final.a = opacitySample;
     return final;
 }

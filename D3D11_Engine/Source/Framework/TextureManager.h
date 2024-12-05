@@ -5,7 +5,7 @@
 #include <string>
 #include <minwindef.h>
 #include <Material/BlingPhongMaterial.h>
-#include <Utility/AssimpUtility.h>
+#include <Framework/D3DTexture2D.h>
 
 class TextureManager;
 extern TextureManager& textureManager;
@@ -22,11 +22,13 @@ public:
 	ULONG ReleaseSharingTexture(const wchar_t* path);
 
 public:
-	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE::TEXTURE_INDEX texture);
+	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture);
+	void ReleaseDefaultTexture();
+
+private:
 	ID3D11ShaderResourceView* GetOneTexture();
 	ID3D11ShaderResourceView* GetDefaultNormalTexture();
 	ID3D11ShaderResourceView* GetZeroTexture();
-	void ReleaseDefaultTexture();
 
 private:
 	std::unordered_map<std::wstring, ID3D11ShaderResourceView*> resourceMap;

@@ -6,10 +6,11 @@
 #include <Framework\ImguiHelper.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
-#include <Material/BlingPhongMaterial.h>
 #include <Framework/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
 #include <Framework/ResourceManager.h>
+
+#include <Material/PBRMaterial.h>
 
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
@@ -24,13 +25,10 @@ PBRTestScene::PBRTestScene()
 	cam->transform.rotation = Vector3(0.f, 0.f, 0.f);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+	material = GetResourceManager<cb_PBRMaterial>().GetResource(L"PBR");
 	auto initShader = [this](MeshRender* mesh)
 		{ 
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(*material);
-
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
@@ -72,8 +70,7 @@ void PBRTestScene::ImGUIRender()
 		}
 
 		ImGui::Text("Material");
-		ImGui::ColorEdit3("Base Color", &material->MaterialDiffuse);
-
+		
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	}
