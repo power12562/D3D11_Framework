@@ -26,12 +26,6 @@ cbuffer cb_PBRMaterial : register(b3)
     float padPBRMaterial[2];
 };
 
-cbuffer cb_bool : register(b4)
-{
-    bool useMetalness;
-    bool useRoughness;
-}
-
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
@@ -43,6 +37,8 @@ float4 main(PS_INPUT input) : SV_Target
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
+    float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
+    float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
 
     float3 N; 
     if (Epsilon < length(normalSample))
@@ -66,11 +62,11 @@ float4 main(PS_INPUT input) : SV_Target
     float metalness = Metalness;
     float roughness = Roughness;
 
-    if (useMetalness)
-        metalness = metalnessTexture.Sample(defaultSampler, input.Tex).r;
-    if (useRoughness)
-        roughness = roughnessTexture.Sample(defaultSampler, input.Tex).r;
-
+    if (Epsilon < metalnessSample)
+        metalness = metalnessSample;
+    if (Epsilon < roughnessSample)
+        roughness = roughnessSample;
+    
     float3 albedo = albedoSample.rgb * baseColor.rgb;
 
     // 프레널 반사
