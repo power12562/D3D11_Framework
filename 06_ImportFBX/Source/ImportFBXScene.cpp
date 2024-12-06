@@ -33,7 +33,7 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
 
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_Light>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
 				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
 
@@ -44,7 +44,7 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
 
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_Light>();
+				meshRender->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
 				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
 
@@ -70,7 +70,7 @@ ImportFBXScene::ImportFBXScene()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
 			mesh->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_material);
 
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
 			mesh->SetVertexShader(L"VertexShader.hlsl");
@@ -133,7 +133,7 @@ ImportFBXScene::~ImportFBXScene()
 void ImportFBXScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
+	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
 	cbuffer_bool& cb_bool = Global_Cbuffer::cb_bool;
 	cb_BlingPhongMaterial& cb_material = Global_Cbuffer::cb_material;
 
@@ -147,7 +147,7 @@ void ImportFBXScene::ImGUIRender()
 
 	ImGui::Text("Light");
 	ImGui::DragFloat3("LightDir", (float*)&cb_light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightColor);
 	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
 	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");

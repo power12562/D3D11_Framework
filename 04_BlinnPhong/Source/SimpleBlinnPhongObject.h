@@ -20,7 +20,7 @@ struct ConstantBuffer
 	Vector4 CamPos;
 
 	Vector4 LightDir;
-	Vector4 LightDiffuse;
+	Vector4 LightColor;
 	Vector4 LightAmbient;
 	Vector4 LightSpecular;
 

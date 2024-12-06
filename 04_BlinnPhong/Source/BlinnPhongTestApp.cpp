@@ -22,7 +22,7 @@ namespace global
     float bgColor[4]{ 0.4f, 1.0f, 1.0f, 0.0f };;
 
     float LightDir[4]{ 0,0,1,0 };
-    float LightDiffuse[4]{1,1,1,1};
+    float LightColor[4]{1,1,1,1};
     float LightAmbient[4]{0,0,0,0};
     float LightSpecular[4]{1,1,1,1};
 
@@ -184,7 +184,7 @@ void BlinnPhongTestApp::ImGUIRender()
         ImGui::Text("");
         ImGui::Text("Light");
         ImGui::DragFloat3("LightDir", global::LightDir, 0.01f, -1.0f, 1.0f);
-        ImGui::ColorEdit3("LightDiffuse", global::LightDiffuse);
+        ImGui::ColorEdit3("LightDiffuse", global::LightColor);
         ImGui::ColorEdit3("LightAmbient", global::LightAmbient);
         ImGui::ColorEdit3("LightSpecular", global::LightSpecular);
         ImGui::Text("");

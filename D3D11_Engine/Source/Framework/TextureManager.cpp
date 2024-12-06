@@ -115,7 +115,7 @@ ID3D11ShaderResourceView* TextureManager::GetZeroTexture()
 		return zeroTexture;
 	else
 	{
-		constexpr float pixel[4] = { 0,0,0,1 };
+		constexpr float pixel[4] = { 0.f,0.f,0.f,0.f };
 		CreateDefaultTexture(pixel, &zeroTexture);
 		return zeroTexture;
 	}

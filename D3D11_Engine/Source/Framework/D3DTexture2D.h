@@ -40,7 +40,7 @@ class D3DTexture2D
 {
 	static const size_t MAX_SIZE = 128;
 public:
-	D3DTexture2D() = default;
+	D3DTexture2D();
 	~D3DTexture2D();	
 
 	void resize(size_t newsize);

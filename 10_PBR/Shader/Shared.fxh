@@ -1,5 +1,6 @@
 static const float PI = 3.141592654;
-static const float3 Fdielectric = 0.04;
+static const float3 Fdielectric = 0.04f;
+static const float Epsilon = 1e-6;
 
 inline float GammaToLinearSpaceExact(float value)
 {
@@ -9,6 +10,14 @@ inline float GammaToLinearSpaceExact(float value)
         return pow((value + 0.055f) / 1.055f, 2.4f);
     else
         return pow(value, 2.2f);
+}
+
+inline float3 GammaToLinearSpaceExact(float3 value)
+{
+    return float3(
+    GammaToLinearSpaceExact(value.r), 
+    GammaToLinearSpaceExact(value.g),
+    GammaToLinearSpaceExact(value.b));
 }
 
 inline float3 GammaToLinearSpace(float3 rgb)
@@ -33,6 +42,14 @@ inline float LinearToGammaSpaceExact(float value)
         return pow(value, 0.45454545f);
 }
 
+inline float3 LinearToGammaSpaceExact(float3 value)
+{
+    return float3(
+    LinearToGammaSpaceExact(value.r),
+    LinearToGammaSpaceExact(value.g),
+    LinearToGammaSpaceExact(value.b));
+}
+
 inline float3 LinearToGammaSpace(float3 rgb)
 {
     rgb = max(rgb, float3(0.f, 0.f, 0.f));
@@ -44,42 +61,43 @@ inline float3 LinearToGammaSpace(float3 rgb)
     //LinearToGammaSpaceExact(rgb.b));
 }
 
-inline float ComputeDirectionalLight(float3 normal, float3 lightDirection)
+inline float NormalDistribution(float roughness, float NoH)
 {
-    return saturate(dot(normal, lightDirection));
-}
-
-inline float4 ComputePointLight()
-{
-    return float4(0.0, 0.0, 0.0, 0.0);
-}
-
-inline float NormalDistribution(float roughness, float3 N, float3 H)
-{
-    float alpha = roughness * roughness;
-    float squareA = alpha * alpha;
-    float NdotH = max(0.0, dot(N, H));
-    float var = NdotH * NdotH * (squareA - 1.0) + 1.0;
+    float a = roughness * roughness;
+    float squareA = a * a;
+    float var = NoH * NoH * (squareA - 1.0) + 1.0;
     return squareA / (PI * var * var);
 }
 
-inline float3 FresnelReflection(float3 H, float3 V, float3 baseColor, float metalness)
+inline float3 FresnelReflection(float HoV, float3 baseColor, float metalness)
 {
     float3 F0 = lerp(Fdielectric, baseColor, metalness);
-    return F0 + (1.0 - F0) * pow(1.0 - max(0.0, dot(H, V)), 5.0);
+    return F0 + (1.0 - F0) * pow(1.0 - HoV, 5.0);
 }
 
-inline float GSchlickGGX(float cosTheta, float k)
+inline float GSchlickGGX(float NoX, float k)
 {
-    return cosTheta / (cosTheta * (1.0 - k) + k);
+    return NoX / (NoX * (1.0 - k) + k);
 }
 
-inline float GeometricAttenuation(float3 N, float3 L, float3 V, float roughness)
+inline float GeometricAttenuation(float NoV, float NoL, float roughness)
 {
-    float r = roughness + 1.0;
-    float k = (r * r) / 8.0; // direct
+    float a = roughness + 1.0;
+    float k = (a * a) / 8.0; // direct
     //float k = (roughness * roughness) * 0.5; // IBL
-    return GSchlickGGX(max(0.0, dot(N, V)), k) * GSchlickGGX(max(0.0, dot(N, L)), k);
+    
+    return GSchlickGGX(NoV, k) * GSchlickGGX(NoL, k);
+}
+
+inline float3 SpecularBRDF(float D, float3 F, float G, float NoL, float NoV)
+{
+    return D * F * G / 4.0f * NoL * NoV;
+}
+
+inline float3 DiffuseBRDF(float3 BaseColor, float3 F, float Metalness)
+{
+    float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), Metalness);
+    return float3(BaseColor * kd / PI);
 }
 
 cbuffer cbuffer_Transform : register(b0)

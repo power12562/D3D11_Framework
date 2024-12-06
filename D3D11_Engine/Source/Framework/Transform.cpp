@@ -121,6 +121,11 @@ const Vector3& Transform::SetScale(const Vector3& value)
 	return _scale;
 }
 
+const Vector3& Transform::SetScale(float value)
+{
+	return SetScale(Vector3(value, value, value));
+}
+
 const Vector3& Transform::SetLocalScale(const Vector3& value)
 {
 	if (parent)

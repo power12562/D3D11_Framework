@@ -4,13 +4,12 @@
 #include <Framework/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
-#include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Framework/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
 #include <Framework/ResourceManager.h>
 #include <Utility/utfConvert.h>
-#include <Material/PBRMaterial.h>
+#include <GameObject/Mesh/SphereObject.h>
 
 struct cb_bool
 {
@@ -24,21 +23,19 @@ cb_bool testBool;
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
 {
-	SimpleDirectionalLight::cb_light.LightDir = { 0.f,0.f,1.f,0.f };
-
-	UseImGUI = true;
-
-	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
-
 	ID3D11RasterizerState* pRRState;
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.CullMode = D3D11_CULL_BACK; 
-	rasterDesc.FrontCounterClockwise = false; 
+	rasterDesc.CullMode = D3D11_CULL_BACK;
 	d3dRenderer.CreateRRState(rasterDesc, &pRRState);
 	d3dRenderer.SetRRState(pRRState);
 	Utility::SafeRelease(pRRState);
+
+	UseImGUI = true;
+	d3dRenderer.backgroundColor = Color(0.3f, 0.3f, 0.3f, 1);
+
+	directionalLight.LightDir = { 0.f,0.f,1.f,0.f };
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -49,8 +46,8 @@ PBRTestScene::PBRTestScene()
 	shared_material = GetResourceManager<cb_PBRMaterial>().GetResource(L"PBR");
 	auto initCerberusShader = [this](MeshRender* mesh)
 		{ 
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
+			mesh->constBuffer.BindUpdateEvent(directionalLight);
 
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
 			mesh->constBuffer.BindUpdateEvent(*shared_material);
@@ -65,11 +62,12 @@ PBRTestScene::PBRTestScene()
 	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, initCerberusShader, false);
 	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+	cerberus->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
 
 	auto initCharShader = [this](MeshRender* mesh)
 		{
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
+			mesh->constBuffer.BindUpdateEvent(directionalLight);
 
 			std::string key = utfConvert::wstring_to_utf8(mesh->gameObject.Name);
 			auto iter = charMaterialList.find(key);
@@ -84,12 +82,39 @@ PBRTestScene::PBRTestScene()
 
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
+
+			charObjList[key] = &mesh->gameObject;
 		};
 	auto charater = NewGameObject(L"charater");
 	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initCharShader, false);
 	charater->transform.position += Vector3::Right * 10.f;
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+
+	auto Sphere = NewGameObject<SphereObject>(L"Sphere");
+	Sphere->transform.position += Vector3::Up * 15.f;
+	{
+		SphereMeshRender* mesh = &Sphere->sphereMeshRender;
+		mesh->CreateSphere(5.0f);
+
+		mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
+		mesh->constBuffer.BindUpdateEvent(directionalLight);
+
+		mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
+		sphereMaterial.baseColor = { 1.f, 1.f, 0.f, 1.f };
+		sphereMaterial.Metalness = 1.f;
+		sphereMaterial.Roughness = 0.f;
+		mesh->constBuffer.BindUpdateEvent(sphereMaterial);
+
+		static cb_bool SphereBool;
+		SphereBool.useMetalness = false;
+		SphereBool.useRoughness = false;
+		mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
+		mesh->constBuffer.BindUpdateEvent(SphereBool);
+
+		mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
+		mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
+	}
 }
 
 PBRTestScene::~PBRTestScene()
@@ -98,10 +123,9 @@ PBRTestScene::~PBRTestScene()
 
 void PBRTestScene::ImGUIRender()
 {
-	using namespace SimpleDirectionalLight;
-
 	Camera* mainCam = Camera::GetMainCamera();
 	static bool showCharEditBox = false;
+	static bool showSphereEditBox = false;
 
 	ImGui::Begin("Debug");
 	{
@@ -113,7 +137,7 @@ void PBRTestScene::ImGUIRender()
 			ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 			ImGui::SliderFloat("CamNear", &mainCam->Near, 0.05f, 10.f);
 			ImGui::SliderFloat("CamFar", &mainCam->Far, 100.f, 10000.f);
-			ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
+			ImGui::DragFloat("CamSpeed", pCamSpeed, 1.f ,1.f , 1000.f);
 			ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
 			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
 			ImGui::Text("");
@@ -121,14 +145,17 @@ void PBRTestScene::ImGUIRender()
 		if (ImGui::Button("Charater Material Edit"))
 			showCharEditBox = !showCharEditBox;
 
+		if (ImGui::Button("Sphere Material Edit"))
+			showSphereEditBox = !showSphereEditBox;
+
 		ImGui::Checkbox("Use Metalness Map", &testBool.useMetalness);
 		ImGui::Checkbox("Use Roughness Map", &testBool.useRoughness);
 
 		ImGui::Text("Light");
-		ImGui::SliderFloat3("Light Dir", reinterpret_cast<float*>(&cb_light.LightDir), -1.f, 1.f);
-		ImGui::ColorEdit3("Light Diffuse", &cb_light.LightDiffuse);
-		ImGui::ColorEdit3("Light Ambient", &cb_light.LightAmbient);
-		ImGui::ColorEdit3("Light Specular", &cb_light.LightSpecular);
+		ImGui::SliderFloat3("Light Dir", reinterpret_cast<float*>(&directionalLight.LightDir), -1.f, 1.f);
+		ImGui::ColorEdit3("Light Diffuse", &directionalLight.LightColor);
+		ImGui::ColorEdit3("Light Ambient", &directionalLight.LightAmbient);
+		ImGui::DragFloat("Light Intensity", &directionalLight.LightIntensity, 1.0f, 0.f, 100.f);
 
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
@@ -143,6 +170,7 @@ void PBRTestScene::ImGUIRender()
 		{
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
+			ImGui::Checkbox("Active", &charObjList[name]->Active);
 			ImGui::ColorEdit4("BaseColor", &material.baseColor);
 			ImGui::SliderFloat("Metalness", &material.Metalness, 0.f, 1.f);
 			ImGui::SliderFloat("Roughness", &material.Roughness, 0.f, 1.f);
@@ -150,6 +178,15 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PopID();
 			id++;
 		}
+		ImGui::End();
+	}
+	if (showSphereEditBox)
+	{
+		ImGui::Begin("Sphere Material Editor", &showSphereEditBox);
+		ImGui::Text("Sphere");
+		ImGui::ColorEdit4("BaseColor", &sphereMaterial.baseColor);
+		ImGui::SliderFloat("Metalness", &sphereMaterial.Metalness, 0.f, 1.f);
+		ImGui::SliderFloat("Roughness", &sphereMaterial.Roughness, 0.f, 1.f);
 		ImGui::End();
 	}
 }

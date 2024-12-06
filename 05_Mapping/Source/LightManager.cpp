@@ -12,7 +12,7 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    cbuffer.CreatePSConstantBuffers<cb_Light>();
+    cbuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
     cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
 }
 

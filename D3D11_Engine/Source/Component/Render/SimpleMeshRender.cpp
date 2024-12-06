@@ -65,7 +65,7 @@ void SimpleMeshRender::Render()
     {
 		constBuffer.UpdateEvent();
 		RENDERER_DRAW_DESC desc = GetRendererDesc();
-        d3dRenderer.DrawIndex(desc, false);
+        d3dRenderer.DrawIndex(desc, isAlpha);
     } 
 }
 

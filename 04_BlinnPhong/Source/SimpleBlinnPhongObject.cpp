@@ -134,7 +134,7 @@ void SimpleBlinnPhongObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLa
     cb.CamPos = Vector4(camPos[0], camPos[1], camPos[2], 0);
 
     Vector4(LightDir[0], LightDir[1], LightDir[2], LightDir[3]).Normalize(cb.LightDir);
-    cb.LightDiffuse = Vector4(LightDiffuse);
+    cb.LightColor = Vector4(LightColor);
     cb.LightAmbient = Vector4(LightAmbient);
     cb.LightSpecular = Vector4(LightSpecular);
 

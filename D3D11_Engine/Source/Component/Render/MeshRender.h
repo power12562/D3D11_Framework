@@ -31,7 +31,12 @@ public:
 	D3DTexture2D texture2D;
 	D3DSamplerState samplerState;
 
+public:
 	DirectX::SimpleMath::Color baseColor{1,1,1,1};
+
+public:
+	bool isAlpha = false;
+
 public:
 	bool IsVSShader() { return pInputLayout && pVertexShader; }
 	bool IsPSShader() { return !!pPixelShader; }

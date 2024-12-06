@@ -38,7 +38,7 @@ namespace global
 	extern float bgColor[4];
 
 	extern float LightDir[4];
-	extern float LightDiffuse[4];
+	extern float LightColor[4];
 	extern float LightAmbient[4];
 	extern float LightSpecular[4];
 

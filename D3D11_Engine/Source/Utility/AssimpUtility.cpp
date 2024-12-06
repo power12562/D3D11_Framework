@@ -24,15 +24,6 @@ namespace Utility
 		aiString path;
 		std::wstring basePath;
 		{
-			meshRender->texture2D.resize(E_TEXTURE::Null);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::ZERO);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Roughness, E_TEXTURE_DEFAULT::ZERO);
-
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_DIFFUSE, 0, &path) ||
 				AI_SUCCESS == ai_material->GetTexture(aiTextureType_BASE_COLOR, 0, &path))
 			{
@@ -92,6 +83,7 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->texture2D.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
+					meshRender->isAlpha = true;
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_METALNESS, 0, &path))

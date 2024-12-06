@@ -35,7 +35,7 @@ TransAnimationScene::TransAnimationScene()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
 			mesh->constBuffer.BindUpdateEvent(*material_01);
 
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
 			mesh->SetVertexShader(L"VertexShader.hlsl");
@@ -54,7 +54,7 @@ TransAnimationScene::~TransAnimationScene()
 void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_Light& cb_light = SimpleDirectionalLight::cb_light;
+	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");
@@ -66,7 +66,7 @@ void TransAnimationScene::ImGUIRender()
 
 	ImGui::Text("Light");
 	ImGui::DragFloat3("LightDir", (float*)&cb_light.LightDir, 0.01f, -1.0f, 1.0f);
-	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightColor);
 	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
 	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");

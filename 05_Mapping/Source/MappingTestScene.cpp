@@ -31,7 +31,7 @@ MappingTestScene::~MappingTestScene()
 void MappingTestScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_Light& cb_light = LightManager::cb_light;
+	cb_DirectionalLight& cb_light = LightManager::cb_light;
 	cbuffer_bool& cb_bool = LightManager::cb_bool;
 
 	ImGui::Begin("Debug");
@@ -47,7 +47,7 @@ void MappingTestScene::ImGUIRender()
 	ImGui::Text("Light");	
 	ImGui::DragFloat3("LightDir", LightDir, 0.01f, -1.0f, 1.0f);
 	cb_light.LightDir = Vector4(LightDir);
-	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightDiffuse);
+	ImGui::ColorEdit3("LightDiffuse", &cb_light.LightColor);
 	ImGui::ColorEdit3("LightAmbient", &cb_light.LightAmbient);
 	ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 	ImGui::Text("");

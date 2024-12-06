@@ -38,9 +38,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     if (0.f < length(mapNormal))
-        input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
-    else
-        input.Normal = normalize(mul(input.Normal, WorldNormalTransform));
+        input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
     
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;
 

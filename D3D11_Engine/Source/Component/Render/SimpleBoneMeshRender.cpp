@@ -69,7 +69,7 @@ void SimpleBoneMeshRender::Render()
 		if (IsVSShader() && IsPSShader())
 		{
 			RENDERER_DRAW_DESC desc = GetRendererDesc();
-			d3dRenderer.DrawIndex(desc, false);
+			d3dRenderer.DrawIndex(desc, isAlpha);
 		}
 	}
 	else

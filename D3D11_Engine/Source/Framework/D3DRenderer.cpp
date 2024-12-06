@@ -313,21 +313,11 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
 void D3DRenderer::EndDraw()
 {
     for (auto& item : opaquerenderOueue)
-    {
-        cbuffer::transform.World = XMMatrixTranspose(item.pTransform->GetWM());
-        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, item.pTransform->GetWM());
-        cbuffer::transform.WVP = XMMatrixTranspose(item.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
-
+    {     
         Draw(item);
     }
     for (auto& item : alphaRenderQueue)
     {
-        cbuffer::transform.World = XMMatrixTranspose(item.pTransform->GetWM());
-        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, item.pTransform->GetWM());
-        cbuffer::transform.WVP = XMMatrixTranspose(item.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
-
         Draw(item);
     }
     opaquerenderOueue.clear();
@@ -336,8 +326,13 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
+    cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
+    cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
+    cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
     drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
+
     for (int i = 0; i < drawDesc.pSamperState->size(); i++)
     {
         ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];

@@ -39,6 +39,7 @@ public:
 	__declspec(property(get = GetLocalRotation, put = SetLocalRotation)) const Quaternion& localRotation;
 
 	const Vector3& SetScale(const Vector3& value);
+	const Vector3& SetScale(float value);
 	const Vector3& GetScale() const { return _scale; }
 	__declspec(property(get = GetScale, put = SetScale)) const Vector3& scale;
 

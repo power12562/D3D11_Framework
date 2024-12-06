@@ -2,5 +2,5 @@
 
 namespace SimpleDirectionalLight
 {
-    cb_Light cb_light{};
+    cb_DirectionalLight cb_light{};
 };

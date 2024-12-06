@@ -33,7 +33,7 @@ TestMainScene::TestMainScene()
             int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
             mesh->constBuffer.BindUpdateEvent(*material);
 
-            index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+            index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
             mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
             mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
@@ -54,7 +54,7 @@ TestMainScene::TestMainScene()
             int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
             mesh->constBuffer.BindUpdateEvent(my_meterial);
 
-            index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
+            index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
             mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
             mesh->SetVertexShader(L"VertexShader.hlsl");
