@@ -1,6 +1,8 @@
 #pragma once
 #include <Scene/Base/Scene.h>
 #include <Material/BlingPhongMaterial.h>
+#include <Material/PBRMaterial.h>
+#include <Light/PBRDirectionalLight.h>
 #include <map>
 
 class Camera;
@@ -17,6 +19,8 @@ private:
 	float* pCamSpeed = nullptr;
 
 	std::shared_ptr<cb_BlingPhongMaterial> material;
-	std::list<cb_BlingPhongMaterial> charMaterialList;
+	std::list<cb_PBRMaterial> charMaterialList;
 	std::map<std::string, GameObject*> charObjectList;
+
+	cb_PBRDirectionalLight pbrLight;
 };

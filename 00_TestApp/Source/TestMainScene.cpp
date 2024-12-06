@@ -47,21 +47,21 @@ TestMainScene::TestMainScene()
     auto objMesh = [this](MeshRender* mesh)
         {
             charObjectList[utfConvert::wstring_to_utf8(mesh->gameObject.Name).c_str()] = &mesh->gameObject;
-            charMaterialList.emplace_back(cb_BlingPhongMaterial());
+            charMaterialList.emplace_back(cb_PBRMaterial());
 
-            cb_BlingPhongMaterial& my_meterial = charMaterialList.back();
-            my_meterial.MaterialDiffuse = mesh->baseColor;
-            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
+            mesh->constBuffer.BindUpdateEvent(pbrLight);
+
+            cb_PBRMaterial& my_meterial = charMaterialList.back();
+            my_meterial.baseColor = mesh->baseColor;
+            index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
             mesh->constBuffer.BindUpdateEvent(my_meterial);
 
-            index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-            mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
-
             mesh->SetVertexShader(L"VertexShader.hlsl");
-            mesh->SetPixelShader(L"PixelShader.hlsl");
+            mesh->SetPixelShader(L"PBRPixelShader.hlsl");
         };
     Utility::LoadFBX(L"Resource/char/char.fbx", *House, objMesh, false);
-    House->transform.position = Vector3(50.0f, 0.f, 0.f);
+    House->transform.position = Vector3(10.0f, 0.f, 0.f);
     House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
 
@@ -81,6 +81,8 @@ void TestMainScene::ImGUIRender()
         ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
+        pbrLight.LightDir = SimpleDirectionalLight::cb_light.LightDir;
+
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
     }
     ImGui::End();

@@ -8,14 +8,14 @@ float4 main(PS_INPUT input) : SV_Target
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
     txColor.rgb = GammaToLinearSpace(txColor.rgb);
     
-    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
+    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     if (UseNormalMap)
     {
-        if (0.f < length(mapNormal))
-            input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+        if (0.0001f < length(mapNormal))
+            input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
     }
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * txColor * MaterialDiffuse;
     

@@ -13,8 +13,8 @@ MappingCubeObject::MappingCubeObject()
 MappingCubeObject::~MappingCubeObject()
 {
     using namespace Utility;
-    SafeRelease(pIndexBuffer);
-    SafeRelease(pVertexBuffer);
+    SafeRelease(dd.pIndexBuffer);
+    SafeRelease(dd.pVertexBuffer);
 }
 
 void MappingCubeObject::Start()
@@ -62,10 +62,10 @@ void MappingCubeObject::Start()
     bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA vbData = {};
     vbData.pSysMem = vertices; // 배열 데이터 할당.
-    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &pVertexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &dd.pVertexBuffer));
 
-    vertexBufferStride = sizeof(Vertex);
-    vertexBufferOffset = 0;
+    dd.vertexBufferStride = sizeof(Vertex);
+    dd.vertexBufferOffset = 0;
 
     //인덱스 버퍼용 배열
     UINT indices[] =
@@ -79,7 +79,7 @@ void MappingCubeObject::Start()
     };
 
     // 인덱스 개수 저장.
-    indicesCount = ARRAYSIZE(indices);
+    dd.indicesCount = ARRAYSIZE(indices);
     bd = {};
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(UINT) * ARRAYSIZE(indices);
@@ -88,7 +88,7 @@ void MappingCubeObject::Start()
     //인덱스 버퍼 생성
     D3D11_SUBRESOURCE_DATA ibData = {};
     ibData.pSysMem = indices;
-    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &pIndexBuffer));
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &dd.pIndexBuffer));
 
     //Load Textures
     texture2D.resize(5);
@@ -130,13 +130,6 @@ void MappingCubeObject::LateUpdate()
 void MappingCubeObject::Render()
 {
     auto pDeviceContext = d3dRenderer.GetDeviceContext();
-
-    DRAW_INDEX_DATA dd{};
-    dd.indicesCount = indicesCount;
-    dd.pIndexBuffer = pIndexBuffer;
-    dd.pVertexBuffer = pVertexBuffer;
-    dd.vertexBufferOffset = vertexBufferOffset;
-    dd.vertexBufferStride = vertexBufferStride;
 
     RENDERER_DRAW_DESC draw_desc{};
     draw_desc.pVertexIndex = &dd;

@@ -29,7 +29,7 @@ cbuffer cbuffer_Light : register(b3)
 float4 main(PS_INPUT input) : SV_Target
 {   
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
+    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb;
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
     float4 mapOpacity = opacityMap.Sample(samLinear, input.Tex);
@@ -37,7 +37,7 @@ float4 main(PS_INPUT input) : SV_Target
     float4 opacity = mapOpacity;
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
-    if (0.f < length(mapNormal))
+    if (0.0001f < length(mapNormal))
         input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
     
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;

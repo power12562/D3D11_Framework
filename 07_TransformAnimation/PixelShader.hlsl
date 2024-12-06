@@ -42,7 +42,7 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 View = normalize(MainCamPos.xyz - input.World);
     float3 HalfVector = normalize(-LightDir.xyz + View);
-    float fHDotN = max(0.0f, dot(HalfVector, input.Normal * mapNormal));
+    float fHDotN = max(0.0f, dot(HalfVector, input.Normal));
  
     float4 specular;
     specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular * mapSpecular;
