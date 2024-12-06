@@ -1,4 +1,4 @@
-#include "PBRShared.fxh"
+#include "Shared.fxh"
 
 #ifdef VERTEX_SKINNING
 cbuffer MatrixPallete : register(b2)

@@ -26,7 +26,7 @@ namespace Utility
 		{
 			meshRender->texture2D.resize(E_TEXTURE::Null);
 			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
-			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::NORMAL);
+			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::ZERO);
 			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 			meshRender->texture2D.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);

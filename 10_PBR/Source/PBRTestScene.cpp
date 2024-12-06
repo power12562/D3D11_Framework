@@ -9,12 +9,23 @@
 #include <Framework/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
 #include <Framework/ResourceManager.h>
-
+#include <Utility/utfConvert.h>
 #include <Material/PBRMaterial.h>
+
+struct cb_bool
+{
+	bool useMetalness = true;
+	bool pad1[3]{};
+	bool useRoughness = true;
+	bool pad2[11]{};
+};
+cb_bool testBool;
 
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
 {
+	SimpleDirectionalLight::cb_light.LightDir = { 0.f,0.f,1.f,0.f };
+
 	UseImGUI = true;
 
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
@@ -41,6 +52,12 @@ PBRTestScene::PBRTestScene()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
+			mesh->constBuffer.BindUpdateEvent(*shared_material);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
+			mesh->constBuffer.BindUpdateEvent(testBool);
+
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 		};
@@ -54,9 +71,16 @@ PBRTestScene::PBRTestScene()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_Light>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
-			charMaterialList[mesh->gameObject.Name] = cb_PBRMaterial(mesh->baseColor);
+			std::string key = utfConvert::wstring_to_utf8(mesh->gameObject.Name);
+			auto iter = charMaterialList.find(key);
+			if(iter == charMaterialList.end())
+				charMaterialList[key] = cb_PBRMaterial(mesh->baseColor);
+
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
-			mesh->constBuffer.BindUpdateEvent(charMaterialList[mesh->gameObject.Name]);
+			mesh->constBuffer.BindUpdateEvent(charMaterialList[key]);
+
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
+			mesh->constBuffer.BindUpdateEvent(testBool);
 
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
@@ -74,7 +98,10 @@ PBRTestScene::~PBRTestScene()
 
 void PBRTestScene::ImGUIRender()
 {
+	using namespace SimpleDirectionalLight;
+
 	Camera* mainCam = Camera::GetMainCamera();
+	static bool showCharEditBox = false;
 
 	ImGui::Begin("Debug");
 	{
@@ -91,11 +118,38 @@ void PBRTestScene::ImGUIRender()
 			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
 			ImGui::Text("");
 		}
+		if (ImGui::Button("Charater Material Edit"))
+			showCharEditBox = !showCharEditBox;
 
-		ImGui::Text("Material");
-		
+		ImGui::Checkbox("Use Metalness Map", &testBool.useMetalness);
+		ImGui::Checkbox("Use Roughness Map", &testBool.useRoughness);
+
+		ImGui::Text("Light");
+		ImGui::SliderFloat3("Light Dir", reinterpret_cast<float*>(&cb_light.LightDir), -1.f, 1.f);
+		ImGui::ColorEdit3("Light Diffuse", &cb_light.LightDiffuse);
+		ImGui::ColorEdit3("Light Ambient", &cb_light.LightAmbient);
+		ImGui::ColorEdit3("Light Specular", &cb_light.LightSpecular);
+
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	}
 	ImGui::End();
+
+	if (showCharEditBox)
+	{
+		ImGui::Begin("Character Material Editor", &showCharEditBox);
+		int id = 0;
+		for (auto& [name, material] : charMaterialList)
+		{
+			ImGui::PushID(id);
+			ImGui::Text(name.c_str());
+			ImGui::ColorEdit4("BaseColor", &material.baseColor);
+			ImGui::SliderFloat("Metalness", &material.Metalness, 0.f, 1.f);
+			ImGui::SliderFloat("Roughness", &material.Roughness, 0.f, 1.f);
+			ImGui::Text("\n");
+			ImGui::PopID();
+			id++;
+		}
+		ImGui::End();
+	}
 }

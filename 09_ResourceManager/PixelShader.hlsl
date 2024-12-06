@@ -39,7 +39,11 @@ float4 main(PS_INPUT input) : SV_Target
     float opacity = opacityMap.Sample(samLinear, input.Tex).a;
     
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
-    input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+    
+    if (0.f < length(mapNormal))
+        input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
+    else
+        input.Normal = normalize(mul(input.Normal, WorldNormalTransform));
     
     float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;
 

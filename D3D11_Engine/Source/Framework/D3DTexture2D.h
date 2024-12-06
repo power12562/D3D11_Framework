@@ -32,8 +32,7 @@ namespace E_TEXTURE_DEFAULT
 	enum DEFAULT_TEXTURE
 	{
 		ZERO,
-		ONE,
-		NORMAL
+		ONE
 	};
 }
 

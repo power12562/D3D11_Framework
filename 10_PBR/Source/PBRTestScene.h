@@ -16,5 +16,5 @@ protected:
 private:
 	float* pCamSpeed = nullptr;
 	std::shared_ptr<cb_PBRMaterial> shared_material;
-	std::unordered_map<std::wstring, cb_PBRMaterial> charMaterialList;
+	std::unordered_map<std::string, cb_PBRMaterial> charMaterialList;
 };

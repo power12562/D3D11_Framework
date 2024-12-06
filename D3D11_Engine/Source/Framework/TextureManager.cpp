@@ -58,8 +58,6 @@ ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::D
 		return GetZeroTexture();
 	case E_TEXTURE_DEFAULT::ONE:
 		return GetOneTexture();
-	case E_TEXTURE_DEFAULT::NORMAL:
-		return GetDefaultNormalTexture();
 	default:
 		return GetZeroTexture();
 	}
@@ -68,7 +66,6 @@ ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::D
 void TextureManager::ReleaseDefaultTexture()
 {
 	Utility::SafeRelease(oneTexture);
-	Utility::SafeRelease(defaultNormalTexture);
 	Utility::SafeRelease(zeroTexture);
 }
 
@@ -109,18 +106,6 @@ ID3D11ShaderResourceView* TextureManager::GetOneTexture()
 		constexpr float pixel[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		CreateDefaultTexture(pixel, &oneTexture);
 		return oneTexture;
-	}
-}
-
-ID3D11ShaderResourceView* TextureManager::GetDefaultNormalTexture()
-{
-	if (defaultNormalTexture)
-		return defaultNormalTexture;
-	else
-	{
-		constexpr float pixel[4] = { 0.5f,0.5f,1.0f,1.0f };
-		CreateDefaultTexture(pixel, &defaultNormalTexture);
-		return defaultNormalTexture;
 	}
 }
 

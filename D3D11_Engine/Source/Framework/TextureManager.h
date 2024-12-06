@@ -27,7 +27,6 @@ public:
 
 private:
 	ID3D11ShaderResourceView* GetOneTexture();
-	ID3D11ShaderResourceView* GetDefaultNormalTexture();
 	ID3D11ShaderResourceView* GetZeroTexture();
 
 private:
@@ -36,6 +35,5 @@ private:
 	void CreateDefaultTexture(const float (&pixel)[4], ID3D11ShaderResourceView** ppSRV);
 
 	ID3D11ShaderResourceView* oneTexture = nullptr;
-	ID3D11ShaderResourceView* defaultNormalTexture = nullptr;
 	ID3D11ShaderResourceView* zeroTexture = nullptr;
 };

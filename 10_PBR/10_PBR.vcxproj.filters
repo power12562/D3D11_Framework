@@ -36,7 +36,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\PBRShared.fxh">
+    <None Include="Shader\Shared.fxh">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
