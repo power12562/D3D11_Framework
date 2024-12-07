@@ -34,7 +34,7 @@ ResourceManagerScene::ResourceManagerScene()
 	
 	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
 
-	for (size_t i = 0; i < 50; i++) { AddTestObject(); }
+	for (size_t i = 0; i < 500; i++) { AddTestObject(); }
 }
 
 ResourceManagerScene::~ResourceManagerScene()

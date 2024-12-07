@@ -86,7 +86,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 specular = SpecularBRDF(D, F, G, NoL, NoV);
 
     // Diffuse 반사
-    float3 diffuse = DiffuseBRDF(albedo, F, metalness);
+    float3 diffuse = DiffuseBRDF(albedo, F, NoL, metalness);
 
     // 조명 계산
     float3 radiance = LightColor.rgb * LightIntensity;

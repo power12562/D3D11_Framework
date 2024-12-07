@@ -324,6 +324,14 @@ void D3DRenderer::EndDraw()
     alphaRenderQueue.clear();
 }
 
+void D3DRenderer::Present()
+{
+    if(setting.UseVSync)
+        pSwapChain->Present(0, 0);
+    else
+        pSwapChain->Present(0, DXGI_PRESENT_DO_NOT_WAIT);
+}
+
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
     cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());

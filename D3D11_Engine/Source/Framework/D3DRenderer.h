@@ -17,8 +17,11 @@ extern D3DRenderer& d3dRenderer;
 struct USAGE_VRAM_INFO;
 struct SYSTEM_VRAM_INFO;
 struct SYSTEM_MEMORY_INFO;
-
 struct RENDERER_DRAW_DESC;
+struct RENDERER_SETTING_DESC
+{
+	bool UseVSync = false;
+};
 
 class D3DRenderer : public TSingleton<D3DRenderer>
 {
@@ -64,10 +67,11 @@ public:
 	void BegineDraw();
 	void DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha);
 	void EndDraw();
-	void Present() { pSwapChain->Present(0, 0); }
+	void Present();
 
 public:
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
+	RENDERER_SETTING_DESC setting;
 
 private:
 	ID3D11Device*			 pDevice;			  // 디바이스	
@@ -126,3 +130,4 @@ struct RENDERER_DRAW_DESC
 	ID3D11VertexShader* pVertexShader;
 	ID3D11PixelShader* pPixelShader;
 };
+

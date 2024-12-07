@@ -95,7 +95,7 @@ PBRTestScene::PBRTestScene()
 	Sphere->transform.position += Vector3::Up * 15.f;
 	{
 		SphereMeshRender* mesh = &Sphere->sphereMeshRender;
-		mesh->CreateSphere(5.0f);
+		mesh->CreateSphere(5.0f, 100, 100);
 
 		mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
 		mesh->constBuffer.BindUpdateEvent(directionalLight);

@@ -1,6 +1,7 @@
 static const float PI = 3.141592654;
 static const float3 Fdielectric = 0.04f;
 static const float Epsilon = 1e-6;
+static const float MinRoughness = 0.01f;
 
 inline float GammaToLinearSpaceExact(float value)
 {
@@ -63,6 +64,7 @@ inline float3 LinearToGammaSpace(float3 rgb)
 
 inline float NormalDistribution(float roughness, float NoH)
 {
+    roughness = max(roughness, MinRoughness);
     float a = roughness * roughness;
     float squareA = a * a;
     float var = NoH * NoH * (squareA - 1.0) + 1.0;
@@ -82,6 +84,7 @@ inline float GSchlickGGX(float NoX, float k)
 
 inline float GeometricAttenuation(float NoV, float NoL, float roughness)
 {
+    roughness = max(roughness, MinRoughness);
     float a = roughness + 1.0;
     float k = (a * a) / 8.0; // direct
     //float k = (roughness * roughness) * 0.5; // IBL
@@ -91,13 +94,13 @@ inline float GeometricAttenuation(float NoV, float NoL, float roughness)
 
 inline float3 SpecularBRDF(float D, float3 F, float G, float NoL, float NoV)
 {
-    return D * F * G / 4.0f * NoL * NoV;
+    return D * F * G / max(4.0f * NoL * NoV, 0.001f);
 }
 
-inline float3 DiffuseBRDF(float3 BaseColor, float3 F, float Metalness)
+inline float3 DiffuseBRDF(float3 BaseColor, float3 F, float NoL, float Metalness)
 {
     float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), Metalness);
-    return float3(BaseColor * kd / PI);
+    return float3(BaseColor * kd * NoL / PI);
 }
 
 cbuffer cbuffer_Transform : register(b0)
