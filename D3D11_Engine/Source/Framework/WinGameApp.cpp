@@ -10,6 +10,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 #include <Framework/ImguiHelper.h>
+#include <Math/Mathf.h>
 
 LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -142,12 +143,15 @@ bool WinGameApp::WinInit()
 		return false;
 	}
 
-	// 원하는 크기가 조정되어 리턴
-	WinGameApp::size = clientSize;
+	if (clientSize.cx > 0 || clientSize.cy > 0)
+		WinGameApp::size = clientSize;
+	else
+		WinGameApp:size = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	
 	SIZE clientSize = WinGameApp::size;
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };
-	AdjustWindowRect(&clientRect, windowStyle, FALSE);
-
+	AdjustWindowRect(&clientRect, windowStyle, FALSE); 	// 원하는 크기가 조정되어 리턴
+	 
 	// 윈도우 생성
 	WinGameApp::hwnd = CreateWindowEx(
 		0,

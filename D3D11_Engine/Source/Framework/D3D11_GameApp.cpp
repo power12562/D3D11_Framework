@@ -102,3 +102,12 @@ void D3D11_GameApp::Render()
 }
 
 
+void D3D11_GameApp::SetBorderlessWindowed()
+{
+	windowStyle = WS_POPUP;
+}
+
+void D3D11_GameApp::SetOptimalScreenSize()
+{
+	clientSize = { 0, 0 };
+}

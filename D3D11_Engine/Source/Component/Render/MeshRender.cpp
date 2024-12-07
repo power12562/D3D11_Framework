@@ -7,6 +7,11 @@ using namespace Utility;
 
 MeshRender::MeshRender()
 {
+	//레스터화 기본 규칙
+	ZeroMemory(&currRRdesc, sizeof(currRRdesc));
+	currRRdesc.FillMode = D3D11_FILL_SOLID;
+	currRRdesc.CullMode = D3D11_CULL_NONE;  //컬링 없음
+	currRRdesc.FrontCounterClockwise = false; //기본값
 }
 
 MeshRender::~MeshRender()
@@ -16,6 +21,7 @@ MeshRender::~MeshRender()
 		SafeRelease(meshResource->pIndexBuffer);
 		SafeRelease(meshResource->pVertexBuffer);
 	}
+	SafeRelease(pRRState);
 }
 
 void MeshRender::SetMeshResource(const wchar_t* path)
@@ -70,6 +76,30 @@ void MeshRender::ResetPixelShader()
 	}
 }
 
+void MeshRender::SetFillMode(D3D11_FILL_MODE mode)
+{
+	currRRdesc.FillMode = mode;
+	SetRRState(currRRdesc);
+}
+
+void MeshRender::SetCullMode(D3D11_CULL_MODE mode)
+{
+	currRRdesc.CullMode = mode;
+	SetRRState(currRRdesc);
+}
+
+void MeshRender::SetRRState(D3D11_RASTERIZER_DESC& desc)
+{
+	ResetRRState();
+	d3dRenderer.CreateRRState(desc, &pRRState);
+	currRRdesc = desc;
+}
+
+void MeshRender::ResetRRState()
+{
+	Utility::SafeRelease(pRRState);
+}
+
 RENDERER_DRAW_DESC MeshRender::GetRendererDesc()
 {
 	RENDERER_DRAW_DESC desc{};
@@ -81,6 +111,7 @@ RENDERER_DRAW_DESC MeshRender::GetRendererDesc()
 	desc.pPixelShader = pPixelShader;
 	desc.pTransform = &gameObject.transform;
 	desc.pVertexIndex = meshResource.get();
+	desc.pRRState = pRRState;
 	return desc;
 }
 

@@ -20,7 +20,7 @@ struct SYSTEM_MEMORY_INFO;
 struct RENDERER_DRAW_DESC;
 struct RENDERER_SETTING_DESC
 {
-	bool UseVSync = false;
+	bool UseVSync = true;
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -54,8 +54,9 @@ public:
 
 	void reserveRenderQueue(size_t size);
 
-	/*레스터화 규칙 설정*/
-	void SetRRState(ID3D11RasterizerState* rasterState);
+	/*레스터화 기본 규칙 설정*/
+	void SetRRState(D3D11_RASTERIZER_DESC& defaultDesc);
+
 	/*레스터화 규칙 생성*/
 	void CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState);
 private:
@@ -129,5 +130,6 @@ struct RENDERER_DRAW_DESC
 	ID3D11InputLayout* pInputLayout;
 	ID3D11VertexShader* pVertexShader;
 	ID3D11PixelShader* pPixelShader;
+	ID3D11RasterizerState* pRRState = nullptr;
 };
 

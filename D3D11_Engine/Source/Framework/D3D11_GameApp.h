@@ -16,6 +16,10 @@ private:
 	virtual void Update() override final;
 	virtual void Render() override final;
 
+protected:
+	void SetBorderlessWindowed(); //경계 없는 창으로 설정
+	void SetOptimalScreenSize(); //화면 해상도 자동으로 설정
+
 private:
 	float fixedElapsedTime = 0;
 };

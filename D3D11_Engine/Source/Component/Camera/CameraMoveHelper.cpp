@@ -19,6 +19,7 @@ void CameraMoveHelper::Start()
 
 void CameraMoveHelper::FixedUpdate()
 {
+
 }
 
 void CameraMoveHelper::Update()
@@ -26,10 +27,10 @@ void CameraMoveHelper::Update()
 	inputVector.Normalize();
 	if (inputVector.Length() > 0.0f)
 	{
-	 	transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
-		inputVector = Vector3::Zero;	
+		transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
+		inputVector = Vector3::Zero;
 	}
-	Quaternion yawRotation   = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.y);
+	Quaternion yawRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.y);
 	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, angle.x);
 	transform.rotation = yawRotation * pitchRotation;
 	inputVector = Vector3::Zero;

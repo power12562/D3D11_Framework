@@ -107,8 +107,7 @@ void D3DRenderer::Init()
         rasterDesc.FillMode = D3D11_FILL_SOLID;
         rasterDesc.CullMode = D3D11_CULL_NONE;  // 컬링 없음
         rasterDesc.FrontCounterClockwise = false; // 기본값
-        CreateRRState(rasterDesc, &pDefaultRRState);
-        SetRRState(pDefaultRRState);
+        SetRRState(rasterDesc);
 
         //깊이 스텐실 버퍼
         D3D11_TEXTURE2D_DESC descDepth = {};
@@ -208,21 +207,15 @@ void D3DRenderer::reserveRenderQueue(size_t size)
     alphaRenderQueue.reserve(size);
 }
 
-void D3DRenderer::SetRRState(ID3D11RasterizerState* rasterState)
+void D3DRenderer::SetRRState(D3D11_RASTERIZER_DESC& defaultDesc)
 {
-    if (rasterState)
-    {
-        pDeviceContext->RSSetState(rasterState);
-    }
-    else
-    {
-        pDeviceContext->RSSetState(pDefaultRRState);
-    }
+    Utility::SafeRelease(pDefaultRRState);
+    CreateRRState(defaultDesc, &pDefaultRRState);
 }
 
 void D3DRenderer::CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState)
 {
-    pDevice->CreateRasterizerState(&RASTERIZER_DESC, rasterState);
+    Utility::CheckHRESULT(pDevice->CreateRasterizerState(&RASTERIZER_DESC, rasterState));
 }
 
 namespace BytesHelp
@@ -334,6 +327,15 @@ void D3DRenderer::Present()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
+    if (drawDesc.pRRState)
+    {
+        pDeviceContext->RSSetState(drawDesc.pRRState);
+    }
+    else
+    {
+        pDeviceContext->RSSetState(pDefaultRRState);
+    }
+
     cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
     cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
     cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());

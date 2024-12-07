@@ -53,6 +53,16 @@ private:
 	ID3D11InputLayout* pInputLayout = nullptr;
 	ID3D11VertexShader* pVertexShader = nullptr;
 	ID3D11PixelShader* pPixelShader = nullptr;
+
+public:
+	void SetFillMode(D3D11_FILL_MODE mode);
+	void SetCullMode(D3D11_CULL_MODE mode);
+	void SetRRState(D3D11_RASTERIZER_DESC& desc);
+	void ResetRRState();
+
+private:
+	D3D11_RASTERIZER_DESC currRRdesc;
+	ID3D11RasterizerState* pRRState = nullptr;
 public:
 	RENDERER_DRAW_DESC GetRendererDesc();
 

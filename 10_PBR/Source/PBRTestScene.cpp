@@ -23,14 +23,11 @@ cb_bool testBool;
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
 {
-	ID3D11RasterizerState* pRRState;
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
-	d3dRenderer.CreateRRState(rasterDesc, &pRRState);
-	d3dRenderer.SetRRState(pRRState);
-	Utility::SafeRelease(pRRState);
+	d3dRenderer.SetRRState(rasterDesc);
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0.3f, 0.3f, 0.3f, 1);
