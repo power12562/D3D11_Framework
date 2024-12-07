@@ -2,7 +2,7 @@
 #include <Utility/D3D11Utility.h>
 
 #pragma warning(disable : 4305)
-struct cb_DirectionalLight
+struct alignas(16) cb_DirectionalLight
 {
     DirectX::SimpleMath::Vector4 LightDir{ 0, -1, 1, 0 };
     DirectX::SimpleMath::Vector4 LightColor{ 1, 1, 1, 1 };
