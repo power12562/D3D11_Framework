@@ -68,9 +68,12 @@ PBRTestScene::PBRTestScene()
 
 			std::string key = utfConvert::wstring_to_utf8(mesh->gameObject.Name);
 			auto iter = charMaterialList.find(key);
-			if(iter == charMaterialList.end())
-				charMaterialList[key] = cb_PBRMaterial(mesh->baseColor);
-
+			if (iter == charMaterialList.end())
+			{
+				charMaterialList[key] = cb_PBRMaterial();
+				charMaterialList[key].baseColor = mesh->baseColor;
+			}
+				
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
 			mesh->constBuffer.BindUpdateEvent(charMaterialList[key]);
 
