@@ -13,6 +13,7 @@ class GameObject;
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
+
 	void LoadFBX(const wchar_t* path, 
 		GameObject& _gameObject, 
 		std::function<void(MeshRender*)> initMesh,

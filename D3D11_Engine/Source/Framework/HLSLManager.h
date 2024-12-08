@@ -17,7 +17,9 @@ class HLSLManager : public TSingleton<HLSLManager>
 	};
 	friend class TSingleton;
 public:
+	/** 버텍스 셰이더 및 입력 레이아웃 생성.*/
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
+	/** 픽셀 셰이더 생성.*/
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 
 	/*사용중인 Shader 객체들을 Release 합니다. 씬 소멸자에서 호출됩니다.*/

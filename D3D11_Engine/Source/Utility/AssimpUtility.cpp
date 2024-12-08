@@ -19,7 +19,22 @@
 
 namespace Utility
 {
-	void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender)
+	static void NewMeshObject()
+	{
+
+	}
+
+	static SimpleBoneMeshRender& GetBoneMeshComponent()
+	{
+
+	}
+
+	static SimpleMeshRender& GetMeshComponent()
+	{
+
+	}
+
+	static void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender)
 	{
 		aiString path;
 		std::wstring basePath;
@@ -109,7 +124,7 @@ namespace Utility
 		}
 	}
 
-	void SetNodeTransform(const aiNode* node, GameObject* objcet)
+	static void SetNodeTransform(const aiNode* node, GameObject* objcet)
 	{
 		Vector3 pos;
 		Quaternion rot;
@@ -123,7 +138,7 @@ namespace Utility
 		}
 	}
 
-	void SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
+	static void SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
 	{
 		using Clip = TransformAnimation::Clip;
 
@@ -175,13 +190,13 @@ namespace Utility
 		}
 	}
 
-	GameObject* IsResource(const std::wstring& key)
+	static GameObject* IsResource(const std::wstring& key)
 	{
 		std::shared_ptr<GameObject> rootObject = GetResourceManager<GameObject>().GetResource(key.c_str());
 		return rootObject.get();
 	}
 
-	bool IsBone(GameObject* obj)
+	static bool IsBone(GameObject* obj)
 	{
 		std::queue<GameObject*> objQue;
 		objQue.push(obj);
@@ -202,7 +217,7 @@ namespace Utility
 		return false;
 	}
 
-	void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj, 
+	static void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj,
 		const wchar_t* key, 
 		std::function<void(MeshRender*)> initMesh)
 	{
@@ -261,30 +276,27 @@ namespace Utility
 				}
 
 				//copy mesh
-				if (currSourceObj->IsComponent<SimpleBoneMeshRender>())
+				for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
 				{
-					for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
+					if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 					{
-						if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
-						{
-							SimpleBoneMeshRender& destMesh = currDestObj->AddComponent<SimpleBoneMeshRender>();
+						SimpleBoneMeshRender& destMesh = currDestObj->AddComponent<SimpleBoneMeshRender>();
 
-							destMesh.texture2D = sourceMesh->texture2D;
-							destMesh.samplerState = sourceMesh->samplerState;
+						destMesh.texture2D = sourceMesh->texture2D;
+						destMesh.samplerState = sourceMesh->samplerState;
 
-							destMesh.MeshID = sourceMesh->MeshID;
-							destMesh.offsetMatrices = sourceMesh->offsetMatrices;
+						destMesh.MeshID = sourceMesh->MeshID;
+						destMesh.offsetMatrices = sourceMesh->offsetMatrices;
 
-							destMesh.CopyShader(*sourceMesh);
-							destMesh.SetMeshResource(key);
+						destMesh.CopyShader(*sourceMesh);
+						destMesh.SetMeshResource(key);
 
-							meshList.push_back(&destMesh);
+						meshList.push_back(&destMesh);
 
-							initMesh(&destMesh);
-						}
-					}			
+						initMesh(&destMesh);
+					}
 				}
-
+			
 				for (unsigned int i = 0;  i < currSourceObj->transform.GetChildCount(); i++)
 				{
 					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
@@ -355,24 +367,19 @@ namespace Utility
 					currDestObj->transform = currSourceObj->transform;
 				}
 
-				//copy mesh
-				if (currSourceObj->IsComponent<SimpleMeshRender>())
+				for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
 				{
-					for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
+					if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
 					{
-						if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
-						{
-							SimpleMeshRender& destMesh = currDestObj->AddComponent<SimpleMeshRender>();
-							destMesh.texture2D = sourceMesh->texture2D;
-							destMesh.samplerState = sourceMesh->samplerState;
+						SimpleMeshRender& destMesh = currDestObj->AddComponent<SimpleMeshRender>();
+						destMesh.texture2D = sourceMesh->texture2D;
+						destMesh.samplerState = sourceMesh->samplerState;
 
-							destMesh.MeshID = sourceMesh->MeshID;
-							destMesh.SetMeshResource(key);
-							
-							destMesh.CopyShader(*sourceMesh);
+						destMesh.MeshID = sourceMesh->MeshID;
+						destMesh.SetMeshResource(key);
+						destMesh.CopyShader(*sourceMesh);
 
-							initMesh(&destMesh);
-						}
+						initMesh(&destMesh);
 					}
 				}
 
@@ -570,6 +577,7 @@ void Utility::LoadFBX(const wchar_t* path,
 								nameMap[weight.mVertexId].emplace_back(utfConvert::utf8_to_wstring(pBone->mName.C_Str()));				
 							}
 						}
+
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
 							SimpleBoneMeshRender::Vertex vertex;

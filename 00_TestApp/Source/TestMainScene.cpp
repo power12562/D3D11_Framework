@@ -48,7 +48,7 @@ TestMainScene::TestMainScene()
     HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
-    auto House = NewGameObject(L"char");
+    auto chara = NewGameObject(L"char");
     auto objMesh = [this](MeshRender* mesh)
         {
             charObjectList[utfConvert::wstring_to_utf8(mesh->gameObject.Name).c_str()] = &mesh->gameObject;
@@ -65,9 +65,9 @@ TestMainScene::TestMainScene()
             mesh->SetVertexShader(L"VertexShader.hlsl");
             mesh->SetPixelShader(L"PBRPixelShader.hlsl");
         };
-    Utility::LoadFBX(L"Resource/char/char.fbx", *House, objMesh, false);
-    House->transform.position = Vector3(10.0f, 0.f, 0.f);
-    House->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, objMesh, false);
+    chara->transform.position = Vector3(10.0f, 0.f, 0.f);
+    chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
 
 TestMainScene::~TestMainScene()

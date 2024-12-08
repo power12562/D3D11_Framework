@@ -42,6 +42,7 @@ void MeshRender::SetMeshResource(const wchar_t* path)
 
 void MeshRender::CopyShader(MeshRender& rhs)
 {
+	//생성된 shader는 씬 파괴 시점까지 존재함. 따라서 두개의 수명은 같다.
 	pInputLayout = rhs.pInputLayout;
 	pVertexShader = rhs.pVertexShader;
 	pPixelShader = rhs.pPixelShader;
