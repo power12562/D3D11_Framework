@@ -336,10 +336,16 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         pDeviceContext->RSSetState(pDefaultRRState);
     }
 
-    cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
-    cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
-    cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
-    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+    static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
+    if (prevTransform != drawDesc.pTransform)
+    {
+        cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
+        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
+        cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+        prevTransform = drawDesc.pTransform;
+    }
+
     drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
 

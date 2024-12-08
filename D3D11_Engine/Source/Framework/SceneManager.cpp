@@ -161,6 +161,12 @@ void SceneManager::EraseObjects()
 			EraseObject(obj);
 		}
 		eraseSet.clear();
+
+		auto& objList = currScene->objectList;
+		while (!objList.empty() && objList.back() == nullptr)
+		{
+			objList.pop_back();
+		}
 	}
 }
 

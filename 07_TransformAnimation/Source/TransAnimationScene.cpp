@@ -41,7 +41,7 @@ TransAnimationScene::TransAnimationScene()
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, meshInit, false);
+	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, meshInit, false, SURFACE_TYPE::NONE);
 	material_01->MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);

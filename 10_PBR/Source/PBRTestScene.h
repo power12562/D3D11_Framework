@@ -1,6 +1,6 @@
 #pragma once
 #include <Scene\Base\Scene.h>
-#include <set>
+#include <map>
 #include <Material/PBRMaterial.h>
 #include <Light\PBRDirectionalLight.h>
 #include <GameObject/Mesh/PBRMeshObject.h>
@@ -17,8 +17,8 @@ protected:
 
 private:
 	float* pCamSpeed = nullptr;
-	std::unordered_map<std::string, PBRMeshObject*> cerberusObjList;
-	std::unordered_map<std::string, PBRMeshObject*> charObjList;
+	std::map<std::string, PBRMeshObject*> cerberusObjList;
+	std::map<std::string, PBRMeshObject*> charObjList;
 
 	cb_PBRMaterial* sphereMaterial;
 };

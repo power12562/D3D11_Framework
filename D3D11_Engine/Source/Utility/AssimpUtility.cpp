@@ -256,6 +256,12 @@ namespace Utility
 		SURFACE_TYPE surface
 		)
 	{
+		if (DestinationObj == SourceObj)
+		{
+			__debugbreak(); //대상 오브젝트가 동일합니다.
+			return;
+		}
+
 		std::queue<GameObject*> objSourceQue;
 		objSourceQue.push(SourceObj);
 		GameObject* currSourceObj = nullptr;
@@ -267,41 +273,41 @@ namespace Utility
 		bool isBone = IsBone(SourceObj);
 		bool isRoot = true;
 
-		if (isBone)
+		std::vector<SimpleBoneMeshRender*> meshList;
+		std::vector<BoneComponent*> boneList(128);
+		std::vector<TransformAnimation::Clip*> clipList;
+		std::unordered_map<std::wstring, GameObject*> destObjNameMap;
+
+		while (!objSourceQue.empty())
 		{
-			std::vector<SimpleBoneMeshRender*> meshList;
-			std::vector<BoneComponent*> boneList(128);
-			std::vector<TransformAnimation::Clip*> clipList;
-			std::unordered_map<std::wstring, GameObject*> destObjNameMap;
+			currSourceObj = objSourceQue.front();
+			objSourceQue.pop();
 
-			while (!objSourceQue.empty())
+			currDestObj = objDestQue.front();
+			objDestQue.pop();
+
+			if (isRoot)
 			{
-				currSourceObj = objSourceQue.front();
-				objSourceQue.pop();
-
-				currDestObj = objDestQue.front();
-				objDestQue.pop();
-
-				if (isRoot)
+				//copy Animation
+				if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 				{
-					//copy Animation
-					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
+					TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>();
+					destAnime->CopyClips(animation);
+					clipList.reserve(destAnime->GetClipsCount());
+					for (auto& clip : destAnime->GetClips())
 					{
-						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>(); 
-						destAnime->CopyClips(animation);
-						clipList.reserve(destAnime->GetClipsCount());
-						for (auto& clip : destAnime->GetClips())
-						{
-							clipList.push_back(const_cast<TransformAnimation::Clip*>(&clip.second));
-						}
+						clipList.push_back(const_cast<TransformAnimation::Clip*>(&clip.second));
 					}
-				}	
-				else
-				{
-					//copy local transform
-					currDestObj->transform = currSourceObj->transform;
 				}
+			}
+			else
+			{
+				//copy local transform
+				currDestObj->transform = currSourceObj->transform;
+			}
 
+			if (isBone)
+			{
 				//copy bone
 				if (BoneComponent* sourceBone = currSourceObj->IsComponent<BoneComponent>())
 				{
@@ -331,77 +337,10 @@ namespace Utility
 						initMesh(&destMesh);
 					}
 				}
-			
-				for (unsigned int i = 0;  i < currSourceObj->transform.GetChildCount(); i++)
-				{
-					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
-					objSourceQue.push(sourceChild);
-
-					GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
-					destChild->transform.SetParent(currDestObj->transform);
-					objDestQue.push(destChild);
-				}
-
-				destObjNameMap[currDestObj->Name] = currDestObj;
-				isRoot = false;
 			}
-
-			//set boneList
-			for (int i = 0; i < boneList.size(); i++)
+			else
 			{
-				if(boneList[i] == nullptr)
-				{
-					boneList.resize(i);
-					break;
-				}
-			}
-			for (auto& mesh : meshList)
-			{
-				mesh->boneList = boneList;
-			}
-
-			//set clip target
-			for (auto& clip : clipList)
-			{
-				for (auto& animation : clip->nodeAnimations)
-				{
-					animation.objTarget = destObjNameMap[animation.objTarget->Name];
-				}
-			}
-		}
-		else
-		{
-			std::vector<TransformAnimation::Clip*> clipList;
-			std::unordered_map<std::wstring, GameObject*> destObjNameMap;
-
-			while (!objSourceQue.empty())
-			{
-				currSourceObj = objSourceQue.front();
-				objSourceQue.pop();
-
-				currDestObj = objDestQue.front();
-				objDestQue.pop();
-
-				if (isRoot)
-				{
-					//copy Animation
-					if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
-					{
-						TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>();
-						destAnime->CopyClips(animation);
-						clipList.reserve(destAnime->GetClipsCount());
-						for (auto& clip : destAnime->GetClips())
-						{
-							clipList.push_back(const_cast<TransformAnimation::Clip*>(&clip.second));
-						}
-					}
-				}
-				else
-				{
-					//copy local transform
-					currDestObj->transform = currSourceObj->transform;
-				}
-
+				//copy mesh
 				for (int i = 0; i < currSourceObj->GetComponentCount(); i++)
 				{
 					if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
@@ -417,28 +356,43 @@ namespace Utility
 						initMesh(&destMesh);
 					}
 				}
-
-				for (unsigned int i = 0; i < currSourceObj->transform.GetChildCount(); i++)
-				{
-					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
-					objSourceQue.push(sourceChild);
-
-					GameObject* destChild = NewGameObject<GameObject>(sourceChild->Name.c_str());
-					destChild->transform.SetParent(currDestObj->transform);
-					objDestQue.push(destChild);
-				}
-
-				destObjNameMap[currDestObj->Name] = currDestObj;
-				isRoot = false;
 			}
 
-			//set clip target
-			for (auto& clip : clipList)
+			//CreateChildObjects
+			for (unsigned int i = 0; i < currSourceObj->transform.GetChildCount(); i++)
 			{
-				for (auto& animation : clip->nodeAnimations)
-				{
-					animation.objTarget = destObjNameMap[animation.objTarget->Name];
-				}
+				GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
+				objSourceQue.push(sourceChild);
+
+				GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
+				destChild->transform.SetParent(currDestObj->transform);
+				objDestQue.push(destChild);
+			}
+
+			destObjNameMap[currDestObj->Name] = currDestObj;
+			isRoot = false;
+		}
+
+		//set boneList
+		for (int i = 0; i < boneList.size(); i++)
+		{
+			if (boneList[i] == nullptr)
+			{
+				boneList.resize(i);
+				break;
+			}
+		}
+		for (auto& mesh : meshList)
+		{
+			mesh->boneList = boneList;
+		}
+
+		//set clip target
+		for (auto& clip : clipList)
+		{
+			for (auto& animation : clip->nodeAnimations)
+			{
+				animation.objTarget = destObjNameMap[animation.objTarget->Name];
 			}
 		}
 	}

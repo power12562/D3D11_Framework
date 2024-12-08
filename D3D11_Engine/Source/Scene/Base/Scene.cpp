@@ -13,10 +13,12 @@
 
 Scene::Scene()
 {
-	sceneResourceList.reserve(100);
-	objectList.reserve(100);
-	objectFindMap.reserve(100);
-	d3dRenderer.reserveRenderQueue(100);
+	constexpr unsigned int ReserveSize = 100000;
+
+	sceneResourceList.reserve(ReserveSize);
+	objectList.reserve(ReserveSize);
+	objectFindMap.reserve(ReserveSize);
+	d3dRenderer.reserveRenderQueue(ReserveSize);
 }
 
 Scene::~Scene()

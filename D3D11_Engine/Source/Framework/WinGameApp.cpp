@@ -146,7 +146,7 @@ bool WinGameApp::WinInit()
 	if (clientSize.cx > 0 || clientSize.cy > 0)
 		WinGameApp::size = clientSize;
 	else
-		WinGameApp:size = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+		WinGameApp::size = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 	
 	SIZE clientSize = WinGameApp::size;
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };

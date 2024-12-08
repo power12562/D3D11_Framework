@@ -132,7 +132,7 @@ void ResourceManagerScene::AddTestObject()
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::NONE);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);

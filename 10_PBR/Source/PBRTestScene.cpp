@@ -23,9 +23,6 @@ cb_bool testBool;
 #pragma warning(disable : 4305)
 PBRTestScene::PBRTestScene()
 {
-	cerberusObjList.reserve(20);
-	charObjList.reserve(20);
-
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(rasterDesc));
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
@@ -72,13 +69,20 @@ PBRTestScene::PBRTestScene()
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 
-			charObjList[key] = static_cast<PBRMeshObject*>(&mesh->gameObject);
+			charObjList[key] = static_cast<PBRMeshObject*>(&obj);
 		};
 	auto charater = NewGameObject(L"charater");
 	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initCharShader, false, SURFACE_TYPE::PBR);
 	charater->transform.position += Vector3::Right * 10.f;
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+
+	//Copy Test
+	//auto charater2 = NewGameObject(L"charater2");
+	//Utility::LoadFBX(L"Resource/char/char.fbx", *charater2, false, SURFACE_TYPE::PBR);
+	//charater2->transform.position += Vector3::Right * 20.f;
+	//charater2->transform.rotation = Vector3::Up * 23.f;
+	//charater2->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 
 	auto Sphere = NewGameObject<SphereObject>(L"Sphere");
 	Sphere->transform.position += Vector3::Up * 15.f;

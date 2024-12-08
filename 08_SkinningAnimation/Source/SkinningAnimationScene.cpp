@@ -52,9 +52,9 @@ SkinningAnimationScene::SkinningAnimationScene()
 			mesh->SetPixelShader(L"PixelShader.hlsl");	
 		};
 
-	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, testInit, false);
-	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, testInit, false);
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, testInit, false);
+	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, testInit, false, SURFACE_TYPE::NONE);
+	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, testInit, false, SURFACE_TYPE::NONE);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, testInit, false, SURFACE_TYPE::NONE);
 
 	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
