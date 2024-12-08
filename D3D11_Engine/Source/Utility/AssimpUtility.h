@@ -10,6 +10,13 @@ class MeshRender;
 class Scene;
 class GameObject;
 
+enum class SURFACE_TYPE
+{
+	BlingPhong,
+	PBR,
+	NONE
+};
+
 namespace Utility
 {
 	bool ParseFileName(aiString& str);
@@ -17,11 +24,13 @@ namespace Utility
 	void LoadFBX(const wchar_t* path, 
 		GameObject& _gameObject, 
 		std::function<void(MeshRender*)> initMesh,
-		bool isStatic);
+		bool isStatic, 
+		SURFACE_TYPE surface);
 
 	void LoadFBX(const wchar_t* path,
 		GameObject& _gameObject,
-		bool isStatic);
+		bool isStatic,
+		SURFACE_TYPE surface);
 
 	void LoadFBXResource(const wchar_t* path);
 }

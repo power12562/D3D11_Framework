@@ -1,6 +1,7 @@
 #pragma once
 #include <GameObject/Base/GameObject.h>
-class SphereMeshRender;
+#include <Component/Render/SphereMeshRender.h>
+#include <Material/PBRMaterial.h>
 class SphereObject : public GameObject
 {
 public:
@@ -8,5 +9,5 @@ public:
 	virtual ~SphereObject() override = default;
 
 	SphereMeshRender& sphereMeshRender;
+	cb_PBRMaterial Material;
 };
-#include <Component/Render/SphereMeshRender.h>

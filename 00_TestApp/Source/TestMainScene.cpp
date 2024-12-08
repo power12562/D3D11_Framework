@@ -12,6 +12,8 @@
 #include <Framework/ResourceManager.h>
 #include <Utility/utfConvert.h>
 
+#include <GameObject/Mesh/PBRMeshObject.h>
+
 TestMainScene::TestMainScene()
 {
     D3D11_RASTERIZER_DESC rasterDesc{};
@@ -32,40 +34,20 @@ TestMainScene::TestMainScene()
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
-    auto HipHopDancing = NewGameObject(L"Hip Hop Dancing.fbx");
-    auto SkinningMesh = [this](MeshRender* mesh)->void
-        {
-            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-            mesh->constBuffer.BindUpdateEvent(*material);
-
-            index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-            mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
-
-            mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
-            mesh->SetPixelShader(L"PixelShader.hlsl");
-        };
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *HipHopDancing, SkinningMesh, false);
-    HipHopDancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
-    HipHopDancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+    auto dancing = NewGameObject(L"HipHopDancing");
+    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *dancing, false, SURFACE_TYPE::BlingPhong);
+    dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
+    dancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
     auto chara = NewGameObject(L"char");
-    auto objMesh = [this](MeshRender* mesh)
+    auto initMeshChar = [this](MeshRender* mesh)
         {
-            charObjectList[utfConvert::wstring_to_utf8(mesh->gameObject.Name).c_str()] = &mesh->gameObject;
-            charMaterialList.emplace_back(cb_PBRMaterial());
-
-            int index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
-            mesh->constBuffer.BindUpdateEvent(pbrLight);
-
-            cb_PBRMaterial& my_meterial = charMaterialList.back();
-            my_meterial.baseColor = mesh->baseColor;
-            index = mesh->constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
-            mesh->constBuffer.BindUpdateEvent(my_meterial);
-
-            mesh->SetVertexShader(L"VertexShader.hlsl");
-            mesh->SetPixelShader(L"PBRPixelShader.hlsl");
+            PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
+            pbrObj->Material.baseColor = mesh->baseColor;
+            charObjectList[pbrObj->GetNameToString()] = pbrObj;
         };
-    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, objMesh, false);
+
+    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, initMeshChar, false, SURFACE_TYPE::PBR);
     chara->transform.position = Vector3(10.0f, 0.f, 0.f);
     chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
@@ -91,9 +73,9 @@ void TestMainScene::ImGUIRender()
             showCharEdit = !showCharEdit;
 
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
-        pbrLight.LightDir = SimpleDirectionalLight::cb_light.LightDir;
+        PBRDirectionalLight::cb_light.LightDir = SimpleDirectionalLight::cb_light.LightDir;
 
-        ImGui::ColorEdit4("PBR Ambient", &pbrLight.LightAmbient);
+        ImGui::ColorEdit4("PBR Ambient", &PBRDirectionalLight::cb_light.LightAmbient);
 
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
     }

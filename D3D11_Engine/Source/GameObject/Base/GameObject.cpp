@@ -7,6 +7,7 @@
 #include <Framework/SceneManager.h>
 #include <Framework/InstanceIDManager.h>
 #include <Framework/D3DConstBuffer.h>
+#include <Utility/utfConvert.h>
 
 void GameObject::Destroy(GameObject& obj)
 {
@@ -111,4 +112,9 @@ const std::wstring& GameObject::SetName(const wchar_t* _name)
 	sceneManager.ChangeObjectName(this->instanceID, name, _name);
 	name = _name;
 	return name;
+}
+
+std::string GameObject::GetNameToString() const
+{
+	return utfConvert::wstring_to_utf8(GetName());
 }

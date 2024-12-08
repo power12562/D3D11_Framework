@@ -10,3 +10,9 @@ struct alignas(16) cb_PBRDirectionalLight
     float LightIntensity = 5.f;
 };
 #pragma warning(default : 4305)
+
+namespace PBRDirectionalLight
+{
+    extern cb_PBRDirectionalLight cb_light;
+};
+

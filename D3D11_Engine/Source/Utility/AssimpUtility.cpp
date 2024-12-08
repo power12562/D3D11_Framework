@@ -13,25 +13,58 @@
 #include <Material\BlingPhongMaterial.h>
 #include <Component\TransformAnimation.h>
 #include <Framework\ResourceManager.h>
+
+#include <Component/Render/PBRMeshRender.h>
+#include <Component/Render/PBRBoneMeshRender.h>
+#include <Component/Render/BlingPhongMeshRender.h>
+#include <Component/Render/BlingPhongBoneMeshRender.h>
+
 #include <Math/Mathf.h>
 #include <filesystem>
 #include <iostream>
 
 namespace Utility
 {
-	static void NewMeshObject()
+	static GameObject* NewMeshObject(
+		SURFACE_TYPE surface, 
+		const wchar_t* name)
 	{
-
+		switch (surface)
+		{
+		case SURFACE_TYPE::BlingPhong:
+			return NewGameObject<BlingPhongMeshObject>(name);
+		case SURFACE_TYPE::PBR:
+			return NewGameObject<PBRMeshObject>(name);
+		default:
+			return NewGameObject(name);
+		}
 	}
 
-	static SimpleBoneMeshRender& GetBoneMeshComponent()
+	static SimpleMeshRender& AddMeshComponent(GameObject* obj, SURFACE_TYPE surface)
 	{
+		switch (surface)
+		{
+		case SURFACE_TYPE::BlingPhong:
+			return obj->AddComponent<BlingPhongMeshRender>();
+		case SURFACE_TYPE::PBR:
+			return obj->AddComponent<PBRMeshRender>();
+		default:
+			return obj->AddComponent<SimpleMeshRender>();
+		}
 
 	}
-
-	static SimpleMeshRender& GetMeshComponent()
+	
+	static SimpleBoneMeshRender& AddBoneMeshComponent(GameObject* obj, SURFACE_TYPE surface)
 	{
-
+		switch (surface)
+		{
+		case SURFACE_TYPE::BlingPhong:
+			return obj->AddComponent<BlingPhongBoneMeshRender>();
+		case SURFACE_TYPE::PBR:
+			return obj->AddComponent<PBRBoneMeshRender>();
+		default:
+			return obj->AddComponent<SimpleBoneMeshRender>();
+		}
 	}
 
 	static void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender)
@@ -219,7 +252,9 @@ namespace Utility
 
 	static void CopyFBX(GameObject* DestinationObj, GameObject* SourceObj,
 		const wchar_t* key, 
-		std::function<void(MeshRender*)> initMesh)
+		std::function<void(MeshRender*)> initMesh,
+		SURFACE_TYPE surface
+		)
 	{
 		std::queue<GameObject*> objSourceQue;
 		objSourceQue.push(SourceObj);
@@ -280,7 +315,7 @@ namespace Utility
 				{
 					if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 					{
-						SimpleBoneMeshRender& destMesh = currDestObj->AddComponent<SimpleBoneMeshRender>();
+						SimpleBoneMeshRender& destMesh = AddBoneMeshComponent(currDestObj, surface);
 
 						destMesh.texture2D = sourceMesh->texture2D;
 						destMesh.samplerState = sourceMesh->samplerState;
@@ -302,7 +337,7 @@ namespace Utility
 					GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
 					objSourceQue.push(sourceChild);
 
-					GameObject* destChild = NewGameObject<GameObject>(sourceChild->Name.c_str());
+					GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
 					destChild->transform.SetParent(currDestObj->transform);
 					objDestQue.push(destChild);
 				}
@@ -371,7 +406,7 @@ namespace Utility
 				{
 					if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
 					{
-						SimpleMeshRender& destMesh = currDestObj->AddComponent<SimpleMeshRender>();
+						SimpleMeshRender& destMesh = AddMeshComponent(currDestObj, surface);
 						destMesh.texture2D = sourceMesh->texture2D;
 						destMesh.samplerState = sourceMesh->samplerState;
 
@@ -436,7 +471,8 @@ bool Utility::ParseFileName(aiString& str)
 void Utility::LoadFBX(const wchar_t* path,
 	GameObject& _gameObject,
 	std::function<void(MeshRender*)> initMesh,
-	bool isStatic)
+	bool isStatic,
+	SURFACE_TYPE surface)
 {
 	using namespace utfConvert;
 
@@ -460,7 +496,7 @@ void Utility::LoadFBX(const wchar_t* path,
 
 	if (GameObject* rootObject = IsResource(wstr_path))
 	{
-		CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), initMesh);
+		CopyFBX(&_gameObject, rootObject, wstr_path.c_str(), initMesh, surface);
 		return;
 	}
 
@@ -538,7 +574,7 @@ void Utility::LoadFBX(const wchar_t* path,
 				{			
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
-						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
+						SimpleBoneMeshRender& meshComponent = AddBoneMeshComponent(currObj, surface);
 						meshList.push_back(&meshComponent);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
@@ -643,7 +679,7 @@ void Utility::LoadFBX(const wchar_t* path,
 					//Create Vertex
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
-						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
+						SimpleMeshRender& meshComponent = AddMeshComponent(currObj, surface);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
@@ -701,7 +737,7 @@ void Utility::LoadFBX(const wchar_t* path,
 			{
 				nodeQue.push(currNode->mChildren[i]);
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
-				GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
+				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
 
 				objQue.push(childObj);
@@ -723,9 +759,9 @@ void Utility::LoadFBX(const wchar_t* path,
 	sceneManager.SetResouceObj(path, &_gameObject);
 }
 
-void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, bool isStatic)
+void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, bool isStatic, SURFACE_TYPE surface)
 {
-	LoadFBX(path, _gameObject,[](MeshRender* mesh)->void { return; }, isStatic);
+	LoadFBX(path, _gameObject,[](MeshRender* mesh)->void { return; }, isStatic, surface);
 }
 
 void Utility::LoadFBXResource(const wchar_t* path)

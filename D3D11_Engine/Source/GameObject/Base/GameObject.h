@@ -44,6 +44,7 @@ public:
 	unsigned int GetInstanceID() const { return instanceID; }
 	const std::wstring& GetName() const { return name; }
 	const std::wstring& SetName(const wchar_t* _name);
+	std::string GetNameToString() const;
 public:
 	/*오브젝트 이름. (중복 가능)*/
 	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;

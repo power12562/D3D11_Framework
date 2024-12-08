@@ -19,8 +19,5 @@ private:
 	float* pCamSpeed = nullptr;
 
 	std::shared_ptr<cb_BlingPhongMaterial> material;
-	std::list<cb_PBRMaterial> charMaterialList;
 	std::map<std::string, GameObject*> charObjectList;
-
-	cb_PBRDirectionalLight pbrLight;
 };

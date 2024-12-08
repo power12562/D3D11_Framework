@@ -146,7 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Component\BoneComponent.h" />
+    <ClInclude Include="Source\Component\Render\BlingPhongBoneMeshRender.h" />
+    <ClInclude Include="Source\Component\Render\BlingPhongMeshRender.h" />
     <ClInclude Include="Source\Component\Render\MeshRender.h" />
+    <ClInclude Include="Source\Component\Render\PBRBoneMeshRender.h" />
+    <ClInclude Include="Source\Component\Render\PBRMeshRender.h" />
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\SphereMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
@@ -155,6 +159,7 @@
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
+    <ClInclude Include="Source\GameObject\Mesh\BlingPhongMeshObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\PBRMeshObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\SphereObject.h" />
     <ClInclude Include="Source\Light\PBRDirectionalLight.h" />
@@ -193,7 +198,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Component\BoneComponent.cpp" />
+    <ClCompile Include="Source\Component\Render\BlingPhongBoneMeshRender.cpp" />
+    <ClCompile Include="Source\Component\Render\BlingPhongMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\MeshRender.cpp" />
+    <ClCompile Include="Source\Component\Render\PBRBoneMeshRender.cpp" />
+    <ClCompile Include="Source\Component\Render\PBRMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\SphereMeshRender.cpp" />
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
@@ -216,6 +225,7 @@
     <ClCompile Include="Source\Framework\InstanceIDManager.cpp" />
     <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\SphereObject.cpp" />
+    <ClCompile Include="Source\Light\PBRDirectionalLight.cpp" />
     <ClCompile Include="Source\Math\AssimpMath.cpp" />
     <ClCompile Include="Source\Scene\Base\Scene.cpp" />
     <ClCompile Include="Source\Framework\SceneManager.cpp" />
