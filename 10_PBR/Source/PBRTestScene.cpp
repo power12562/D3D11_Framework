@@ -62,6 +62,9 @@ PBRTestScene::PBRTestScene()
 
 	auto initCharShader = [this](MeshRender* mesh)
 		{
+			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
+			obj.Material.baseColor = mesh->baseColor;
+
 			std::string key = mesh->gameObject.GetNameToString();	
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);

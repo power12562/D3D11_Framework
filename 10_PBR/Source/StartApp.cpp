@@ -4,6 +4,8 @@
 ImportFBXapp::ImportFBXapp()
 {
     this->windowName = L"10_PBR";
+    //this->SetBorderlessWindowed();
+    //this->SetOptimalScreenSize();
 }
 
 ImportFBXapp::~ImportFBXapp()
