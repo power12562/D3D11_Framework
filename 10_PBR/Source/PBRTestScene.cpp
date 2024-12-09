@@ -37,7 +37,6 @@ PBRTestScene::PBRTestScene()
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
 	cam->transform.position = Vector3(0.f, 8.f, -20.f);
-	cam->transform.rotation = Vector3(0.f, 0.f, 0.f);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
 	auto initCerberusShader = [this](MeshRender* mesh)

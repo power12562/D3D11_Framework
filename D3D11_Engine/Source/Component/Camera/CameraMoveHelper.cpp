@@ -13,7 +13,8 @@ void CameraMoveHelper::Start()
 	const Vector3& euler = transform.rotation.ToEuler();
 	angle.x = euler.x;
 	angle.y = euler.y;
-
+	angle.z = euler.z;
+	transform.rotation = euler * Mathf::Rad2Deg;
 	startTransform = transform;
 }
 

@@ -32,5 +32,5 @@ private:
 	Transform startTransform;
 
 	Vector3 inputVector{};
-	Vector2 angle{}; //z√‡¿∫ æ»æ∏
+	Vector3 angle{}; 
 };

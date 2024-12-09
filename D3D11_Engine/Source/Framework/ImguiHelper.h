@@ -20,4 +20,6 @@ namespace ImGui
 
 	void ColorEdit4(const char* label, const Color* pColor, ImGuiColorEditFlags flags = 0);
 	void ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags = 0);
+
+	 
 };
