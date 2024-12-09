@@ -152,6 +152,7 @@
     <ClInclude Include="Source\Component\Render\PBRBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\PBRMeshRender.h" />
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
+    <ClInclude Include="Source\Component\Render\SkyBoxRender.h" />
     <ClInclude Include="Source\Component\Render\SphereMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
     <ClInclude Include="Source\framework.h" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
     <ClInclude Include="Source\GameObject\Mesh\BlingPhongMeshObject.h" />
+    <ClInclude Include="Source\GameObject\Mesh\SkyBoxObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\PBRMeshObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\SphereObject.h" />
     <ClInclude Include="Source\Light\PBRDirectionalLight.h" />
@@ -205,6 +207,7 @@
     <ClCompile Include="Source\Component\Render\PBRBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\PBRMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
+    <ClCompile Include="Source\Component\Render\SkyBoxRender.cpp" />
     <ClCompile Include="Source\Component\Render\SphereMeshRender.cpp" />
     <ClCompile Include="Source\Component\TransformAnimation.cpp" />
     <ClCompile Include="Source\Framework\D3DSamplerState.cpp" />
@@ -225,6 +228,7 @@
     <ClCompile Include="Source\Framework\ImguiHelper.cpp" />
     <ClCompile Include="Source\Framework\InstanceIDManager.cpp" />
     <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
+    <ClCompile Include="Source\GameObject\Mesh\SkyBoxObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\SphereObject.cpp" />
     <ClCompile Include="Source\Light\PBRDirectionalLight.cpp" />
     <ClCompile Include="Source\Math\AssimpMath.cpp" />
