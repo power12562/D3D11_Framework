@@ -1,12 +1,12 @@
 ﻿#include "StartApp.h"
 #include <GameObject\Base\CameraObject.h>
 
-ImportFBXapp::ImportFBXapp()
+TransformAnimationApp::TransformAnimationApp()
 {
     this->windowName = L"07_TransformAnimation";
 }
 
-ImportFBXapp::~ImportFBXapp()
+TransformAnimationApp::~TransformAnimationApp()
 {
 
 }

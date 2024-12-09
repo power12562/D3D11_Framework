@@ -13,7 +13,7 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(nCmdShow);
 
-	ImportFBXapp app;
+    PBRTestApp app;
 	app.Initialize(hInstance);
 	sceneManager.LoadScene<PBRTestScene>();
 	app.Run();

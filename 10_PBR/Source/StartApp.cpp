@@ -1,14 +1,14 @@
 ﻿#include "StartApp.h"
 #include <GameObject\Base\CameraObject.h>
 
-ImportFBXapp::ImportFBXapp()
+PBRTestApp::PBRTestApp()
 {
     this->windowName = L"10_PBR";
     //this->SetBorderlessWindowed();
     //this->SetOptimalScreenSize();
 }
 
-ImportFBXapp::~ImportFBXapp()
+PBRTestApp::~PBRTestApp()
 {
 
 }

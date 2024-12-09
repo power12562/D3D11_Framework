@@ -1,12 +1,12 @@
 ﻿#include "StartApp.h"
 #include <GameObject\Base\CameraObject.h>
 
-ImportFBXapp::ImportFBXapp()
+ResourceManagerApp::ResourceManagerApp()
 {
     this->windowName = L"09_ResourceManager";
 }
 
-ImportFBXapp::~ImportFBXapp()
+ResourceManagerApp::~ResourceManagerApp()
 {
 
 }

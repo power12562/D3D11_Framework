@@ -84,11 +84,11 @@ float4 main(PS_INPUT input) : SV_Target
 
     // 조명 계산
     float3 radiance = LightColor.rgb * LightIntensity;
-    float3 lighting = (diffuse + specular) * radiance * NoL;
+    float3 directLighting = (diffuse + specular) * radiance * NoL;
 
     // 최종 색상
     float3 ambient = LightAmbient.rgb * albedo; // 환경광
-    float3 finalColor = ambient + lighting + emissiveSample.rgb;
+    float3 finalColor = ambient + directLighting + emissiveSample.rgb;
     finalColor = LinearToGammaSpaceExact(finalColor);
 
     return float4(finalColor, opacitySample);
