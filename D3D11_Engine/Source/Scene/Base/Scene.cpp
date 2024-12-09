@@ -5,9 +5,7 @@
 #include <Framework/ResourceManager.h>
 #include <Framework/D3DSamplerState.h>
 #include <typeinfo>
-#include <imgui.h>
-#include <imgui_impl_win32.h>
-#include <imgui_impl_dx11.h>
+#include <Framework/ImguiHelper.h>
 #include <Utility/Console.h>
 #include <Utility/SpinLock.h>
 
@@ -99,6 +97,7 @@ void Scene::ImGUIEndDraw()
 {
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	ImGui::ResetGlobalID();
 }
 
 void Scene::SetResouceObj(const wchar_t* key, GameObject* obj)

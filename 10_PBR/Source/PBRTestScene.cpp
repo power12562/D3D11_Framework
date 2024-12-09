@@ -114,14 +114,7 @@ void PBRTestScene::ImGUIRender()
 
 		if (mainCam)
 		{
-			ImGui::Text("Camera");
-			ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
-			ImGui::SliderFloat("CamNear", &mainCam->Near, 0.05f, 10.f);
-			ImGui::SliderFloat("CamFar", &mainCam->Far, 100.f, 10000.f);
-			ImGui::DragFloat("CamSpeed", pCamSpeed, 1.f ,1.f , 1000.f);
-			ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
-			ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
-			ImGui::Text("");
+			ImGui::EditCamera("Main Camera", mainCam, mainCam->IsComponent<CameraMoveHelper>());
 		}
 		if (ImGui::Button("Cerberus Material Edit"))
 			showCerberusEditBox = !showCerberusEditBox;
@@ -163,7 +156,7 @@ void PBRTestScene::ImGUIRender()
 			ImGui::ColorEdit4("BaseColor", &obj->Material.baseColor);
 			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
 			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
-			ImGui::Text("\n");
+			ImGui::Text("");
 			ImGui::PopID();
 			id++;
 		}
@@ -181,7 +174,7 @@ void PBRTestScene::ImGUIRender()
 			ImGui::ColorEdit4("BaseColor", &obj->Material.baseColor);
 			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
 			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
-			ImGui::Text("\n");
+			ImGui::Text("");
 			ImGui::PopID();
 			id++;
 		}

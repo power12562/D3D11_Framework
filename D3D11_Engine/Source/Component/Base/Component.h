@@ -41,6 +41,9 @@ public:
 	template <typename T>
 	T& GetComponent();
 
+	template <typename T>
+	T* IsComponent();
+
 	int GetComponentIndex() const { return index; }
 };
 
@@ -55,4 +58,10 @@ template<typename T>
 inline T& Component::GetComponent()
 {
 	return gameObject.GetComponent<T>();
+}
+
+template<typename T>
+inline T* Component::IsComponent()
+{
+	return gameObject.IsComponent<T>();
 }

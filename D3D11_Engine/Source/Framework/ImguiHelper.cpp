@@ -1,9 +1,15 @@
 #include "ImguiHelper.h"
 #include "Math\Mathf.h"
+
+#include <GameObject/Base/GameObject.h>
+#include <Component/Camera/Camera.h>
+#include <Component/Camera/CameraMoveHelper.h>
+
 #include <unordered_map>
 #include <string>
 #include <memory>
 
+static int g_id = 0;
 namespace ImGui
 {
 	auto arrDeleter = [](float* b)->void
@@ -29,6 +35,11 @@ namespace ImGui
 void ImGui::ClearTempMap()
 {
 	tempFloatMap.clear();
+}
+
+void ImGui::ResetGlobalID()
+{
+	g_id = 0;
 }
 
 void ImGui::DragVector2(const char* label, const Vector2* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
@@ -84,4 +95,32 @@ void ImGui::ColorEdit4(const char* label, const Color* pColor, ImGuiColorEditFla
 void ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags)
 {
 	ImGui::ColorEdit4(label, (float*)pColor, flags);
+}
+
+void ImGui::EditTransform(GameObject* gameObject)
+{
+	ImGui::PushID(g_id);
+	ImGui::DragVector3("Position", &gameObject->transform.position);
+	ImGui::DragQuaternion("Rotation", &gameObject->transform.rotation);
+	ImGui::DragVector3("Scale", &gameObject->transform.scale);
+	ImGui::PopID();
+	g_id++;
+}
+
+void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCameraMoveHelper)
+{
+	ImGui::Text(label);
+	EditTransform(&pCamera->gameObject);
+	ImGui::PushID(g_id);
+	ImGui::SliderFloat("FOV", &pCamera->FOV, 10, 120);
+	ImGui::SliderFloat("Near", &pCamera->Near, 0.05f, 10.f);
+	ImGui::SliderFloat("Far", &pCamera->Far, 15.f, 10000.f);
+	if (pCameraMoveHelper)
+	{
+		ImGui::DragFloat("Move Speed", &pCameraMoveHelper->moveSpeed, 1.f, 1.f, 1000.f);
+		ImGui::DragFloat("Rotation Speed", &pCameraMoveHelper->rotSpeed, 1.f, 1.f, 30.f);
+	}
+	ImGui::Text("");
+	ImGui::PopID();
+	g_id++;
 }
