@@ -67,7 +67,22 @@ namespace Utility
 		}
 	}
 
-	static void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender)
+	static void SetBaseColor(GameObject& obj, Color& baseColor, SURFACE_TYPE surface)
+	{
+		switch (surface)
+		{
+		case SURFACE_TYPE::BlingPhong:
+			static_cast<BlingPhongMeshObject&>(obj).Material.MaterialDiffuse = baseColor;
+			return;
+		case SURFACE_TYPE::PBR:
+			static_cast<PBRMeshObject&>(obj).Material.baseColor = baseColor;
+			return;
+		default:
+			return;
+		}
+	}
+
+	static void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender, SURFACE_TYPE surface)
 	{
 		aiString path;
 		std::wstring basePath;
@@ -91,6 +106,8 @@ namespace Utility
 				simpleMeshRender->baseColor.y = baseColor.g;
 				simpleMeshRender->baseColor.z = baseColor.b;
 				simpleMeshRender->baseColor.w = baseColor.a;
+
+				SetBaseColor(simpleMeshRender->gameObject, simpleMeshRender->baseColor, surface);
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_NORMALS, 0, &path))
 			{
@@ -322,6 +339,8 @@ namespace Utility
 					if (SimpleBoneMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 					{
 						SimpleBoneMeshRender& destMesh = AddBoneMeshComponent(currDestObj, surface);
+						destMesh.baseColor = sourceMesh->baseColor;
+						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
 
 						destMesh.texture2D = sourceMesh->texture2D;
 						destMesh.samplerState = sourceMesh->samplerState;
@@ -346,6 +365,9 @@ namespace Utility
 					if (SimpleMeshRender* sourceMesh = currSourceObj->GetComponentAtIndex<SimpleMeshRender>(i))
 					{
 						SimpleMeshRender& destMesh = AddMeshComponent(currDestObj, surface);
+						destMesh.baseColor = sourceMesh->baseColor;
+						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
+
 						destMesh.texture2D = sourceMesh->texture2D;
 						destMesh.samplerState = sourceMesh->samplerState;
 
@@ -536,7 +558,7 @@ void Utility::LoadFBX(const wchar_t* path,
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), &meshComponent);
+						LoadTexture(ai_material, directory.c_str(), &meshComponent, surface);
 
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
@@ -640,7 +662,7 @@ void Utility::LoadFBX(const wchar_t* path,
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), &meshComponent);
+						LoadTexture(ai_material, directory.c_str(), &meshComponent, surface);
 			
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
@@ -718,7 +740,7 @@ void Utility::LoadFBX(const wchar_t* path, GameObject& _gameObject, bool isStati
 	LoadFBX(path, _gameObject,[](MeshRender* mesh)->void { return; }, isStatic, surface);
 }
 
-void Utility::LoadFBXResource(const wchar_t* path)
+void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 {
 	using namespace utfConvert;
 
@@ -827,7 +849,7 @@ void Utility::LoadFBXResource(const wchar_t* path)
 				{
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
-						SimpleBoneMeshRender& meshComponent = currObj->AddComponent<SimpleBoneMeshRender>();
+						SimpleBoneMeshRender& meshComponent = AddBoneMeshComponent(currObj, surface);
 						meshList.push_back(&meshComponent);
 
 						wchar_t materialName[50]{};
@@ -838,7 +860,7 @@ void Utility::LoadFBXResource(const wchar_t* path)
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), &meshComponent);
+						LoadTexture(ai_material, directory.c_str(), &meshComponent, SURFACE_TYPE::NONE);
 ;
 						//offsetMatrices
 						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
@@ -932,14 +954,14 @@ void Utility::LoadFBXResource(const wchar_t* path)
 					//Create Vertex
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
-						SimpleMeshRender& meshComponent = currObj->AddComponent<SimpleMeshRender>();
+						SimpleMeshRender& meshComponent = AddMeshComponent(currObj, surface);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
 						//Load Texture
 						aiMaterial* ai_material = pScene->mMaterials[pMesh->mMaterialIndex];
-						LoadTexture(ai_material, directory.c_str(), &meshComponent);
+						LoadTexture(ai_material, directory.c_str(), &meshComponent, SURFACE_TYPE::NONE);
 
 						for (unsigned int vertexIndex = 0; vertexIndex < pMesh->mNumVertices; vertexIndex++)
 						{
@@ -988,7 +1010,7 @@ void Utility::LoadFBXResource(const wchar_t* path)
 			{
 				nodeQue.push(currNode->mChildren[i]);
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
-				GameObject* childObj = NewGameObject<GameObject>(childName.c_str());
+				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
 
 				objQue.push(childObj);

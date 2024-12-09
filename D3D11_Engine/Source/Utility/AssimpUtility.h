@@ -32,5 +32,5 @@ namespace Utility
 		bool isStatic,
 		SURFACE_TYPE surface);
 
-	void LoadFBXResource(const wchar_t* path);
+	void LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface);
 }

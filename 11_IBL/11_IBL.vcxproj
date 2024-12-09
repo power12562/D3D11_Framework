@@ -24,7 +24,7 @@
     <ProjectGuid>{2E94ED1F-E231-4F8B-90BC-992302CC5CCC}</ProjectGuid>
     <RootNamespace>My1Start</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>11_IBLTestApp</ProjectName>
+    <ProjectName>11_IBL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

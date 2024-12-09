@@ -41,8 +41,15 @@ cbuffer cb_Camera : register(b1)
 struct alignas(4) CBbool
 {
 	bool value;
-	operator bool() const { return value; }
+
+	CBbool() { value = false; }
+	CBbool(bool value) { this->value = value; }
+
 	bool& operator=(bool value) { return this->value = value; }
+	bool* operator&() { return &value; }
+
+	operator bool() const { return value; }
+	operator bool*() { return &value; }
 };
 
 class D3DConstBuffer

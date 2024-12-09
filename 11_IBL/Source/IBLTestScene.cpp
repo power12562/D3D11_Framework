@@ -11,6 +11,8 @@ IBLTestScene::IBLTestScene()
 	pCameraMoveHelper = &mainCam->AddComponent<CameraMoveHelper>();
 	mainCam->transform.position += Vector3(0.f, 9.f, -20.f);
 
+	auto cubeMap = NewGameObject(L"CubeMap");
+
 	auto cerberus = NewGameObject(L"cerberus");
 	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, false, SURFACE_TYPE::PBR);
 	cerberus->transform.position = Vector3(-10.f, 0.f, 0.f);
@@ -22,8 +24,6 @@ IBLTestScene::IBLTestScene()
 	chara->transform.position = Vector3(10.f, 0.f, 0.f);
 	chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 	chara->transform.rotation = Vector3(0.f, 25.f, 0.f);
-
-	auto cubeMap = NewGameObject(L"CubeMap");
 }
 
 IBLTestScene::~IBLTestScene()

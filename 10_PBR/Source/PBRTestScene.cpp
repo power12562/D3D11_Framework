@@ -11,12 +11,10 @@
 #include <Utility/utfConvert.h>
 #include <GameObject/Mesh/SphereObject.h>
 
-struct cb_bool
+struct alignas(16) cb_bool
 {
-	bool useMetalness = true;
-	bool pad1[3]{};
-	bool useRoughness = true;
-	bool pad2[11]{};
+	CBbool useMetalness = true;
+	CBbool useRoughness = true;
 };
 cb_bool testBool;
 
@@ -58,9 +56,6 @@ PBRTestScene::PBRTestScene()
 
 	auto initCharShader = [this](MeshRender* mesh)
 		{
-			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
-			obj.Material.baseColor = mesh->baseColor;
-
 			std::string key = mesh->gameObject.GetNameToString();	
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);
@@ -68,7 +63,7 @@ PBRTestScene::PBRTestScene()
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 
-			charObjList[key] = static_cast<PBRMeshObject*>(&obj);
+			charObjList[key] = static_cast<PBRMeshObject*>(&mesh->gameObject);
 		};
 	auto charater = NewGameObject(L"charater");
 	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initCharShader, false, SURFACE_TYPE::PBR);

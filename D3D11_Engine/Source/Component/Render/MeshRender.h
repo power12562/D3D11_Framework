@@ -35,6 +35,7 @@ public:
 	D3DSamplerState samplerState;
 
 public:
+	/*메시 머터리얼의 BaseColor 기억용. CopyFBX에서 해당 컬러를 복사해갑니다.*/
 	DirectX::SimpleMath::Color baseColor{1,1,1,1};
 
 public:
