@@ -14,7 +14,13 @@ void BlingPhongBoneMeshRender::Start()
 		index = constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 		constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
-		SetVertexShader(L"EngineShader/VertexSkinningShader.hlsl");
-		SetPixelShader(L"EngineShader/BlingPhongPixelShader.hlsl");
+		{
+			using namespace std::string_literals;
+			std::wstring vertexPath(EngineShaderPath + L"VertexSkinningShader.hlsl"s);
+			SetVertexShader(vertexPath.c_str());
+
+			std::wstring pixelPath(EngineShaderPath + L"BlingPhongPixelShader.hlsl"s);
+			SetPixelShader(pixelPath.c_str());
+		}
 	}
 }

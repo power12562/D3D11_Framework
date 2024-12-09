@@ -7,6 +7,9 @@
 class MeshRender : public RenderComponent
 {
 public:
+	static constexpr wchar_t EngineShaderPath[] = L"Resource/EngineShader/";
+
+public:
 	MeshRender();
 	virtual ~MeshRender() override;
 

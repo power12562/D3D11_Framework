@@ -13,7 +13,14 @@ void PBRBoneMeshRender::Start()
         index = constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
         constBuffer.BindUpdateEvent(meshObj->Material);
 
-        SetVertexShader(L"EngineShader/VertexSkinningShader.hlsl");
-        SetPixelShader(L"EngineShader/PBRPixelShader.hlsl");
+
+        {
+            using namespace std::string_literals;
+            std::wstring vertexPath(EngineShaderPath + L"VertexSkinningShader.hlsl"s);
+            SetVertexShader(vertexPath.c_str());
+
+            std::wstring pixelPath(EngineShaderPath + L"PBRPixelShader.hlsl"s);
+            SetPixelShader(pixelPath.c_str());
+        }
     }
 }

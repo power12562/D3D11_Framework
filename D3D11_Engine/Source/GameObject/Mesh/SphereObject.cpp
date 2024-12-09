@@ -10,8 +10,13 @@ SphereObject::SphereObject() :
 	sphereMeshRender.constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
 	sphereMeshRender.constBuffer.BindUpdateEvent(Material);
 
-	sphereMeshRender.SetVertexShader(L"EngineShader/VertexShader.hlsl");
-	sphereMeshRender.SetPixelShader(L"EngineShader/PBRPixelShader.hlsl");
+	{
+		using namespace std::string_literals;
+		std::wstring vertexPath(MeshRender::EngineShaderPath + L"VertexShader.hlsl"s);
+		sphereMeshRender.SetVertexShader(vertexPath.c_str());
 
-	sphereMeshRender.CreateSphere();
+		std::wstring pixelPath(MeshRender::EngineShaderPath + L"PBRPixelShader.hlsl"s);
+		sphereMeshRender.SetPixelShader(pixelPath.c_str());
+	}
+	sphereMeshRender.CreateSphere(); 
 }
