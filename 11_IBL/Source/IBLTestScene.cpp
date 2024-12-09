@@ -7,7 +7,8 @@ IBLTestScene::IBLTestScene()
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
 	mainCam->SetMainCamera();
-	mainCam->AddComponent<CameraMoveHelper>();
+	pCamera = Camera::GetMainCamera();
+	pCameraMoveHelper = &mainCam->AddComponent<CameraMoveHelper>();
 	mainCam->transform.position += Vector3(0.f, 9.f, -20.f);
 
 	auto cerberus = NewGameObject(L"cerberus");
@@ -33,10 +34,9 @@ void IBLTestScene::ImGUIRender()
 {
 	using namespace ImGui;
 	using namespace PBRDirectionalLight;
-	Camera* pCamera = Camera::GetMainCamera();
 	Begin("Debug");
 	{
-		EditCamera("Main Camera", pCamera);
+		EditCamera("Main Camera", pCamera, pCameraMoveHelper);
 		
 		Text("Light");
 		SliderFloat3("Light Dir", reinterpret_cast<float*>(&cb_light.LightDir), -1.f, 1.f);
