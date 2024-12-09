@@ -15,7 +15,6 @@ cbuffer cb_Light : register(b2)
     float4 LightColor;
     float4 LightAmbient;
     float  LightIntensity; 
-    float3 PadLight;
 }
 
 cbuffer cb_PBRMaterial : register(b3)
@@ -23,7 +22,6 @@ cbuffer cb_PBRMaterial : register(b3)
     float4 baseColor;
     float Metalness;
     float Roughness;
-    float padPBRMaterial[2];
 };
 
 //--------------------------------------------------------------------------------------
