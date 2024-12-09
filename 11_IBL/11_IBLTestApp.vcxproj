@@ -152,10 +152,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\IBLTestScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\StartApp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\IBLTestScene.h" />
     <ClInclude Include="Source\StartApp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

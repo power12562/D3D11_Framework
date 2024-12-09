@@ -7,15 +7,24 @@
     <ClCompile Include="Source\StartApp.cpp">
       <Filter>MainEntry</Filter>
     </ClCompile>
+    <ClCompile Include="Source\IBLTestScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="MainEntry">
       <UniqueIdentifier>{97c80f09-be70-4b90-99ab-f8bc23f32b93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{67735e24-be57-42e1-80d9-364447fe12ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\StartApp.h">
       <Filter>MainEntry</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\IBLTestScene.h">
+      <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

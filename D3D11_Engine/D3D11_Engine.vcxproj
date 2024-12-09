@@ -154,6 +154,7 @@
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\SphereMeshRender.h" />
     <ClInclude Include="Source\Component\TransformAnimation.h" />
+    <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\Framework\D3DSamplerState.h" />
     <ClInclude Include="Source\Framework\D3DTexture2D.h" />
     <ClInclude Include="Source\Framework\ResourceManager.h" />

@@ -1,6 +1,7 @@
 #pragma once
 #include <Scene/Base/Scene.h>
 
+class Camera;
 class IBLTestScene : public Scene
 {
 public:

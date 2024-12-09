@@ -746,8 +746,11 @@ void Utility::LoadFBXResource(const wchar_t* path)
 
 	const aiScene* pScene = importer.ReadFile(str_path, importFlags);
 	if (pScene == nullptr)
+	{
+		__debugbreak(); //임포트 실패
 		return;
-
+	}
+		
 	std::wstring directory = utfConvert::utf8_to_wstring(str_path.substr(0, str_path.find_last_of("/\\")));
 
 	std::queue<aiNode*> nodeQue;

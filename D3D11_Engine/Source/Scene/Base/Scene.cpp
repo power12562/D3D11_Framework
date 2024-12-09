@@ -73,7 +73,7 @@ void Scene::Render()
 			obj->Render();
 	}
 	d3dRenderer.EndDraw();
-	if (UseImGUI) 
+	if (UseImGUI && !objectList.empty())
 	{
 		ImGUIBegineDraw();
 		ImGUIRender();

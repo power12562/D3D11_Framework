@@ -1,4 +1,7 @@
 #include "StartApp.h"
+#include <Framework/SceneManager.h>
+
+#include "../Source/IBLTestScene.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
@@ -11,7 +14,9 @@ int APIENTRY wWinMain(
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     IBLTestApp app;
+
     app.Initialize(hInstance);
+    sceneManager.LoadScene<IBLTestScene>();
     app.Run();
     app.Uninitialize();
 
