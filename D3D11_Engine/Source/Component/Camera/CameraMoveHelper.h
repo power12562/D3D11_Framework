@@ -32,5 +32,5 @@ private:
 	Transform startTransform;
 
 	Vector3 inputVector{};
-	Vector3 angle{}; 
+	Quaternion angle{}; 
 };

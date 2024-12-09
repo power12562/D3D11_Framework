@@ -4,17 +4,13 @@
 
 CameraMoveHelper::CameraMoveHelper()
 {
-	rotSpeed = 15 * Mathf::Deg2Rad;
+	rotSpeed = 15;
 	moveSpeed = 10.0f;
 }
 
 void CameraMoveHelper::Start()
 {
-	const Vector3& euler = transform.rotation.ToEuler();
-	angle.x = euler.x;
-	angle.y = euler.y;
-	angle.z = euler.z;
-	transform.rotation = euler * Mathf::Rad2Deg;
+	angle = transform.rotation;
 	startTransform = transform;
 }
 
@@ -31,9 +27,7 @@ void CameraMoveHelper::Update()
 		transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
 		inputVector = Vector3::Zero;
 	}
-	Quaternion yawRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, angle.y);
-	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, angle.x);
-	transform.rotation = yawRotation * pitchRotation;
+	transform.rotation = angle;
 	inputVector = Vector3::Zero;
 }
 
@@ -95,42 +89,27 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 	DXTKinputSystem.GetMouse().SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
 	{
-		Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * TimeSystem::Time.DeltaTime;
-		AddYaw(-delta.y);
-		AddPitch(-delta.x);
+		Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * Mathf::Deg2Rad * TimeSystem::Time.DeltaTime;
+		AddPitch(delta.x);
+		AddYaw(delta.y);
 	}
 }
 
 void CameraMoveHelper::Reset()
 {
 	transform = startTransform;
-	const Vector3& startAngle = startTransform.rotation.ToEuler();
-	angle.x = startAngle.x;
-	angle.y = startAngle.y;
+	const Quaternion& startAngle = startTransform.rotation;
+	angle = startAngle;
 }
 
 void CameraMoveHelper::AddYaw(float value)
-{
-	if (angle.x > XM_PI)
-	{
-		angle.x -= XM_2PI;
-	}
-	else if (angle.x < -XM_PI)
-	{
-		angle.x += XM_2PI;
-	}
-	angle.x += value;
+{	
+	Quaternion yawRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, -value);
+	angle *= yawRotation;
 }
 
 void CameraMoveHelper::AddPitch(float value)
 {
-	if (angle.y > XM_PI)
-	{
-		angle.y -= XM_2PI;
-	}
-	else if (angle.y < -XM_PI)
-	{
-		angle.y += XM_2PI;
-	}
-	angle.y += value;
+	Quaternion pitchRotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -value);
+	angle = pitchRotation * angle;
 }
