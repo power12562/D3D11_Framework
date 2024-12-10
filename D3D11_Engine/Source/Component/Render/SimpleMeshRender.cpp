@@ -9,16 +9,6 @@ SimpleMeshRender::SimpleMeshRender()
 	
 }
 
-SimpleMeshRender::~SimpleMeshRender()
-{
-	using namespace Utility;
-	if (meshResource.use_count() == 1)
-	{
-		SafeRelease(meshResource->pVertexBuffer);
-		SafeRelease(meshResource->pIndexBuffer);
-	}
-}
-
 void SimpleMeshRender::Start()
 {
 	using namespace Utility;

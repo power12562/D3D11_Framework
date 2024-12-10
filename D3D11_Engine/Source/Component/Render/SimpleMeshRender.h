@@ -15,7 +15,7 @@ public:
 	};
 public:
 	SimpleMeshRender();
-	virtual ~SimpleMeshRender() override;
+	virtual ~SimpleMeshRender() override = default;
 
 public:
 	virtual void Start() 		 override;

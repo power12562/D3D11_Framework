@@ -172,7 +172,7 @@ namespace Utility
             desc.Height = image->height;
             desc.MipLevels = GetMipmapLevels(desc.Width, desc.Height);
             desc.ArraySize = 6;
-            desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+            desc.Format = image->format;
             desc.SampleDesc.Count = 1;
             desc.Usage = D3D11_USAGE_DEFAULT;
             desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;

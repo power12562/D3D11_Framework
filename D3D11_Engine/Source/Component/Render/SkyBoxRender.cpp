@@ -40,11 +40,9 @@ void SkyBoxRender::Start()
     indices.emplace_back(4); indices.emplace_back(3); indices.emplace_back(7);
 
     meshResource = std::make_shared<DRAW_INDEX_DATA>();
-
     CreateMesh();
 
     textures.resize(1); //Å¥ºê¸Ê¿ë ÇÏ³ª¸¸ ¾¸
-    ResetSkyBox();
 
     //SkyBox¿ë »ùÇÃ·¯
     D3D11_SAMPLER_DESC samplerDesc = {};
@@ -74,11 +72,29 @@ void SkyBoxRender::Start()
     }
 }
 
+void SkyBoxRender::FixedUpdate()
+{
+}
+
+void SkyBoxRender::Update()
+{
+}
+
+void SkyBoxRender::LateUpdate()
+{
+}
+
 void SkyBoxRender::Render()
 {
     if (!currPath.empty())
     {
-        SimpleMeshRender::Render();
+        const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
+        if (IsVSShader() && IsPSShader())
+        {
+            constBuffer.UpdateEvent();
+            RENDERER_DRAW_DESC desc = GetRendererDesc();
+            d3dRenderer.DrawIndex(desc, isAlpha);
+        }
     }
 }
 
@@ -91,4 +107,41 @@ void SkyBoxRender::SetSkyBox(const wchar_t* path)
 void SkyBoxRender::ResetSkyBox()
 {
     currPath.clear();
+}
+
+void SkyBoxRender::CreateMesh()
+{
+    using namespace Utility;
+    if (vertices.empty() || indices.empty())
+        return;
+
+    if (meshResource->pIndexBuffer)
+        SafeRelease(meshResource->pIndexBuffer);
+
+    if (meshResource->pVertexBuffer)
+        SafeRelease(meshResource->pVertexBuffer);
+
+    meshResource->vertexBufferOffset = 0;
+    meshResource->vertexBufferStride = sizeof(Vertex);
+    D3D11_BUFFER_DESC bd{};
+    bd.ByteWidth = sizeof(Vertex) * vertices.size();
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.CPUAccessFlags = 0;
+    D3D11_SUBRESOURCE_DATA vbData = {};
+    vbData.pSysMem = vertices.data();
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &vbData, &meshResource->pVertexBuffer));
+
+    meshResource->indicesCount = indices.size();
+    bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(UINT) * indices.size();
+    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+    D3D11_SUBRESOURCE_DATA ibData = {};
+    ibData.pSysMem = indices.data();
+    CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshResource->pIndexBuffer));
+
+    vertices.clear();
+    indices.clear();
 }
