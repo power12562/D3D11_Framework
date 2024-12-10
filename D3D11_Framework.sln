@@ -61,6 +61,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "10_PBR", "10_PBR\10_PBR.vcx
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "11_IBL", "11_IBL\11_IBL.vcxproj", "{2E94ED1F-E231-4F8B-90BC-992302CC5CCC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C8880048-46A0-4CC4-BE47-C3144CD15787} = {C8880048-46A0-4CC4-BE47-C3144CD15787}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

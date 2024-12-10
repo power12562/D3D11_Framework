@@ -117,7 +117,6 @@ cbuffer cb_Camera : register(b1)
     Matrix Projection;
 };
 
-
 struct VS_INPUT
 {
     float4 Pos : POSITION;

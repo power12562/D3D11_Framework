@@ -26,10 +26,10 @@ void SimpleUpdateCbuffer::Update()
 {
 	if (meshRender)
 	{
-		cb_localbool.loaclNormalMap = !!(meshRender->texture2D)[E_TEXTURE::Normal];
-		cb_localbool.loaclSpecularMap = !!(meshRender->texture2D)[E_TEXTURE::Specular];
-		cb_localbool.loaclEmissiveMap = !!(meshRender->texture2D)[E_TEXTURE::Emissive];
-		cb_localbool.loaclOpacityMap = !!(meshRender->texture2D)[E_TEXTURE::Opacity];
+		cb_localbool.loaclNormalMap = !!(meshRender->textures)[E_TEXTURE::Normal];
+		cb_localbool.loaclSpecularMap = !!(meshRender->textures)[E_TEXTURE::Specular];
+		cb_localbool.loaclEmissiveMap = !!(meshRender->textures)[E_TEXTURE::Emissive];
+		cb_localbool.loaclOpacityMap = !!(meshRender->textures)[E_TEXTURE::Opacity];
 		
 		SimpleMeshRender* simpleMeshRender = reinterpret_cast<SimpleMeshRender*>(meshRender);
 	}

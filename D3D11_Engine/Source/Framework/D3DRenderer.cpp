@@ -327,21 +327,25 @@ void D3DRenderer::Present()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
+    static bool isDefaultRRState = false;
     if (drawDesc.pRRState)
     {
         pDeviceContext->RSSetState(drawDesc.pRRState);
+        isDefaultRRState = false;
     }
-    else
+    else if(!isDefaultRRState)
     {
         pDeviceContext->RSSetState(pDefaultRRState);
+        isDefaultRRState = true;
     }
 
     static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
+    Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
     if (prevTransform != drawDesc.pTransform)
     {
         cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
         cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
-        cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM());
+        cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * VP);
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }

@@ -95,7 +95,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
 				}
 			}
 			else if (aiColor4D baseColor; ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
@@ -116,7 +116,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -127,7 +127,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -137,7 +137,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -147,7 +147,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
 					meshRender->isAlpha = true;
 				}
 			}
@@ -158,7 +158,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path))
@@ -168,7 +168,7 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->texture2D.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
+					meshRender->textures.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
 				}
 			}
 		}
@@ -342,7 +342,7 @@ namespace Utility
 						destMesh.baseColor = sourceMesh->baseColor;
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
 
-						destMesh.texture2D = sourceMesh->texture2D;
+						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 
 						destMesh.MeshID = sourceMesh->MeshID;
@@ -368,7 +368,7 @@ namespace Utility
 						destMesh.baseColor = sourceMesh->baseColor;
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
 
-						destMesh.texture2D = sourceMesh->texture2D;
+						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 
 						destMesh.MeshID = sourceMesh->MeshID;

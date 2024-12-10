@@ -105,7 +105,7 @@ RENDERER_DRAW_DESC MeshRender::GetRendererDesc()
 {
 	RENDERER_DRAW_DESC desc{};
 	desc.pConstBuffer = &constBuffer;
-	desc.pD3DTexture2D = &texture2D;
+	desc.pD3DTexture2D = &textures;
 	desc.pSamperState = &samplerState;
 	desc.pInputLayout = pInputLayout;
 	desc.pVertexShader = pVertexShader;

@@ -8,6 +8,8 @@ public:
 	virtual ~SkyBoxRender() override = default;
 
 	virtual void Start() override;
+protected:
+	virtual void Render() override;
 
 public:
 	void SetSkyBox(const wchar_t* path);
@@ -15,4 +17,7 @@ public:
 
 private:
 	using SimpleMeshRender::CreateMesh;
+
+private:
+	std::wstring currPath;
 };

@@ -46,6 +46,7 @@ public:
 	void resize(size_t newsize);
 	constexpr size_t size() { return SRVList.size(); }
 
+	void SetCubeMapTexture(int index, const wchar_t* path);
 	void SetTexture2D(int index, const wchar_t* path);
 	void SetDefaultTexture(int index, E_TEXTURE_DEFAULT::DEFAULT_TEXTURE type);
 	void ResetTexture2D(int index);

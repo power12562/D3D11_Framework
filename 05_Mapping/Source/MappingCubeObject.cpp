@@ -91,12 +91,12 @@ void MappingCubeObject::Start()
     CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &dd.pIndexBuffer));
 
     //Load Textures
-    texture2D.resize(5);
-    texture2D.SetTexture2D(E_TEXTURE::Albedo, L"Bricks059_1K-JPG_Color.jpg");
-    texture2D.SetTexture2D(E_TEXTURE::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
-    texture2D.SetTexture2D(E_TEXTURE::Specular, L"Bricks059_Specular.png");
-    texture2D.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
-    texture2D.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
+    textures.resize(5);
+    textures.SetTexture2D(E_TEXTURE::Albedo, L"Bricks059_1K-JPG_Color.jpg");
+    textures.SetTexture2D(E_TEXTURE::Normal, L"Bricks059_1K-JPG_NormalDX.jpg");
+    textures.SetTexture2D(E_TEXTURE::Specular, L"Bricks059_Specular.png");
+    textures.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
+    textures.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 
     hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &pVertexShader, &pInputLayout);
     hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &pPixelShader);
@@ -134,7 +134,7 @@ void MappingCubeObject::Render()
     RENDERER_DRAW_DESC draw_desc{};
     draw_desc.pVertexIndex = &dd;
     draw_desc.pConstBuffer = &LightManager::cbuffer;
-    draw_desc.pD3DTexture2D = &texture2D;
+    draw_desc.pD3DTexture2D = &textures;
     draw_desc.pSamperState = &sampler;
     draw_desc.pInputLayout = pInputLayout;
     draw_desc.pVertexShader = pVertexShader;

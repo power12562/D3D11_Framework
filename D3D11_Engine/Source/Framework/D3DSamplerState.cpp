@@ -46,6 +46,13 @@ void D3DSamplerState::resize(size_t newsize)
 {
 	if (newsize < D3DSamplerState::MAX_SIZE)
 	{
+		if (newsize < samplerList.size())
+		{
+			for (int i = newsize; i < samplerList.size(); i++)
+			{
+				ResetSamplerState(i);
+			}
+		}
 		samplerList.resize(newsize);
 	}
 	else

@@ -20,7 +20,7 @@ ResourceManagerScene::ResourceManagerScene()
 	UseImGUI = true;
 
 	//리소스 미리 로드
-	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx");
+	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);
 
 	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
 
@@ -127,7 +127,7 @@ void ResourceManagerScene::AddTestObject()
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
-			mesh->texture2D.resize(E_TEXTURE::BlingPhongTextureCount);
+			mesh->textures.resize(E_TEXTURE::BlingPhongTextureCount);
 
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");

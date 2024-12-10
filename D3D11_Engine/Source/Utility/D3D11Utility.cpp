@@ -131,6 +131,105 @@ namespace Utility
 		return S_OK;
 	}
 
+    HRESULT CreateCubeMapFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView)
+    {
+        using namespace DirectX;
+
+        HRESULT hr = S_OK;
+        auto ShowErrorMessageBox = [&]()
+            {
+                MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
+            };
+
+        std::filesystem::path filePath = szFileName;
+        DX_TEXTURE_EXTENSION extension = GetTexureExtension(filePath.extension().wstring());
+
+        switch (extension)
+        {
+        case Utility::DX_TEXTURE_EXTENSION::dds:
+        {
+            TexMetadata metadata;
+            ScratchImage scratchImage;
+            ID3D11Texture2D* tempTexture = nullptr;
+            hr = LoadFromDDSFile(szFileName, DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+            if (FAILED(hr))
+            {
+                ShowErrorMessageBox();
+                return hr;
+            }
+
+            // 큐브맵인지 확인
+            if (!(metadata.miscFlags & TEX_MISC_TEXTURECUBE))
+            {
+                MessageBoxW(NULL, L"Cube Map 형식이 아닙니다.", szFileName, MB_OK);
+                return E_FAIL; // DDS 파일이 큐브맵 형식이 아님
+            }
+
+            // 텍스처 생성    
+            D3D11_TEXTURE2D_DESC desc = {};
+            const Image* image = scratchImage.GetImages();
+            desc.Width = image->width;
+            desc.Height = image->height;
+            desc.MipLevels = GetMipmapLevels(desc.Width, desc.Height);
+            desc.ArraySize = 6;
+            desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+            desc.SampleDesc.Count = 1;
+            desc.Usage = D3D11_USAGE_DEFAULT;
+            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+            desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+            if (desc.MipLevels == 0) 
+            {
+                desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+                desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+            }
+
+            hr = d3dDevice->CreateTexture2D(&desc, nullptr, &tempTexture);
+            if (FAILED(hr))
+            {
+                ShowErrorMessageBox();
+                return hr; // 텍스처 생성 실패
+            }
+
+            // Shader Resource View 생성
+            D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+            srvDesc.Format = desc.Format;
+            srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+            srvDesc.TextureCube.MostDetailedMip = 0;
+            srvDesc.TextureCube.MipLevels = -1;
+            if (textureView)
+            {
+                hr = d3dDevice->CreateShaderResourceView(tempTexture, &srvDesc, textureView);
+                if (FAILED(hr))
+                {
+                    ShowErrorMessageBox();
+                    return hr; // 텍스처 생성 실패
+                }
+            }       
+            if (texture)
+            {
+                *texture = tempTexture;
+            }
+            else
+            {
+                tempTexture->Release();
+            }
+            return hr;
+        }
+        default:
+            MessageBoxW(NULL, L"Cube Map은 dds 파일만 사용 가능 합니다.", szFileName, MB_OK);
+            return S_FALSE;
+        }
+    }
+
+    UINT GetMipmapLevels(UINT width, UINT height)
+    {
+        UINT levels = 1;
+        while ((width | height) >> levels) {
+            ++levels;
+        }
+        return levels;
+    }
+
     DXGI_FORMAT GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, UINT mask)
     {
         switch (componentType)

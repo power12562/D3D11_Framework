@@ -14,6 +14,7 @@
 #include <GameObject/Mesh/BlingPhongMeshObject.h>
 #include <GameObject/Mesh/PBRMeshObject.h>
 #include <GameObject/Mesh/SphereObject.h>
+#include <GameObject/Mesh/SkyBoxObject.h>
 
 //Components
 #include <Component/BoneComponent.h>
@@ -25,6 +26,7 @@
 #include <Component/Render/BlingPhongMeshRender.h>
 #include <Component/Render/PBRBoneMeshRender.h>
 #include <Component/Render/PBRMeshRender.h>
+#include <Component/Render/SkyBoxRender.h>
 
 //Lights
 #include <Light/PBRDirectionalLight.h>

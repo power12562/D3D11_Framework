@@ -26,6 +26,6 @@ private:
 
 private:
 	D3DSamplerState sampler;
-	D3DTexture2D texture2D;
+	D3DTexture2D textures;
 	DRAW_INDEX_DATA dd;
 };

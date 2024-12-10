@@ -31,7 +31,7 @@ public:
 	int MeshID = -1;
 public:
 	D3DConstBuffer constBuffer;
-	D3DTexture2D texture2D;
+	D3DTexture2D textures;
 	D3DSamplerState samplerState;
 
 public:

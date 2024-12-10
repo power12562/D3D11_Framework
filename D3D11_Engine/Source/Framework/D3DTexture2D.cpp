@@ -27,6 +27,13 @@ void D3DTexture2D::resize(size_t newsize)
 {
 	if (newsize < D3DTexture2D::MAX_SIZE)
 	{
+		if (newsize < SRVList.size())
+		{
+			for (int i = newsize; i < SRVList.size(); i++)
+			{
+				ResetTexture2D(i);
+			}
+		}
 		SRVList.resize(newsize);
 		pathList.resize(newsize);
 	}
@@ -35,6 +42,13 @@ void D3DTexture2D::resize(size_t newsize)
 		__debugbreak();
 		//사이즈 제한 초과
 	}
+}
+
+void D3DTexture2D::SetCubeMapTexture(int index, const wchar_t* path)
+{
+	ResetTexture2D(index);
+	textureManager.CreateSharingCubeMap(path, &SRVList[index]);
+	pathList[index] = path;
 }
 
 void D3DTexture2D::SetTexture2D(int index, const wchar_t* path)
