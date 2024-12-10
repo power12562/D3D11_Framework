@@ -4,6 +4,7 @@
 IBLTestScene::IBLTestScene()
 {
 	UseImGUI = true;
+	d3dRenderer.backgroundColor = { 1,1,1,1 };
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
 	mainCam->SetMainCamera();
@@ -11,15 +12,15 @@ IBLTestScene::IBLTestScene()
 	pCameraMoveHelper = &mainCam->AddComponent<CameraMoveHelper>();
 	mainCam->transform.position += Vector3(0.f, 9.f, -20.f);
 
-	auto cubeMap = NewGameObject<SkyBoxObject>(L"CubeMap");
-	cubeMap->skyBoxRender.SetSkyBox(L"Resource/Skybox/TestIBLEnvHDR.dds");
+	auto skyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
+	skyBox->skyBoxRender.SetSkyBox(L"Resource/Skybox/TestIBLEnvHDR.dds");
 
 	auto cerberus = NewGameObject(L"cerberus");
 	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, false, SURFACE_TYPE::PBR);
 	cerberus->transform.position = Vector3(-10.f, 0.f, 0.f);
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	cerberus->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
-
+	
 	auto chara = NewGameObject(L"charater");
 	Utility::LoadFBX(L"Resource/char/char.fbx", *chara, false, SURFACE_TYPE::PBR);
 	chara->transform.position = Vector3(10.f, 0.f, 0.f);

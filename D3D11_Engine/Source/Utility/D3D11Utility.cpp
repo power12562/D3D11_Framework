@@ -148,6 +148,7 @@ namespace Utility
         {
         case Utility::DX_TEXTURE_EXTENSION::dds:
         {
+            //DDS 로드
             TexMetadata metadata;
             ScratchImage scratchImage;
             ID3D11Texture2D* tempTexture = nullptr;
@@ -167,18 +168,27 @@ namespace Utility
 
             // 텍스처 생성    
             D3D11_TEXTURE2D_DESC desc = {};
-            const Image* image = scratchImage.GetImages();
-            desc.Width = image->width;
-            desc.Height = image->height;
-            desc.MipLevels = 0;
-            desc.ArraySize = 6;
-            desc.Format = image->format;
+            desc.Width = metadata.width;
+            desc.Height = metadata.height;
+            desc.MipLevels = metadata.mipLevels;
+            desc.ArraySize = metadata.arraySize;
+            desc.Format = metadata.format;
             desc.SampleDesc.Count = 1;
             desc.Usage = D3D11_USAGE_DEFAULT;
-            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET;
-            desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
+            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-            hr = d3dDevice->CreateTexture2D(&desc, nullptr, &tempTexture);
+            //데이터 복사
+            std::vector<D3D11_SUBRESOURCE_DATA> initData(scratchImage.GetImageCount());
+            const Image* images = scratchImage.GetImages();
+            for (UINT i = 0; i < initData.size(); ++i)
+            {
+                initData[i].pSysMem = images[i].pixels;
+                initData[i].SysMemPitch = images[i].rowPitch;
+                initData[i].SysMemSlicePitch = images[i].slicePitch;
+            }
+
+            hr = d3dDevice->CreateTexture2D(&desc, initData.data(), &tempTexture);
             if (FAILED(hr))
             {
                 ShowErrorMessageBox();
@@ -190,7 +200,7 @@ namespace Utility
             srvDesc.Format = desc.Format;
             srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
             srvDesc.TextureCube.MostDetailedMip = 0;
-            srvDesc.TextureCube.MipLevels = -1;
+            srvDesc.TextureCube.MipLevels = desc.MipLevels;
             if (textureView)
             {
                 hr = d3dDevice->CreateShaderResourceView(tempTexture, &srvDesc, textureView);
@@ -207,6 +217,7 @@ namespace Utility
             else
             {
                 tempTexture->Release();
+                //__debugbreak(); //texture 필요함
             }
             return hr;
         }

@@ -10,6 +10,7 @@ void SkyBoxRender::Start()
     if (mainSkyBox)
     {
         __debugbreak(); //스카이 박스는 하나만 존재 가능.
+        GameObject::Destroy(this->gameObject);
         return;
     }
 

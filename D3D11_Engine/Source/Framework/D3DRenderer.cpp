@@ -283,6 +283,12 @@ SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
 
 void D3DRenderer::BegineDraw()
 {   
+    Camera* mainCam = Camera::GetMainCamera();
+    cbuffer::camera.MainCamPos = mainCam->transform.position;
+    cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
+    cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
+    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
+
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
@@ -295,11 +301,6 @@ void D3DRenderer::BegineDraw()
         pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0); //기본 깊이 스텐실 상태 적용.
     }
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
-	Camera* mainCam = Camera::GetMainCamera();
-	cbuffer::camera.MainCamPos = mainCam->transform.position;
-	cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
-	cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
-	D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 
     size_t objCounts = sceneManager.GetObjectsCount();
     if (opaquerenderOueue.capacity() < objCounts)

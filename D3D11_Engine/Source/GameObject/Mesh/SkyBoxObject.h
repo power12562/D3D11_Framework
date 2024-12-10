@@ -9,7 +9,6 @@ public:
 	virtual ~SkyBoxObject() override = default;
 
 	SkyBoxRender& skyBoxRender;
-
 private:
 	using GameObject::transform;
 };

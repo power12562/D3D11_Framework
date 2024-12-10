@@ -43,7 +43,6 @@ ULONG TextureManager::CreateSharingCubeMap(const wchar_t* path, ID3D11ShaderReso
 	{
 		ID3D11ShaderResourceView* newResource;
 		CheckHRESULT(CreateCubeMapFromFile(d3dRenderer.GetDevice(), path, nullptr, &newResource));
-		d3dRenderer.GetDeviceContext()->GenerateMips(newResource);
 		resourceMap[path] = newResource;
 		*ppOut_ResourceView = newResource;
 		return 1;
