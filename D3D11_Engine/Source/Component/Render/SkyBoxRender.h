@@ -3,18 +3,13 @@
 
 class SkyBoxRender : public MeshRender
 {
-	struct Vertex
-	{
-		Vector4 position{ 0,0,0,1 };
-		Vector3 normal;
-		Vector3 biTangent;
-		Vector2 Tex;
-	};
-	std::vector<Vertex> vertices;
-	std::vector<UINT> indices;
+	inline static SkyBoxRender* mainSkyBox = nullptr;
+public:
+	inline static SkyBoxRender* GetMainSkyBox() { return mainSkyBox; }
+
 public:
 	SkyBoxRender() = default;
-	virtual ~SkyBoxRender() override = default;
+	virtual ~SkyBoxRender() override;
 
 	virtual void Start() override;
 protected:
@@ -32,4 +27,7 @@ private:
 
 private:
 	std::wstring currPath;
+
+	std::vector<Vector4> vertices;
+	std::vector<UINT> indices;
 };

@@ -1,18 +1,29 @@
 #include "SkyBoxRender.h"
 
+SkyBoxRender::~SkyBoxRender()
+{
+   
+}
+
 void SkyBoxRender::Start()
 {
+    if (mainSkyBox)
+    {
+        __debugbreak(); //스카이 박스는 하나만 존재 가능.
+        return;
+    }
+
     // Front face
-    vertices.emplace_back(Vector4(-1.0f, -1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f));
-    vertices.emplace_back(Vector4(1.0f, -1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f));
-    vertices.emplace_back(Vector4(1.0f, 1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f));
-    vertices.emplace_back(Vector4(-1.0f, 1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f));
+    vertices.emplace_back(-1.0f, -1.0f, -1.0f, 1.0f);
+    vertices.emplace_back(1.0f, -1.0f, -1.0f, 1.0f);
+    vertices.emplace_back(1.0f, 1.0f, -1.0f, 1.0f);
+    vertices.emplace_back(-1.0f, 1.0f, -1.0f, 1.0f);
 
     // Back face
-    vertices.emplace_back(Vector4(-1.0f, -1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f));
-    vertices.emplace_back(Vector4(1.0f, -1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f));
-    vertices.emplace_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f));
-    vertices.emplace_back(Vector4(-1.0f, 1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f));
+    vertices.emplace_back(-1.0f, -1.0f, 1.0f, 1.0f);
+    vertices.emplace_back(1.0f, -1.0f, 1.0f, 1.0f);
+    vertices.emplace_back(1.0f, 1.0f, 1.0f, 1.0f);
+    vertices.emplace_back(-1.0f, 1.0f, 1.0f, 1.0f);
 
     // Indices for the cube (two triangles per face)
     // Front face
@@ -47,11 +58,11 @@ void SkyBoxRender::Start()
     //SkyBox용 샘플러
     D3D11_SAMPLER_DESC samplerDesc = {};
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;  // 선형 필터링 (Mipmap 사용 시 선형 보간)
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;   // 좌측, 우측 경계에서 클램프
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;   // 위쪽, 아래쪽 경계에서 클램프
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;   // 큐브 맵의 W축도 클램프
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;  // 비교 함수는 필요하지 않음 (단순 샘플링)
-    samplerDesc.BorderColor[0] = 1.0f;                    // 경계 색상 (클램프가 동작할 때 사용)
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;    // 좌측, 우측 경계에서 클램프
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;    // 위쪽, 아래쪽 경계에서 클램프
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;    // 큐브 맵의 W축도 클램프
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;   // 비교 함수는 필요하지 않음 (단순 샘플링)
+    samplerDesc.BorderColor[0] = 1.0f;                     // 경계 색상 (클램프가 동작할 때 사용)
     samplerDesc.BorderColor[1] = 1.0f;
     samplerDesc.BorderColor[2] = 1.0f;
     samplerDesc.BorderColor[3] = 1.0f;
@@ -70,6 +81,7 @@ void SkyBoxRender::Start()
         std::wstring pixelPath(EngineShaderPath + L"SkyBoxPS.hlsl"s);
         SetPixelShader(pixelPath.c_str());
     }
+    mainSkyBox = this;
 }
 
 void SkyBoxRender::FixedUpdate()
@@ -86,16 +98,7 @@ void SkyBoxRender::LateUpdate()
 
 void SkyBoxRender::Render()
 {
-    if (!currPath.empty())
-    {
-        const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
-        if (IsVSShader() && IsPSShader())
-        {
-            constBuffer.UpdateEvent();
-            RENDERER_DRAW_DESC desc = GetRendererDesc();
-            d3dRenderer.DrawIndex(desc, isAlpha);
-        }
-    }
+    //d3dRenderer가 직접 수집해서 그린다.
 }
 
 void SkyBoxRender::SetSkyBox(const wchar_t* path)
@@ -122,9 +125,9 @@ void SkyBoxRender::CreateMesh()
         SafeRelease(meshResource->pVertexBuffer);
 
     meshResource->vertexBufferOffset = 0;
-    meshResource->vertexBufferStride = sizeof(Vertex);
+    meshResource->vertexBufferStride = sizeof(Vector4);
     D3D11_BUFFER_DESC bd{};
-    bd.ByteWidth = sizeof(Vertex) * vertices.size();
+    bd.ByteWidth = sizeof(Vector4) * vertices.size();
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.CPUAccessFlags = 0;

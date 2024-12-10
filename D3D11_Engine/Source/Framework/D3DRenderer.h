@@ -80,6 +80,8 @@ private:
 	IDXGISwapChain*			 pSwapChain;		  // 스왑체인
 	ID3D11RenderTargetView*  pRenderTargetView;	  // 렌더링 타겟뷰
 	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
+	ID3D11DepthStencilState* pDefaultDepthStencilState; //기본 상태
+	ID3D11DepthStencilState* pSkyBoxDepthStencilState;  //스카이 박스용
 	ID3D11BlendState*		 pBlendState;		  // 블렌드 상태
 	ID3D11RasterizerState*   pDefaultRRState;    // 기본 레스터화 규칙
 

@@ -13,7 +13,6 @@ IBLTestScene::IBLTestScene()
 
 	auto cubeMap = NewGameObject<SkyBoxObject>(L"CubeMap");
 	cubeMap->skyBoxRender.SetSkyBox(L"Resource/Skybox/TestIBLEnvHDR.dds");
-	cubeMap->transform.scale = Vector3(100.f, 100.f, 100.f);
 
 	auto cerberus = NewGameObject(L"cerberus");
 	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, false, SURFACE_TYPE::PBR);

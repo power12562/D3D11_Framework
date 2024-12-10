@@ -290,6 +290,8 @@
   <ItemGroup>
     <None Include="Source\Shader\SkyBoxShared.hlsli" />
     <None Include="Source\Shader\Shared.fxh" />
+    <None Include="Source\Shader\VertexShared.hlsli" />
+    <None Include="Source\Shader\VertexSkinningShared.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

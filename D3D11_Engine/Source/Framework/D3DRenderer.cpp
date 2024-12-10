@@ -1,19 +1,9 @@
 #include "D3DRenderer.h"
-#include <Component\Camera\Camera.h>
-#include <Framework\WinGameApp.h>
-#include <Framework/D3DConstBuffer.h>
-#include <Framework/Transform.h>
 #include <Material\BlingPhongMaterial.h>
-#include <Utility\D3D11Utility.h>
-#include <Utility\MemoryUtility.h>
-#include <Framework/TextureManager.h>
-#include <Framework/SceneManager.h>
-#include <Utility/Console.h>
 #include <dxgi1_4.h>
 #include <cassert>
 #include <Psapi.h>
-#include <Framework/D3DSamplerState.h>
-#include <Framework/D3DTexture2D.h>
+#include <framework.h>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -32,6 +22,8 @@ D3DRenderer::D3DRenderer()
     pSwapChain = nullptr;
     pRenderTargetView = nullptr;
     pDepthStencilView = nullptr;
+    pDefaultDepthStencilState = nullptr;
+    pSkyBoxDepthStencilState = nullptr;
     pBlendState = nullptr;
     pDefaultRRState = nullptr;
 }
@@ -134,6 +126,21 @@ void D3DRenderer::Init()
         CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
         SafeRelease(textureDepthStencil);
 
+        // 기본 깊이 스텐실 상태 생성
+        D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+        depthStencilDesc.DepthEnable = TRUE;                         // 깊이 테스트 활성화
+        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // 깊이 버퍼 쓰기 활성화
+        depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;           // 깊이 비교 함수
+        depthStencilDesc.StencilEnable = FALSE;                      // 스텐실 테스트 활성화
+        CheckHRESULT(pDevice->CreateDepthStencilState(&depthStencilDesc, &pDefaultDepthStencilState));
+
+        // 스카이 박스 깊이 스텐실 상태 생성
+        depthStencilDesc.DepthEnable = FALSE;  // 깊이 테스트 비활성화
+        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // 깊이 버퍼 비활성화
+        depthStencilDesc.DepthFunc = D3D11_COMPARISON_NEVER; // 깊이 비교 함수
+        depthStencilDesc.StencilEnable = FALSE;  // 스텐실 테스트 비활성화
+        CheckHRESULT(pDevice->CreateDepthStencilState(&depthStencilDesc, &pSkyBoxDepthStencilState));
+
         //Set alpha blend
         D3D11_BLEND_DESC blendDesc;
         ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
@@ -176,6 +183,8 @@ void D3DRenderer::Uninit()
     SafeRelease(pDefaultRRState);
     SafeRelease(pBlendState);
     SafeRelease(pRenderTargetView);
+    SafeRelease(pSkyBoxDepthStencilState);
+    SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
     SafeRelease(pSwapChain);
     SafeRelease(pDeviceContext);
@@ -275,9 +284,17 @@ SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
 void D3DRenderer::BegineDraw()
 {   
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
-    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
+    //sky box 먼저 그린다.
+    if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
+    {
+        pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
+        RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
+        Draw(desc); //그리기 바로 실행
+        pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0); //기본 깊이 스텐실 상태 적용.
+    }
+    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
 	Camera* mainCam = Camera::GetMainCamera();
 	cbuffer::camera.MainCamPos = mainCam->transform.position;
 	cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());

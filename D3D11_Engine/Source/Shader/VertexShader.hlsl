@@ -10,6 +10,8 @@ cbuffer BoneWIT : register(b3)
 {
     matrix boneWIT[128];
 }
+#else
+#include "VertexShared.hlsli"
 #endif
 
 //--------------------------------------------------------------------------------------

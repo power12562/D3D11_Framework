@@ -151,7 +151,7 @@ namespace Utility
             TexMetadata metadata;
             ScratchImage scratchImage;
             ID3D11Texture2D* tempTexture = nullptr;
-            hr = LoadFromDDSFile(szFileName, DDS_FLAGS_FORCE_RGB, &metadata, scratchImage);
+            hr = LoadFromDDSFile(szFileName, DDS_FLAGS_NONE, &metadata, scratchImage);
             if (FAILED(hr))
             {
                 ShowErrorMessageBox();
@@ -170,18 +170,13 @@ namespace Utility
             const Image* image = scratchImage.GetImages();
             desc.Width = image->width;
             desc.Height = image->height;
-            desc.MipLevels = GetMipmapLevels(desc.Width, desc.Height);
+            desc.MipLevels = 0;
             desc.ArraySize = 6;
             desc.Format = image->format;
             desc.SampleDesc.Count = 1;
             desc.Usage = D3D11_USAGE_DEFAULT;
-            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-            desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-            if (desc.MipLevels == 0) 
-            {
-                desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
-                desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-            }
+            desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET;
+            desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
             hr = d3dDevice->CreateTexture2D(&desc, nullptr, &tempTexture);
             if (FAILED(hr))

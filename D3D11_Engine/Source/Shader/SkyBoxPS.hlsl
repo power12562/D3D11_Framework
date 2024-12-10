@@ -5,5 +5,7 @@ TextureCube envTexture : register(t0);
 
 float4 main(PixelShaderInput input) : SV_Target
 {
-    return envTexture.Sample(samLinear, input.TexCoords);
+    float4 final = envTexture.Sample(samLinear, input.TexCoords);
+    final = float4(1, 0, 0, 1);
+    return final;
 }
