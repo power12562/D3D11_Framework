@@ -20,7 +20,7 @@ namespace Utility
 	{
 		HRESULT hr = S_OK;
 
-		DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+        DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PARTIAL_PRECISION;
 #ifdef _DEBUG
 		// Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
 		// Setting this flag improves the shader debugging experience, but still allows 
@@ -30,11 +30,14 @@ namespace Utility
 
 		// Disable optimizations to further improve shader debugging
 		dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+        dwShaderFlags = D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif
 
 		ID3DBlob* pErrorBlob = nullptr;
 		hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
 			dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+
 		if (FAILED(hr))
 		{
 			if (pErrorBlob)

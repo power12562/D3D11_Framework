@@ -48,7 +48,7 @@ void D3DSamplerState::resize(size_t newsize)
 	{
 		if (newsize < samplerList.size())
 		{
-			for (int i = newsize; i < samplerList.size(); i++)
+			for (int i = newsize; i < (int)samplerList.size(); i++)
 			{
 				ResetSamplerState(i);
 			}

@@ -14,11 +14,18 @@ IBLTestScene::IBLTestScene()
 	skyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
 	skyBox->skyBoxRender.SetSkyBox(L"Resource/Skybox/TestIBLEnvHDR.dds");
 
-	auto cerberus = NewGameObject(L"cerberus");
-	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, false, SURFACE_TYPE::PBR);
-	cerberus->transform.position = Vector3(-10.f, 0.f, 0.f);
-	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
-	cerberus->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
+	auto pistol = NewGameObject(L"pistol");
+	auto initMesh = [this](MeshRender* mesh)
+	{
+			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
+			obj.Material.UseRMACMap = true;
+			mesh->textures.resize(8);
+			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
+	};
+	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);
+	pistol->transform.position = Vector3(-20.f, 0.f, 0.f);
+	pistol->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+	pistol->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
 	
 	auto chara = NewGameObject(L"charater");
 	Utility::LoadFBX(L"Resource/char/char.fbx", *chara, false, SURFACE_TYPE::PBR);

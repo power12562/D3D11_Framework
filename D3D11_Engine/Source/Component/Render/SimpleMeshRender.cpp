@@ -50,7 +50,6 @@ void SimpleMeshRender::Render()
     const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
     if (IsVSShader() && IsPSShader())
     {
-		constBuffer.UpdateEvent();
 		RENDERER_DRAW_DESC desc = GetRendererDesc();
         d3dRenderer.DrawIndex(desc, isAlpha);
     } 

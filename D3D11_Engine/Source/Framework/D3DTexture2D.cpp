@@ -12,6 +12,8 @@ D3DTexture2D::D3DTexture2D()
 	SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Roughness, E_TEXTURE_DEFAULT::ZERO);
+	SetDefaultTexture(E_TEXTURE::RMACTexture, E_TEXTURE_DEFAULT::ONE);
+	SetDefaultTexture(E_TEXTURE::AmbientOcculusion, E_TEXTURE_DEFAULT::ONE);
 }
 
 D3DTexture2D::~D3DTexture2D()
@@ -29,7 +31,7 @@ void D3DTexture2D::resize(size_t newsize)
 	{
 		if (newsize < SRVList.size())
 		{
-			for (int i = newsize; i < SRVList.size(); i++)
+			for (int i = newsize; i < (int)SRVList.size(); i++)
 			{
 				ResetTexture2D(i);
 			}

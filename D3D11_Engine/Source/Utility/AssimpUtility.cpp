@@ -121,7 +121,6 @@ namespace Utility
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
 			{
-
 				if (Utility::ParseFileName(path))
 				{
 					basePath = directory;
@@ -151,6 +150,8 @@ namespace Utility
 					meshRender->isAlpha = true;
 				}
 			}
+
+			//블랜더 기준 메탈릭 맵
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_METALNESS, 0, &path))
 			{
 				if (Utility::ParseFileName(path))
@@ -159,9 +160,16 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
+
+					if (surface == SURFACE_TYPE::PBR)
+					{
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseMetalnessMap = true;
+					}
 				}
 			}
-			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path))
+
+			//블랜더 기준 러프니스 맵
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path)) 
 			{
 				if (Utility::ParseFileName(path))
 				{
@@ -169,6 +177,11 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
+
+					if (surface == SURFACE_TYPE::PBR)
+					{
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseRoughnessMap = true;
+					}
 				}
 			}
 		}

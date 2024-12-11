@@ -23,6 +23,8 @@ namespace E_TEXTURE
 		Opacity,
 		Metalness,
 		Roughness,
+		RMACTexture,
+		AmbientOcculusion,
 		Null
 	};
 }

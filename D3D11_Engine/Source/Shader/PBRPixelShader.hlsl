@@ -3,11 +3,12 @@ SamplerState defaultSampler : register(s0);
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
-Texture2D specularTexture : register(t2);
+Texture2D specularMap : register(t2);
 Texture2D emissiveTexture : register(t3);
 Texture2D opacityTexture : register(t4);
 Texture2D metalnessTexture : register(t5);
 Texture2D roughnessTexture : register(t6);
+Texture2D RMACTexture : register(t7);
 
 cbuffer cb_Light : register(b2)
 {
@@ -22,6 +23,10 @@ cbuffer cb_PBRMaterial : register(b3)
     float4 baseColor;
     float Metalness;
     float Roughness;
+    bool UseMetalnessMap;
+    bool UseRoughnessMap;
+    bool UseAmbientOcculusion;
+    bool UseRMACMap;
 };
 
 //--------------------------------------------------------------------------------------
@@ -37,7 +42,8 @@ float4 main(PS_INPUT input) : SV_Target
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
-
+    float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
+    
     float3 N; 
     if (Epsilon < length(normalSample))
     {
@@ -59,11 +65,22 @@ float4 main(PS_INPUT input) : SV_Target
     // 재질 특성
     float metalness = Metalness;
     float roughness = Roughness;
+    float ambientOcculusion = 1;
 
-    if (Epsilon < metalnessSample)
+    if (UseMetalnessMap)
         metalness = metalnessSample;
-    if (Epsilon < roughnessSample)
+    else if (UseRMACMap)
+        metalness = RMACSample.g;
+    
+    if (UseRoughnessMap)
         roughness = roughnessSample;
+    else if (UseRMACMap)
+        roughness = RMACSample.a;
+    
+    if (UseAmbientOcculusion)
+        ambientOcculusion = ambientOcculusion;
+   else if(UseRMACMap)
+        ambientOcculusion = RMACSample.b;
     
     float3 albedo = albedoSample.rgb * baseColor.rgb;
 
@@ -89,7 +106,9 @@ float4 main(PS_INPUT input) : SV_Target
     // 최종 색상
     float3 ambient = LightAmbient.rgb * albedo; // 환경광
     float3 finalColor = ambient + directLighting + emissiveSample.rgb;
+    
+    finalColor.rgb *= ambientOcculusion;
+    
     finalColor = LinearToGammaSpaceExact(finalColor);
-
     return float4(finalColor, opacitySample);
 }

@@ -22,7 +22,11 @@ cbuffer cb_PBRMaterial : register(b3)
     float4 baseColor;
     float Metalness;
     float Roughness;
-    float padPBRMaterial[2];
+    
+    bool UseMetalnessMap;
+    bool UseRoughnessMap;
+    bool UseAmbientOcculusion;
+    bool UseRMACMap;
 };
 
 cbuffer cb_bool : register(b4)
