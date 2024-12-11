@@ -51,7 +51,7 @@ public:
 	/** 시스템 메모리 영역 확인용*/
 	SYSTEM_MEMORY_INFO GetSystemMemoryInfo();
 
-	void reserveRenderQueue(size_t size);
+	void reserveRenderQueue(size_t size); 
 
 	/*레스터화 기본 규칙 설정*/
 	void SetRRState(D3D11_RASTERIZER_DESC& defaultDesc);
