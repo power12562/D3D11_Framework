@@ -5,7 +5,7 @@ class SkyBoxRender : public MeshRender
 {
 	inline static SkyBoxRender* mainSkyBox = nullptr;
 public:
-	inline static SkyBoxRender* GetMainSkyBox() { return mainSkyBox; }
+	static SkyBoxRender* GetMainSkyBox();
 
 public:
 	SkyBoxRender() = default;

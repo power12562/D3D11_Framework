@@ -124,7 +124,8 @@
       <AdditionalDependencies>D3D11_Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"</Command>
+      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"
+xcopy /Y /I /E "$(ProjectDir)Resource\" "$(ProjectDir)bin\$(Configuration)\Resource"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,7 +151,8 @@
       <AdditionalDependencies>D3D11_Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"</Command>
+      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"
+xcopy /Y /I /E "$(ProjectDir)Resource\" "$(ProjectDir)bin\$(Configuration)\Resource"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

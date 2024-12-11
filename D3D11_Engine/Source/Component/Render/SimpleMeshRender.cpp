@@ -13,9 +13,6 @@ void SimpleMeshRender::Start()
 {
 	using namespace Utility;
 
-	wchar_t materialName[50]{};
-	swprintf_s(materialName, L"%s (%d)", gameObject.Name.c_str(), gameObject.GetInstanceID());
-
 	// Create the sample state
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;

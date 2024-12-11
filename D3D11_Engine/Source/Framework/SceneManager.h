@@ -10,6 +10,7 @@
 #include <Utility/AssimpUtility.h>
 
 extern class SceneManager& sceneManager;
+using ObjectList = const std::vector<GameObject*>;
 class SceneManager : public TSingleton<SceneManager>
 {
 	friend TSingleton;
@@ -54,7 +55,8 @@ public:
 	GameObject* GetObjectToID(unsigned int instanceID);
 	std::vector<GameObject*> FindObjects(const wchar_t* name);
 
-	size_t GetObjectsCount() { return currScene ? currScene->objectList.size() : 0; }
+	size_t GetObjectsCount();
+	ObjectList GetObjectList();
 
 private:
 	//Update

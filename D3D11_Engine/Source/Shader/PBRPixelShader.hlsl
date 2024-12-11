@@ -11,7 +11,7 @@ Texture2D roughnessTexture : register(t6);
 
 cbuffer cb_Light : register(b2)
 {
-    float4 LightDir;
+    float3 LightDir;
     float4 LightColor;
     float4 LightAmbient;
     float  LightIntensity; 

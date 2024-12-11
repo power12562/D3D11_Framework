@@ -294,7 +294,7 @@ void D3DRenderer::BegineDraw()
 
     //sky box 먼저 그린다.
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
-    {
+    {      
         pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
         RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
         Draw(desc); //그리기 바로 실행
@@ -321,8 +321,10 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
         opaquerenderOueue.emplace_back(darwDesc);
 }
 
+static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
+    prevTransform = nullptr;
     for (auto& item : opaquerenderOueue)
     {     
         Draw(item);
@@ -357,7 +359,6 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         isDefaultRRState = true;
     }
 
-    static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
     Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
     if (prevTransform != drawDesc.pTransform)
     {

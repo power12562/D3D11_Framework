@@ -168,10 +168,10 @@ namespace Utility
 
             // 텍스처 생성    
             D3D11_TEXTURE2D_DESC desc = {};
-            desc.Width = metadata.width;
-            desc.Height = metadata.height;
-            desc.MipLevels = metadata.mipLevels;
-            desc.ArraySize = metadata.arraySize;
+            desc.Width = (UINT)metadata.width;
+            desc.Height = (UINT)metadata.height;
+            desc.MipLevels = (UINT)metadata.mipLevels;
+            desc.ArraySize = (UINT)metadata.arraySize;
             desc.Format = metadata.format;
             desc.SampleDesc.Count = 1;
             desc.Usage = D3D11_USAGE_DEFAULT;
@@ -184,8 +184,8 @@ namespace Utility
             for (UINT i = 0; i < initData.size(); ++i)
             {
                 initData[i].pSysMem = images[i].pixels;
-                initData[i].SysMemPitch = images[i].rowPitch;
-                initData[i].SysMemSlicePitch = images[i].slicePitch;
+                initData[i].SysMemPitch = (UINT)images[i].rowPitch;
+                initData[i].SysMemSlicePitch = (UINT)images[i].slicePitch;
             }
 
             hr = d3dDevice->CreateTexture2D(&desc, initData.data(), &tempTexture);
@@ -217,7 +217,6 @@ namespace Utility
             else
             {
                 tempTexture->Release();
-                //__debugbreak(); //texture 필요함
             }
             return hr;
         }

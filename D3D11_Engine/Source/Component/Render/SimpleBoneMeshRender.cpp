@@ -14,9 +14,6 @@ void SimpleBoneMeshRender::Start()
 {
 	using namespace Utility;
 
-	wchar_t materialName[50]{};
-	swprintf_s(materialName, L"%s (%d)", gameObject.Name.c_str(), gameObject.GetInstanceID());
-
 	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>();
 	constBuffer.BindUpdateEvent(matrixPallete);
 

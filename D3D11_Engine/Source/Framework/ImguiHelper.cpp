@@ -100,9 +100,9 @@ void ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditF
 void ImGui::EditTransform(GameObject* gameObject)
 {
 	ImGui::PushID(g_id);
-	ImGui::DragVector3("Position", &gameObject->transform.position);
+	ImGui::DragVector3("Position", &gameObject->transform.position, 0.1f);
 	ImGui::DragQuaternion("Rotation", &gameObject->transform.rotation);
-	ImGui::DragVector3("Scale", &gameObject->transform.scale);
+	ImGui::DragVector3("Scale", &gameObject->transform.scale, 0.1f);
 	ImGui::PopID();
 	g_id++;
 }

@@ -1,5 +1,14 @@
 #include "SkyBoxRender.h"
 
+SkyBoxRender* SkyBoxRender::GetMainSkyBox()
+{
+	if (mainSkyBox)
+	{
+        return mainSkyBox->currPath.empty() ? nullptr : mainSkyBox;
+	}
+    return nullptr;
+}
+
 SkyBoxRender::~SkyBoxRender()
 {
    

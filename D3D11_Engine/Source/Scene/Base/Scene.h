@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <GameObject\Base\GameObject.h>
 #include <Utility/AssimpUtility.h>
@@ -37,7 +38,7 @@ private:
 
 private:
 	std::vector<std::shared_ptr<GameObject>> objectList;
-	std::unordered_map<std::wstring, std::unordered_set<InstanceID>> objectFindMap;
+	std::map<std::wstring, std::unordered_set<InstanceID>> objectFindMap;
 private:
 	//Update
 	void FixedUpdate();

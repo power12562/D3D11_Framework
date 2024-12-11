@@ -3,14 +3,20 @@
 
 SphereMeshRender::SphereMeshRender()
 {
-    meshResource = std::make_shared<DRAW_INDEX_DATA>();
+   
 }
 
-void SphereMeshRender::CreateSphere(float radius, UINT stackCount, UINT sliceCount) {
-    for (UINT stack = 0; stack <= stackCount; ++stack) {
+void SphereMeshRender::CreateSphere(float radius, UINT stackCount, UINT sliceCount) 
+{
+    MeshID = 0;
+    SetMeshResource(L"Sphere");
+
+    for (UINT stack = 0; stack <= stackCount; ++stack) 
+    {
         float phi = stack * Mathf::PI / stackCount; // 세로 방향 (0 ~ π)
 
-        for (UINT slice = 0; slice <= sliceCount; ++slice) {
+        for (UINT slice = 0; slice <= sliceCount; ++slice) 
+        {
             float theta = slice * 2.0f * Mathf::PI / sliceCount; // 가로 방향 (0 ~ 2π)
 
             // 구체 표면의 정점 좌표
@@ -41,8 +47,10 @@ void SphereMeshRender::CreateSphere(float radius, UINT stackCount, UINT sliceCou
     }
 
     // 인덱스 생성 (삼각형)
-    for (UINT stack = 0; stack < stackCount; ++stack) {
-        for (UINT slice = 0; slice < sliceCount; ++slice) {
+    for (UINT stack = 0; stack < stackCount; ++stack) 
+    {
+        for (UINT slice = 0; slice < sliceCount; ++slice) 
+        {
             UINT first = stack * (sliceCount + 1) + slice;
             UINT second = first + sliceCount + 1;
 

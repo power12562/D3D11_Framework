@@ -15,7 +15,6 @@ Scene::Scene()
 
 	sceneResourceList.reserve(ReserveSize);
 	objectList.reserve(ReserveSize);
-	objectFindMap.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
 }
 

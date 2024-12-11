@@ -89,30 +89,33 @@ void TextureManager::ReleaseDefaultTexture()
 
 void TextureManager::CreateDefaultTexture(const float(&pixel)[4], ID3D11ShaderResourceView** ppSRV)
 {
-	ID3D11Device* device = d3dRenderer.GetDevice();
+	if (ID3D11Device* device = d3dRenderer.GetDevice())
+	{
+		// 텍스처 설명 설정
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = 1;
+		textureDesc.Height = 1;
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 32-bit float 형식
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE; // 텍스처 데이터를 변경하지 않음
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // Shader에서 사용
 
-	// 텍스처 설명 설정
-	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = 1;
-	textureDesc.Height = 1;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; // 32-bit float 형식
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_IMMUTABLE; // 텍스처 데이터를 변경하지 않음
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // Shader에서 사용
+		// 서브리소스 데이터 설정 (픽셀 값 지정)
+		D3D11_SUBRESOURCE_DATA initData = {};
+		initData.pSysMem = pixel;
+		initData.SysMemPitch = sizeof(pixel);
 
-	// 서브리소스 데이터 설정 (픽셀 값 지정)
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = pixel;
-	initData.SysMemPitch = sizeof(pixel);
+		// 텍스처 생성
+		ID3D11Texture2D* texture = nullptr;
+		Utility::CheckHRESULT(device->CreateTexture2D(&textureDesc, &initData, &texture));
 
-	// 텍스처 생성
-	ID3D11Texture2D* texture = nullptr;
-	Utility::CheckHRESULT(device->CreateTexture2D(&textureDesc, &initData, &texture));
-	Utility::CheckHRESULT(device->CreateShaderResourceView(texture, nullptr, ppSRV));
+		if(texture)
+			Utility::CheckHRESULT(device->CreateShaderResourceView(texture, nullptr, ppSRV));
 
-	texture->Release(); // 텍스처는 사용 후 해제
+		texture->Release(); // 텍스처는 사용 후 해제
+	}
 }
 
 ID3D11ShaderResourceView* TextureManager::GetOneTexture()

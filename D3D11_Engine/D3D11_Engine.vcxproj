@@ -148,6 +148,7 @@
     <ClInclude Include="Source\Component\BoneComponent.h" />
     <ClInclude Include="Source\Component\Render\BlingPhongBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\BlingPhongMeshRender.h" />
+    <ClInclude Include="Source\Component\Render\CubeMeshRender.h" />
     <ClInclude Include="Source\Component\Render\MeshRender.h" />
     <ClInclude Include="Source\Component\Render\PBRBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\PBRMeshRender.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
     <ClInclude Include="Source\GameObject\Mesh\BlingPhongMeshObject.h" />
+    <ClInclude Include="Source\GameObject\Mesh\CubeObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\SkyBoxObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\PBRMeshObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\SphereObject.h" />
@@ -203,6 +205,7 @@
     <ClCompile Include="Source\Component\BoneComponent.cpp" />
     <ClCompile Include="Source\Component\Render\BlingPhongBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\BlingPhongMeshRender.cpp" />
+    <ClCompile Include="Source\Component\Render\CubeMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\MeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\PBRBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\PBRMeshRender.cpp" />
@@ -228,6 +231,7 @@
     <ClCompile Include="Source\Framework\ImguiHelper.cpp" />
     <ClCompile Include="Source\Framework\InstanceIDManager.cpp" />
     <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
+    <ClCompile Include="Source\GameObject\Mesh\CubeObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\SkyBoxObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\SphereObject.cpp" />
     <ClCompile Include="Source\Light\PBRDirectionalLight.cpp" />

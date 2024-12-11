@@ -79,6 +79,40 @@ void SceneManager::DestroyObject(GameObject& obj)
 	DestroyObject(&obj);
 }
 
+size_t SceneManager::GetObjectsCount()
+{
+	if (currScene)
+	{
+		size_t count = 0;
+		for (auto& item : currScene->objectList)
+		{
+			if (item)
+				++count;
+		}
+		return count;
+	}
+	else return 0;
+}
+
+ObjectList SceneManager::GetObjectList()
+{
+	if (currScene)
+	{
+		std::vector<GameObject*> objList(GetObjectsCount());
+		int i = 0;
+		for (auto& item : currScene->objectList)
+		{
+			if (item)
+			{
+				objList[i] = item.get();
+				++i;
+			}
+		}
+		return objList;
+	}
+	else return std::vector<GameObject*>();
+}
+
 GameObject* SceneManager::FindObject(const wchar_t* name)
 {
 	GameObject* obj = nullptr;

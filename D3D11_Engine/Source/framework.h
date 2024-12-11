@@ -15,6 +15,7 @@
 #include <GameObject/Mesh/PBRMeshObject.h>
 #include <GameObject/Mesh/SphereObject.h>
 #include <GameObject/Mesh/SkyBoxObject.h>
+#include <GameObject/Mesh/CubeObject.h>
 
 //Components
 #include <Component/BoneComponent.h>
@@ -27,6 +28,7 @@
 #include <Component/Render/PBRBoneMeshRender.h>
 #include <Component/Render/PBRMeshRender.h>
 #include <Component/Render/SkyBoxRender.h>
+#include <Component/Render/CubeMeshRender.h>
 
 //Lights
 #include <Light/PBRDirectionalLight.h>
