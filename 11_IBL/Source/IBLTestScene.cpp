@@ -4,15 +4,14 @@
 IBLTestScene::IBLTestScene()
 {
 	UseImGUI = true;
-	d3dRenderer.backgroundColor = { 1,1,1,1 };
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
+	mainCam->transform.position += Vector3(0.f, 9.f, -20.f);
 	mainCam->SetMainCamera();
 	pCamera = Camera::GetMainCamera();
 	pCameraMoveHelper = &mainCam->AddComponent<CameraMoveHelper>();
-	mainCam->transform.position += Vector3(0.f, 9.f, -20.f);
 
-	auto skyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
+	skyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
 	skyBox->skyBoxRender.SetSkyBox(L"Resource/Skybox/TestIBLEnvHDR.dds");
 
 	auto cerberus = NewGameObject(L"cerberus");
@@ -38,6 +37,8 @@ void IBLTestScene::ImGUIRender()
 	using namespace PBRDirectionalLight;
 	Begin("Debug");
 	{
+		ImGui::Checkbox("Use Sky Box", &skyBox->Active);
+
 		EditCamera("Main Camera", pCamera, pCameraMoveHelper);
 		
 		Text("Light");

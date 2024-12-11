@@ -2,7 +2,7 @@
 
 SkyBoxRender* SkyBoxRender::GetMainSkyBox()
 {
-	if (mainSkyBox)
+	if (mainSkyBox && mainSkyBox->Enable && mainSkyBox->gameObject.Active)
 	{
         return mainSkyBox->currPath.empty() ? nullptr : mainSkyBox;
 	}

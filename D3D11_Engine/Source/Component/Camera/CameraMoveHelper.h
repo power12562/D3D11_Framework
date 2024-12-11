@@ -20,6 +20,7 @@ public:
 		const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker) override;
 
 public:
+	void SetDefaultTransform(Transform& defaultTransform);
 	void Reset();
 	void AddPitch(float angle);
 	void AddYaw(float angle);

@@ -3,6 +3,7 @@
 
 class Camera;
 class CameraMoveHelper;
+class SkyBoxObject;
 class IBLTestScene : public Scene
 {
 public:
@@ -15,4 +16,5 @@ protected:
 private:
 	Camera* pCamera = nullptr;
 	CameraMoveHelper* pCameraMoveHelper = nullptr;
+	SkyBoxObject* skyBox = nullptr;
 };

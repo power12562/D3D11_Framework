@@ -10,8 +10,8 @@ CameraMoveHelper::CameraMoveHelper()
 
 void CameraMoveHelper::Start()
 {
+	SetDefaultTransform(transform);
 	angle = transform.rotation;
-	startTransform = transform;
 }
 
 void CameraMoveHelper::FixedUpdate()
@@ -93,6 +93,11 @@ void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, 
 		AddPitch(delta.x);
 		AddYaw(delta.y);
 	}
+}
+
+void CameraMoveHelper::SetDefaultTransform(Transform& defaultTransform)
+{
+	startTransform = defaultTransform;
 }
 
 void CameraMoveHelper::Reset()
