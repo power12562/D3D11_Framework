@@ -18,10 +18,10 @@ cbuffer cb_Material : register(b2)
 
 cbuffer cbuffer_Light : register(b3)
 {
-    float4 LightDir;
     float4 LightDiffuse;
     float4 LightAmbient;
     float4 LightSpecular;
+    float3 LightDir;
 }
 
 cbuffer cbuffer_bool : register(b4)
