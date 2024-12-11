@@ -8,11 +8,13 @@ namespace E_TEXTURE
 
 	//Texture2D albedoTexture : register(t0);
 	//Texture2D normalTexture : register(t1);
-	//Texture2D specularTexture : register(t2);
+	//Texture2D specularMap : register(t2);
 	//Texture2D emissiveTexture : register(t3);
 	//Texture2D opacityTexture : register(t4);
 	//Texture2D metalnessTexture : register(t5);
 	//Texture2D roughnessTexture : register(t6);
+	//Texture2D RMACTexture : register(t7);
+	//Texture2D ambientOcculusionTexture : register(t8);
 
 	enum TEXTURE_INDEX
 	{

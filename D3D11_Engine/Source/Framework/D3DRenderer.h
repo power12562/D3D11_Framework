@@ -1,6 +1,6 @@
 #pragma once
 #include <Utility\D3D11Utility.h> //helper
-#include <Utility/MemoryUtility.h>
+#include <Utility\MemoryUtility.h>
 #include <Framework\TSingleton.h>
 #include <map>
 #include <string>
@@ -11,7 +11,6 @@ class D3DRenderer;
 class D3DConstBuffer;
 class D3DSamplerState;
 class D3DTexture2D;
-class SimpleMaterial;
 extern D3DRenderer& d3dRenderer;
 
 struct USAGE_VRAM_INFO;

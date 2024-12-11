@@ -87,57 +87,7 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 	}
 	else
 	{
-		ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
-		ID3D11VertexShader* vertexShader = nullptr;	// 정점 셰이더가 저장될 곳.
-		EXTENSION_TYPE type = ChackShaderFile(path);
-		switch (type)
-		{
-		case HLSLManager::EXTENSION_TYPE::hlsl:
-			CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &vertexShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::cso:
-			CheckHRESULT(LoadShadeFormFile(path, &vertexShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::null:
-			__debugbreak(); //not shader file
-			*ppOut_VertexShader = nullptr;
-		}
-		CheckHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
-		sharingShaderMap[path] = vertexShader;
-		*ppOut_VertexShader = vertexShader;
-
-		// 리플렉션을 사용하여 입력 레이아웃 생성
-		ID3D11ShaderReflection* pReflector = nullptr;
-		CheckHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_PPV_ARGS(&pReflector)));
-
-		D3D11_SHADER_DESC shaderDesc;
-		pReflector->GetDesc(&shaderDesc);
-
-		std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
-		for (UINT i = 0; i < shaderDesc.InputParameters; ++i)
-		{
-			D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
-			pReflector->GetInputParameterDesc(i, &paramDesc);
-
-			// 각 입력 파라미터에 대해 D3D11_INPUT_ELEMENT_DESC 구성
-			D3D11_INPUT_ELEMENT_DESC elementDesc = {};
-			elementDesc.SemanticName = paramDesc.SemanticName;
-			elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-			elementDesc.Format = GetDXGIFormat(paramDesc.ComponentType, paramDesc.Mask);
-			elementDesc.InputSlot = 0;
-			elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 자동으로 정렬
-			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-			elementDesc.InstanceDataStepRate = 0;
-
-			inputLayoutDesc.push_back(elementDesc);
-		}
-		CheckHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
-			vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), ppOut_InputLayout));
-
-		sharingInputLayoutMap[path] = *ppOut_InputLayout;
-
-		SafeRelease(pReflector);
-		SafeRelease(vertexShaderBuffer);
+		MakeShader(path, shaderModel, ppOut_VertexShader, ppOut_InputLayout);
 	}
 }
 
@@ -155,25 +105,84 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 	}
 	else
 	{
-		ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
-		ID3D11PixelShader* pixelShader = nullptr;	// 픽셀 셰이더가 저장될 곳.
-		EXTENSION_TYPE type = ChackShaderFile(path);
-		switch (type)
-		{
-		case HLSLManager::EXTENSION_TYPE::hlsl:
-			CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &pixelShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::cso:
-			CheckHRESULT(LoadShadeFormFile(path, &pixelShaderBuffer));
-			break;
-		case HLSLManager::EXTENSION_TYPE::null:
-			__debugbreak(); //not shader file
-			*ppOutput = nullptr;
-		}
-		CheckHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
-		sharingShaderMap[path] = pixelShader;
-		*ppOutput = pixelShader;
-		pixelShaderBuffer->Release();
+		MakeShader(path, shaderModel, ppOutput);
 	}
 }
 
+void HLSLManager::MakeShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout)
+{
+	ID3D10Blob* vertexShaderBuffer = nullptr;	// 정점 셰이더 코드가 저장될 버퍼.
+	ID3D11VertexShader* vertexShader = nullptr;	// 정점 셰이더가 저장될 곳.
+	EXTENSION_TYPE type = ChackShaderFile(path);
+	switch (type)
+	{
+	case HLSLManager::EXTENSION_TYPE::hlsl:
+		CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &vertexShaderBuffer));
+		break;
+	case HLSLManager::EXTENSION_TYPE::cso:
+		CheckHRESULT(LoadShadeFormFile(path, &vertexShaderBuffer));
+		break;
+	case HLSLManager::EXTENSION_TYPE::null:
+		__debugbreak(); //not shader file
+		*ppOut_VertexShader = nullptr;
+	}
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
+	sharingShaderMap[path] = vertexShader;
+	*ppOut_VertexShader = vertexShader;
+
+	// 리플렉션을 사용하여 입력 레이아웃 생성
+	ID3D11ShaderReflection* pReflector = nullptr;
+	CheckHRESULT(D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_PPV_ARGS(&pReflector)));
+
+	D3D11_SHADER_DESC shaderDesc;
+	pReflector->GetDesc(&shaderDesc);
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inputLayoutDesc;
+	for (UINT i = 0; i < shaderDesc.InputParameters; ++i)
+	{
+		D3D11_SIGNATURE_PARAMETER_DESC paramDesc;
+		pReflector->GetInputParameterDesc(i, &paramDesc);
+
+		// 각 입력 파라미터에 대해 D3D11_INPUT_ELEMENT_DESC 구성
+		D3D11_INPUT_ELEMENT_DESC elementDesc = {};
+		elementDesc.SemanticName = paramDesc.SemanticName;
+		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
+		elementDesc.Format = GetDXGIFormat(paramDesc.ComponentType, paramDesc.Mask);
+		elementDesc.InputSlot = 0;
+		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT; // 자동으로 정렬
+		elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		elementDesc.InstanceDataStepRate = 0;
+
+		inputLayoutDesc.push_back(elementDesc);
+	}
+	CheckHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
+		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), ppOut_InputLayout));
+
+	sharingInputLayoutMap[path] = *ppOut_InputLayout;
+
+	SafeRelease(pReflector);
+	SafeRelease(vertexShaderBuffer);
+}
+
+void HLSLManager::MakeShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput)
+{
+	ID3D10Blob* pixelShaderBuffer = nullptr;	// 픽셀 셰이더 코드가 저장될 버퍼.
+	ID3D11PixelShader* pixelShader = nullptr;	// 픽셀 셰이더가 저장될 곳.
+	EXTENSION_TYPE type = ChackShaderFile(path);
+	switch (type)
+	{
+	case HLSLManager::EXTENSION_TYPE::hlsl:
+		CheckHRESULT(CompileShaderFromFile(path, "main", shaderModel, &pixelShaderBuffer));
+		break;
+	case HLSLManager::EXTENSION_TYPE::cso:
+		CheckHRESULT(LoadShadeFormFile(path, &pixelShaderBuffer));
+		break;
+	case HLSLManager::EXTENSION_TYPE::null:
+		__debugbreak(); //not shader file
+		*ppOutput = nullptr;
+	}
+	CheckHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
+	sharingShaderMap[path] = pixelShader;
+	*ppOutput = pixelShader;
+	pixelShaderBuffer->Release();
+}

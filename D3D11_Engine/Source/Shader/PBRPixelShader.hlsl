@@ -9,6 +9,7 @@ Texture2D opacityTexture : register(t4);
 Texture2D metalnessTexture : register(t5);
 Texture2D roughnessTexture : register(t6);
 Texture2D RMACTexture : register(t7);
+Texture2D ambientOcculusionTexture : register(t8);
 
 cbuffer cb_Light : register(b2)
 {
@@ -26,7 +27,7 @@ cbuffer cb_PBRMaterial : register(b3)
     
     bool UseMetalnessMap;
     bool UseRoughnessMap;
-    bool UseAmbientOcculusion;
+    bool UseAmbientOcculusionMap;
     bool UseRMACMap;
 };
 
@@ -44,6 +45,7 @@ float4 main(PS_INPUT input) : SV_Target
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
     float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
+    float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
     
     float3 N; 
     if (Epsilon < length(normalSample))
@@ -78,8 +80,8 @@ float4 main(PS_INPUT input) : SV_Target
     else if (UseRMACMap)
         roughness = RMACSample.a;
     
-    if (UseAmbientOcculusion)
-        ambientOcculusion = ambientOcculusion;
+    if (UseAmbientOcculusionMap)
+        ambientOcculusion = ambientSample;
    else if(UseRMACMap)
         ambientOcculusion = RMACSample.b;
     

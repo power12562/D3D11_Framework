@@ -43,6 +43,11 @@ void IBLTestScene::ImGUIRender()
 	using namespace PBRDirectionalLight;
 	Begin("Debug");
 	{
+		if (ImGui::Button("Recompile Shader"))
+		{
+			MeshRender::ReloadShaderAll();
+		}
+
 		ImGui::Checkbox("Use Sky Box", &skyBox->Active);
 
 		EditCamera("Main Camera", pCamera, pCameraMoveHelper);

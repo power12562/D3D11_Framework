@@ -3,9 +3,15 @@
 #include <Framework/D3DConstBuffer.h>
 #include <Framework/D3DTexture2D.h>
 #include <Framework/D3DSamplerState.h>
+#include <string>
 
 class MeshRender : public RenderComponent
 {
+	inline static std::list<MeshRender*> instanceList;
+	std::list<MeshRender*>::iterator myIter;
+public:
+	static void ReloadShaderAll();
+
 public:
 	static constexpr wchar_t EngineShaderPath[] = L"Resource/EngineShader/";
 
@@ -54,8 +60,10 @@ public:
 	void ResetVertexShader();
 	void ResetPixelShader();
 private:
+	std::wstring vertexShaderPath;
 	ID3D11InputLayout* pInputLayout = nullptr;
 	ID3D11VertexShader* pVertexShader = nullptr;
+	std::wstring pixelShaderPath;
 	ID3D11PixelShader* pPixelShader = nullptr;
 
 public:

@@ -5,8 +5,24 @@
 
 using namespace Utility;
 
+void MeshRender::ReloadShaderAll()
+{
+	hlslManager.ClearSharingShader();
+	for (auto& item : instanceList)
+	{
+		if (!item->vertexShaderPath.empty())
+			item->SetVertexShader(item->vertexShaderPath.c_str());
+
+		if (!item->pixelShaderPath.empty())
+			item->SetPixelShader(item->pixelShaderPath.c_str());
+	}
+}
+
 MeshRender::MeshRender()
 {
+	instanceList.push_back(this);
+	myIter = --(instanceList.end());
+
 	//레스터화 기본 규칙
 	ZeroMemory(&currRRdesc, sizeof(currRRdesc));
 	currRRdesc.FillMode = D3D11_FILL_SOLID;
@@ -22,6 +38,8 @@ MeshRender::~MeshRender()
 		SafeRelease(meshResource->pVertexBuffer);
 	}
 	SafeRelease(pRRState);
+
+	instanceList.erase(myIter);
 }
 
 void MeshRender::SetMeshResource(const wchar_t* path)
@@ -50,14 +68,14 @@ void MeshRender::CopyShader(MeshRender& rhs)
 
 void MeshRender::SetVertexShader(const wchar_t* path)
 {
-	ResetVertexShader();
 	hlslManager.CreateSharingShader(path, "vs_4_0", &pVertexShader, &pInputLayout);
+	vertexShaderPath = path;
 }
 
 void MeshRender::SetPixelShader(const wchar_t* path)
 {
-	ResetPixelShader();
 	hlslManager.CreateSharingShader(path, "ps_4_0", &pPixelShader);
+	pixelShaderPath = path;
 }
 
 void MeshRender::ResetVertexShader()
@@ -66,6 +84,8 @@ void MeshRender::ResetVertexShader()
 	{
 		pInputLayout = nullptr;
 		pVertexShader = nullptr;
+
+		vertexShaderPath.clear();
 	}
 }
 
@@ -74,6 +94,8 @@ void MeshRender::ResetPixelShader()
 	if (pPixelShader)
 	{
 		pPixelShader = nullptr;
+
+		pixelShaderPath.clear();
 	}
 }
 
