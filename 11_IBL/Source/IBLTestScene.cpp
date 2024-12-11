@@ -19,7 +19,6 @@ IBLTestScene::IBLTestScene()
 	{
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			obj.Material.UseRMACMap = true;
-			mesh->textures.resize(8);
 			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
 	};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);

@@ -40,16 +40,16 @@ cbuffer cb_Camera : register(b1)
 /*상수 버퍼용 4바이트 bool*/
 struct alignas(4) CBbool
 {
-	bool value;
+	int value;
 
 	CBbool() { value = false; }
-	CBbool(bool value) { this->value = value; }
+	CBbool(bool value) { this->value = (int)value; }
 
-	bool& operator=(bool value) { return this->value = value; }
-	bool* operator&() { return &value; }
+	bool& operator=(bool value) { return (bool&)this->value = (int)value; }
+	bool* operator&() { return (bool*)&value; }
 
 	operator bool() const { return value; }
-	operator bool*() { return &value; }
+	operator bool*() { return (bool*)&value; }
 };
 
 class D3DConstBuffer
