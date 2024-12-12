@@ -117,7 +117,6 @@ void TestMainScene::Start()
 
 void TestMainScene::OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker, const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker)
 {
-    using namespace DirectX;
     if (KeyState.IsKeyDown(Keyboard::F1))
     {
         sceneManager.LoadScene<IBLTestScene>();

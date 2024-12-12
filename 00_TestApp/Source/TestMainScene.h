@@ -24,6 +24,6 @@ private:
 	std::map<std::string, GameObject*> charObjectList;
 
 public:
-	void OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker,
-		const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker) override;
+	void OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker,
+		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker) override;
 };
