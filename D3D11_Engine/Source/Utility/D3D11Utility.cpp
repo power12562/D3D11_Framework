@@ -197,7 +197,7 @@ namespace Utility
                 ShowErrorMessageBox();
                 return hr; // 咆胶贸 积己 角菩
             }
-            D3D_SET_OBJECT_NAME_W(tempTexture, L"CreateCubeMapFromFile");
+            D3D_SET_OBJECT_NAME(tempTexture, L"CreateCubeMapFromFile");
 
             // Shader Resource View 积己
             D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -213,7 +213,7 @@ namespace Utility
                     ShowErrorMessageBox();
                     return hr; // 咆胶贸 积己 角菩
                 }
-                D3D_SET_OBJECT_NAME_W(*textureView, szFileName);
+                D3D_SET_OBJECT_NAME(*textureView, szFileName);
             }       
             if (texture)
             {

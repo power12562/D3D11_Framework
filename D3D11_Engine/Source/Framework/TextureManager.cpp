@@ -117,11 +117,11 @@ void TextureManager::CreateDefaultTexture(const float(&pixel)[4], ID3D11ShaderRe
 
 		if (texture)
 		{	
-			D3D_SET_OBJECT_NAME_W(texture, L"TextureManager");
+			D3D_SET_OBJECT_NAME(texture, L"TextureManager");
 			Utility::CheckHRESULT(device->CreateShaderResourceView(texture, nullptr, ppSRV));
 
 			const wchar_t* objName = pixel[0] > Mathf::Epsilon ? L"Default One" : L"Default Zero";
-			D3D_SET_OBJECT_NAME_W(*ppSRV, objName);
+			D3D_SET_OBJECT_NAME(*ppSRV, objName);
 		}
 		
 		texture->Release(); // 텍스처는 사용 후 해제
@@ -158,7 +158,7 @@ void TextureManager::CreateDefaultCubeTexture(const float(&pixel)[4], ID3D11Shad
 
 		if (texture)
 		{
-			D3D_SET_OBJECT_NAME_W(texture, L"TextureManager");
+			D3D_SET_OBJECT_NAME(texture, L"TextureManager");
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 			srvDesc.Format = textureDesc.Format;
@@ -168,7 +168,7 @@ void TextureManager::CreateDefaultCubeTexture(const float(&pixel)[4], ID3D11Shad
 			Utility::CheckHRESULT(device->CreateShaderResourceView(texture, &srvDesc, ppSRV));
 
 			const wchar_t* objName = pixel[0] > Mathf::Epsilon ? L"Default Cube One" : L"Default Cube Zero";
-			D3D_SET_OBJECT_NAME_W(*ppSRV, objName);
+			D3D_SET_OBJECT_NAME(*ppSRV, objName);
 		}
 
 		texture->Release(); // 텍스처는 사용 후 해제
