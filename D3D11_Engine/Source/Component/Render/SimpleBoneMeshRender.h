@@ -25,7 +25,7 @@ public:
 	{
 		Vector4 position{ 0,0,0,1 };
 		Vector3 normal;
-		Vector3 biTangent;
+		Vector3 Tangent;
 		Vector2 Tex;
 		int BlendIndecses[4] = {0,};
 		float BlendWeights[4] = {0,};

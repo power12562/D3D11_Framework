@@ -8,6 +8,7 @@
 #include <queue>
 #include <set>
 #include <Utility/AssimpUtility.h>
+#include <Utility/utfConvert.h>
 
 extern class SceneManager& sceneManager;
 using ObjectList = const std::vector<GameObject*>;
@@ -110,7 +111,7 @@ inline void SceneManager::LoadScene()
 	static_assert(std::is_base_of_v<Scene, T>, "T is not Scene");
 
 	nextScene.reset(new T);
-
+	nextScene->sceneName = utfConvert::utf8_to_wstring(typeid(T).name());
 	for (auto& pair : resourceObjectList)
 	{
 		nextScene->SetResouceObj(pair.first.c_str(), pair.second);

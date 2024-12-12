@@ -152,11 +152,13 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\11_IBL\Source\IBLTestScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\TestApp.cpp" />
     <ClCompile Include="Source\TestMainScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\11_IBL\Source\IBLTestScene.h" />
     <ClInclude Include="Source\TestApp.h" />
     <ClInclude Include="Source\TestMainScene.h" />
   </ItemGroup>

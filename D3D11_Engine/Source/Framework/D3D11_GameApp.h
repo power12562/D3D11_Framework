@@ -8,6 +8,9 @@
 class D3D11_GameApp : public WinGameApp
 {
 public:
+	static void GameEnd();
+
+public:
 	D3D11_GameApp();
 	virtual ~D3D11_GameApp() override;
 

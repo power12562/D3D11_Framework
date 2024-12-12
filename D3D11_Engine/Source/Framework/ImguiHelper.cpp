@@ -40,6 +40,14 @@ void ImGui::ResetGlobalID()
 	g_id = 0;
 }
 
+void ImGui::Button(const char* label, bool* v, const ImVec2& size)
+{
+	if (ImGui::Button(label, size))
+	{
+		*v = !(*v);
+	}
+}
+
 void ImGui::DragVector2(const char* label, const Vector2* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
 	ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);

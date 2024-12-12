@@ -1,18 +1,7 @@
 #include "TestMainScene.h"
-#include <Framework/SceneManager.h>
-#include <GameObject/Base/CameraObject.h>
-#include <Component/Camera/CameraMoveHelper.h>
-#include <Utility/AssimpUtility.h>
-#include <Material/BlingPhongMaterial.h>
-#include <Component/TransformAnimation.h>
-#include <Framework/ImguiHelper.h>
-#include <Framework/TimeSystem.h>
-#include <Light/SimpleDirectionalLight.h>
-#include <Component/Render/MeshRender.h>
-#include <Framework/ResourceManager.h>
-#include <Utility/utfConvert.h>
+#include <framework.h>
 
-#include <GameObject/Mesh/PBRMeshObject.h>
+#include "../../11_IBL/Source/IBLTestScene.h"
 
 TestMainScene::TestMainScene()
 {
@@ -25,30 +14,6 @@ TestMainScene::TestMainScene()
     d3dRenderer.backgroundColor = { 1.f,1.f,1.f,1.f };
 
     material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
-
-    mainCam = NewGameObject<CameraObject>(L"Camera");
-    camera = &mainCam->GetComponent<Camera>();
-    camera->SetMainCamera();
-    mainCam->transform.position = Vector3(0.f, 15.f, -23.f);
-    mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
-    mainCam->AddComponent<CameraMoveHelper>();
-    pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
-
-    auto dancing = NewGameObject(L"HipHopDancing");
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *dancing, false, SURFACE_TYPE::BlingPhong);
-    dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
-    dancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
-
-    auto chara = NewGameObject(L"char");
-    auto initMeshChar = [this](MeshRender* mesh)
-        {
-            PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
-            charObjectList[pbrObj->GetNameToString()] = pbrObj;
-        };
-
-    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, initMeshChar, false, SURFACE_TYPE::PBR);
-    chara->transform.position = Vector3(10.0f, 0.f, 0.f);
-    chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 }
 
 TestMainScene::~TestMainScene()
@@ -119,5 +84,47 @@ void TestMainScene::ImGUIRender()
             id++;
         }
         ImGui::End();
+    }
+}
+
+void TestMainScene::Start()
+{
+    mainCam = NewGameObject<CameraObject>(L"Camera");
+    camera = &mainCam->GetComponent<Camera>();
+    camera->SetMainCamera();
+    mainCam->transform.position = Vector3(0.f, 15.f, -23.f);
+    mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
+    mainCam->AddComponent<CameraMoveHelper>();
+    pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
+
+    auto dancing = NewGameObject(L"HipHopDancing");
+    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *dancing, false, SURFACE_TYPE::BlingPhong);
+    dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
+    dancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+
+    auto chara = NewGameObject(L"char");
+    auto initMeshChar = [this](MeshRender* mesh)
+        {
+            PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
+            charObjectList[pbrObj->GetNameToString()] = pbrObj;
+        };
+
+    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, initMeshChar, false, SURFACE_TYPE::PBR);
+    chara->transform.position = Vector3(10.0f, 0.f, 0.f);
+    chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+}
+
+
+void TestMainScene::OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker, const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker)
+{
+    using namespace DirectX;
+    if (KeyState.IsKeyDown(Keyboard::F1))
+    {
+        sceneManager.LoadScene<IBLTestScene>();
+    }
+
+    if (KeyState.IsKeyDown(Keyboard::Escape))
+    {
+        D3D11_GameApp::GameEnd();
     }
 }

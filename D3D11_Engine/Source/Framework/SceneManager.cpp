@@ -216,6 +216,7 @@ void SceneManager::NextSccene()
 		}
 		currScene.reset();
 		currScene = std::move(nextScene);
+		currScene->Start();
 		if (Camera::GetMainCamera() == nullptr)
 		{
 			auto mainCamera = std::make_shared<CameraObject>();
@@ -229,7 +230,7 @@ void SceneManager::NextSccene()
 
 void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject> obj)
 {
-	int id = obj->GetInstanceID();
+	unsigned int id = obj->GetInstanceID();
 	currScene->objectFindMap[obj->Name].insert(id);
 	if (id >= currScene->objectList.size())
 	{
@@ -240,7 +241,7 @@ void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject> obj)
 
 void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject> obj)
 {
-	int id = obj->GetInstanceID();
+	unsigned int id = obj->GetInstanceID();
 	nextScene->objectFindMap[obj->Name].insert(id);
 	if (id >= nextScene->objectList.size())
 	{

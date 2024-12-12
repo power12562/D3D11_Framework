@@ -59,6 +59,13 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	return 0;
 }
 
+void D3D11_GameApp::GameEnd()
+{
+	WinGameApp::GameEnd();
+
+	sceneManager.currScene.reset(); //??
+}
+
 D3D11_GameApp::D3D11_GameApp()
 {
 	this->customWndProc = ImGUIWndProcDefault;

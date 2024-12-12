@@ -5,7 +5,14 @@ IBLTestScene::IBLTestScene()
 {
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = { 0.3f, 0.3f, 0.3f, 1.f };
+}
 
+IBLTestScene::~IBLTestScene()
+{
+}
+
+void IBLTestScene::Start()
+{
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
 	mainCam->transform.position += Vector3(0.f, 0.f, -20.f);
 	mainCam->SetMainCamera();
@@ -20,17 +27,17 @@ IBLTestScene::IBLTestScene()
 
 	pistol = NewGameObject(L"pistol");
 	auto initMesh = [this](MeshRender* mesh)
-	{
+		{
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			obj.Material.UseRMACMap = true;
 			pistolMaterials[obj.GetNameToString()] = &obj.Material;
 			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
-	};
+		};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);
 	pistol->transform.position = Vector3(-20.f, 0.f, 0.f);
 	pistol->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	pistol->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
-	
+
 	Sphere = NewGameObject<SphereObject>(L"Sphere");
 	{
 		sphereMaterial = &Sphere->Material;
@@ -40,17 +47,16 @@ IBLTestScene::IBLTestScene()
 		Sphere->sphereMeshRender.CreateSphere(5.0f, 100, 100);;
 	}
 
-	auto cha = NewGameObject(L"ch");
-	Utility::LoadFBX(L"Resource/char/char.fbx", *cha, false, SURFACE_TYPE::PBR);
+	cha = NewGameObject(L"ch");
+	auto charInit = [this](MeshRender* mesh)
+		{
+			PBRMeshObject* obj = static_cast<PBRMeshObject*>(&mesh->gameObject);
+			charMaterials[obj->GetNameToString()] = obj;
+		};
+	Utility::LoadFBX(L"Resource/char/char.fbx", *cha, charInit, false, SURFACE_TYPE::PBR);
 	cha->transform.position = Vector3(20.f, 0.f, 0.f);
 	cha->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	cha->transform.rotation = Vector3::Up * 23.f;
-
-
-}
-
-IBLTestScene::~IBLTestScene()
-{
 }
 
 void IBLTestScene::ImGUIRender()
@@ -60,6 +66,7 @@ void IBLTestScene::ImGUIRender()
 
 	static bool ShowSphereEdit = false;
 	static bool ShowPistolEdit = false;
+	static bool ShowCharEdit = false;
 	Begin("Debug");
 	{
 		if (ImGui::Button("Recompile Shader"))
@@ -68,10 +75,9 @@ void IBLTestScene::ImGUIRender()
 		}
 
 		ImGui::Checkbox("Use Sky Box", &skyBox->Active);
-		if (ImGui::Button("Show Sphere Edit"))
-			ShowSphereEdit = !ShowSphereEdit;
-		if (ImGui::Button("Show Pistol Edit"))
-			ShowPistolEdit = !ShowPistolEdit;
+		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
+		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
+		ImGui::Button("Show Char Edit", &ShowCharEdit);
 		Text("");
 		EditCamera("Main Camera", pCamera, pCameraMoveHelper);	
 
@@ -103,7 +109,24 @@ void IBLTestScene::ImGUIRender()
 			EditTransform(pistol);
 			for (auto& [key, Material] : pistolMaterials)
 			{
-				EditMaterial(key.c_str(), Material);
+				EditMaterial (key.c_str(), Material);
+			}
+		}
+		End();
+	}
+
+	if (ShowCharEdit)
+	{
+		Begin("Char Edit", &ShowCharEdit);
+		{
+			Text("Transform");
+			EditTransform(cha);
+			Text("");
+
+			for (auto& [key, obj] : charMaterials)
+			{
+				Checkbox(key.c_str(), &obj->Active);
+				EditMaterial(key.c_str(), &obj->Material);
 			}
 		}
 		End();

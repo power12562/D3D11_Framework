@@ -192,13 +192,13 @@ void D3DRenderer::Uninit()
     textureManager.ReleaseDefaultTexture();
 
 #ifdef _DEBUG
-    //ID3D11Debug* debug = nullptr;
-    //pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
-    //if (debug)
-    //{
-    //    debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
-    //    debug->Release();
-    //}
+    ID3D11Debug* debug = nullptr;
+    pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
+    if (debug)
+    {
+        debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
+        debug->Release();
+    }
 #endif // _DEBUG
     ULONG refcount = SafeRelease(pDevice);
     if (refcount != 0)

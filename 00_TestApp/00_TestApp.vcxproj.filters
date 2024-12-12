@@ -10,12 +10,18 @@
     <ClCompile Include="Source\TestMainScene.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\11_IBL\Source\IBLTestScene.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\TestApp.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\TestMainScene.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\11_IBL\Source\IBLTestScene.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

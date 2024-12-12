@@ -33,5 +33,6 @@ private:
 	Transform startTransform;
 
 	Vector3 inputVector{};
-	Quaternion angle{}; 
+	float yawRotation = 0;
+	float pitchRotation = 0;
 };

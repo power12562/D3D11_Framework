@@ -618,10 +618,10 @@ void Utility::LoadFBX(const wchar_t* path,
 							vertex.normal.y = normal.y;
 							vertex.normal.z = normal.z;
 
-							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
-							vertex.biTangent.x = BiTangents.x;
-							vertex.biTangent.y = BiTangents.y;
-							vertex.biTangent.z = BiTangents.z;
+							aiVector3D Tangents = pMesh->mTangents[vertexIndex];
+							vertex.Tangent.x = Tangents.x;
+							vertex.Tangent.y = Tangents.y;
+							vertex.Tangent.z = Tangents.z;
 
 							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
 							vertex.Tex.x = texCoord.x;
@@ -691,10 +691,10 @@ void Utility::LoadFBX(const wchar_t* path,
 							vertex.normal.y = normal.y;
 							vertex.normal.z = normal.z;
 
-							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
-							vertex.biTangent.x = BiTangents.x;
-							vertex.biTangent.y = BiTangents.y;
-							vertex.biTangent.z = BiTangents.z;
+							aiVector3D Tangents = pMesh->mTangents[vertexIndex];
+							vertex.Tangent.x = Tangents.x;
+							vertex.Tangent.y = Tangents.y;
+							vertex.Tangent.z = Tangents.z;
 
 							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
 							vertex.Tex.x = texCoord.x;
@@ -920,9 +920,9 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 							vertex.normal.z = normal.z;
 
 							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
-							vertex.biTangent.x = BiTangents.x;
-							vertex.biTangent.y = BiTangents.y;
-							vertex.biTangent.z = BiTangents.z;
+							vertex.Tangent.x = BiTangents.x;
+							vertex.Tangent.y = BiTangents.y;
+							vertex.Tangent.z = BiTangents.z;
 
 							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
 							vertex.Tex.x = texCoord.x;
@@ -991,9 +991,9 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 							vertex.normal.z = normal.z;
 
 							aiVector3D BiTangents = pMesh->mBitangents[vertexIndex];
-							vertex.biTangent.x = BiTangents.x;
-							vertex.biTangent.y = BiTangents.y;
-							vertex.biTangent.z = BiTangents.z;
+							vertex.Tangent.x = BiTangents.x;
+							vertex.Tangent.y = BiTangents.y;
+							vertex.Tangent.z = BiTangents.z;
 
 							aiVector3D texCoord = pMesh->mTextureCoords[0][vertexIndex];
 							vertex.Tex.x = texCoord.x;

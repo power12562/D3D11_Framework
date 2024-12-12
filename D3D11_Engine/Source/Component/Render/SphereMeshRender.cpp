@@ -32,15 +32,13 @@ void SphereMeshRender::CreateSphere(float radius, UINT stackCount, UINT sliceCou
             float u = static_cast<float>(slice) / sliceCount;
             float v = static_cast<float>(stack) / stackCount;
 
-            // BiTangent 계산
+            // Tangent 계산
             Vector3 tangent = {-std::sin(theta), 0, std::cos(theta)};
-            tangent.Normalize();
-            Vector3 biTangent = normal.Cross(tangent);
 
             vertices.emplace_back(
                 Vector4{x, y, z, 1.0f}, // Position
                 normal,                 // Normal
-                biTangent,              // BiTangent
+                tangent,              // Tangent
                 Vector2{u, v}           // TexCoord
                 );
         }

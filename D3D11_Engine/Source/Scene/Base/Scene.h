@@ -14,8 +14,9 @@ class Scene
 	using InstanceID = unsigned int;
 public:
 	Scene();
-	virtual ~Scene();
+	virtual void Start() {}
 
+	virtual ~Scene();
 protected:
 	virtual void ImGUIRender() {}
 
@@ -33,6 +34,12 @@ protected:
 	void RemoveResouceObj(const wchar_t* key);
 	/*씬 리소스를 전부 정리합니다.*/
 	void ClearResouceObj();
+public:
+	const wchar_t* GetSceneName() { return sceneName.c_str(); }
+
+private:
+	std::wstring sceneName;
+
 private:
 	std::unordered_map<std::wstring, std::list<std::shared_ptr<GameObject>>> sceneResourceList;
 
