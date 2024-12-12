@@ -8,6 +8,7 @@ class GameObject;
 class CameraMoveHelper;
 class Camera;
 struct cb_PBRMaterial;
+struct PBRDirectionalLight;
 struct cb_PBRDirectionalLight;
 namespace ImGui
 {
@@ -32,5 +33,5 @@ namespace ImGui
 
 	void EditMaterial(const char* label, cb_PBRMaterial* Material);
 
-	void EditLight(const char* label, cb_PBRDirectionalLight* Light);
+	void EditLight(cb_PBRDirectionalLight* Light);
 };

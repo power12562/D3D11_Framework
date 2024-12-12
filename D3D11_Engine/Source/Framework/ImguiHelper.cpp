@@ -142,14 +142,27 @@ void ImGui::EditMaterial(const char* label, cb_PBRMaterial* Material)
 	g_id++;
 }
 
-void ImGui::EditLight(const char* label, cb_PBRDirectionalLight* Light)
+void ImGui::EditLight(cb_PBRDirectionalLight* Light)
 {
-	ImGui::Text(label);
-	ImGui::PushID(g_id);
-	ImGui::ColorEdit4("Color", &Light->LightColor);
-	ImGui::DragVector3("Dir", &Light->LightDir, 0.1f, -1.f, 1.f);
-	ImGui::DragFloat("Intensity", &Light->LightIntensity, 1.f, 0.0000001f, 100.f);
-	ImGui::Text("");
-	ImGui::PopID();
-	g_id++;
+	constexpr char label[cb_PBRDirectionalLight::MAX_LIGHT_COUNT][20] = {
+		{"Directional Light 1"},
+		{"Directional Light 2"},
+		{"Directional Light 3"},
+		{"Directional Light 4"} };
+	if (Button("Add Directional Light"))
+		Light->PushLight();
+	if (Button("Sub Directional Light"))
+		Light->PopLight();
+
+	for (int i = 0; i < Light->LightsCount; i++)
+	{
+		ImGui::Text(label[i]);
+		ImGui::PushID(g_id);
+		ImGui::ColorEdit4("Color", &Light->Lights[i].LightColor);
+		ImGui::DragVector3("Dir", &Light->Lights[i].LightDir, 0.01f, -1.f, 1.f);
+		ImGui::DragFloat("Intensity", &Light->Lights[i].LightIntensity, 1.f, 0.0000001f, 100.f);
+		ImGui::Text("");
+		ImGui::PopID();
+		g_id++;
+	}
 }

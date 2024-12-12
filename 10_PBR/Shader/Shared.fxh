@@ -1,7 +1,7 @@
 static const float PI = 3.141592654;
 static const float3 Fdielectric = 0.04f;
 static const float Epsilon = 1e-6;
-static const float MinRoughness = 0.01f;
+static const float MinRoughness = 0.04f;
 
 inline float GammaToLinearSpaceExact(float value)
 {

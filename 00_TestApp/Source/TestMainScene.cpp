@@ -43,7 +43,6 @@ TestMainScene::TestMainScene()
     auto initMeshChar = [this](MeshRender* mesh)
         {
             PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
-            pbrObj->Material.Albedo = mesh->baseColor;
             charObjectList[pbrObj->GetNameToString()] = pbrObj;
         };
 
@@ -73,11 +72,14 @@ void TestMainScene::ImGUIRender()
             showCharEdit = !showCharEdit;
 
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
-        PBRDirectionalLight::cb_light.LightDir = SimpleDirectionalLight::cb_light.LightDir;
-
-        ImGui::ColorEdit4("PBR Ambient", &PBRDirectionalLight::cb_light.LightAmbient);
 
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
+    }
+    ImGui::End();
+
+    ImGui::Begin("Lights");
+    {
+        ImGui::EditLight(&DirectionalLight::DirectionalLights);
     }
     ImGui::End();
 

@@ -21,7 +21,7 @@ void PBRMeshRender::Start()
     if (meshObj)
     {
         int index = constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
-        constBuffer.BindUpdateEvent(PBRDirectionalLight::cb_light);
+        constBuffer.BindUpdateEvent(DirectionalLight::DirectionalLights);
 
         index = constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
         constBuffer.BindUpdateEvent(meshObj->Material);

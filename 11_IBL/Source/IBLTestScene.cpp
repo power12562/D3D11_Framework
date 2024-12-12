@@ -56,7 +56,7 @@ IBLTestScene::~IBLTestScene()
 void IBLTestScene::ImGUIRender()
 {
 	using namespace ImGui;
-	using namespace PBRDirectionalLight;
+	using namespace DirectionalLight;
 
 	static bool ShowSphereEdit = false;
 	static bool ShowPistolEdit = false;
@@ -74,9 +74,15 @@ void IBLTestScene::ImGUIRender()
 			ShowPistolEdit = !ShowPistolEdit;
 		Text("");
 		EditCamera("Main Camera", pCamera, pCameraMoveHelper);	
-		ImGui::EditLight("Directional Light", &PBRDirectionalLight::cb_light);
+
 		ImGui::ColorEdit3("BackGround Color", &d3dRenderer.backgroundColor);
 		ImGui::Text("");
+	}
+	End();
+
+	Begin("Lights");
+	{
+		ImGui::EditLight(&DirectionalLight::DirectionalLights);
 	}
 	End();
 

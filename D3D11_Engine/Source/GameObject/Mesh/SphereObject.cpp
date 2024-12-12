@@ -5,7 +5,7 @@ SphereObject::SphereObject() :
 	sphereMeshRender(AddComponent<SphereMeshRender>())
 {
 	sphereMeshRender.constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
-	sphereMeshRender.constBuffer.BindUpdateEvent(PBRDirectionalLight::cb_light);
+	sphereMeshRender.constBuffer.BindUpdateEvent(DirectionalLight::DirectionalLights);
 
 	sphereMeshRender.constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
 	sphereMeshRender.constBuffer.BindUpdateEvent(Material);

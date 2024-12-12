@@ -16,11 +16,17 @@ TextureCube Diffuse_IBL_Texture : register(t9);
 TextureCube Specular_IBL_Texture : register(t10);
 Texture2D BRDF_LUT : register(t11);
 
+static const int MAX_LIGHT_COUNT = 4;
 cbuffer cb_Light : register(b2)
 {
-    float4 LightColor;
-    float3 LightDir;
-    float  LightIntensity; 
+    struct
+    {
+        float4 LightColor;
+        float3 LightDir;
+        float LightIntensity;
+    }
+    Lights[MAX_LIGHT_COUNT];
+    int LightsCount;
 }
 
 cbuffer cb_PBRMaterial : register(b3)
@@ -60,15 +66,6 @@ float4 main(PS_INPUT input) : SV_Target
     else
         N = input.Normal;
     
-    float3 L = normalize(-LightDir.xyz); // 광원 방향
-    float3 V = normalize(MainCamPos - input.World); // 뷰 방향
-    float3 H = normalize(L + V); // Half Vector
-
-    float NoL = max(0.0, dot(N, L)); // N·L 계산
-    float NoV = max(0.0, dot(N, V)); // N·V 계산
-    float NoH = max(0.0, dot(N, H)); // N·H 계산
-    float HoV = max(0.0, dot(L, H)); // H·V 계산
-    
     // 재질 특성
     float metalness = Metalness;
     float roughness = Roughness;
@@ -86,38 +83,51 @@ float4 main(PS_INPUT input) : SV_Target
     
     if (UseAmbientOcculusionMap)
         ambientOcculusion = ambientSample;
-   else if(UseRMACMap)
+    else if (UseRMACMap)
         ambientOcculusion = RMACSample.b;
     
     float3 albedo = albedoSample.rgb * baseColor.rgb;
-
-    //F0 구하기
-    float3 F0 = lerp(Fdielectric, albedo, metalness);
+          
+    float3 F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
     
-    // 프레널 반사
-    float3 F = FresnelReflection(F0, HoV);
+    float3 V = normalize(MainCamPos - input.World); // 뷰 방향  
+    float NoV = max(0.0, dot(N, V)); // N·V 계산
+    
+    float3 finalColor;   
+    for (int i = 0; i < LightsCount; i++)
+    {
+        float3 L = normalize(-Lights[i].LightDir.xyz); // 광원 방향
+        float3 H = normalize(L + V);     // Half Vector
+        float NoL = max(0.0, dot(N, L)); // N·L 계산
+        float HoV = max(0.0, dot(L, H)); // H·V 계산
+        float NoH = max(0.0, dot(N, H)); // N·H 계산
+            
+        // 프레널 반사
+        float3 F = FresnelReflection(F0, HoV);
 
-    // 법선 분포 함수
-    float D = NormalDistribution(roughness, NoH);
+        // 법선 분포 함수
+        float D = NormalDistribution(roughness, NoH);
 
-    // 폐쇄성 감쇠
-    float G = GeometricAttenuation(NoV, NoL, roughness);
+        // 폐쇄성 감쇠
+        float G = GeometricAttenuation(NoV, NoL, roughness);
 
-    // Specular 반사
-    float3 specular = SpecularBRDF(D, F, G, NoL, NoV);
+        // Specular 반사
+        float3 specular = SpecularBRDF(D, F, G, NoL, NoV);
 
-    // Diffuse 반사
-    float3 diffuse = DiffuseBRDF(albedo, F, NoL, metalness);
+        // Diffuse 반사
+        float3 diffuse = DiffuseBRDF(albedo, F, NoL, metalness);
 
-    // 조명 계산
-    float3 radiance = LightColor.rgb * LightIntensity;
-    float3 directLighting = (diffuse + specular) * radiance * NoL;
-
+        // 조명 계산
+        float3 radiance = Lights[i].LightColor.rgb * Lights[i].LightIntensity;
+        float3 directLighting = (diffuse + specular) * radiance * NoL;
+        finalColor += directLighting;
+    }
+   
     // 표면이 받는 반구의 여러 방향에서 오는 광량을 샘플링한다. Lambertian BRDF를 가정하여 포함되어 있다.
     float3 irradiance = Diffuse_IBL_Texture.Sample(defaultSampler, N).rgb;
  
     // 빛 방향은 특정 할 수 없으므로 cosLo = dot(Normal,View)을 사용한다.
-    F = FresnelReflection(F0, NoV);
+    float3 F = FresnelReflection(F0, NoV);
     
     // 금속일수록 표면 산란을 제거하며 비금속일수록 표면 산란이 그대로 표현된다. 
     float3 kd = lerp(1.0 - F, 0.0, metalness);
@@ -141,9 +151,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 specularIBL = SpecularIBL(F0, specularBRDF, PrefilteredColor);
 
     //조명 계산
-    float3 ambientLighting = (diffuseIBL + specularIBL) * ambientOcculusion;
-    
-    float3 finalColor = ambientLighting + directLighting + emissiveSample.rgb;
+    float3 ambientLighting = (diffuseIBL + specularIBL) * ambientOcculusion;  
+    finalColor += ambientLighting + emissiveSample.rgb;
     
     finalColor = LinearToGammaSpaceExact(finalColor);
     return float4(finalColor, opacitySample);

@@ -30,7 +30,7 @@ PBRTestScene::PBRTestScene()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0.3f, 0.3f, 0.3f, 1);
 
-	PBRDirectionalLight::cb_light.LightDir = { 0.f,0.f,1.f,0.f };
+	DirectionalLight::DirectionalLights.Lights[0].LightDir = {0.f,0.f,1.f,0.f};
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -96,7 +96,7 @@ PBRTestScene::~PBRTestScene()
 
 void PBRTestScene::ImGUIRender()
 {
-	using namespace PBRDirectionalLight;
+	using namespace DirectionalLight;
 
 	Camera* mainCam = Camera::GetMainCamera();
 	static bool showCerberusEditBox = false;
@@ -125,11 +125,15 @@ void PBRTestScene::ImGUIRender()
 		ImGui::Checkbox("Use Roughness Map", &testBool.useRoughness);
 		ImGui::Text("");
 
-		ImGui::EditLight("Directional Light", &PBRDirectionalLight::cb_light);
-
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 		ImGui::Text("");
+	}
+	ImGui::End();
+
+	ImGui::Begin("Lights");
+	{
+		ImGui::EditLight(&DirectionalLight::DirectionalLights);
 	}
 	ImGui::End();
 
