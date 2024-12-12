@@ -6,6 +6,14 @@ class SkyBoxRender : public MeshRender
 	inline static SkyBoxRender* mainSkyBox = nullptr;
 public:
 	static SkyBoxRender* GetMainSkyBox();
+	enum TEXTURE_TYPE
+	{
+		ENV,
+		Diffuse_IBL,
+		Specular_IBL,
+		BRDF_LUT,
+		Count,
+	};
 
 public:
 	SkyBoxRender() = default;
@@ -19,15 +27,13 @@ protected:
 	virtual void Render() override;
 
 public:
-	void SetSkyBox(const wchar_t* path);
-	void ResetSkyBox();
+	void SetSkyBox(TEXTURE_TYPE type, const wchar_t* path);
+	void ResetSkyBox(TEXTURE_TYPE type);
 
 private:
 	virtual void CreateMesh() override;
 
 private:
-	std::wstring currPath;
-
 	std::vector<Vector4> vertices;
 	std::vector<UINT> indices;
 };

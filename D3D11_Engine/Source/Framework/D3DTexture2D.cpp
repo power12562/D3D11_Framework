@@ -4,7 +4,7 @@
 
 D3DTexture2D::D3DTexture2D()
 {
-	resize(E_TEXTURE::Null);
+	resize(E_TEXTURE::PBRTextureCount);
 	SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
@@ -31,7 +31,7 @@ void D3DTexture2D::resize(size_t newsize)
 	{
 		if (newsize < SRVList.size())
 		{
-			for (int i = newsize; i < (int)SRVList.size(); i++)
+			for (int i = (int)newsize; i < (int)SRVList.size(); i++)
 			{
 				ResetTexture2D(i);
 			}

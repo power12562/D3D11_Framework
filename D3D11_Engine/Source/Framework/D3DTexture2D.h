@@ -4,8 +4,6 @@
 
 namespace E_TEXTURE
 {
-	constexpr int BlingPhongTextureCount = 5;
-
 	//Texture2D albedoTexture : register(t0);
 	//Texture2D normalTexture : register(t1);
 	//Texture2D specularMap : register(t2);
@@ -16,8 +14,13 @@ namespace E_TEXTURE
 	//Texture2D RMACTexture : register(t7);
 	//Texture2D ambientOcculusionTexture : register(t8);
 
-	enum TEXTURE_INDEX
+	//TextureCube Diffuse_IBL_Texture : register(t9);
+	//TextureCube Specular_IBL_Texture : register(t10);
+	//Texture2D BRDF_LUT : register(t11);
+
+	enum TYPE
 	{
+		//TEXTURE 동적형.
 		Albedo,
 		Normal,
 		Specular,
@@ -27,8 +30,16 @@ namespace E_TEXTURE
 		Roughness,
 		RMACTexture,
 		AmbientOcculusion,
-		Null
+		
+		//SkyBox 고정형.
+		Diffuse_IBL,
+		Specular_IBL,
+		BRDF_LUT,
+		Null,
 	};
+
+	constexpr int BlingPhongTextureCount = Opacity + 1;
+	constexpr int PBRTextureCount = AmbientOcculusion + 1;
 }
 
 namespace E_TEXTURE_DEFAULT

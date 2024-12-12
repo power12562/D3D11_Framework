@@ -297,8 +297,25 @@ void D3DRenderer::BegineDraw()
     {      
         pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
         RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
-        Draw(desc); //그리기 바로 실행
+        Draw(desc); //SkyBox draw
         pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0); //기본 깊이 스텐실 상태 적용.
+
+        constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
+        //SetIBLTexture
+        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::Null; ++i)
+        {        
+            ID3D11ShaderResourceView* srv = mainSkybox->textures[i - index2SkyBox];
+            if(srv)
+                pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        }
+    }
+    else
+    {
+        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::Null; ++i)
+        {
+            ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
+            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        }
     }
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
 
@@ -359,11 +376,14 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         isDefaultRRState = true;
     }
 
-    Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
+    
     if (prevTransform != drawDesc.pTransform)
     {
-        cbuffer::transform.World = XMMatrixTranspose(drawDesc.pTransform->GetWM());
-        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, drawDesc.pTransform->GetWM());
+        Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
+        const Matrix& WM = drawDesc.pTransform->GetWM();
+
+        cbuffer::transform.World = XMMatrixTranspose(WM);
+        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, WM);
         cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * VP);
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
@@ -375,13 +395,13 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
     for (int i = 0; i < drawDesc.pSamperState->size(); i++)
     {
         ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
-        pDeviceContext->VSSetSamplers(i, 1, &sampler);
+        //pDeviceContext->VSSetSamplers(i, 1, &sampler);
         pDeviceContext->PSSetSamplers(i, 1, &sampler);
     }
     for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
     {
         ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
-        pDeviceContext->VSSetShaderResources(i, 1, &srv);
+        //pDeviceContext->VSSetShaderResources(i, 1, &srv);
         pDeviceContext->PSSetShaderResources(i, 1, &srv);
     }
  

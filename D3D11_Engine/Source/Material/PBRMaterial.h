@@ -5,7 +5,7 @@
 
 struct alignas(16) cb_PBRMaterial
 {
-    DirectX::SimpleMath::Color baseColor{1,1,1,1};
+    DirectX::SimpleMath::Color Albedo{1,1,1,1};
     float Metalness{};
     float Roughness{};
 

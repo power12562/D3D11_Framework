@@ -4,7 +4,7 @@ SkyBoxRender* SkyBoxRender::GetMainSkyBox()
 {
 	if (mainSkyBox && mainSkyBox->Enable && mainSkyBox->gameObject.Active)
 	{
-        return mainSkyBox->currPath.empty() ? nullptr : mainSkyBox;
+        return mainSkyBox->textures[TEXTURE_TYPE::ENV] ? mainSkyBox : nullptr;
 	}
     return nullptr;
 }
@@ -63,7 +63,7 @@ void SkyBoxRender::Start()
     meshResource = std::make_shared<DRAW_INDEX_DATA>();
     CreateMesh();
 
-    textures.resize(1); //큐브맵용 하나만 씀
+    textures.resize(TEXTURE_TYPE::Count);
 
     //SkyBox용 샘플러
     D3D11_SAMPLER_DESC samplerDesc = {};
@@ -78,11 +78,10 @@ void SkyBoxRender::Start()
     samplerDesc.BorderColor[3] = 1.0f;
     samplerDesc.MipLODBias = 0.0f;                         // Mipmap LOD 바이어스
     samplerDesc.MaxAnisotropy = 1;                         // 비선형 샘플링을 사용하지 않음
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;                // Mipmap의 최대 LOD
     samplerDesc.MinLOD = 0.0f;                             // 최소 LOD는 0
-    samplerState.resize(1);
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;                // Mipmap의 최대 LOD
+    samplerState.resize(TEXTURE_TYPE::Count);
     samplerState.SetSamplerState(0, samplerDesc);
-
     {
         using namespace std::string_literals;
         std::wstring vertexPath(EngineShaderPath + L"SkyBoxVS.hlsl"s);
@@ -108,18 +107,25 @@ void SkyBoxRender::LateUpdate()
 
 void SkyBoxRender::Render()
 {
-    //d3dRenderer가 직접 수집해서 그린다.
+    //d3dRenderer가 GetMainSkyBox()로 직접 수집해서 그린다.
 }
 
-void SkyBoxRender::SetSkyBox(const wchar_t* path)
+void SkyBoxRender::SetSkyBox(TEXTURE_TYPE type, const wchar_t* path)
 {
-    textures.SetCubeMapTexture(0, path);
-    currPath = path;
+    switch (type)
+    {
+    case SkyBoxRender::BRDF_LUT:
+        textures.SetTexture2D(type, path);
+        break;
+    default:
+        textures.SetCubeMapTexture(type, path);
+        break;
+    }
 }
 
-void SkyBoxRender::ResetSkyBox()
+void SkyBoxRender::ResetSkyBox(TEXTURE_TYPE type)
 {
-    currPath.clear();
+    textures.ResetTexture2D(type);
 }
 
 void SkyBoxRender::CreateMesh()

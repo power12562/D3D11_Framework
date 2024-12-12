@@ -7,6 +7,7 @@
 class GameObject;
 class CameraMoveHelper;
 class Camera;
+struct cb_PBRMaterial;
 namespace ImGui
 {
 	void ClearTempMap();
@@ -27,4 +28,5 @@ namespace ImGui
 
 	void EditTransform(GameObject* gameObject);
 	void EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCameraMoveHelper = nullptr);
+	void EditMaterial(const char* label, cb_PBRMaterial* Material);
 };

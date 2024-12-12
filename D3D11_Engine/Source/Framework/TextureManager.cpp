@@ -1,5 +1,6 @@
 #include "TextureManager.h"
 #include <Framework\D3DRenderer.h>
+#include <Math/Mathf.h>
 
 TextureManager& textureManager = TextureManager::GetInstance();
 
@@ -111,9 +112,15 @@ void TextureManager::CreateDefaultTexture(const float(&pixel)[4], ID3D11ShaderRe
 		ID3D11Texture2D* texture = nullptr;
 		Utility::CheckHRESULT(device->CreateTexture2D(&textureDesc, &initData, &texture));
 
-		if(texture)
+		if (texture)
+		{	
+			D3D_SET_OBJECT_NAME_W(texture, L"TextureManager");
 			Utility::CheckHRESULT(device->CreateShaderResourceView(texture, nullptr, ppSRV));
 
+			const wchar_t* objName = pixel[0] > Mathf::Epsilon ? L"Default One" : L"Default Zero";
+			D3D_SET_OBJECT_NAME_W(*ppSRV, objName);
+		}
+		
 		texture->Release(); // 텍스처는 사용 후 해제
 	}
 }

@@ -5,6 +5,18 @@ void PBRMeshRender::Start()
 {
     SimpleMeshRender::Start();
 
+    //BRDF LookUp Table Sampler
+    samplerState.resize(2);
+    D3D11_SAMPLER_DESC LUTSamplerDesc = {};
+    LUTSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    LUTSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    LUTSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    LUTSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    LUTSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    LUTSamplerDesc.MinLOD = 0;
+    LUTSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    samplerState.SetSamplerState(1, LUTSamplerDesc);
+
     PBRMeshObject* meshObj = dynamic_cast<PBRMeshObject*>(&gameObject);
     if (meshObj)
     {

@@ -14,17 +14,16 @@ void SimpleMeshRender::Start()
 	using namespace Utility;
 
 	// Create the sample state
-	D3D11_SAMPLER_DESC sampDesc = {};
-	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
 	samplerState.resize(1);
-	samplerState.SetSamplerState(0, sampDesc);
+	D3D11_SAMPLER_DESC linerSampler = {};
+	linerSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	linerSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linerSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linerSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	linerSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	linerSampler.MinLOD = 0;
+	linerSampler.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerState.SetSamplerState(0, linerSampler);
 }
 
 void SimpleMeshRender::FixedUpdate()

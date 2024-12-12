@@ -71,10 +71,9 @@ inline float NormalDistribution(float roughness, float NoH)
     return squareA / (PI * var * var);
 }
 
-inline float3 FresnelReflection(float HoV, float3 baseColor, float metalness)
+inline float3 FresnelReflection(float3 F0, float cosTheta)
 {
-    float3 F0 = lerp(Fdielectric, baseColor, metalness);
-    return F0 + (1.0 - F0) * pow(1.0 - HoV, 5.0);
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 inline float GSchlickGGX(float NoX, float k)
@@ -95,6 +94,11 @@ inline float GeometricAttenuation(float NoV, float NoL, float roughness)
 inline float3 SpecularBRDF(float D, float3 F, float G, float NoL, float NoV)
 {
     return D * F * G / max(4.0f * NoL * NoV, 0.001f);
+}
+
+inline float3 SpecularIBL(float3 F0, float2 specularBRDF, float3 PrefilteredColor)
+{
+    return (F0 * specularBRDF.x + specularBRDF.y) * PrefilteredColor;
 }
 
 inline float3 DiffuseBRDF(float3 BaseColor, float3 F, float NoL, float Metalness)

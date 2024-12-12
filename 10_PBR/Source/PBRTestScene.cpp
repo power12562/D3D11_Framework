@@ -82,7 +82,7 @@ PBRTestScene::PBRTestScene()
 	Sphere->transform.position += Vector3::Up * 15.f;
 	{
 		sphereMaterial = &Sphere->Material;
-		sphereMaterial->baseColor = { 1.f, 1.f, 0.f, 1.f };
+		sphereMaterial->Albedo = { 1.f, 1.f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
 
@@ -148,7 +148,7 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material.baseColor);
+			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
 			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
 			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
 			ImGui::Text("");
@@ -166,7 +166,7 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material.baseColor);
+			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
 			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
 			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
 			ImGui::Text("");
@@ -179,7 +179,7 @@ void PBRTestScene::ImGUIRender()
 	{
 		ImGui::Begin("Sphere Material Editor", &showSphereEditBox);
 		ImGui::Text("Sphere");
-		ImGui::ColorEdit4("BaseColor", &sphereMaterial->baseColor);
+		ImGui::ColorEdit4("BaseColor", &sphereMaterial->Albedo);
 		ImGui::SliderFloat("Metalness", &sphereMaterial->Metalness, 0.f, 1.f);
 		ImGui::SliderFloat("Roughness", &sphereMaterial->Roughness, 0.f, 1.f);
 		ImGui::End();

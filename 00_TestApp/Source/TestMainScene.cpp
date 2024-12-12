@@ -43,7 +43,7 @@ TestMainScene::TestMainScene()
     auto initMeshChar = [this](MeshRender* mesh)
         {
             PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
-            pbrObj->Material.baseColor = mesh->baseColor;
+            pbrObj->Material.Albedo = mesh->baseColor;
             charObjectList[pbrObj->GetNameToString()] = pbrObj;
         };
 

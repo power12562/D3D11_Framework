@@ -1,9 +1,7 @@
 #include "ImguiHelper.h"
 #include "Math\Mathf.h"
 
-#include <GameObject/Base/GameObject.h>
-#include <Component/Camera/Camera.h>
-#include <Component/Camera/CameraMoveHelper.h>
+#include <framework.h>
 
 #include <unordered_map>
 #include <string>
@@ -120,6 +118,25 @@ void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCa
 		ImGui::DragFloat("Move Speed", &pCameraMoveHelper->moveSpeed, 1.f, 1.f, 1000.f);
 		ImGui::DragFloat("Rotation Speed", &pCameraMoveHelper->rotSpeed, 1.f, 1.f, 30.f);
 	}
+	ImGui::Text("");
+	ImGui::PopID();
+	g_id++;
+}
+
+void ImGui::EditMaterial(const char* label, cb_PBRMaterial* Material)
+{
+	ImGui::Text(label);
+	ImGui::PushID(g_id);
+
+	ImGui::ColorEdit4("Albedo", &Material->Albedo);
+	ImGui::SliderFloat("Metalness", &Material->Metalness, 0.f, 1.0f);
+	ImGui::SliderFloat("Roughness", &Material->Roughness, 0.f, 1.0f);
+
+	ImGui::Checkbox("Metalness Map", &Material->UseMetalnessMap);
+	ImGui::Checkbox("Roughness Map", &Material->UseRoughnessMap);
+	ImGui::Checkbox("Ambient Occulusion Map", &Material->UseAmbientOcculusionMap);
+	ImGui::Checkbox("RMAC Map", &Material->UseRMACMap);
+
 	ImGui::Text("");
 	ImGui::PopID();
 	g_id++;

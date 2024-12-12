@@ -75,7 +75,7 @@ namespace Utility
 			static_cast<BlingPhongMeshObject&>(obj).Material.MaterialDiffuse = baseColor;
 			return;
 		case SURFACE_TYPE::PBR:
-			static_cast<PBRMeshObject&>(obj).Material.baseColor = baseColor;
+			static_cast<PBRMeshObject&>(obj).Material.Albedo = baseColor;
 			return;
 		default:
 			return;
