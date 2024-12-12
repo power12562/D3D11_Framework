@@ -47,7 +47,8 @@ namespace E_TEXTURE_DEFAULT
 	enum DEFAULT_TEXTURE
 	{
 		ZERO,
-		ONE
+		ONE,
+		CUBE_ZERO,
 	};
 }
 

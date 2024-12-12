@@ -29,13 +29,15 @@ public:
 private:
 	ID3D11ShaderResourceView* GetOneTexture();
 	ID3D11ShaderResourceView* GetZeroTexture();
+	ID3D11ShaderResourceView* GetCubeZeroTexture();
 
 private:
 	std::unordered_map<std::wstring, ID3D11ShaderResourceView*> resourceMap;
 	std::unordered_map<std::wstring, ID3D11Texture2D*> cubeTextureMap; //cube map은 Texture 유지해야함
 
 	void CreateDefaultTexture(const float (&pixel)[4], ID3D11ShaderResourceView** ppSRV);
-
+	void CreateDefaultCubeTexture(const float (&pixel)[4], ID3D11ShaderResourceView** ppSRV);
 	ID3D11ShaderResourceView* oneTexture = nullptr;
 	ID3D11ShaderResourceView* zeroTexture = nullptr;
+	ID3D11ShaderResourceView* cubeZeroTexture = nullptr;
 };

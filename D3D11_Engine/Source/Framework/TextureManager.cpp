@@ -77,6 +77,8 @@ ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::D
 		return GetZeroTexture();
 	case E_TEXTURE_DEFAULT::ONE:
 		return GetOneTexture();
+	case E_TEXTURE_DEFAULT::CUBE_ZERO:
+		return GetCubeZeroTexture();
 	default:
 		return GetZeroTexture();
 	}
@@ -86,6 +88,7 @@ void TextureManager::ReleaseDefaultTexture()
 {
 	Utility::SafeRelease(oneTexture);
 	Utility::SafeRelease(zeroTexture);
+	Utility::SafeRelease(cubeZeroTexture);
 }
 
 void TextureManager::CreateDefaultTexture(const float(&pixel)[4], ID3D11ShaderResourceView** ppSRV)
@@ -125,6 +128,53 @@ void TextureManager::CreateDefaultTexture(const float(&pixel)[4], ID3D11ShaderRe
 	}
 }
 
+void TextureManager::CreateDefaultCubeTexture(const float(&pixel)[4], ID3D11ShaderResourceView** ppSRV)
+{
+	if (ID3D11Device* device = d3dRenderer.GetDevice())
+	{
+		// 텍스처 설명 설정
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = 1;
+		textureDesc.Height = 1;
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 6;
+		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE; // 텍스처 데이터를 변경하지 않음
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // Shader에서 사용
+		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+		// 서브리소스 데이터 설정 (픽셀 값 지정)
+		D3D11_SUBRESOURCE_DATA initData[6] = {};
+		for (auto& i : initData)
+		{
+			i.pSysMem = pixel;
+			i.SysMemPitch = sizeof(pixel);
+		}
+	
+		// 텍스처 생성
+		ID3D11Texture2D* texture = nullptr;
+		Utility::CheckHRESULT(device->CreateTexture2D(&textureDesc, initData, &texture));
+
+		if (texture)
+		{
+			D3D_SET_OBJECT_NAME_W(texture, L"TextureManager");
+
+			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			srvDesc.Format = textureDesc.Format;
+			srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+			srvDesc.TextureCube.MostDetailedMip = 0;
+			srvDesc.TextureCube.MipLevels = textureDesc.MipLevels;
+			Utility::CheckHRESULT(device->CreateShaderResourceView(texture, &srvDesc, ppSRV));
+
+			const wchar_t* objName = pixel[0] > Mathf::Epsilon ? L"Default Cube One" : L"Default Cube Zero";
+			D3D_SET_OBJECT_NAME_W(*ppSRV, objName);
+		}
+
+		texture->Release(); // 텍스처는 사용 후 해제
+	}
+}
+
 ID3D11ShaderResourceView* TextureManager::GetOneTexture()
 {
 	if (oneTexture)
@@ -146,5 +196,17 @@ ID3D11ShaderResourceView* TextureManager::GetZeroTexture()
 		constexpr float pixel[4] = { 0.f,0.f,0.f,0.f };
 		CreateDefaultTexture(pixel, &zeroTexture);
 		return zeroTexture;
+	}
+}
+
+ID3D11ShaderResourceView* TextureManager::GetCubeZeroTexture()
+{
+	if (cubeZeroTexture)
+		return cubeZeroTexture;
+	else
+	{
+		constexpr float pixel[4] = { 0.f,0.f,0.f,0.f };
+		CreateDefaultCubeTexture(pixel, &cubeZeroTexture);
+		return cubeZeroTexture;
 	}
 }
