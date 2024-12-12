@@ -61,9 +61,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 void D3D11_GameApp::GameEnd()
 {
-	WinGameApp::GameEnd();
-
-	sceneManager.currScene.reset(); //??
+	sceneManager.EndGame = true;
 }
 
 D3D11_GameApp::D3D11_GameApp()

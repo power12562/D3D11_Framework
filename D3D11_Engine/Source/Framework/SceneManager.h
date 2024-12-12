@@ -59,6 +59,7 @@ public:
 	size_t GetObjectsCount();
 	ObjectList GetObjectList();
 
+	bool EndGame = false;
 private:
 	//Update
 	void FixedUpdateScene();

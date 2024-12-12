@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include <GameObject\Base\CameraObject.h>
 #include <Framework\DXTKInputSystem.h>
+#include <Framework/D3D11_GameApp.h>
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 
@@ -225,6 +226,12 @@ void SceneManager::NextSccene()
 			mainCamera->instanceID = instanceIDManager.getUniqueID();
 			AddObjectCurrScene(std::static_pointer_cast<GameObject>(mainCamera));
 		}
+	}
+	else if (EndGame)
+	{
+		WinGameApp::GameEnd();
+		currScene.reset();
+		nextScene.reset();
 	}
 }
 
