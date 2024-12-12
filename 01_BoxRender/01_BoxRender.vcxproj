@@ -127,8 +127,7 @@
       <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"
-xcopy /Y /I /E "$(ProjectDir)Resource\" "$(ProjectDir)bin\$(Configuration)\Resource"</Command>
+      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,8 +154,7 @@ xcopy /Y /I /E "$(ProjectDir)Resource\" "$(ProjectDir)bin\$(Configuration)\Resou
       <ShaderModel>4.0</ShaderModel>
     </FxCompile>
     <PostBuildEvent>
-      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"
-xcopy /Y /I /E "$(ProjectDir)Resource\" "$(ProjectDir)bin\$(Configuration)\Resource"</Command>
+      <Command>xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Resource\EngineShader\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
