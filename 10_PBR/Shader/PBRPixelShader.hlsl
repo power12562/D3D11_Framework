@@ -12,7 +12,6 @@ Texture2D roughnessTexture : register(t6);
 cbuffer cb_Light : register(b2)
 {
     float4 LightColor;
-    float4 LightAmbient;
     float3 LightDir;
     float  LightIntensity; 
 }
@@ -96,7 +95,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 lighting = (diffuse + specular) * radiance * NoL;
 
     // ÃÖÁ¾ »ö»ó
-    float3 ambient = LightAmbient.rgb * albedo; // È¯°æ±¤
+    float3 ambient = 0.011 * albedo; // È¯°æ±¤
     float3 finalColor = ambient + lighting + emissiveSample.rgb;
     finalColor = LinearToGammaSpaceExact(finalColor);
 

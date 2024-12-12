@@ -39,6 +39,14 @@ IBLTestScene::IBLTestScene()
 		sphereMaterial->Roughness = 0.f;
 		Sphere->sphereMeshRender.CreateSphere(5.0f, 100, 100);;
 	}
+
+	auto cha = NewGameObject(L"ch");
+	Utility::LoadFBX(L"Resource/char/char.fbx", *cha, false, SURFACE_TYPE::PBR);
+	cha->transform.position = Vector3(20.f, 0.f, 0.f);
+	cha->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+	cha->transform.rotation = Vector3::Up * 23.f;
+
+
 }
 
 IBLTestScene::~IBLTestScene()
@@ -65,15 +73,8 @@ void IBLTestScene::ImGUIRender()
 		if (ImGui::Button("Show Pistol Edit"))
 			ShowPistolEdit = !ShowPistolEdit;
 		Text("");
-
 		EditCamera("Main Camera", pCamera, pCameraMoveHelper);	
-		Text("Light");
-		SliderFloat3("Light Dir", reinterpret_cast<float*>(&cb_light.LightDir), -1.f, 1.f);
-		ColorEdit3("Light Diffuse", &cb_light.LightColor);
-		ColorEdit3("Light Ambient", &cb_light.LightAmbient);
-		DragFloat("Light Intensity", &cb_light.LightIntensity, 1.0f, 0.f, 100.f);
-		Text("");
-
+		ImGui::EditLight("Directional Light", &PBRDirectionalLight::cb_light);
 		ImGui::ColorEdit3("BackGround Color", &d3dRenderer.backgroundColor);
 		ImGui::Text("");
 	}

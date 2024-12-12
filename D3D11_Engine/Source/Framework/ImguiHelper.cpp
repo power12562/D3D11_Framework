@@ -141,3 +141,15 @@ void ImGui::EditMaterial(const char* label, cb_PBRMaterial* Material)
 	ImGui::PopID();
 	g_id++;
 }
+
+void ImGui::EditLight(const char* label, cb_PBRDirectionalLight* Light)
+{
+	ImGui::Text(label);
+	ImGui::PushID(g_id);
+	ImGui::ColorEdit4("Color", &Light->LightColor);
+	ImGui::DragVector3("Dir", &Light->LightDir, 0.1f, -1.f, 1.f);
+	ImGui::DragFloat("Intensity", &Light->LightIntensity, 1.f, 0.0000001f, 100.f);
+	ImGui::Text("");
+	ImGui::PopID();
+	g_id++;
+}

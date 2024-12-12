@@ -125,12 +125,7 @@ void PBRTestScene::ImGUIRender()
 		ImGui::Checkbox("Use Roughness Map", &testBool.useRoughness);
 		ImGui::Text("");
 
-		ImGui::Text("Light");
-		ImGui::SliderFloat3("Light Dir", reinterpret_cast<float*>(&cb_light.LightDir), -1.f, 1.f);
-		ImGui::ColorEdit3("Light Diffuse", &cb_light.LightColor);
-		ImGui::ColorEdit3("Light Ambient", &cb_light.LightAmbient);
-		ImGui::DragFloat("Light Intensity", &cb_light.LightIntensity, 1.0f, 0.f, 100.f);
-		ImGui::Text("");
+		ImGui::EditLight("Directional Light", &PBRDirectionalLight::cb_light);
 
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);

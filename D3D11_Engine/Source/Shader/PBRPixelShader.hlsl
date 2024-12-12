@@ -19,7 +19,6 @@ Texture2D BRDF_LUT : register(t11);
 cbuffer cb_Light : register(b2)
 {
     float4 LightColor;
-    float4 LightAmbient;
     float3 LightDir;
     float  LightIntensity; 
 }
