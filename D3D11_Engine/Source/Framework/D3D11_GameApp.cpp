@@ -59,8 +59,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN) // Alt + Enter 입력시
 		{
-			//처리 내용
-			Debug_printf("알트 엔터\n");
+			Debug_printf("Alt + Enter!\n");
 			d3dRenderer.ToggleFullscreenMode();
 		}
 		else
@@ -124,7 +123,7 @@ void D3D11_GameApp::Render()
 
 void D3D11_GameApp::SetBorderlessWindowed()
 {
-	windowStyle = WS_POPUP;
+	windowStyleEX = WS_POPUP;
 }
 
 void D3D11_GameApp::SetOptimalScreenSize()

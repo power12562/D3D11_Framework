@@ -23,7 +23,6 @@ struct RENDERER_DRAW_DESC;
 struct RENDERER_SETTING_DESC
 {
 	bool UseVSync = true;
-	bool isWindowed = false;
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -57,11 +56,19 @@ public:
 
 	void reserveRenderQueue(size_t size); 
 
+	/**기본 상태로 OM 상태 설정 */
+	void SetDefaultOMState();
+
 	/*레스터화 기본 규칙 설정*/
 	void SetRRState(D3D11_RASTERIZER_DESC& defaultDesc);
 
 	/*레스터화 규칙 생성*/
 	void CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState);
+
+	/*뷰포트 바인딩*/
+	void SetViewports(const std::vector<D3D11_VIEWPORT>& viewports);
+private:
+	UINT viewportsCount = 0;
 private:
 	//Vram 체크용 dxgi 개체
 	IDXGIFactory4* pDXGIFactory = nullptr;
@@ -80,13 +87,13 @@ public:
 private:
 	ID3D11Device*			 pDevice;			  // 디바이스	
 	ID3D11DeviceContext*	 pDeviceContext;	  // 디바이스 컨텍스트
-	IDXGISwapChain*			 pSwapChain;		  // 스왑체인
+	IDXGISwapChain1*		 pSwapChain;		  // 스왑체인
 	ID3D11RenderTargetView*  pRenderTargetView;	  // 렌더링 타겟뷰
 	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
 	ID3D11DepthStencilState* pDefaultDepthStencilState; //기본 상태
 	ID3D11DepthStencilState* pSkyBoxDepthStencilState;  //스카이 박스용
-	ID3D11BlendState*		 pBlendState;		  // 블렌드 상태
-	ID3D11RasterizerState*   pDefaultRRState;    // 기본 레스터화 규칙
+	ID3D11BlendState*		 pDefaultBlendState;		  // 기본 블렌드 상태
+	ID3D11RasterizerState*   pDefaultRRState;    //  기본 레스터화 규칙
 
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
@@ -102,9 +109,10 @@ public:
 
 	//전체화면 <-> 창모드 전환.
 	void ToggleFullscreenMode();
-
 private:
-	void ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC* swapChainDesc); //스왑 체인 재생성
+
+	bool swapChainWindowed = false;
+	void ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc); //스왑 체인 재생성
 	const wchar_t* GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation);
 };
 

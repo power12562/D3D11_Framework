@@ -24,7 +24,7 @@ D3DRenderer::D3DRenderer()
     pDepthStencilView = nullptr;
     pDefaultDepthStencilState = nullptr;
     pSkyBoxDepthStencilState = nullptr;
-    pBlendState = nullptr;
+    pDefaultBlendState = nullptr;
     pDefaultRRState = nullptr;
 }
 
@@ -83,8 +83,7 @@ void D3DRenderer::Init()
         swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //출력 포멧 지정.
         swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //플립 모드 사용.   
         swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
-
-        setting.isWindowed = swapDesc.Windowed;
+        swapChainWindowed = swapDesc.Windowed;
 
         //버퍼 사이즈 지정
         SIZE clientSize = WinGameApp::GetClientSize();
@@ -104,8 +103,12 @@ void D3DRenderer::Init()
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
         //디바이스, 스왑체인, 디바이스 컨텍스트 생성
+        IDXGISwapChain* swapChain = nullptr;
         CheckHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
-            D3D11_SDK_VERSION, &swapDesc, &pSwapChain, &pDevice, NULL, &pDeviceContext));
+            D3D11_SDK_VERSION, &swapDesc, &swapChain, &pDevice, NULL, &pDeviceContext));
+  
+        CheckHRESULT(swapChain->QueryInterface(IID_PPV_ARGS(&pSwapChain)));
+        SafeRelease(swapChain);
 
         //렌더타겟뷰 생성. (백퍼버 이용)
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
@@ -113,18 +116,6 @@ void D3DRenderer::Init()
         if(pBackBufferTexture)
             CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
-
-        //뷰포트 설정
-        D3D11_VIEWPORT viewport = {};
-        viewport.TopLeftX = 0;
-        viewport.TopLeftY = 0;
-        viewport.Width = (float)clientSize.cx;
-        viewport.Height = (float)clientSize.cy;
-        viewport.MinDepth = 0.0f;
-        viewport.MaxDepth = 1.0f;
-
-        //뷰포트 할당
-        pDeviceContext->RSSetViewports(1, &viewport);
 
         //레스터화 기본 규칙
         D3D11_RASTERIZER_DESC rasterDesc;
@@ -190,10 +181,23 @@ void D3DRenderer::Init()
         blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO; // 알파 대상 블렌드
         blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD; // 알파 블렌드 연산
         blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; // 모든 색상 채널 쓰기 허용
-        CheckHRESULT(pDevice->CreateBlendState(&blendDesc, &pBlendState));
+        CheckHRESULT(pDevice->CreateBlendState(&blendDesc, &pDefaultBlendState));
 
-        pDeviceContext->OMSetBlendState(pBlendState, nullptr, 0xFFFFFFFF);
+        SetDefaultOMState();
 
+        //뷰포트 설정
+        D3D11_VIEWPORT viewport = {};
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
+        viewport.Width = (float)clientSize.cx;
+        viewport.Height = (float)clientSize.cy;
+        viewport.MinDepth = 0.0f;
+        viewport.MaxDepth = 1.0f;
+
+        //기본 뷰포트 할당
+        pDeviceContext->RSSetViewports(1, &viewport);
+        viewportsCount = 1;
+        
         D3DConstBuffer::CreateStaticCbuffer();
     }
     catch (const std::exception& ex)
@@ -223,14 +227,18 @@ void D3DRenderer::Uninit()
     //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
     SafeRelease(pDefaultRRState);
-    SafeRelease(pBlendState);
+    SafeRelease(pDefaultBlendState);
     SafeRelease(pRenderTargetView);
     SafeRelease(pSkyBoxDepthStencilState);
     SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
-    SafeRelease(pSwapChain);
+    {
+        CheckHRESULT(pSwapChain->SetFullscreenState(FALSE, nullptr)); //스왑체인 해제 전에는 창모드로 전환
+        SafeRelease(pSwapChain);
+        pDeviceContext->ClearState();   //상태 정리
+        pDeviceContext->Flush();        //GPU 명령 대기
+    }  
     SafeRelease(pDeviceContext);
-
     textureManager.ReleaseDefaultTexture();
 
 #ifdef _DEBUG
@@ -258,6 +266,12 @@ void D3DRenderer::reserveRenderQueue(size_t size)
     alphaRenderQueue.reserve(size);
 }
 
+void D3DRenderer::SetDefaultOMState()
+{
+    pDeviceContext->OMSetBlendState(pDefaultBlendState, nullptr, 0xFFFFFFFF);
+    pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
+}
+
 void D3DRenderer::SetRRState(D3D11_RASTERIZER_DESC& defaultDesc)
 {
     Utility::SafeRelease(pDefaultRRState);
@@ -267,6 +281,12 @@ void D3DRenderer::SetRRState(D3D11_RASTERIZER_DESC& defaultDesc)
 void D3DRenderer::CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState)
 {
     Utility::CheckHRESULT(pDevice->CreateRasterizerState(&RASTERIZER_DESC, rasterState));
+}
+
+void D3DRenderer::SetViewports(const std::vector<D3D11_VIEWPORT>& viewPorts)
+{
+    viewportsCount = (UINT)viewPorts.size();
+    pDeviceContext->RSSetViewports(viewportsCount, viewPorts.data());
 }
 
 namespace BytesHelp
@@ -420,7 +440,6 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         isDefaultRRState = true;
     }
 
-    
     if (prevTransform != drawDesc.pTransform)
     {
         Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
@@ -487,24 +506,21 @@ std::vector<DXGI_MODE_DESC1> D3DRenderer::GetDisplayModeList(int AdapterIndex, i
 
 void D3DRenderer::ToggleFullscreenMode()
 {
-    if (setting.isWindowed)
-    {
-        DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
+    HWND hwnd = WinGameApp::GetHWND();
+    SIZE clientSize = WinGameApp::GetClientSize();
+    if (swapChainWindowed)
+    {   
+        DXGI_SWAP_CHAIN_DESC1 swapDesc{}; //스왑체인 속성 구조체  
         swapDesc.BufferCount = 2; //버퍼 개수
         swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
-        swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
-        swapDesc.Windowed = false; //창모드 유무
-        swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
-        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;           //전체화면은 비트 블릿 모드   
-
-        //버퍼 사이즈 지정
-        SIZE clientSize = WinGameApp::GetClientSize();
-        swapDesc.BufferDesc.Width = clientSize.cx;
-        swapDesc.BufferDesc.Height = clientSize.cy;
-
-        //0/0은 자동 설정임. 그리고 창모드는 어차피 적용 안됨...
-        swapDesc.BufferDesc.RefreshRate.Numerator = 0;
-        swapDesc.BufferDesc.RefreshRate.Denominator = 0;
+        swapDesc.Stereo = false; //스테레오 유무
+        swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //플립 모드.
+        swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
+   
+        //버퍼 크기 지정
+        swapDesc.Width = clientSize.cx;
+        swapDesc.Height = clientSize.cy;
 
         //샘플링 설정 *(MSAA)
         swapDesc.SampleDesc.Count = 1;
@@ -514,28 +530,23 @@ void D3DRenderer::ToggleFullscreenMode()
 #ifdef _DEBUG
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+        swapChainWindowed = !swapChainWindowed;
         ReCreateSwapChain(&swapDesc);
-        setting.isWindowed = false;
+        WinGameApp::WinToScreenCenter(hwnd);
     }
     else
-    {
-        DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
+    {     
+        DXGI_SWAP_CHAIN_DESC1 swapDesc{}; //스왑체인 속성 구조체  
         swapDesc.BufferCount = 2; //버퍼 개수
         swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
-        swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
-        swapDesc.Windowed = true; //창모드 유무
-        swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
-        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //창모드는 플립 모드
+        swapDesc.Stereo = false; //스테레오 유무
+        swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //플립 모드.
         swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
 
         //버퍼 사이즈 지정
-        SIZE clientSize = WinGameApp::GetClientSize();
-        swapDesc.BufferDesc.Width = clientSize.cx;
-        swapDesc.BufferDesc.Height = clientSize.cy;
-
-        //0/0은 자동 설정임. 그리고 창모드는 어차피 적용 안됨...
-        swapDesc.BufferDesc.RefreshRate.Numerator = 0;
-        swapDesc.BufferDesc.RefreshRate.Denominator = 0;
+        swapDesc.Width = clientSize.cx;
+        swapDesc.Height = clientSize.cy;
 
         //샘플링 설정 *(MSAA)
         swapDesc.SampleDesc.Count = 1;
@@ -545,24 +556,42 @@ void D3DRenderer::ToggleFullscreenMode()
 #ifdef _DEBUG
         creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-
-        setting.isWindowed = true;
+        swapChainWindowed = !swapChainWindowed;
+        ReCreateSwapChain(&swapDesc);
+        WinGameApp::WinToScreenCenter(hwnd);
     }
 }
 
-void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC* swapChainDesc)
+void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
 {
     if (pSwapChain)
-    {
-        SafeRelease(pSwapChain);
-        CheckHRESULT(pDXGIFactory->CreateSwapChain(pDevice, swapChainDesc, &pSwapChain));
+    {    
+        std::vector<D3D11_VIEWPORT> lastViewports(viewportsCount);
+        pDeviceContext->RSGetViewports(&viewportsCount, lastViewports.data());
+
+        pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr); //렌더타겟 바인딩 해제
+        unsigned long ref = SafeRelease(pRenderTargetView); //RTV 리소스 제거
+        CheckHRESULT(pSwapChain->SetFullscreenState(FALSE, NULL));
+   
+        ref = SafeRelease(pSwapChain);
+        pDeviceContext->ClearState();   //상태 정리
+        pDeviceContext->Flush();        //GPU 명령 대기
+
+        DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullScreenDesc{};
+        fullScreenDesc.Windowed = swapChainWindowed;
+        CheckHRESULT(pDXGIFactory->CreateSwapChainForHwnd(pDevice, WinGameApp::GetHWND(), swapChainDesc, &fullScreenDesc, nullptr, &pSwapChain));
+        CheckHRESULT(pSwapChain->SetFullscreenState(!swapChainWindowed, NULL));
+        CheckHRESULT(pSwapChain->ResizeBuffers(2, swapChainDesc->Width, swapChainDesc->Height, swapChainDesc->Format, swapChainDesc->BufferUsage));
 
         //렌더타겟뷰 재 생성
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
         CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
         if (pBackBufferTexture)
             CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
-        SafeRelease(pBackBufferTexture);
+        SafeRelease(pBackBufferTexture);      
+
+        SetDefaultOMState();  
+        SetViewports(lastViewports);
     }
 }
 

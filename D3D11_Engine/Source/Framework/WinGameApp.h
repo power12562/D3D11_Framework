@@ -17,9 +17,10 @@ public:
 public:
 	static HWND GetHWND() { return hwnd; }
 	static HINSTANCE GetHINSTANCE() { return hInstance; }			
-	static const SIZE& GetClientSize() { return  size; }
+	static const SIZE& GetClientSize() { return size; }
+	static DWORD GetWindowStyleEX() { return RunApp ? RunApp->windowStyleEX : NULL; }
 
-	/**클라이언트를 화면 가운데로 위치 시킨다.*/
+	/**클라이언트를 화면 가운데로 위치 시킨다.*/ 
 	static void WinToScreenCenter(HWND hwnd);
 
 	/** 현재 실행중인 게임루프를 종료시킵니다.*/
@@ -32,7 +33,7 @@ protected:
 	UINT winClassStyle = CS_HREDRAW | CS_VREDRAW;
 
 	/** 클라이언트 윈도우 스타일. Initialize() 실행전에만 적용됩니다.*/
-	DWORD windowStyle = WS_OVERLAPPEDWINDOW;
+	DWORD windowStyleEX = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;;
 
 	/** 윈도우 클래스 구조체 이름. Initialize() 실행전에만 적용됩니다.*/
 	LPCWSTR winClassName = L"GAME_ENGINE";

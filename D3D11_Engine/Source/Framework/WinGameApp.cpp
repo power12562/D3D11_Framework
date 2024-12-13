@@ -150,14 +150,14 @@ bool WinGameApp::WinInit(HINSTANCE hInstance)
 	
 	SIZE clientSize = WinGameApp::size;
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };
-	AdjustWindowRect(&clientRect, windowStyle, FALSE); 	// 원하는 크기가 조정되어 리턴
+	AdjustWindowRect(&clientRect, windowStyleEX, FALSE); 	// 원하는 크기가 조정되어 리턴
 	 
 	// 윈도우 생성
 	WinGameApp::hwnd = CreateWindowEx(
 		0,
 		winClassName,
 		windowName,
-		windowStyle,
+		windowStyleEX,
 		0, 0,
 		clientRect.right - clientRect.left, clientRect.bottom - clientRect.top,
 		NULL, NULL, hInstance, NULL

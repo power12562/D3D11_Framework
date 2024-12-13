@@ -30,7 +30,7 @@ void DXTKInputSystem::Update()
 
 	if (!inputProcessersList.empty())
 	{
-		int count = inputProcessersList.size();
+		int count = (int)inputProcessersList.size();
 		for (int i = 0; i < count; ++i)
 		{
 			inputProcessersList[i]->OnInputProcess(keyboardState, keyboardStateTracker, mouseState, mouseStateTracker);
