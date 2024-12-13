@@ -21,6 +21,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 	switch (message)
 	{
+
 #pragma region 반드시 포함
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -28,6 +29,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 		ClearGame();
 		break;
 #pragma endregion
+
 #pragma region DXTKInputSystem 사용시 포함
 	case WM_ACTIVATEAPP:
 		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
@@ -53,6 +55,19 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
 #pragma endregion 
+
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN) // Alt + Enter 입력시
+		{
+			//처리 내용
+			Debug_printf("알트 엔터\n");
+			d3dRenderer.ToggleFullscreenMode();
+		}
+		else
+		{
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

@@ -36,41 +36,73 @@ D3DRenderer::~D3DRenderer()
 void D3DRenderer::Init()
 {
     using namespace Utility;
-
-    DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
-    swapDesc.BufferCount = 2; //버퍼 개수
-    swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
-    swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
-    swapDesc.Windowed = true; //창모드 유무
-    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //출력 포멧 지정.
-    swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-
-    //버퍼 사이즈 지정
-    SIZE size = WinGameApp::GetClientSize();
-    swapDesc.BufferDesc.Width = size.cx;
-    swapDesc.BufferDesc.Height = size.cy;
-
-    //화면 주사율
-    swapDesc.BufferDesc.RefreshRate.Numerator = 60;
-    swapDesc.BufferDesc.RefreshRate.Denominator = 1;
-
-    //샘플링 설정 *(MSAA)
-    swapDesc.SampleDesc.Count = 1;
-    swapDesc.SampleDesc.Quality = 0;
-
-    UINT creationFlags = 0;
-#ifdef _DEBUG
-    creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
     try
     {
-        //dxgi 디바이스용(Vram 체크)
+        //dxgi 디바이스
         CheckHRESULT(CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pDXGIFactory));
-        CheckHRESULT(pDXGIFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&pDXGIAdapter)));
 
+        //모든 그래픽 카드 및 모니터 조사. 
+        size_t i = 0;
+        IDXGIAdapter* pAdapter = nullptr;
+        while (pDXGIFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND) //그래픽 카드 정보)
+        {
+            CheckHRESULT(pAdapter->QueryInterface(__uuidof(IDXGIAdapter3), reinterpret_cast<void**>(&pAdapter)));
+            DXGIAdapters.push_back(reinterpret_cast<IDXGIAdapter3*>(pAdapter));
+            DXGIOutputs.resize(i + 1);
+            size_t j = 0;
+            IDXGIOutput* pOutput = nullptr;
+            while (pAdapter->EnumOutputs(j, &pOutput) != DXGI_ERROR_NOT_FOUND)
+            {
+                CheckHRESULT(pOutput->QueryInterface(__uuidof(IDXGIOutput1), reinterpret_cast<void**>(&pOutput)));
+                DXGIOutputs[i].push_back(reinterpret_cast<IDXGIOutput1*>(pOutput));
+                ++j;
+            }
+            ++i;
+        }
 
+        DXGI_ADAPTER_DESC adapterDesc;      
+        for (auto& Adapters : DXGIAdapters)
+        {
+            Adapters->GetDesc(&adapterDesc);
+            Debug_wprintf(L"%lu : %s\n", adapterDesc.DeviceId, adapterDesc.Description); //글카 이름
+        }
+
+        DXGI_OUTPUT_DESC outputDesc;
+        DXGIOutputs[0][0]->GetDesc(&outputDesc); //메인 모니터
+        if (outputDesc.AttachedToDesktop)
+        {
+            Debug_wprintf(L"Moniter 1 : %s\n", outputDesc.DeviceName);
+            Debug_wprintf(L"Rotation : %s\n", GetDisplayRotationToCWStr(outputDesc.Rotation));
+        }
+
+        DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
+        swapDesc.BufferCount = 2; //버퍼 개수
+        swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
+        swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
+        swapDesc.Windowed = true; //창모드 유무
+        swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //출력 포멧 지정.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //플립 모드 사용.   
+        swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
+
+        setting.isWindowed = swapDesc.Windowed;
+
+        //버퍼 사이즈 지정
         SIZE clientSize = WinGameApp::GetClientSize();
+        swapDesc.BufferDesc.Width = clientSize.cx;
+        swapDesc.BufferDesc.Height = clientSize.cy;
 
+        //0/0은 자동 설정임. 그리고 창모드는 어차피 적용 안됨...
+		swapDesc.BufferDesc.RefreshRate.Numerator = 0;
+		swapDesc.BufferDesc.RefreshRate.Denominator = 0;
+
+        //샘플링 설정 *(MSAA)
+        swapDesc.SampleDesc.Count = 1;
+        swapDesc.SampleDesc.Quality = 0;
+
+        UINT creationFlags = 0;
+#ifdef _DEBUG
+        creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
         //디바이스, 스왑체인, 디바이스 컨텍스트 생성
         CheckHRESULT(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
             D3D11_SDK_VERSION, &swapDesc, &pSwapChain, &pDevice, NULL, &pDeviceContext));
@@ -78,7 +110,8 @@ void D3DRenderer::Init()
         //렌더타겟뷰 생성. (백퍼버 이용)
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
         CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
-        CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+        if(pBackBufferTexture)
+            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
 
         //뷰포트 설정
@@ -123,7 +156,8 @@ void D3DRenderer::Init()
         descDSV.Format = descDepth.Format;
         descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
         descDSV.Texture2D.MipSlice = 0;
-        CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
+        if(textureDepthStencil)
+            CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
         SafeRelease(textureDepthStencil);
 
         // 기본 깊이 스텐실 상태 생성
@@ -174,8 +208,16 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
-    //Vram용 dxgi 개체
-    SafeRelease(pDXGIAdapter);
+    //dxgi 개체
+    for (auto& list : DXGIOutputs)
+    {
+        for(auto& Output : list)
+            SafeRelease(Output);
+    }
+    for (auto& Adapters : DXGIAdapters)
+    {
+        SafeRelease(Adapters);
+    }
     SafeRelease(pDXGIFactory);
      
     //dxd11 개체
@@ -235,7 +277,7 @@ namespace BytesHelp
 USAGE_VRAM_INFO D3DRenderer::GetLocalVramUsage()
 {
     DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
-    pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
+    DXGIAdapters[0]->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
     USAGE_VRAM_INFO info{};
     info.Budget = videoMemoryInfo.Budget / BytesHelp::toMB;
     info.Usage = videoMemoryInfo.CurrentUsage / BytesHelp::toMB;
@@ -245,7 +287,7 @@ USAGE_VRAM_INFO D3DRenderer::GetLocalVramUsage()
 USAGE_VRAM_INFO D3DRenderer::GetNonLocalVramUsage()
 {
     DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
-    pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &videoMemoryInfo);
+    DXGIAdapters[0]->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &videoMemoryInfo);
 
     USAGE_VRAM_INFO info{};
     info.Budget = videoMemoryInfo.Budget / BytesHelp::toMB;
@@ -257,7 +299,7 @@ USAGE_VRAM_INFO D3DRenderer::GetNonLocalVramUsage()
 SYSTEM_VRAM_INFO D3DRenderer::GetSystemVramInfo()
 {
     DXGI_ADAPTER_DESC desc;
-    pDXGIAdapter->GetDesc(&desc);
+    DXGIAdapters[0]->GetDesc(&desc);
 
     SYSTEM_VRAM_INFO info{};
     info.DedicatedVideoMemory = desc.DedicatedVideoMemory / BytesHelp::toMB;
@@ -359,9 +401,9 @@ void D3DRenderer::EndDraw()
 void D3DRenderer::Present()
 {
     if(setting.UseVSync)
-        pSwapChain->Present(0, 0);
+	    pSwapChain->Present(1, 0);
     else
-        pSwapChain->Present(0, DXGI_PRESENT_DO_NOT_WAIT);
+        pSwapChain->Present(0, 0);
 }
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
@@ -415,4 +457,130 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
     pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
     pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
     pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
+}
+
+DXGI_MODE_DESC1 D3DRenderer::GetDisplayMode(int AdapterIndex, int OutputIndex)
+{
+    DXGI_MODE_DESC1 targetDesc{}; //기본 초기화 값 사용
+    targetDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    DXGI_MODE_DESC1 outDesc{};
+    Utility::CheckHRESULT(DXGIOutputs[AdapterIndex][OutputIndex]->FindClosestMatchingMode1(&targetDesc, &outDesc, nullptr));
+    return outDesc;
+}
+
+std::vector<DXGI_MODE_DESC1> D3DRenderer::GetDisplayModeList(int AdapterIndex, int OutputIndex)
+{
+    using namespace Utility;
+    std::vector<DXGI_MODE_DESC1> descList(1);
+    
+    //출력 모드 리스트 가져오기 (주사율 포함)
+    UINT numModes = 0;
+    CheckHRESULT(DXGIOutputs[AdapterIndex][OutputIndex]->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &numModes, nullptr));
+
+    if (numModes > 1)
+    {
+        descList.resize(numModes);
+        CheckHRESULT(DXGIOutputs[AdapterIndex][OutputIndex]->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &numModes, descList.data()));
+    }
+    return descList;
+}
+
+void D3DRenderer::ToggleFullscreenMode()
+{
+    if (setting.isWindowed)
+    {
+        DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
+        swapDesc.BufferCount = 2; //버퍼 개수
+        swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
+        swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
+        swapDesc.Windowed = false; //창모드 유무
+        swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;           //전체화면은 비트 블릿 모드   
+
+        //버퍼 사이즈 지정
+        SIZE clientSize = WinGameApp::GetClientSize();
+        swapDesc.BufferDesc.Width = clientSize.cx;
+        swapDesc.BufferDesc.Height = clientSize.cy;
+
+        //0/0은 자동 설정임. 그리고 창모드는 어차피 적용 안됨...
+        swapDesc.BufferDesc.RefreshRate.Numerator = 0;
+        swapDesc.BufferDesc.RefreshRate.Denominator = 0;
+
+        //샘플링 설정 *(MSAA)
+        swapDesc.SampleDesc.Count = 1;
+        swapDesc.SampleDesc.Quality = 0;
+
+        UINT creationFlags = 0;
+#ifdef _DEBUG
+        creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+        ReCreateSwapChain(&swapDesc);
+        setting.isWindowed = false;
+    }
+    else
+    {
+        DXGI_SWAP_CHAIN_DESC swapDesc{}; //스왑체인 속성 구조체  
+        swapDesc.BufferCount = 2; //버퍼 개수
+        swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
+        swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
+        swapDesc.Windowed = true; //창모드 유무
+        swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //창모드는 플립 모드
+        swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
+
+        //버퍼 사이즈 지정
+        SIZE clientSize = WinGameApp::GetClientSize();
+        swapDesc.BufferDesc.Width = clientSize.cx;
+        swapDesc.BufferDesc.Height = clientSize.cy;
+
+        //0/0은 자동 설정임. 그리고 창모드는 어차피 적용 안됨...
+        swapDesc.BufferDesc.RefreshRate.Numerator = 0;
+        swapDesc.BufferDesc.RefreshRate.Denominator = 0;
+
+        //샘플링 설정 *(MSAA)
+        swapDesc.SampleDesc.Count = 1;
+        swapDesc.SampleDesc.Quality = 0;
+
+        UINT creationFlags = 0;
+#ifdef _DEBUG
+        creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+        setting.isWindowed = true;
+    }
+}
+
+void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC* swapChainDesc)
+{
+    if (pSwapChain)
+    {
+        SafeRelease(pSwapChain);
+        CheckHRESULT(pDXGIFactory->CreateSwapChain(pDevice, swapChainDesc, &pSwapChain));
+
+        //렌더타겟뷰 재 생성
+        ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
+        CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
+        if (pBackBufferTexture)
+            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+        SafeRelease(pBackBufferTexture);
+    }
+}
+
+const wchar_t* D3DRenderer::GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation)
+{
+    switch (rotation)
+    {
+    case DXGI_MODE_ROTATION_UNSPECIFIED:
+        return L"UNSPECIFIED";
+    case DXGI_MODE_ROTATION_IDENTITY:
+        return L"IDENTITY";
+    case DXGI_MODE_ROTATION_ROTATE90:
+        return L"ROTATE90";
+    case DXGI_MODE_ROTATION_ROTATE180:
+        return L"ROTATE180";
+    case DXGI_MODE_ROTATION_ROTATE270:
+        return L"ROTATE270";
+    default:
+        return L"UNKNOWN";
+    }
 }

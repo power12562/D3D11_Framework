@@ -57,7 +57,7 @@ private:
 	MSG msg{};
 
 private:
-	bool WinInit();
+	bool WinInit(HINSTANCE hInstance);
 
 protected:
 	virtual void InitImGUI();

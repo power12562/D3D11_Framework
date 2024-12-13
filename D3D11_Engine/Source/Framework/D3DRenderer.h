@@ -11,6 +11,9 @@ class D3DRenderer;
 class D3DConstBuffer;
 class D3DSamplerState;
 class D3DTexture2D;
+struct IDXGIFactory4;
+struct IDXGIAdapter3;
+struct IDXGIOutput;
 extern D3DRenderer& d3dRenderer;
 
 struct USAGE_VRAM_INFO;
@@ -20,6 +23,7 @@ struct RENDERER_DRAW_DESC;
 struct RENDERER_SETTING_DESC
 {
 	bool UseVSync = true;
+	bool isWindowed = false;
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -60,9 +64,9 @@ public:
 	void CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState);
 private:
 	//Vram 체크용 dxgi 개체
-	struct IDXGIFactory*  pDXGIFactory = nullptr;        
-	struct IDXGIAdapter3* pDXGIAdapter = nullptr;
-
+	IDXGIFactory4* pDXGIFactory = nullptr;
+	std::vector<IDXGIAdapter3*> DXGIAdapters;
+	std::vector<std::vector<IDXGIOutput1*>> DXGIOutputs;
 public:
 	void BegineDraw();
 	void DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha);
@@ -89,6 +93,19 @@ private:
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	void Draw(RENDERER_DRAW_DESC& drawDesc);
 
+public:
+	//현재 디스플레이 설정 가져오기.
+	DXGI_MODE_DESC1 GetDisplayMode(int AdapterIndex, int OutputIndex);
+
+	//사용 가능한 화면 모드들 가져오기.
+	std::vector<DXGI_MODE_DESC1> GetDisplayModeList(int AdapterIndex, int OutputIndex);
+
+	//전체화면 <-> 창모드 전환.
+	void ToggleFullscreenMode();
+
+private:
+	void ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC* swapChainDesc); //스왑 체인 재생성
+	const wchar_t* GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation);
 };
 
 struct USAGE_VRAM_INFO

@@ -28,7 +28,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 	FILE* _tempFile;
 	freopen_s(&_tempFile, "CONOUT$", "w", stdout);
 #endif // _DEBUG
-	WinInit();
+	WinInit(hinstance);
 	d3dRenderer.Init();
 	InitImGUI();
 }
@@ -105,7 +105,7 @@ int WinGameApp::GetFPS()
 	return -1;
 }
 
-bool WinGameApp::WinInit()
+bool WinGameApp::WinInit(HINSTANCE hInstance)
 {
 	//static hInstance
 	if (WinGameApp::hInstance == NULL)
