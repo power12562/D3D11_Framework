@@ -97,12 +97,12 @@ void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 	// 위치, 회전, 스케일에 대한 키를 찾기
 	PositionKey* currPositionKey = nullptr;
 	PositionKey* nextPositionKey = nullptr;
-	for (int i = lastPosIndex; i < positionKeys.size(); i++)
+	for (int i = lastPosIndex; i < positionKeys->size(); i++)
 	{
-		if (positionKeys[i]->Time >= elapsedTime)
+		if (positionKeys->data()[i].Time >= elapsedTime)
 		{
-			currPositionKey = positionKeys[i - 1].get();
-			nextPositionKey = positionKeys[i].get();
+			currPositionKey = &positionKeys->data()[i - 1];
+			nextPositionKey = &positionKeys->data()[i];
 			lastPosIndex = i; 
 			break;
 		}
@@ -110,12 +110,12 @@ void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 
 	RotationKey* currRotationKey = nullptr;
 	RotationKey* nextRotationKey = nullptr;
-	for (int i = lastRotIndex; i < rotationKeys.size(); i++)
+	for (int i = lastRotIndex; i < rotationKeys->size(); i++)
 	{
-		if (rotationKeys[i]->Time >= elapsedTime)
+		if (rotationKeys->data()[i].Time >= elapsedTime)
 		{
-			currRotationKey = rotationKeys[i - 1].get();
-			nextRotationKey = rotationKeys[i].get();
+			currRotationKey = &rotationKeys->data()[i - 1];
+			nextRotationKey = &rotationKeys->data()[i];
 			lastRotIndex = i;
 			break;
 		}
@@ -123,12 +123,12 @@ void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 
 	ScaleKey* currScaleKey = nullptr;
 	ScaleKey* nextScaleKey = nullptr;
-	for (int i = lastScaleIndex; i < scaleKeys.size(); i++)
+	for (int i = lastScaleIndex; i < scaleKeys->size(); i++)
 	{
-		if (scaleKeys[i]->Time >= elapsedTime)
+		if (scaleKeys->data()[i].Time >= elapsedTime)
 		{
-			currScaleKey = scaleKeys[i - 1].get();
-			nextScaleKey = scaleKeys[i].get();
+			currScaleKey = &scaleKeys->data()[i - 1];
+			nextScaleKey = &scaleKeys->data()[i];
 			lastScaleIndex = i;
 			break;
 		}

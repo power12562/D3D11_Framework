@@ -52,9 +52,9 @@ public:
 				float Time{};
 				Vector3 scale{};
 			};
-			std::vector<std::shared_ptr<PositionKey>> positionKeys;
-			std::vector<std::shared_ptr<RotationKey>> rotationKeys;
-			std::vector<std::shared_ptr<ScaleKey>> scaleKeys;
+			std::shared_ptr<std::vector<PositionKey>> positionKeys;
+			std::shared_ptr<std::vector<RotationKey>> rotationKeys;
+			std::shared_ptr<std::vector<ScaleKey>> scaleKeys;
 			void Evaluate(float elapsedTime);
 		private:
 			int lastPosIndex = 0;

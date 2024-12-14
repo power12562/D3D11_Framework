@@ -204,6 +204,9 @@ namespace Utility
 	static void SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
 	{
 		using Clip = TransformAnimation::Clip;
+		using PositionKey = TransformAnimation::Clip::NodeAnimation::PositionKey;
+		using RotationKey = TransformAnimation::Clip::NodeAnimation::RotationKey;
+		using ScaleKey = TransformAnimation::Clip::NodeAnimation::ScaleKey;
 
 		TransformAnimation& anime = _gameObject.AddComponent<TransformAnimation>();
 		for (unsigned int i = 0; i < pScene->mNumAnimations; i++)
@@ -218,6 +221,21 @@ namespace Utility
 				using NodeAnime = Clip::NodeAnimation;
 				NodeAnime nodeAnime;
 				nodeAnime.objTarget = addObjMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
+
+				//make keyList
+				if (currNodeAnim->mNumPositionKeys > 0 && !nodeAnime.positionKeys)
+				{
+					nodeAnime.positionKeys = std::make_shared<std::vector<PositionKey>>();
+				}
+				if (currNodeAnim->mNumRotationKeys > 0 && !nodeAnime.rotationKeys)
+				{
+					nodeAnime.rotationKeys = std::make_shared<std::vector<RotationKey>>();
+				}
+				if (currNodeAnim->mNumScalingKeys > 0 && !nodeAnime.scaleKeys)
+				{
+					nodeAnime.scaleKeys = std::make_shared<std::vector<ScaleKey>>();
+				}
+
 				for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
 				{
 					NodeAnime::PositionKey key;
@@ -225,7 +243,7 @@ namespace Utility
 					key.position.y = currNodeAnim->mPositionKeys[k].mValue.y;
 					key.position.z = currNodeAnim->mPositionKeys[k].mValue.z;
 					key.Time = (float)currNodeAnim->mPositionKeys[k].mTime;
-					nodeAnime.positionKeys.push_back(std::make_shared<NodeAnime::PositionKey>(key));
+					nodeAnime.positionKeys->push_back(key);
 				}
 				for (unsigned int k = 0; k < currNodeAnim->mNumRotationKeys; k++)
 				{
@@ -236,7 +254,7 @@ namespace Utility
 					key.rotation.w = currNodeAnim->mRotationKeys[k].mValue.w;
 
 					key.Time = (float)currNodeAnim->mRotationKeys[k].mTime;
-					nodeAnime.rotationKeys.push_back(std::make_shared<NodeAnime::RotationKey>(key));
+					nodeAnime.rotationKeys->push_back(key);
 				}
 				for (unsigned int k = 0; k < currNodeAnim->mNumScalingKeys; k++)
 				{
@@ -245,7 +263,7 @@ namespace Utility
 					key.scale.y = currNodeAnim->mScalingKeys[k].mValue.y;
 					key.scale.z = currNodeAnim->mScalingKeys[k].mValue.z;
 					key.Time = (float)currNodeAnim->mScalingKeys[k].mTime;
-					nodeAnime.scaleKeys.push_back(std::make_shared<NodeAnime::ScaleKey>(key));
+					nodeAnime.scaleKeys->push_back(key);
 				}
 				clip.nodeAnimations.push_back(nodeAnime);
 			}
