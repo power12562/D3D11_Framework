@@ -9,7 +9,7 @@
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
-#include <Component/TransformAnimation.h>
+#include <Component/Animation/TransformAnimation.h>
 #include <Framework\ResourceManager.h>
 
 #include "../Source/SimpleUpdateCbuffer.h"

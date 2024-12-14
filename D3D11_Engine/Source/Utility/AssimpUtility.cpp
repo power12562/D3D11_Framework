@@ -4,14 +4,14 @@
 #include <GameObject\Base\GameObject.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
-#include <Component/BoneComponent.h>
+#include <Component/Bone/BoneComponent.h>
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 #include <Math/AssimpMath.h>
 #include <Utility\utfConvert.h>
 #include <Material\BlingPhongMaterial.h>
-#include <Component\TransformAnimation.h>
+#include <Component/Animation/TransformAnimation.h>
 #include <Framework\ResourceManager.h>
 
 #include <Component/Render/PBRMeshRender.h>

@@ -2,6 +2,7 @@
 
 #include <Framework\D3DRenderer.h>
 #include <Framework/TimeSystem.h>
+#include <Framework/SceneManager.h>
 #include <cassert>
 #include <cstdio>
 #include <clocale>
@@ -11,11 +12,14 @@
 #include <imgui_impl_dx11.h>
 #include <Framework/ImguiHelper.h>
 #include <Math/Mathf.h>
+#include <Utility/Console.h>
 
 LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 void WinGameApp::Initialize(HINSTANCE hinstance)
 {
+	SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+
 	if (RunApp != nullptr)
 	{
 		__debugbreak(); //실행중 초기화 불가능.
@@ -35,26 +39,38 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 
 void WinGameApp::Run()
 {
-	using namespace TimeSystem;
-	Time.UpdateTime();
-	Start();
-	// PeekMessage 메세지가 있으면 true,없으면 false
-	while (!isEnd)
-	{	
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	try
+	{
+		using namespace TimeSystem;
+		Time.UpdateTime();
+		Start();
+		// PeekMessage 메세지가 있으면 true,없으면 false
+		while (!isEnd)
 		{
-			if (msg.message == WM_QUIT)
-				break;
-	
-			TranslateMessage(&msg); // 키입력관련 메시지 변환  WM_KEYDOWN -> WM_CHAR
-			DispatchMessage(&msg);
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+					break;
+
+				TranslateMessage(&msg); // 키입력관련 메시지 변환  WM_KEYDOWN -> WM_CHAR
+				DispatchMessage(&msg);
+			}
+			else
+			{
+				Time.UpdateTime();
+				Update();
+				Render();
+			}
 		}
-		else
-		{	
-			Time.UpdateTime();
-			Update();
-			Render();
-		}
+	}
+	catch (const std::exception& ex)
+	{
+		const char* what = ex.what();
+		Debug_printf("%s", what);
+		__debugbreak(); //예외 발생
+
+		sceneManager.currScene.reset();
+		sceneManager.nextScene.reset();
 	}
 }
 

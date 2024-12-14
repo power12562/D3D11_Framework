@@ -6,7 +6,7 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Framework\ImguiHelper.h>
 #include <Math\Mathf.h>
-#include <Component\TransformAnimation.h>
+#include <Component/Animation/TransformAnimation.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>

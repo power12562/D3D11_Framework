@@ -1,12 +1,15 @@
 #include "TransformTest.h"
 
-int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance,
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR lpCmdLine,
+    _In_ int nShowCmd)
 {
-    UNREFERENCED_PARAMETER(hInstPrev);
-    UNREFERENCED_PARAMETER(cmdshow);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(nShowCmd);
 
     TransformTest app;
-    app.Initialize(hInst);
+    app.Initialize(hInstance);
     if(app.InitD3D() && app.InitScene())
     {
         app.Run();

@@ -20,7 +20,9 @@
     <ClCompile Include="Source\StartApp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MainEntry.cpp" />
+    <ClCompile Include="Source\MainEntry.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicPixelShader.hlsl">

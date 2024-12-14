@@ -3,7 +3,7 @@
 #include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Framework\ResourceManager.h>
-#include <Component/BoneComponent.h>
+#include <Component/Bone/BoneComponent.h>
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {

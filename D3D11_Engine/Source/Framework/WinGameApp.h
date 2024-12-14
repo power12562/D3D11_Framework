@@ -1,6 +1,9 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Utility/DumpUtility.h>
+
+#pragma comment(lib, "Dbghelp.lib")
 
 class WinGameApp
 {

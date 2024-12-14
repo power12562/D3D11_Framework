@@ -18,10 +18,10 @@
 #include <GameObject/Mesh/CubeObject.h>
 
 //Components
-#include <Component/BoneComponent.h>
+#include <Component/Bone/BoneComponent.h>
 #include <Component/Camera/Camera.h>
 #include <Component/Camera/CameraMoveHelper.h>
-#include <Component/TransformAnimation.h>
+#include <Component/Animation/TransformAnimation.h>
 
 #include <Component/Render/BlingPhongBoneMeshRender.h>
 #include <Component/Render/BlingPhongMeshRender.h>

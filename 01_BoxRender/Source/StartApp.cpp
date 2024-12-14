@@ -92,7 +92,9 @@ bool D3D11_BoxDrawApp::InitD3D()
 		// 4. 렌더타겟뷰 생성.  (백버퍼를 이용하는 렌더타겟뷰)	
 		ID3D11Texture2D* pBackBufferTexture = nullptr;
 		CheckHRESULT(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture));
-		CheckHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  //텍스처는 내부 참조 증가
+
+		if(pBackBufferTexture)
+			CheckHRESULT(m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView));  //텍스처는 내부 참조 증가
 		SafeRelease(pBackBufferTexture);	//외부 참조 카운트를 감소시킨다.
 		// 렌더 타겟을 최종 출력 파이프라인에 바인딩합니다.
 		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);

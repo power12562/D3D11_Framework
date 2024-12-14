@@ -15,6 +15,7 @@ using ObjectList = const std::vector<GameObject*>;
 class SceneManager : public TSingleton<SceneManager>
 {
 	friend TSingleton;
+	friend class WinGameApp;
 	friend class D3D11_GameApp;
 	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

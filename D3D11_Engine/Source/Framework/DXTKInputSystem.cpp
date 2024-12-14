@@ -16,7 +16,8 @@ InputProcesser::InputProcesser()
 InputProcesser::~InputProcesser()
 {
    auto& inputList = DXTKinputSystem.inputProcessersList;
-   inputList.erase(std::find(inputList.begin(), inputList.end(), this));
+   if(!inputList.empty())
+	inputList.erase(std::find(inputList.begin(), inputList.end(), this));
 }
 
 
