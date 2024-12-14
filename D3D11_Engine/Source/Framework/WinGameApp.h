@@ -4,6 +4,7 @@
 
 class WinGameApp
 {
+protected:
 	//실행중인 앱
 	inline static WinGameApp* RunApp{};
 public:
@@ -17,11 +18,15 @@ public:
 public:
 	static HWND GetHWND() { return hwnd; }
 	static HINSTANCE GetHINSTANCE() { return hInstance; }			
-	static const SIZE& GetClientSize() { return size; }
+	static const SIZE& GetClientSize() { return RunApp->clientSize; }
 	static DWORD GetWindowStyleEX() { return RunApp ? RunApp->windowStyleEX : NULL; }
 
 	/**클라이언트를 화면 가운데로 위치 시킨다.*/ 
 	static void WinToScreenCenter(HWND hwnd);
+
+	/**클라이언트를 크기 변경.*/
+	static void WinClientResize(HWND hwnd, int width, int height);
+
 
 	/** 현재 실행중인 게임루프를 종료시킵니다.*/
 	static void GameEnd();
@@ -67,7 +72,6 @@ private:
 	void UninitImGUI();
 
 private:
-	inline static SIZE size{};
 	inline static HINSTANCE hInstance{};
 	inline static HWND hwnd{};
 

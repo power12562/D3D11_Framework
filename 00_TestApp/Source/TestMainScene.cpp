@@ -39,6 +39,29 @@ void TestMainScene::ImGUIRender()
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
 
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
+
+        if (ImGui::Button("Change Resolution"))
+            ImGui::OpenPopup("Screen Resolution");
+
+        if (ImGui::BeginPopupModal("Screen Resolution", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            static SIZE resolution;
+            // 해상도 입력
+            ImGui::InputInt("Width", reinterpret_cast<int*>(&resolution.cx));
+            ImGui::InputInt("Height", reinterpret_cast<int*>(&resolution.cy));
+
+            if (ImGui::Button("OK"))
+            {
+                if (resolution.cx > 0 && 0 < resolution.cy)
+                {
+                    D3D11_GameApp::ChangeResolution(resolution);
+                    resolution.cx = 0;
+                    resolution.cy = 0;
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
     }
     ImGui::End();
 

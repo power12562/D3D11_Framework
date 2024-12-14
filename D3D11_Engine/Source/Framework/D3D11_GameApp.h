@@ -10,6 +10,9 @@ class D3D11_GameApp : public WinGameApp
 public:
 	static void GameEnd();
 
+	//해상도 변경
+	static void ChangeResolution(SIZE resize);
+
 public:
 	D3D11_GameApp();
 	virtual ~D3D11_GameApp() override;

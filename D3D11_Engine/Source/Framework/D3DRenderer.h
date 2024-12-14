@@ -41,7 +41,7 @@ private:
 public:
 	ID3D11Device*			GetDevice() { return pDevice; }
 	ID3D11DeviceContext*	GetDeviceContext() { return pDeviceContext; }
-	IDXGISwapChain*			GetSwapChain() { return pSwapChain; }
+	IDXGISwapChain1*		GetSwapChain() { return pSwapChain; }
 	ID3D11RenderTargetView* GetRenderTargetView() { return pRenderTargetView; }
 	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
 
@@ -107,12 +107,13 @@ public:
 	//사용 가능한 화면 모드들 가져오기.
 	std::vector<DXGI_MODE_DESC1> GetDisplayModeList(int AdapterIndex, int OutputIndex);
 
+	//스왑 체인 재생성
+	void ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc); 
+
 	//전체화면 <-> 창모드 전환.
 	void ToggleFullscreenMode();
 private:
-
 	bool swapChainWindowed = false;
-	void ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc); //스왑 체인 재생성
 	const wchar_t* GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation);
 };
 

@@ -59,7 +59,6 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN) // Alt + Enter ют╥б╫ц
 		{
-			Debug_printf("Alt + Enter!\n");
 			d3dRenderer.ToggleFullscreenMode();
 		}
 		else
@@ -76,6 +75,25 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 void D3D11_GameApp::GameEnd()
 {
 	sceneManager.EndGame = true;
+}
+
+void D3D11_GameApp::ChangeResolution(SIZE resize)
+{
+	if (D3D11_GameApp* app = static_cast<D3D11_GameApp*>(RunApp))
+	{
+		SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+		if (resize.cx <= 0 || 0 >= resize.cy ||
+			resize.cx > maxClientSize.cx || maxClientSize.cy < resize.cy)
+			resize = maxClientSize;
+
+		app->clientSize = resize;
+		WinClientResize(GetHWND(), (int)app->clientSize.cx, (int)app->clientSize.cy);
+		DXGI_SWAP_CHAIN_DESC1 desc{};
+		Utility::CheckHRESULT(d3dRenderer.GetSwapChain()->GetDesc1(&desc));
+		desc.Width = resize.cx;
+		desc.Height = resize.cy;
+		d3dRenderer.ReCreateSwapChain(&desc);
+	}
 }
 
 D3D11_GameApp::D3D11_GameApp()

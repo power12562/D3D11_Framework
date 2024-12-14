@@ -35,14 +35,7 @@ void WinGameApp::Initialize(HINSTANCE hinstance)
 
 void WinGameApp::Run()
 {
-	if (RunApp)
-	{
-		__debugbreak(); //2개의 앱 루프 실행 불가.
-		return;
-	}
-
 	using namespace TimeSystem;
-	RunApp = this;
 	Time.UpdateTime();
 	Start();
 	// PeekMessage 메세지가 있으면 true,없으면 false
@@ -84,7 +77,18 @@ void WinGameApp::WinToScreenCenter(HWND hwnd)
 	height = rtWindow.bottom - rtWindow.top;
 	x = (rtDesk.right - width) / 2;
 	y = (rtDesk.bottom - height) / 2;
-	MoveWindow(hwnd, x, y, width, height, TRUE);
+	MoveWindow(hwnd, x, y, width, height, FALSE);
+}
+
+void WinGameApp::WinClientResize(HWND hwnd, int width, int height)
+{
+	int x, y;
+	RECT rtDesk, rtWindow;
+	GetWindowRect(GetDesktopWindow(), &rtDesk);
+	GetWindowRect(hwnd, &rtWindow);
+	x = (rtDesk.right - width) / 2;
+	y = (rtDesk.bottom - height) / 2;
+	MoveWindow(hwnd, x, y, width, height, FALSE);
 }
 
 void WinGameApp::GameEnd()
@@ -107,12 +111,19 @@ int WinGameApp::GetFPS()
 
 bool WinGameApp::WinInit(HINSTANCE hInstance)
 {
+	if (RunApp)
+	{
+		__debugbreak(); //2개의 앱 루프 실행 불가.
+		return false;
+	}
+	RunApp = this;
+
 	//static hInstance
 	if (WinGameApp::hInstance == NULL)
 	{
 		WinGameApp::hInstance = hInstance;
-	}																  
-
+	}								
+								  
 	// 윈도우 클래스 구조체 초기화
 	WNDCLASSEX wc = { 0 };
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -143,12 +154,11 @@ bool WinGameApp::WinInit(HINSTANCE hInstance)
 		return false;
 	}
 
-	if (clientSize.cx > 0 || clientSize.cy > 0)
-		WinGameApp::size = clientSize;
-	else
-		WinGameApp::size = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	if (clientSize.cx <= 0 || 0 >= clientSize.cy || 
+		clientSize.cx > maxClientSize.cx || maxClientSize.cy < clientSize.cy)
+		clientSize = maxClientSize;
 	
-	SIZE clientSize = WinGameApp::size;
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };
 	AdjustWindowRect(&clientRect, windowStyleEX, FALSE); 	// 원하는 크기가 조정되어 리턴
 	 

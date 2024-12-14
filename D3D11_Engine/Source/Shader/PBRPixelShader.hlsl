@@ -48,7 +48,7 @@ float4 main(PS_INPUT input) : SV_Target
 {   
     float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
     albedoSample.rgb = GammaToLinearSpaceExact(albedoSample.rgb);
-    float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex);
+    float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb;
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;

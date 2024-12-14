@@ -566,6 +566,11 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
 {
     if (pSwapChain)
     {    
+        DXGI_SWAP_CHAIN_DESC1 pervDesc;
+        CheckHRESULT(pSwapChain->GetDesc1(&pervDesc));
+        float resolutionScaleX = (float)swapChainDesc->Width / (float)pervDesc.Width;
+        float resolutionScaleY = (float)swapChainDesc->Height / (float)pervDesc.Height;
+
         std::vector<D3D11_VIEWPORT> lastViewports(viewportsCount);
         pDeviceContext->RSGetViewports(&viewportsCount, lastViewports.data());
 
@@ -591,6 +596,13 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         SafeRelease(pBackBufferTexture);      
 
         SetDefaultOMState();  
+        
+        //뷰포트 크기 재조정
+        for (auto& viewport : lastViewports)
+        {
+            viewport.Width = std::round(viewport.Width * resolutionScaleX);
+            viewport.Height = std::round(viewport.Height * resolutionScaleY);
+        }
         SetViewports(lastViewports);
     }
 }

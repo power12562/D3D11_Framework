@@ -6,7 +6,7 @@
 
 #include "../Source/TestMainScene.h"
 
-int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hInstPrev, LPWSTR cmdline, int cmdshow)
+int WINAPI wWinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hInstPrev, _In_ LPWSTR cmdline, _In_ int cmdshow)
 {
     UNREFERENCED_PARAMETER(hInstPrev);
     UNREFERENCED_PARAMETER(cmdshow);
