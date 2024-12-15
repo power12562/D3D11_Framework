@@ -411,7 +411,7 @@ namespace Utility
 				}
 			}
 
-			//CreateChildObjects
+			//Create Child Objects
 			for (unsigned int i = 0; i < currSourceObj->transform.GetChildCount(); i++)
 			{
 				GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
