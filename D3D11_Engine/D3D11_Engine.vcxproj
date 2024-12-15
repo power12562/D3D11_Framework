@@ -167,6 +167,7 @@
     <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\Framework\D3DSamplerState.h" />
     <ClInclude Include="Source\Framework\D3DTexture2D.h" />
+    <ClInclude Include="Source\Framework\GameObjectFactory.h" />
     <ClInclude Include="Source\Framework\ResourceManager.h" />
     <ClInclude Include="Source\Framework\TextureManager.h" />
     <ClInclude Include="Source\Framework\ThreadPool.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="Source\Component\Animation\TransformAnimation.cpp" />
     <ClCompile Include="Source\Framework\D3DSamplerState.cpp" />
     <ClCompile Include="Source\Framework\D3DTexture2D.cpp" />
+    <ClCompile Include="Source\Framework\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Framework\TextureManager.cpp" />
     <ClCompile Include="Source\Framework\ResourceManager.cpp" />
     <ClCompile Include="Source\Framework\ThreadPool.cpp" />

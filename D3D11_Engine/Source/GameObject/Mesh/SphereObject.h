@@ -4,6 +4,7 @@
 #include <Material/PBRMaterial.h>
 class SphereObject : public GameObject
 {
+	SERIALIZED_OBJECT(SphereObject)
 public:
 	SphereObject();
 	virtual ~SphereObject() override = default;

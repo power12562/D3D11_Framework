@@ -1,14 +1,13 @@
 #pragma once
-#include <Scene\Base\Scene.h>
 #include <Framework\TSingleton.h>
-#include <GameObject/Base/GameObject.h>
+#include <Utility/AssimpUtility.h>
 #include <unordered_map>
 #include <string>
 #include <functional>
 #include <queue>
 #include <set>
-#include <Utility/AssimpUtility.h>
 #include <Utility/utfConvert.h>
+#include <Scene\Base\Scene.h>
 
 extern class SceneManager& sceneManager;
 using ObjectList = const std::vector<GameObject*>;
@@ -17,12 +16,8 @@ class SceneManager : public TSingleton<SceneManager>
 	friend TSingleton;
 	friend class WinGameApp;
 	friend class D3D11_GameApp;
-	friend const std::wstring& GameObject::SetName(const wchar_t* _name);
+	friend class GameObject;
 	friend LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-public:	
-	template<typename ObjectType>
-	static ObjectType* NewGameObject(const wchar_t* name);
 
 private:
 	SceneManager();
@@ -40,6 +35,9 @@ private:
 public:
 	template <typename T>
 	void LoadScene();
+
+	/*현재 씬에 오브젝트 추가*/
+	void AddGameObject(std::shared_ptr<GameObject>& object);
 
 	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
 	void SetResouceObj(const wchar_t* key, GameObject* obj);
@@ -80,32 +78,6 @@ private:
 	void ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName);
 	void EraseObject(GameObject* obj);
 };
-
-template<typename ObjectType = GameObject>
-ObjectType* NewGameObject(const wchar_t* name)
-{
-	return SceneManager::NewGameObject<ObjectType>(name);
-}
-
-#include <Framework\InstanceIDManager.h>
-template<typename ObjectType>
-inline ObjectType* SceneManager::NewGameObject(const wchar_t* name)
-{
-	static_assert(std::is_base_of_v<GameObject, ObjectType>, "is not gameObject");
-
-	std::shared_ptr<ObjectType> newObject = std::make_shared<ObjectType>();
-
-	if (sceneManager.nextScene)
-		sceneManager.nextAddQueue.push(std::static_pointer_cast<GameObject>(newObject));
-	else
-		sceneManager.currAddQueue.push(std::static_pointer_cast<GameObject>(newObject));
-
-	newObject->Name = name;
-	newObject->instanceID = instanceIDManager.getUniqueID();
-	newObject->myptr = newObject;
-
-	return newObject.get();
-}
 
 template<typename T>
 inline void SceneManager::LoadScene()

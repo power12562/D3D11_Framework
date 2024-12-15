@@ -4,6 +4,7 @@
 
 class CameraObject : public GameObject
 {
+	SERIALIZED_OBJECT(CameraObject)
 public:
 	CameraObject();
 	virtual ~CameraObject() override;

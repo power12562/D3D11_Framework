@@ -4,10 +4,7 @@
 #include <Framework\Transform.h>
 #include <functional>
 
-
-class SimpleMaterial;
 class MeshRender;
-class Scene;
 class GameObject;
 
 enum class SURFACE_TYPE

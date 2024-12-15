@@ -4,6 +4,7 @@
 class SkyBoxRender;
 class SkyBoxObject : public GameObject
 {
+	SERIALIZED_OBJECT(SkyBoxObject)
 public:
 	SkyBoxObject();
 	virtual ~SkyBoxObject() override = default;

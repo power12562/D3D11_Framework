@@ -5,6 +5,14 @@
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 
+void SceneManager::AddGameObject(std::shared_ptr<GameObject>& object)
+{
+	if (sceneManager.nextScene)
+		sceneManager.nextAddQueue.push(object);
+	else
+		sceneManager.currAddQueue.push(object);
+}
+
 SceneManager::SceneManager()
 {
 

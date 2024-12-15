@@ -3,6 +3,7 @@
 
 class CubeObject : public PBRMeshObject
 {
+	SERIALIZED_OBJECT(CubeObject)
 public:
 	CubeObject();
 	virtual ~CubeObject() override = default;

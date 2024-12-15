@@ -4,6 +4,7 @@
 
 class PBRMeshObject : public GameObject
 {
+	SERIALIZED_OBJECT(PBRMeshObject)
 public:
 	PBRMeshObject() = default;
 	virtual ~PBRMeshObject() override = default;

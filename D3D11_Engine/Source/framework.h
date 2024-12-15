@@ -8,6 +8,7 @@
 #include <Framework/SceneManager.h>
 #include <Framework/TextureManager.h>
 #include <Framework/TimeSystem.h>
+#include <Framework/GameObjectFactory.h>
 
 //gameObjects
 #include <GameObject/Base/CameraObject.h>

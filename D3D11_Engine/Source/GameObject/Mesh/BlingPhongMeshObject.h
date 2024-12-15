@@ -4,6 +4,7 @@
 
 class BlingPhongMeshObject : public GameObject
 {
+	SERIALIZED_OBJECT(BlingPhongMeshObject)
 public:
 	BlingPhongMeshObject() = default;
 	virtual ~BlingPhongMeshObject() override = default;

@@ -5,6 +5,7 @@
 #include <Material/PBRMaterial.h>
 #include <Light/PBRDirectionalLight.h>
 #include <map>
+#include <Framework/GameObjectFactory.h>
 
 class Camera;
 class TestMainScene : public Scene, public InputProcesser

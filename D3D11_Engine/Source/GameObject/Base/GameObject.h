@@ -3,6 +3,7 @@
 #include <Utility/Console.h>
 #include <memory>
 #include <string>
+#include <Framework/GameObjectFactory.h>
 
 #pragma warning( disable : 4267)
 
@@ -10,12 +11,15 @@ class Component;
 class RenderComponent;
 class GameObject
 {		 
+	SERIALIZED_OBJECT(GameObject)
 	friend class Scene;
 	friend class SceneManager;
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
 	static GameObject* Find(const wchar_t* name);
+	template<typename ObjectType>
+	inline static ObjectType* NewGameObject(const wchar_t* name);
 
 public:
 	GameObject(); 
@@ -139,4 +143,25 @@ inline T* GameObject::GetComponentAtIndex(int index)
 	return nullptr;
 }
 
+template<typename ObjectType = GameObject>
+ObjectType* NewGameObject(const wchar_t* name)
+{
+	return GameObject::NewGameObject<ObjectType>(name);
+}
 
+#include <Framework\InstanceIDManager.h>
+template<typename ObjectType>
+inline ObjectType* GameObject::NewGameObject(const wchar_t* name)
+{
+	static_assert(std::is_base_of_v<GameObject, ObjectType>, "is not gameObject");
+
+	std::shared_ptr<ObjectType> newObject = std::make_shared<ObjectType>();
+	std::shared_ptr<GameObject> baseObject = std::static_pointer_cast<GameObject>(newObject);
+	baseObject->Name = name;
+	baseObject->instanceID = instanceIDManager.getUniqueID();
+	baseObject->myptr = baseObject;
+
+	sceneManager.AddGameObject(baseObject);
+
+	return newObject.get();
+}

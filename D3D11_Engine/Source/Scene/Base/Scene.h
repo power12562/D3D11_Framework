@@ -5,9 +5,9 @@
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
-#include <GameObject\Base\GameObject.h>
 #include <Utility/AssimpUtility.h>
 
+class GameObject;
 class Scene
 {
 	friend class SceneManager;

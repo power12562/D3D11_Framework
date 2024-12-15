@@ -8,6 +8,7 @@
 #include <Framework/ImguiHelper.h>
 #include <Utility/Console.h>
 #include <Utility/SpinLock.h>
+#include <GameObject/Base/GameObject.h>
 
 Scene::Scene()
 {
