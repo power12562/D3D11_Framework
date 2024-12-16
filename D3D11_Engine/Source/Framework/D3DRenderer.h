@@ -22,7 +22,7 @@ struct SYSTEM_MEMORY_INFO;
 struct RENDERER_DRAW_DESC;
 struct RENDERER_SETTING_DESC
 {
-	bool UseVSync = true;
+	bool UseVSync = false;
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>

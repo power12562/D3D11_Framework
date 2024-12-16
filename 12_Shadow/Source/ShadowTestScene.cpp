@@ -18,7 +18,7 @@ void ShadowTestScene::Start()
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::Specular_IBL, L"Resource/Skybox/RoomSpecularHDR.dds");
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::BRDF_LUT, L"Resource/Skybox/RoomBrdf.dds");
 	
-	constexpr int count = 100;
+	constexpr int count = 30;
 	size_t zCount = std::sqrt(count * 3);
 	for (size_t i = 0; i < count; i++)
 	{
@@ -44,6 +44,7 @@ void ShadowTestScene::ImGUIRender()
 
 	ImGui::Begin("Debug");
 	{
+		ImGui::Text("%d", TimeSystem::Time.GetFrameRate());
 		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
