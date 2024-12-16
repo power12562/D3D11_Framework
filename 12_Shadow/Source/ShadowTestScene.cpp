@@ -1,9 +1,10 @@
 #include "ShadowTestScene.h"
 #include <framework.h>
 
+constexpr float positionDumpX = 20;
+constexpr float positionDumpZ = 20;
 void ShadowTestScene::Start()
 {
-	constexpr int SpawnCount = 100;
 	Scene::UseImGUI = true;
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
@@ -18,22 +19,23 @@ void ShadowTestScene::Start()
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::Specular_IBL, L"Resource/Skybox/RoomSpecularHDR.dds");
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::BRDF_LUT, L"Resource/Skybox/RoomBrdf.dds");
 	
+	cube = NewGameObject<CubeObject>(L"ground");
+
 	constexpr int count = 30;
-	size_t zCount = std::sqrt(count * 3);
+	size_t zCount = static_cast<size_t>(std::sqrt(count * 3));
 	for (size_t i = 0; i < count; i++)
 	{
 		AddObjects(zCount);
 	}
-	int N = std::ceil(std::sqrt(count)); 
-	int centerX = (N - 1) / 2;
-	int centerZ = (N - 1) / 2;
-	centerX *= 40;
-	centerZ *= 40;
+	size_t centerRow = zCount / 2;
+	size_t centerColumn = zCount / 2;
 
-	auto cube = NewGameObject<CubeObject>(L"ground");
+	float centerX = centerColumn * positionDumpX;
+	float centerZ = centerRow * positionDumpZ;
+
 	cube->transform.position = Vector3(centerX, -5.f, centerZ);
 	float cubeScale = zCount;
-	cube->transform.scale = Vector3(count, 0.5f, count);
+	cube->transform.scale = Vector3(count * 5, 0.5f, count * 5);
 }
 
 void ShadowTestScene::ImGUIRender()
@@ -98,8 +100,6 @@ void ShadowTestScene::ImGUIRender()
 
 void ShadowTestScene::AddObjects(size_t positionZcount)
 {
-	constexpr float positionDumpX = 20;
-	constexpr float positionDumpZ = 20;
 	static size_t positionCountX = 0;
 	static size_t positionCountZ = 1;
 

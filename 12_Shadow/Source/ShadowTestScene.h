@@ -20,6 +20,6 @@ private:
 	class Camera* pCamera = nullptr;
 	class CameraMoveHelper* pCameraMoveHelper = nullptr;
 	class SkyBoxObject* skyBox = nullptr;
-
+	class GameObject* cube = nullptr;
 	void AddObjects(size_t positionZcount);
 };
