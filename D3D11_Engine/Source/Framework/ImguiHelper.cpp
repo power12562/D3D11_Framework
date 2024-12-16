@@ -103,6 +103,40 @@ void ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditF
 	ImGui::ColorEdit4(label, (float*)pColor, flags);
 }
 
+void ImGui::EditHierarchyView()
+{
+	auto ObjectEditUI = [](GameObject* object) 
+		{
+			ImGui::Checkbox("Active", &object->Active);
+			ImGui::DragVector3("Position", &object->transform.position, 0.1f);
+			ImGui::DragQuaternion("Rotation", &object->transform.rotation);
+			ImGui::DragVector3("Scale", &object->transform.scale, 0.1f);
+		};
+	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
+		{
+			ImGui::PushID(g_id);
+			if (ImGui::TreeNode(transform->gameObject.GetNameToString().c_str()))
+			{
+				ObjectEditUI(&transform->gameObject);
+				unsigned int childCount = transform->GetChildCount();
+				for (size_t i = 0; i < childCount; ++i)
+				{
+					TransformBFS(transform->GetChild(i));
+				}
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+			g_id++;
+		};
+
+	ObjectList& objects = sceneManager.GetObjectList();
+	for (auto& object : objects)
+	{
+		if(object->transform.Parent == nullptr)
+			TransformBFS(&object->transform);
+	}
+}
+
 void ImGui::EditTransform(GameObject* gameObject)
 {
 	ImGui::PushID(g_id);

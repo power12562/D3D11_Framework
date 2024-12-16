@@ -39,6 +39,9 @@ private:
 	unsigned int instanceID = -1;
 	std::wstring name;
 
+private:
+	void UpdateChildActive(Transform* rootTransform);
+
 public:
 	std::weak_ptr<GameObject> GetWeakPtr() { return myptr; }
 private:
@@ -55,6 +58,9 @@ public:
 	Transform transform;
 	bool Active = true;
 
+private:
+	bool checkActive = true;
+	inline bool CheckActive() const { return checkActive != Active; }
 public:
 	/*컴포넌트 추가*/
 	template <typename T>

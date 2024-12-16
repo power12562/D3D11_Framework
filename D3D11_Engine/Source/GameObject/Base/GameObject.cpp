@@ -104,6 +104,17 @@ void GameObject::Render()
 	}
 }
 
+void GameObject::UpdateChildActive(Transform* rootObject)
+{
+	for (auto& child : rootObject->childList)
+	{
+		child->gameObject.Active = rootObject->gameObject.Active;
+		child->gameObject.checkActive = rootObject->gameObject.checkActive;
+		if (!child->childList.empty())
+			UpdateChildActive(child);
+	}
+}
+
 const std::wstring& GameObject::SetName(const wchar_t* _name)
 {
 	if (wcscmp(name.c_str(), _name) == 0)

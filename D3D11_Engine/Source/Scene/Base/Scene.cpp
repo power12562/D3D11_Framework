@@ -39,6 +39,13 @@ void Scene::Update()
 {
 	for (auto& obj : objectList)
 	{
+		if (obj->CheckActive())
+		{
+			obj->checkActive = obj->Active;
+			if (obj->transform.GetChildCount())
+				obj->UpdateChildActive(&obj->transform);
+		}
+
 		if (obj && obj->Active)
 			obj->Update();
 	}

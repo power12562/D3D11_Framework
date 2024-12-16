@@ -597,7 +597,7 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         CheckHRESULT(pSwapChain->SetFullscreenState(!swapChainWindowed, NULL));
         if (!swapChainWindowed) //전체화면 모드면.
         {
-            SIZE resolution{ swapChainDesc->Width, swapChainDesc->Height };
+            SIZE resolution{ (LONG)swapChainDesc->Width, (LONG)swapChainDesc->Height };
             DXGI_MODE_DESC1 modeDesc = GetClosestResolution(0, 0, resolution);
             DEVMODE devMode{};
             devMode.dmSize = sizeof(DEVMODE);
