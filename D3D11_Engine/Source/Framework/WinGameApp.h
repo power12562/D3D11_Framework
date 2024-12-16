@@ -23,13 +23,14 @@ public:
 	static HINSTANCE GetHINSTANCE() { return hInstance; }			
 	static const SIZE& GetClientSize() { return RunApp->clientSize; }
 	static DWORD GetWindowStyleEX() { return RunApp ? RunApp->windowStyleEX : NULL; }
+	//!size <= 0 이거나 size > maxScreenSize 이면 최대 크기로 조정해줍니다.
+	static void ClampScreenMaxSize(SIZE& size);
 
 	/**클라이언트를 화면 가운데로 위치 시킨다.*/ 
 	static void WinToScreenCenter(HWND hwnd);
 
 	/**클라이언트를 크기 변경.*/
 	static void WinClientResize(HWND hwnd, int width, int height);
-
 
 	/** 현재 실행중인 게임루프를 종료시킵니다.*/
 	static void GameEnd();

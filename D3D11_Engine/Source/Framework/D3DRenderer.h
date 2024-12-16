@@ -104,6 +104,9 @@ public:
 	//현재 디스플레이 설정 가져오기.
 	DXGI_MODE_DESC1 GetDisplayMode(int AdapterIndex, int OutputIndex);
 
+	//가장 가까운 해상도의 모드 가져오기.
+	DXGI_MODE_DESC1 GetClosestResolution(int AdapterIndex, int OutputIndex, SIZE resolution);
+
 	//사용 가능한 화면 모드들 가져오기.
 	std::vector<DXGI_MODE_DESC1> GetDisplayModeList(int AdapterIndex, int OutputIndex);
 
@@ -115,6 +118,8 @@ public:
 private:
 	bool swapChainWindowed = false;
 	const wchar_t* GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation);
+
+	DWORD GetColorBitDepth(DXGI_FORMAT format);
 };
 
 struct USAGE_VRAM_INFO

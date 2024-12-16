@@ -81,7 +81,7 @@ void D3DRenderer::Init()
         swapDesc.OutputWindow = WinGameApp::GetHWND(); //핸들 윈도우
         swapDesc.Windowed = true; //창모드 유무
         swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //출력 포멧 지정.
-        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //플립 모드 사용.   
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; //플립 모드 사용.   
         swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
         swapChainWindowed = swapDesc.Windowed;
 
@@ -484,6 +484,17 @@ DXGI_MODE_DESC1 D3DRenderer::GetDisplayMode(int AdapterIndex, int OutputIndex)
     return outDesc;
 }
 
+DXGI_MODE_DESC1 D3DRenderer::GetClosestResolution(int AdapterIndex, int OutputIndex, SIZE resolution)
+{
+    DXGI_MODE_DESC1 targetDesc{};
+    targetDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    targetDesc.Width = resolution.cx;
+    targetDesc.Height = resolution.cy;
+    DXGI_MODE_DESC1 outDesc{};
+    Utility::CheckHRESULT(DXGIOutputs[AdapterIndex][OutputIndex]->FindClosestMatchingMode1(&targetDesc, &outDesc, nullptr));
+    return outDesc;
+}
+
 std::vector<DXGI_MODE_DESC1> D3DRenderer::GetDisplayModeList(int AdapterIndex, int OutputIndex)
 {
     using namespace Utility;
@@ -512,12 +523,13 @@ void D3DRenderer::ToggleFullscreenMode()
         swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
         swapDesc.Stereo = false; //스테레오 유무
         swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
-        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //플립 모드.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;      //플립 모드.
         swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
    
-        //버퍼 크기 지정
-        swapDesc.Width = clientSize.cx;
-        swapDesc.Height = clientSize.cy;
+        //버퍼 크기 지정. 사용 가능한 가장 가까운 해상도 찾는다.
+        DXGI_MODE_DESC1 decs = GetClosestResolution(0, 0, clientSize);
+        swapDesc.Width = decs.Width;
+        swapDesc.Height = decs.Height;
 
         //샘플링 설정 *(MSAA)
         swapDesc.SampleDesc.Count = 1;
@@ -538,7 +550,7 @@ void D3DRenderer::ToggleFullscreenMode()
         swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //버퍼 사용 방식 지정
         swapDesc.Stereo = false; //스테레오 유무
         swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  //출력 포멧 지정.
-        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;      //플립 모드.
+        swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;      //플립 모드.
         swapDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; //전체 화면 변환시 해상도 및 모니터 설정 자동 변경 플래그
 
         //버퍼 사이즈 지정
@@ -583,6 +595,28 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         fullScreenDesc.Windowed = swapChainWindowed;
         CheckHRESULT(pDXGIFactory->CreateSwapChainForHwnd(pDevice, WinGameApp::GetHWND(), swapChainDesc, &fullScreenDesc, nullptr, &pSwapChain));
         CheckHRESULT(pSwapChain->SetFullscreenState(!swapChainWindowed, NULL));
+        if (!swapChainWindowed) //전체화면 모드면.
+        {
+            SIZE resolution{ swapChainDesc->Width, swapChainDesc->Height };
+            DXGI_MODE_DESC1 modeDesc = GetClosestResolution(0, 0, resolution);
+            DEVMODE devMode{};
+            devMode.dmSize = sizeof(DEVMODE);
+            devMode.dmPelsWidth = resolution.cx;  // 새로 설정할 해상도 너비
+            devMode.dmPelsHeight = resolution.cy; // 새로 설정할 해상도 높이
+            devMode.dmBitsPerPel = GetColorBitDepth(modeDesc.Format);  
+            devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+            LONG result = ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
+            if (result != DISP_CHANGE_SUCCESSFUL) 
+            {
+                __debugbreak(); //해상도 변경 실패
+            }
+        }
+
+        DXGI_MODE_DESC modeDesc{};
+        modeDesc.Width = swapChainDesc->Width;
+        modeDesc.Height = swapChainDesc->Height;
+        modeDesc.Format = swapChainDesc->Format;
+        CheckHRESULT(pSwapChain->ResizeTarget(&modeDesc));
         CheckHRESULT(pSwapChain->ResizeBuffers(2, swapChainDesc->Width, swapChainDesc->Height, swapChainDesc->Format, swapChainDesc->BufferUsage));
 
         //렌더타겟뷰 재 생성
@@ -592,8 +626,33 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
             CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);      
 
+        //깊이 버퍼 재 생성
+        ref = SafeRelease(pDepthStencilView);
+        D3D11_TEXTURE2D_DESC descDepth = {};
+        descDepth.Width = modeDesc.Width;
+        descDepth.Height = modeDesc.Height;
+        descDepth.MipLevels = 1;
+        descDepth.ArraySize = 1;
+        descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        descDepth.SampleDesc.Count = 1;
+        descDepth.SampleDesc.Quality = 0;
+        descDepth.Usage = D3D11_USAGE_DEFAULT;
+        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+        descDepth.CPUAccessFlags = 0;
+        descDepth.MiscFlags = 0;
+
+        ID3D11Texture2D* textureDepthStencil = nullptr;
+        CheckHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+        descDSV.Format = descDepth.Format;
+        descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+        descDSV.Texture2D.MipSlice = 0;
+        if (textureDepthStencil)
+            CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
+        SafeRelease(textureDepthStencil);
+
         SetDefaultOMState();  
-        
         //뷰포트 크기 재조정
         for (auto& viewport : lastViewports)
         {
@@ -620,5 +679,54 @@ const wchar_t* D3DRenderer::GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotatio
         return L"ROTATE270";
     default:
         return L"UNKNOWN";
+    }
+}
+
+DWORD D3DRenderer::GetColorBitDepth(DXGI_FORMAT format)
+{
+    switch (format) {
+    case DXGI_FORMAT_R8G8B8A8_UNORM:
+    case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+        return 32; // 8-bit per channel, 4 channels (R, G, B, A)
+
+    case DXGI_FORMAT_B8G8R8A8_UNORM:
+    case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+        return 32; // 8-bit per channel, 4 channels (B, G, R, A)
+
+    case DXGI_FORMAT_R16G16B16A16_FLOAT:
+        return 64; // 16-bit per channel, 4 channels (R, G, B, A)
+
+    case DXGI_FORMAT_R32G32B32A32_FLOAT:
+        return 128; // 32-bit per channel, 4 channels (R, G, B, A)
+
+    case DXGI_FORMAT_R16G16B16A16_UNORM:
+        return 64; // 16-bit per channel, 4 channels (R, G, B, A)
+
+    case DXGI_FORMAT_R32G32_FLOAT:
+        return 64; // 32-bit per channel, 2 channels (R, G)
+
+    case DXGI_FORMAT_R32_FLOAT:
+        return 32; // 32-bit per channel, 1 channel (R)
+
+    case DXGI_FORMAT_R8G8B8A8_SNORM:
+        return 32; // 8-bit per channel, 4 channels (R, G, B, A)
+
+    case DXGI_FORMAT_R8_UNORM:
+        return 8; // 8-bit per channel, 1 channel (R)
+
+    case DXGI_FORMAT_R16_UNORM:
+        return 16; // 16-bit per channel, 1 channel (R)
+
+    case DXGI_FORMAT_R32_UINT:
+        return 32; // 32-bit per channel, 1 channel (R)
+
+    case DXGI_FORMAT_D32_FLOAT:
+        return 32; // Depth buffer, 32-bit (single channel)
+
+    case DXGI_FORMAT_D24_UNORM_S8_UINT:
+        return 32; // Depth 24-bit, Stencil 8-bit
+
+    default:
+        throw std::runtime_error("Unsupported format.");
     }
 }

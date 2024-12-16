@@ -21,15 +21,6 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 	switch (message)
 	{
-
-#pragma region 반드시 포함
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		sceneManager.currScene.reset();
-		ClearGame();
-		break;
-#pragma endregion
-
 #pragma region DXTKInputSystem 사용시 포함
 	case WM_ACTIVATEAPP:
 		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
@@ -57,15 +48,27 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 #pragma endregion 
 
 	case WM_SYSKEYDOWN:
+	{
 		if (wParam == VK_RETURN) // Alt + Enter 입력시
 		{
 			d3dRenderer.ToggleFullscreenMode();
 		}
-		else
-		{
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
+		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
+	}
+	case WM_STYLECHANGED:
+	{
+		break;
+	}
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		sceneManager.currScene.reset();
+		ClearGame();
+		break;
+	case WM_EXITSIZEMOVE: 
+	{
+		break;
+	}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -81,17 +84,12 @@ void D3D11_GameApp::ChangeResolution(SIZE resize)
 {
 	if (D3D11_GameApp* app = static_cast<D3D11_GameApp*>(RunApp))
 	{
-		SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
-		if (resize.cx <= 0 || 0 >= resize.cy ||
-			resize.cx > maxClientSize.cx || maxClientSize.cy < resize.cy)
-			resize = maxClientSize;
-
-		app->clientSize = resize;
-		WinClientResize(GetHWND(), (int)app->clientSize.cx, (int)app->clientSize.cy);
+		D3D11_GameApp::ClampScreenMaxSize(resize);
+		WinClientResize(GetHWND(), (int)resize.cx, (int)resize.cy);
 		DXGI_SWAP_CHAIN_DESC1 desc{};
 		Utility::CheckHRESULT(d3dRenderer.GetSwapChain()->GetDesc1(&desc));
-		desc.Width = resize.cx;
-		desc.Height = resize.cy;
+		desc.Width = app->clientSize.cx;
+		desc.Height = app->clientSize.cy;
 		d3dRenderer.ReCreateSwapChain(&desc);
 	}
 }

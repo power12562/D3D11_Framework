@@ -83,6 +83,16 @@ void WinGameApp::Uninitialize()
 	d3dRenderer.Uninit();
 }
 
+void WinGameApp::ClampScreenMaxSize(SIZE& size)
+{
+	static const SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	if (size.cx <= 0 || 0 >= size.cy ||
+		size.cx > maxClientSize.cx || maxClientSize.cy < size.cy)
+	{
+		size = maxClientSize;
+	}
+}
+
 void WinGameApp::WinToScreenCenter(HWND hwnd)
 {
 	int x, y, width, height;
@@ -98,13 +108,23 @@ void WinGameApp::WinToScreenCenter(HWND hwnd)
 
 void WinGameApp::WinClientResize(HWND hwnd, int width, int height)
 {
+	SIZE size{ width , height };
+	RECT clientRect = { 0, 0, width, height };
+	AdjustWindowRect(&clientRect, d3dRenderer.swapChainWindowed ? RunApp->windowStyleEX : WS_POPUP, FALSE);
+	SIZE windowSize{ clientRect.right - clientRect.left , clientRect.bottom - clientRect.top };
+	SIZE windowClientOffset{ windowSize.cx - size.cx, windowSize.cy - size.cy };
+	ClampScreenMaxSize(windowSize);
+	size.cx = windowSize.cx - windowClientOffset.cx;
+	size.cy = windowSize.cy - windowClientOffset.cy;
+	RunApp->clientSize = size;
+
 	int x, y;
 	RECT rtDesk, rtWindow;
 	GetWindowRect(GetDesktopWindow(), &rtDesk);
 	GetWindowRect(hwnd, &rtWindow);
 	x = (rtDesk.right - width) / 2;
 	y = (rtDesk.bottom - height) / 2;
-	MoveWindow(hwnd, x, y, width, height, FALSE);
+	MoveWindow(hwnd, x, y, (int)windowSize.cx, (int)windowSize.cy, FALSE);
 }
 
 void WinGameApp::GameEnd()
@@ -170,14 +190,14 @@ bool WinGameApp::WinInit(HINSTANCE hInstance)
 		return false;
 	}
 
-	SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
-	if (clientSize.cx <= 0 || 0 >= clientSize.cy || 
-		clientSize.cx > maxClientSize.cx || maxClientSize.cy < clientSize.cy)
-		clientSize = maxClientSize;
-	
+	ClampScreenMaxSize(clientSize);
 	RECT clientRect = { 0, 0, clientSize.cx, clientSize.cy };
-	AdjustWindowRect(&clientRect, windowStyleEX, FALSE); 	// 원하는 크기가 조정되어 리턴
-	 
+	AdjustWindowRect(&clientRect, windowStyleEX, FALSE); 	
+	SIZE windowSize{ clientRect.right - clientRect.left , clientRect.bottom - clientRect.top };
+	SIZE windowClientOffset{ windowSize.cx - clientSize.cx, windowSize.cy - clientSize.cy };
+	ClampScreenMaxSize(windowSize);
+	clientSize.cx = windowSize.cx - windowClientOffset.cx;
+	clientSize.cy = windowSize.cy - windowClientOffset.cy;
 	// 윈도우 생성
 	WinGameApp::hwnd = CreateWindowEx(
 		0,
@@ -185,7 +205,7 @@ bool WinGameApp::WinInit(HINSTANCE hInstance)
 		windowName,
 		windowStyleEX,
 		0, 0,
-		clientRect.right - clientRect.left, clientRect.bottom - clientRect.top,
+		windowSize.cx, windowSize.cy,
 		NULL, NULL, hInstance, NULL
 	);
 
