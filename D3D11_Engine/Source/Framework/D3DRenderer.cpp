@@ -420,10 +420,7 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::Present()
 {
-    if(setting.UseVSync)
-	    pSwapChain->Present(1, 0);
-    else
-        pSwapChain->Present(0, 0);
+	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
 }
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
