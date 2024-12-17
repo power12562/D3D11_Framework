@@ -35,7 +35,7 @@ void ShadowTestScene::Start()
 
 	cube->transform.position = Vector3(centerX, -5.f, centerZ);
 	float cubeScale = (float)zCount;
-	cube->transform.scale = Vector3(count * 5, 0.5f, count * 5);
+	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 }
 
 void ShadowTestScene::ImGUIRender()

@@ -1,4 +1,5 @@
 #include "SkyBoxRender.h"
+#include <Framework/HLSLManager.h>
 
 SkyBoxRender* SkyBoxRender::GetMainSkyBox()
 {
@@ -84,10 +85,10 @@ void SkyBoxRender::Start()
     samplerState.SetSamplerState(0, samplerDesc);
     {
         using namespace std::string_literals;
-        std::wstring vertexPath(EngineShaderPath + L"SkyBoxVS.hlsl"s);
+        std::wstring vertexPath(HLSLManager::EngineShaderPath + L"SkyBoxVS.hlsl"s);
         SetVertexShader(vertexPath.c_str());
 
-        std::wstring pixelPath(EngineShaderPath + L"SkyBoxPS.hlsl"s);
+        std::wstring pixelPath(HLSLManager::EngineShaderPath + L"SkyBoxPS.hlsl"s);
         SetPixelShader(pixelPath.c_str());
     }
     mainSkyBox = this;

@@ -17,6 +17,9 @@ class HLSLManager : public TSingleton<HLSLManager>
 	};
 	friend class TSingleton;
 public:
+	static constexpr wchar_t EngineShaderPath[] = L"Resource/EngineShader/";
+
+public:
 	/** 버텍스 셰이더 및 입력 레이아웃 생성.*/
 	void CreateSharingShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
 	/** 픽셀 셰이더 생성.*/

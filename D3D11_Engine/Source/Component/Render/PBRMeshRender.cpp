@@ -1,5 +1,6 @@
 #include "PBRMeshRender.h"
 #include <Light/PBRDirectionalLight.h>
+#include <Framework/HLSLManager.h>
 
 void PBRMeshRender::Start()
 {
@@ -28,10 +29,10 @@ void PBRMeshRender::Start()
 
         {
             using namespace std::string_literals;
-            std::wstring vertexPath(EngineShaderPath + L"VertexShader.hlsl"s);
+            std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
             SetVertexShader(vertexPath.c_str());
 
-            std::wstring pixelPath(EngineShaderPath + L"PBRPixelShader.hlsl"s);
+            std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBRPixelShader.hlsl"s);
             SetPixelShader(pixelPath.c_str());
         }
     }

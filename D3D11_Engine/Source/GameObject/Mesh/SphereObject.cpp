@@ -1,5 +1,6 @@
 #include "SphereObject.h"
 #include <Light/PBRDirectionalLight.h>
+#include <Framework/HLSLManager.h>
 
 SphereObject::SphereObject() : 
 	sphereMeshRender(AddComponent<SphereMeshRender>())
@@ -12,10 +13,10 @@ SphereObject::SphereObject() :
 
 	{
 		using namespace std::string_literals;
-		std::wstring vertexPath(MeshRender::EngineShaderPath + L"VertexShader.hlsl"s);
+		std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
 		sphereMeshRender.SetVertexShader(vertexPath.c_str());
 
-		std::wstring pixelPath(MeshRender::EngineShaderPath + L"PBRPixelShader.hlsl"s);
+		std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBRPixelShader.hlsl"s);
 		sphereMeshRender.SetPixelShader(pixelPath.c_str());
 	}
 	sphereMeshRender.CreateSphere(); 

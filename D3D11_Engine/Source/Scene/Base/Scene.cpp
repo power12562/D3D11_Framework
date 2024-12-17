@@ -13,10 +13,20 @@
 Scene::Scene()
 {
 	constexpr unsigned int ReserveSize = 100000;
-
 	sceneResourceList.reserve(ReserveSize);
 	objectList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
+
+	//Shadow Map 셰이더 미리 로드
+	{
+		using namespace std::string_literals;
+		ID3D11VertexShader* VSTemp = nullptr;
+		ID3D11InputLayout* InputLayoutTemp = nullptr;
+		std::wstring path = HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s;
+		hlslManager.CreateSharingShader(path.c_str(), "vs_4_0", &VSTemp, &InputLayoutTemp);
+		Utility::SafeRelease(VSTemp);
+		Utility::SafeRelease(InputLayoutTemp);
+	}
 }
 
 Scene::~Scene()

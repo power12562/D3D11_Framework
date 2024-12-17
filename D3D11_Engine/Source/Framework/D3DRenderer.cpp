@@ -429,13 +429,6 @@ void D3DRenderer::BegineDraw()
     }
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  
 
-    //Shadow Map »ý¼º
-    {
-        
-
-    }
-
-
     size_t objCounts = sceneManager.GetObjectsCount();
     if (opaquerenderOueue.capacity() < objCounts)
     {     
@@ -478,6 +471,13 @@ void D3DRenderer::Present()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
+    //Shadow Map Pass
+    {
+
+
+    }
+
+    //Render pass
     static bool isDefaultRRState = false;
     if (drawDesc.pRRState)
     {
