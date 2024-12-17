@@ -85,16 +85,22 @@ public:
 	RENDERER_SETTING_DESC setting;
 
 private:
-	ID3D11Device*			 pDevice;			  // 디바이스	
-	ID3D11DeviceContext*	 pDeviceContext;	  // 디바이스 컨텍스트
-	IDXGISwapChain1*		 pSwapChain;		  // 스왑체인
-	ID3D11RenderTargetView*  pRenderTargetView;	  // 렌더링 타겟뷰
-	ID3D11DepthStencilView*  pDepthStencilView;   // 깊이 버퍼
-	ID3D11DepthStencilState* pDefaultDepthStencilState; //기본 상태
-	ID3D11DepthStencilState* pSkyBoxDepthStencilState;  //스카이 박스용
-	ID3D11BlendState*		 pDefaultBlendState;		  // 기본 블렌드 상태
-	ID3D11RasterizerState*   pDefaultRRState;    //  기본 레스터화 규칙
+	ID3D11Device*				pDevice;					// 디바이스	
+	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
+	IDXGISwapChain1*			pSwapChain;					// 스왑체인
+	ID3D11RenderTargetView*		pRenderTargetView;			// RTV
+	ID3D11DepthStencilView*		pDepthStencilView;			// 깊이 버퍼
 
+	ID3D11DepthStencilState*	pDefaultDepthStencilState;  // 기본 상태
+	ID3D11DepthStencilState*	pSkyBoxDepthStencilState;   // 스카이 박스용
+
+	ID3D11BlendState*			pDefaultBlendState;			// 기본 블렌드 상태
+	ID3D11RasterizerState*		pDefaultRRState;			// 기본 레스터화 규칙
+
+	D3D11_VIEWPORT shadowViewPort{};						// 뷰포트
+	ID3D11Texture2D*			pShadowMap;					// Shadow 맵
+	ID3D11DepthStencilView*		pShadowMapDSV;				// Shadow Map용 DSV
+	ID3D11ShaderResourceView*	pShadowMapSRV;				// Shadow Map용 SRV
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트

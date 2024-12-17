@@ -7,7 +7,7 @@ Texture2D opacityMap : register(t4);
 
 SamplerState samLinear : register(s0);
 
-cbuffer cb_Material : register(b2)
+cbuffer cb_Material : register(b3)
 {
     float4 MaterialAmbient;
     float4 MaterialDiffuse;
@@ -16,7 +16,7 @@ cbuffer cb_Material : register(b2)
     float3 MaterialSpecularPad;
 }
 
-cbuffer cbuffer_Light : register(b3)
+cbuffer cbuffer_Light : register(b4)
 {
     float4 LightDiffuse;
     float4 LightAmbient;
@@ -24,7 +24,7 @@ cbuffer cbuffer_Light : register(b3)
     float3 LightDir;
 }
 
-cbuffer cbuffer_bool : register(b4)
+cbuffer cbuffer_bool : register(b5)
 {
     bool UseNormalMap;
     bool UseSpecularMap;
@@ -32,7 +32,7 @@ cbuffer cbuffer_bool : register(b4)
     bool UseOpacity;
 }
 
-cbuffer cb_localBool : register(b5)
+cbuffer cb_localBool : register(b6)
 {
     bool loaclNormal;
     bool loaclSpecular;

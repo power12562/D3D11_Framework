@@ -1,12 +1,12 @@
 #include "Shared.fxh"
 
 #ifdef VERTEX_SKINNING
-cbuffer MatrixPallete : register(b2)
+cbuffer MatrixPallete : register(b3)
 {
     matrix MatrixPalleteArray[128];
 }
 
-cbuffer BoneWIT : register(b3)
+cbuffer BoneWIT : register(b4)
 {
     matrix boneWIT[128];
 }

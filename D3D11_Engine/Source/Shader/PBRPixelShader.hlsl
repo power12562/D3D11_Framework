@@ -17,7 +17,7 @@ TextureCube Specular_IBL_Texture : register(t10);
 Texture2D BRDF_LUT : register(t11);
 
 static const int MAX_LIGHT_COUNT = 4;
-cbuffer cb_Light : register(b2)
+cbuffer cb_Light : register(b3)
 {
     struct
     {
@@ -29,7 +29,7 @@ cbuffer cb_Light : register(b2)
     int LightsCount;
 }
 
-cbuffer cb_PBRMaterial : register(b3)
+cbuffer cb_PBRMaterial : register(b4)
 {
     float4 baseColor;
     float Metalness;

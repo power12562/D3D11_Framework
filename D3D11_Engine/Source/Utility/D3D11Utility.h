@@ -76,7 +76,7 @@ struct DRAW_INDEX_DATA
 using DRAW_INDEX_RESOURCE = std::shared_ptr<DRAW_INDEX_DATA>;
 
 #ifdef _DEBUG
-#define D3D_SET_OBJECT_NAME(pObject, pName) D3D_SET_OBJECT_NAME_N_W(pObject, wcslen(pName), pName)
+#define D3D_SET_OBJECT_NAME(pObject, pName) D3D_SET_OBJECT_NAME_N_W(pObject, (UINT)wcslen(pName), pName)
 #else
 #define D3D_SET_OBJECT_NAME(pObject, pName)
 #endif

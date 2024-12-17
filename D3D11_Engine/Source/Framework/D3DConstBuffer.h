@@ -1,7 +1,7 @@
 #pragma once
 #include <Framework\D3DRenderer.h>
 
-/* b0 레지스터는 Transform 버퍼로 고정 사용.*/
+/* b0 레지스터는 Transform 버퍼*/
 struct cb_Transform
 {
 	DirectX::SimpleMath::Matrix World;
@@ -9,7 +9,7 @@ struct cb_Transform
 	DirectX::SimpleMath::Matrix WVP;
 };
 
-/* b1 레지스터는 Camera 버퍼로 고정 사용.*/
+/* b1 레지스터는 Camera 버퍼*/
 struct cb_Camera
 {
 	DirectX::SimpleMath::Vector3 MainCamPos;
@@ -17,6 +17,13 @@ struct cb_Camera
 
 	DirectX::SimpleMath::Matrix View;
 	DirectX::SimpleMath::Matrix Projection;
+};
+
+/* b2 레지스터는 ShadowMap 버퍼*/
+struct cb_ShadowMap
+{
+	DirectX::SimpleMath::Matrix ShadowProjection;
+	DirectX::SimpleMath::Matrix ShadowView;
 };
 
 /*copy to fxh file
@@ -33,6 +40,12 @@ cbuffer cb_Camera : register(b1)
 	float3 MainCamPos;
 	Matrix View;
 	Matrix Projection;
+};
+
+cbuffer cb_ShadowMap : register(b2)
+{
+	Matrix ShadowProjection;
+	Matrix ShadowView;
 };
 
 */
@@ -75,9 +88,10 @@ public:
 	D3DConstBuffer& operator=(const D3DConstBuffer& rhs) = delete;
 
 private:
-	inline static constexpr int StaticCbufferCount = 2;
+	inline static constexpr int StaticCbufferCount = 3;
 	inline static ID3D11Buffer* cBufferTransform = nullptr;
 	inline static ID3D11Buffer* cBufferCamera = nullptr;
+	inline static ID3D11Buffer* cBufferShadowMap = nullptr;
 
 private:
 	inline static std::unordered_map<std::string, ID3D11Buffer*> cBufferMap;

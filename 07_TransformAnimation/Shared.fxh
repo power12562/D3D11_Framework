@@ -12,6 +12,12 @@ cbuffer cb_Camera : register(b1)
     Matrix Projection;
 };
 
+cbuffer cb_ShadowMap : register(b2)
+{
+    Matrix ShadowProjection;
+    Matrix ShadowView;
+};
+
 struct VS_INPUT
 {
     float4 Pos : POSITION;

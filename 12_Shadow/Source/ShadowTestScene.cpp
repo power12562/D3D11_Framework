@@ -21,7 +21,7 @@ void ShadowTestScene::Start()
 	
 	cube = NewGameObject<CubeObject>(L"ground");
 
-	constexpr int count = 30;
+	constexpr int count = 1;
 	size_t zCount = static_cast<size_t>(std::sqrt(count * 3));
 	for (size_t i = 0; i < count; i++)
 	{
@@ -34,7 +34,7 @@ void ShadowTestScene::Start()
 	float centerZ = centerRow * positionDumpZ;
 
 	cube->transform.position = Vector3(centerX, -5.f, centerZ);
-	float cubeScale = zCount;
+	float cubeScale = (float)zCount;
 	cube->transform.scale = Vector3(count * 5, 0.5f, count * 5);
 }
 

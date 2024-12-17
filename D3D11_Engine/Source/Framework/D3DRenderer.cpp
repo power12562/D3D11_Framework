@@ -20,12 +20,18 @@ D3DRenderer::D3DRenderer()
     pDevice = nullptr;
     pDeviceContext = nullptr;
     pSwapChain = nullptr;
+
     pRenderTargetView = nullptr;
     pDepthStencilView = nullptr;
     pDefaultDepthStencilState = nullptr;
     pSkyBoxDepthStencilState = nullptr;
+
     pDefaultBlendState = nullptr;
     pDefaultRRState = nullptr;
+
+    pShadowMap = nullptr;
+    pShadowMapDSV = nullptr;
+    pShadowMapSRV = nullptr;
 }
 
 D3DRenderer::~D3DRenderer()
@@ -167,8 +173,7 @@ void D3DRenderer::Init()
         CheckHRESULT(pDevice->CreateDepthStencilState(&depthStencilDesc, &pSkyBoxDepthStencilState));
 
         //Set alpha blend
-        D3D11_BLEND_DESC blendDesc;
-        ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+        D3D11_BLEND_DESC blendDesc{};
 
         // 블렌딩 상태 설정
         blendDesc.AlphaToCoverageEnable = FALSE; // Alpha To Coverage 비활성화
@@ -186,18 +191,56 @@ void D3DRenderer::Init()
         SetDefaultOMState();
 
         //뷰포트 설정
-        D3D11_VIEWPORT viewport = {};
-        viewport.TopLeftX = 0;
-        viewport.TopLeftY = 0;
-        viewport.Width = (float)clientSize.cx;
-        viewport.Height = (float)clientSize.cy;
-        viewport.MinDepth = 0.0f;
-        viewport.MaxDepth = 1.0f;
+        {
+            D3D11_VIEWPORT viewport = {};
+            viewport.TopLeftX = 0;
+            viewport.TopLeftY = 0;
+            viewport.Width = (float)clientSize.cx;
+            viewport.Height = (float)clientSize.cy;
+            viewport.MinDepth = 0.0f;
+            viewport.MaxDepth = 1.0f;
 
-        //기본 뷰포트 할당
-        pDeviceContext->RSSetViewports(1, &viewport);
-        viewportsCount = 1;
-        
+            pDeviceContext->RSSetViewports(1, &viewport);
+            viewportsCount = 1;
+        }
+   
+        //Shadow Map 생성
+        {
+            shadowViewPort.Width    = 8192.f;
+            shadowViewPort.Height   = 8192.f;
+            shadowViewPort.MinDepth = 0.0f;
+            shadowViewPort.MaxDepth = 1.0f;
+
+            D3D11_TEXTURE2D_DESC textureDesc{};
+            textureDesc.Width = (UINT)shadowViewPort.Width;
+            textureDesc.Height = (UINT)shadowViewPort.Height;
+            textureDesc.MipLevels = 1;
+            textureDesc.ArraySize = 1;
+            textureDesc.Usage = D3D11_USAGE_DEFAULT;
+            textureDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+            textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+            textureDesc.SampleDesc.Count = 1;
+            textureDesc.SampleDesc.Quality = 0;
+            CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, NULL, &pShadowMap));
+            D3D_SET_OBJECT_NAME(pShadowMap, L"ShadowMap");
+
+            if (pShadowMap)
+            {
+                D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+                descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+                descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                CheckHRESULT(pDevice->CreateDepthStencilView(pShadowMap, &descDSV, &pShadowMapDSV));
+                D3D_SET_OBJECT_NAME(pShadowMapDSV, L"ShadowMapDSV");
+
+                D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
+                descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+                descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                descSRV.Texture2D.MipLevels = 1;
+                CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap, &descSRV, &pShadowMapSRV));
+                D3D_SET_OBJECT_NAME(pShadowMapSRV, L"ShadowMapSRV");
+            }
+        }
+       
         D3DConstBuffer::CreateStaticCbuffer();
     }
     catch (const std::exception& ex)
@@ -226,6 +269,9 @@ void D3DRenderer::Uninit()
      
     //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
+    SafeRelease(pShadowMapSRV);
+    SafeRelease(pShadowMapDSV);
+    SafeRelease(pShadowMap);
     SafeRelease(pDefaultRRState);
     SafeRelease(pDefaultBlendState);
     SafeRelease(pRenderTargetView);
@@ -354,7 +400,7 @@ void D3DRenderer::BegineDraw()
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-    //sky box 먼저 그린다.
+    //sky box 
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
         pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
@@ -381,7 +427,14 @@ void D3DRenderer::BegineDraw()
         ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
         pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
     }
-    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  //깊이 버퍼 초기화
+    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  
+
+    //Shadow Map 생성
+    {
+        
+
+    }
+
 
     size_t objCounts = sceneManager.GetObjectsCount();
     if (opaquerenderOueue.capacity() < objCounts)

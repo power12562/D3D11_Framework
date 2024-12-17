@@ -6,7 +6,7 @@ Texture2D specularMap : register(t2);
 Texture2D emissiveMap : register(t3);
 Texture2D opacityMap : register(t4);
 
-cbuffer cb_Material : register(b2)
+cbuffer cb_Material : register(b3)
 {
     float4 MaterialAmbient;
     float4 MaterialDiffuse;
@@ -15,7 +15,7 @@ cbuffer cb_Material : register(b2)
     float3 MaterialSpecularPad;
 }
 
-cbuffer cbuffer_Light : register(b3)
+cbuffer cbuffer_Light : register(b4)
 {
     float4 LightDiffuse;
     float4 LightAmbient;

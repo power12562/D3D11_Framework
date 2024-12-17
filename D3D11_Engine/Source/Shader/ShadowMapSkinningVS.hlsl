@@ -1,3 +1,3 @@
 #define VERTEX_SKINNING
 #include "VSInputSkinning.hlsli"
-#include "VertexShader.hlsl"
+#include "ShadowMapVS.hlsl"

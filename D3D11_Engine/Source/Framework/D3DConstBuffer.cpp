@@ -13,6 +13,9 @@ void D3DConstBuffer::CreateStaticCbuffer()
 
 	bufferDesc.ByteWidth = sizeof(cb_Camera); 
 	Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferCamera));
+
+	bufferDesc.ByteWidth = sizeof(cb_ShadowMap);
+	Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferShadowMap));
 }
 
 void D3DConstBuffer::ReleaseStaticCbuffer()
@@ -20,6 +23,7 @@ void D3DConstBuffer::ReleaseStaticCbuffer()
 	using namespace Utility;
 	SafeRelease(cBufferTransform);
 	SafeRelease(cBufferCamera);
+	SafeRelease(cBufferShadowMap);
 
 	for (auto& buffer : cBufferMap)
 	{
@@ -43,11 +47,13 @@ void D3DConstBuffer::SetConstBuffer()
 
 	pDeviceContext->VSSetConstantBuffers(0, 1, &cBufferTransform);
 	pDeviceContext->VSSetConstantBuffers(1, 1, &cBufferCamera);
+	pDeviceContext->VSSetConstantBuffers(2, 1, &cBufferShadowMap);
 	for (int i = 0; i < vs_cbufferList.size(); i++)
 		pDeviceContext->VSSetConstantBuffers(i + StaticCbufferCount, 1, &cBufferMap[vs_cbufferList[i]]);
 
 	pDeviceContext->PSSetConstantBuffers(0, 1, &cBufferTransform);
 	pDeviceContext->PSSetConstantBuffers(1, 1, &cBufferCamera);
+	pDeviceContext->PSSetConstantBuffers(2, 1, &cBufferShadowMap);
 	for (int i = 0; i < ps_cbufferList.size(); i++)
 		pDeviceContext->PSSetConstantBuffers(i + StaticCbufferCount, 1, &cBufferMap[ps_cbufferList[i]]);
 }

@@ -9,7 +9,7 @@ Texture2D opacityTexture : register(t4);
 Texture2D metalnessTexture : register(t5);
 Texture2D roughnessTexture : register(t6);
 
-cbuffer cb_Light : register(b2)
+cbuffer cb_Light : register(b3)
 {
     struct
     {
@@ -21,7 +21,7 @@ cbuffer cb_Light : register(b2)
     int LightsCount;
 }
 
-cbuffer cb_PBRMaterial : register(b3)
+cbuffer cb_PBRMaterial : register(b4)
 {
     float4 baseColor;
     float Metalness;
@@ -33,7 +33,7 @@ cbuffer cb_PBRMaterial : register(b3)
     bool UseRMACMap;
 };
 
-cbuffer cb_bool : register(b4)
+cbuffer cb_bool : register(b5)
 {
     bool useMetalness;
     bool useRoughness;

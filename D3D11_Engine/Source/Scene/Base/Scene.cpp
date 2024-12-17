@@ -39,7 +39,7 @@ void Scene::Update()
 {
 	for (auto& obj : objectList)
 	{
-		if (obj->CheckActive())
+		if (obj && obj->CheckActive())
 		{
 			obj->checkActive = obj->Active;
 			if (obj->transform.GetChildCount())
