@@ -35,7 +35,10 @@ private:
 private:
 	EXTENSION_TYPE ChackShaderFile(const wchar_t* extension);
 
+public:
+	/** 셰이더를 생성합니다. */
 	void MakeShader(const wchar_t* path, const char* shaderModel, ID3D11VertexShader** ppOut_VertexShader, ID3D11InputLayout** ppOut_InputLayout);
+	/** 셰이더를 생성합니다. */
 	void MakeShader(const wchar_t* path, const char* shaderModel, ID3D11PixelShader** ppOutput);
 private:
 	HLSLManager();

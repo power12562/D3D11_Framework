@@ -15,12 +15,6 @@ public:
 public:
 	MeshRender();
 	virtual ~MeshRender() override;
-
-public:
-	virtual void CreateMesh() = 0;
-protected:
-	DRAW_INDEX_RESOURCE meshResource;
-
 public:
 	virtual void Start() = 0;
 protected:
@@ -28,6 +22,11 @@ protected:
 	virtual void Update() = 0;
 	virtual void LateUpdate() = 0;
 	virtual void Render() = 0;
+
+public:
+	virtual void CreateMesh() = 0;
+protected:
+	DRAW_INDEX_RESOURCE meshResource;
 
 public:
 	void SetMeshResource(const wchar_t* path);
@@ -43,6 +42,9 @@ public:
 
 public:
 	bool isAlpha = false;
+
+protected:
+	bool isSkinning = false;
 
 public:
 	bool IsVSShader() { return pInputLayout && pVertexShader; }

@@ -88,6 +88,8 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 	else
 	{
 		MakeShader(path, shaderModel, ppOut_VertexShader, ppOut_InputLayout);
+		sharingShaderMap[path] = *ppOut_VertexShader;
+		sharingInputLayoutMap[path] = *ppOut_InputLayout;
 	}
 }
 
@@ -106,6 +108,7 @@ void HLSLManager::CreateSharingShader(const wchar_t* path, const char* shaderMod
 	else
 	{
 		MakeShader(path, shaderModel, ppOutput);
+		sharingShaderMap[path] = *ppOutput;
 	}
 }
 
@@ -127,7 +130,6 @@ void HLSLManager::MakeShader(const wchar_t* path, const char* shaderModel, ID3D1
 		*ppOut_VertexShader = nullptr;
 	}
 	CheckHRESULT(d3dRenderer.GetDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertexShader));
-	sharingShaderMap[path] = vertexShader;
 	*ppOut_VertexShader = vertexShader;
 
 	// 리플렉션을 사용하여 입력 레이아웃 생성
@@ -158,8 +160,6 @@ void HLSLManager::MakeShader(const wchar_t* path, const char* shaderModel, ID3D1
 	CheckHRESULT(d3dRenderer.GetDevice()->CreateInputLayout(inputLayoutDesc.data(), (UINT)inputLayoutDesc.size(),
 		vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), ppOut_InputLayout));
 
-	sharingInputLayoutMap[path] = *ppOut_InputLayout;
-
 	SafeRelease(pReflector);
 	SafeRelease(vertexShaderBuffer);
 }
@@ -182,7 +182,7 @@ void HLSLManager::MakeShader(const wchar_t* path, const char* shaderModel, ID3D1
 		*ppOutput = nullptr;
 	}
 	CheckHRESULT(d3dRenderer.GetDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixelShader));
-	sharingShaderMap[path] = pixelShader;
+	
 	*ppOutput = pixelShader;
 	pixelShaderBuffer->Release();
 }

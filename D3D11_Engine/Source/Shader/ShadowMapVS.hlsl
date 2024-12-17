@@ -9,10 +9,9 @@ cbuffer BoneWIT : register(b4)
 {
     matrix boneWIT[128];
 }
-#else
-#include "VSInput.hlsli"
 #endif
 
+#include "VSInput.hlsli"
 PS_INPUT main(VS_INPUT input) 
 {
     PS_INPUT output = (PS_INPUT)0;

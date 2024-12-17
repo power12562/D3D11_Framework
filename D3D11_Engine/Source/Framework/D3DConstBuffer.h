@@ -174,6 +174,20 @@ inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Camera& data)
 	d3dRenderer.GetDeviceContext()->Unmap(cBufferCamera, 0);
 }
 
+template<>
+inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_ShadowMap& data)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferShadowMap, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+	// 상수 버퍼에 데이터를 쓴다.
+	cb_ShadowMap* dataPtr = (cb_ShadowMap*)mappedResource.pData;
+	*dataPtr = data;
+
+	// 맵핑 해제
+	d3dRenderer.GetDeviceContext()->Unmap(cBufferShadowMap, 0);
+}
+
 template<typename T>
 inline int D3DConstBuffer::CreateVSConstantBuffers()
 {

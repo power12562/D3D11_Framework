@@ -1,5 +1,4 @@
 #include "Shared.fxh"
-
 #ifdef VERTEX_SKINNING
 cbuffer MatrixPallete : register(b3)
 {
@@ -10,13 +9,9 @@ cbuffer BoneWIT : register(b4)
 {
     matrix boneWIT[128];
 }
-#else
-#include "VSInput.hlsli"
 #endif
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
+#include "VSInput.hlsli"
 PS_INPUT main(VS_INPUT input)
 {
     PS_INPUT output;

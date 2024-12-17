@@ -29,6 +29,11 @@ class D3DRenderer : public TSingleton<D3DRenderer>
 {
 	friend class WinGameApp;
 	friend TSingleton;
+public:
+	enum 
+	{
+		SHADOW_SRV = 127
+	};
 
 protected:
 	D3DRenderer();
@@ -65,10 +70,6 @@ public:
 	/*레스터화 규칙 생성*/
 	void CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11RasterizerState** rasterState);
 
-	/*뷰포트 바인딩*/
-	void SetViewports(const std::vector<D3D11_VIEWPORT>& viewports);
-private:
-	UINT viewportsCount = 0;
 private:
 	//Vram 체크용 dxgi 개체
 	IDXGIFactory4* pDXGIFactory = nullptr;
@@ -81,9 +82,9 @@ public:
 	void Present();
 
 public:
+	std::vector<D3D11_VIEWPORT> ViewPortsVec;				// 뷰포트들
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
 	RENDERER_SETTING_DESC setting;
-
 private:
 	ID3D11Device*				pDevice;					// 디바이스	
 	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
@@ -97,10 +98,16 @@ private:
 	ID3D11BlendState*			pDefaultBlendState;			// 기본 블렌드 상태
 	ID3D11RasterizerState*		pDefaultRRState;			// 기본 레스터화 규칙
 
-	D3D11_VIEWPORT shadowViewPort{};						// 뷰포트
+
+	D3D11_VIEWPORT				shadowViewPort{};			// Shadow 뷰포트
 	ID3D11Texture2D*			pShadowMap;					// Shadow 맵
 	ID3D11DepthStencilView*		pShadowMapDSV;				// Shadow Map용 DSV
 	ID3D11ShaderResourceView*	pShadowMapSRV;				// Shadow Map용 SRV
+	ID3D11InputLayout*			pShadowInputLayout;			
+	ID3D11VertexShader*			pShadowVertexShader;		
+	ID3D11InputLayout*			pShadowSkinningInputLayout;		   
+	ID3D11VertexShader*			pShadowSkinningVertexShader;		
+	ID3D11PixelShader*			pShadowPiexlShader;
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
@@ -169,6 +176,7 @@ struct RENDERER_DRAW_DESC
 	ID3D11VertexShader* pVertexShader;
 	ID3D11PixelShader* pPixelShader;
 	ID3D11RasterizerState* pRRState = nullptr;
+	bool isSkinning;
 };
 
 

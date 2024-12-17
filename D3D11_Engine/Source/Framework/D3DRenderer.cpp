@@ -4,6 +4,7 @@
 #include <cassert>
 #include <Psapi.h>
 #include <framework.h>
+#include <Math/Mathf.h>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -13,6 +14,7 @@ namespace cbuffer
 {
     cb_Camera camera;
     cb_Transform transform;
+    cb_ShadowMap ShadowMap;
 }
 
 D3DRenderer::D3DRenderer()
@@ -32,6 +34,11 @@ D3DRenderer::D3DRenderer()
     pShadowMap = nullptr;
     pShadowMapDSV = nullptr;
     pShadowMapSRV = nullptr;
+    pShadowInputLayout = nullptr;
+    pShadowVertexShader = nullptr;
+    pShadowSkinningInputLayout = nullptr;
+    pShadowSkinningVertexShader = nullptr;
+    pShadowPiexlShader = nullptr;
 }
 
 D3DRenderer::~D3DRenderer()
@@ -198,16 +205,14 @@ void D3DRenderer::Init()
             viewport.Width = (float)clientSize.cx;
             viewport.Height = (float)clientSize.cy;
             viewport.MinDepth = 0.0f;
-            viewport.MaxDepth = 1.0f;
-
-            pDeviceContext->RSSetViewports(1, &viewport);
-            viewportsCount = 1;
+            viewport.MaxDepth = 1.0f;     
+            ViewPortsVec.push_back(viewport);
         }
    
         //Shadow Map 생성
         {
-            shadowViewPort.Width    = 8192.f;
-            shadowViewPort.Height   = 8192.f;
+            shadowViewPort.Width = 8192.f;
+            shadowViewPort.Height = 8192.f;
             shadowViewPort.MinDepth = 0.0f;
             shadowViewPort.MaxDepth = 1.0f;
 
@@ -239,8 +244,16 @@ void D3DRenderer::Init()
                 CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap, &descSRV, &pShadowMapSRV));
                 D3D_SET_OBJECT_NAME(pShadowMapSRV, L"ShadowMapSRV");
             }
+            {
+                using namespace std::string_literals;
+                std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
+                hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
+                path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
+                hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
+                path = HLSLManager::EngineShaderPath + L"ShadowMapPS.hlsl"s;
+                hlslManager.MakeShader(path.c_str(), "ps_4_0", &pShadowPiexlShader);
+            }
         }
-       
         D3DConstBuffer::CreateStaticCbuffer();
     }
     catch (const std::exception& ex)
@@ -269,6 +282,11 @@ void D3DRenderer::Uninit()
      
     //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
+    SafeRelease(pShadowPiexlShader);
+    SafeRelease(pShadowInputLayout);
+    SafeRelease(pShadowVertexShader);
+    SafeRelease(pShadowSkinningInputLayout);
+    SafeRelease(pShadowSkinningVertexShader);
     SafeRelease(pShadowMapSRV);
     SafeRelease(pShadowMapDSV);
     SafeRelease(pShadowMap);
@@ -329,12 +347,6 @@ void D3DRenderer::CreateRRState(D3D11_RASTERIZER_DESC& RASTERIZER_DESC, ID3D11Ra
     Utility::CheckHRESULT(pDevice->CreateRasterizerState(&RASTERIZER_DESC, rasterState));
 }
 
-void D3DRenderer::SetViewports(const std::vector<D3D11_VIEWPORT>& viewPorts)
-{
-    viewportsCount = (UINT)viewPorts.size();
-    pDeviceContext->RSSetViewports(viewportsCount, viewPorts.data());
-}
-
 namespace BytesHelp
 {
     constexpr UINT64 toMB = 1024 * 1024;  // 메가바이트 단위로 변환용
@@ -391,23 +403,41 @@ SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
 
 void D3DRenderer::BegineDraw()
 {   
+    //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
     cbuffer::camera.MainCamPos = mainCam->transform.position;
     cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
     cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
     D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 
+    //Set Light cb
+    {   
+        using namespace DirectionalLight;
+        float camHalfFar = (mainCam->Far / 2.f);
+        float viewWidth = camHalfFar;
+        float viewHeight = camHalfFar;
+        constexpr float nearPlane = 0.1f;
+        constexpr float farPlane = 100.0f;
+        constexpr float halfFar = farPlane / 2.f;
+        Vector3 lightPos = mainCam->transform.position;
+        lightPos += Vector3::Up * halfFar;
+        lightPos += mainCam->transform.Front * camHalfFar;
+        cbuffer::ShadowMap.ShadowView = XMMatrixLookToLH(lightPos, DirectionalLights.Lights[0].LightDir, Vector3::Up);
+        cbuffer::ShadowMap.ShadowProjection = XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane);
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+    }
+
+    //clear buffer
     pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
-    //sky box 
+    //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
         pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
         RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
         Draw(desc); //SkyBox draw
-        pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0); //기본 깊이 스텐실 상태 적용.
-
+       
         constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
         //SetIBLTexture
         for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::Null; ++i)
@@ -426,17 +456,6 @@ void D3DRenderer::BegineDraw()
         }
         ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
         pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
-    }
-    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);  
-
-    size_t objCounts = sceneManager.GetObjectsCount();
-    if (opaquerenderOueue.capacity() < objCounts)
-    {     
-        opaquerenderOueue.reserve(objCounts);
-    }
-    if (alphaRenderQueue.capacity() < objCounts)
-    {     
-        alphaRenderQueue.reserve(objCounts);
     }
 }
 
@@ -471,25 +490,14 @@ void D3DRenderer::Present()
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 {
-    //Shadow Map Pass
-    {
+    //set IA
+    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
+    pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+    pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
 
-
-    }
-
-    //Render pass
-    static bool isDefaultRRState = false;
-    if (drawDesc.pRRState)
-    {
-        pDeviceContext->RSSetState(drawDesc.pRRState);
-        isDefaultRRState = false;
-    }
-    else if(!isDefaultRRState)
-    {
-        pDeviceContext->RSSetState(pDefaultRRState);
-        isDefaultRRState = true;
-    }
-
+    //set const buffer
     if (prevTransform != drawDesc.pTransform)
     {
         Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
@@ -501,31 +509,69 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
-
     drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
 
-    for (int i = 0; i < drawDesc.pSamperState->size(); i++)
-    {
-        ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
-        //pDeviceContext->VSSetSamplers(i, 1, &sampler);
-        pDeviceContext->PSSetSamplers(i, 1, &sampler);
+    //Shadow Map Pass
+    {      
+        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV);
+        pDeviceContext->ClearDepthStencilView(pShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        pDeviceContext->RSSetViewports(1, &shadowViewPort);
+
+        if (drawDesc.isSkinning)
+        {
+            pDeviceContext->IASetInputLayout(pShadowSkinningInputLayout);
+            pDeviceContext->VSSetShader(pShadowSkinningVertexShader, nullptr, 0);
+        }    
+        else
+        {
+            pDeviceContext->IASetInputLayout(pShadowInputLayout);
+            pDeviceContext->VSSetShader(pShadowVertexShader, nullptr, 0);
+        }
+        pDeviceContext->PSSetShader(pShadowPiexlShader, nullptr, 0);
+        pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
     }
-    for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
+
+    //Render pass
     {
-        ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
-        //pDeviceContext->VSSetShaderResources(i, 1, &srv);
-        pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
+        pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+
+        pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
+        pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
+        pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
+
+        static bool isDefaultRRState = false;
+        if (drawDesc.pRRState)
+        {
+            pDeviceContext->RSSetState(drawDesc.pRRState);
+            isDefaultRRState = false;
+        }
+        else if (!isDefaultRRState)
+        {
+            pDeviceContext->RSSetState(pDefaultRRState);
+            isDefaultRRState = true;
+        }
+
+        //set sampler
+        for (int i = 0; i < drawDesc.pSamperState->size(); i++)
+        {
+            ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
+            //pDeviceContext->VSSetSamplers(i, 1, &sampler);
+            pDeviceContext->PSSetSamplers(i, 1, &sampler);
+        }
+        //set texture
+        for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
+        {
+            ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
+            //pDeviceContext->VSSetShaderResources(i, 1, &srv);
+            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        }
+        //pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &pShadowMapSRV);
+
+        pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
     }
- 
-    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
-    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
-    pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
-    pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-    pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
-    pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
-    pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
-    pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
 }
 
 DXGI_MODE_DESC1 D3DRenderer::GetDisplayMode(int AdapterIndex, int OutputIndex)
@@ -633,9 +679,6 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         float resolutionScaleX = (float)swapChainDesc->Width / (float)pervDesc.Width;
         float resolutionScaleY = (float)swapChainDesc->Height / (float)pervDesc.Height;
 
-        std::vector<D3D11_VIEWPORT> lastViewports(viewportsCount);
-        pDeviceContext->RSGetViewports(&viewportsCount, lastViewports.data());
-
         pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr); //렌더타겟 바인딩 해제
         unsigned long ref = SafeRelease(pRenderTargetView); //RTV 리소스 제거
         CheckHRESULT(pSwapChain->SetFullscreenState(FALSE, NULL));
@@ -707,12 +750,11 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
 
         SetDefaultOMState();  
         //뷰포트 크기 재조정
-        for (auto& viewport : lastViewports)
+        for (auto& viewport : ViewPortsVec)
         {
             viewport.Width = std::round(viewport.Width * resolutionScaleX);
             viewport.Height = std::round(viewport.Height * resolutionScaleY);
         }
-        SetViewports(lastViewports);
     }
 }
 
