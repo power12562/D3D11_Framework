@@ -141,7 +141,7 @@ void ShadeTestApp::Update()
 void ShadeTestApp::Render()
 {
     // 화면 칠하기.
-    d3dRenderer.GetDeviceContext()->ClearRenderTargetView(d3dRenderer.GetRenderTargetView(), constBuffer::bgColor);
+    d3dRenderer.GetDeviceContext()->ClearRenderTargetView(d3dRenderer.GetBackBufferRTV(), constBuffer::bgColor);
     //깊이 버퍼 초기화
     d3dRenderer.GetDeviceContext()->ClearDepthStencilView(d3dRenderer.GetDepthStencilView(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 

@@ -135,4 +135,5 @@ struct PS_INPUT
     float3 Tangent : NORMAL1;
     float3 BiTangent : NORMAL2;
     float2 Tex : TEXCOORD0;
+    float4 PositionShadow : TEXCOORD1;
 };

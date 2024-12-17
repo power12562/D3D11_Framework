@@ -144,7 +144,7 @@ void SimpleCubeShadeObject::Render(ID3D11Buffer* pConstantBuffer, ID3D11InputLay
     pDeviceContext->PSSetShaderResources(0, 1, &m_pTextureRV);
     pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-    auto* pRenderTargetView = d3dRenderer.GetRenderTargetView();
+    auto* pRenderTargetView = d3dRenderer.GetBackBufferRTV();
     pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, d3dRenderer.GetDepthStencilView());  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
 
     pDeviceContext->DrawIndexed(m_nIndices, 0, 0);

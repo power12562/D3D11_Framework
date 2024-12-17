@@ -50,9 +50,6 @@ void ShadowTestScene::ImGUIRender()
 		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
-
-		ImGui::ColorEdit3("BackGround Color", &d3dRenderer.backgroundColor);
-		ImGui::Text("");
 	}
 	ImGui::End();
 

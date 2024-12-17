@@ -44,6 +44,9 @@ PS_INPUT main(VS_INPUT input)
     output.Tangent = normalize(mul(input.Tangent, (float3x3) WorldInverseTranspose));
 #endif  
     output.BiTangent = normalize(cross(output.Normal, output.Tangent));
+    
     output.Tex = input.Tex;
+    output.PositionShadow = mul(float4(output.Pos.xyz, 1.0f), ShadowView);
+    output.PositionShadow = mul(output.PositionShadow, ShadowProjection);
     return output;
 }

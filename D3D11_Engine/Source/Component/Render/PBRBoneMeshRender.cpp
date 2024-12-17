@@ -7,16 +7,24 @@ void PBRBoneMeshRender::Start()
 	SimpleBoneMeshRender::Start();
 
     //BRDF LookUp Table Sampler
-    samplerState.resize(2);
-    D3D11_SAMPLER_DESC LUTSamplerDesc = {};
-    LUTSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    LUTSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-    LUTSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-    LUTSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    LUTSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    LUTSamplerDesc.MinLOD = 0;
-    LUTSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    samplerState.SetSamplerState(1, LUTSamplerDesc);
+    samplerState.resize(3);
+    D3D11_SAMPLER_DESC SamplerDesc = {};
+    SamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    SamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    SamplerDesc.MinLOD = 0;
+    SamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    samplerState.SetSamplerState(1, SamplerDesc);
+
+    //Shadow Sampler
+    SamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+    SamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+    SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerState.SetSamplerState(2, SamplerDesc);
 
     PBRMeshObject* meshObj = dynamic_cast<PBRMeshObject*>(&gameObject);
     if (meshObj)

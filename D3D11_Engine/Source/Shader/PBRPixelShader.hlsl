@@ -1,6 +1,7 @@
 #include "Shared.fxh"
 SamplerState defaultSampler : register(s0);
 SamplerState BRDF_LUTSampler : register(s1);
+SamplerState ShadowMapSampler : register(s2);
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -15,6 +16,8 @@ Texture2D ambientOcculusionTexture : register(t8);
 TextureCube Diffuse_IBL_Texture : register(t9);
 TextureCube Specular_IBL_Texture : register(t10);
 Texture2D BRDF_LUT : register(t11);
+
+Texture2D ShadowMapTexture : register(t127);
 
 static const int MAX_LIGHT_COUNT = 4;
 cbuffer cb_Light : register(b3)
@@ -94,35 +97,50 @@ float4 main(PS_INPUT input) : SV_Target
     float NoV = max(0.0, dot(N, V)); // N·V 계산
     
     float3 finalColor;   
-    for (int i = 0; i < LightsCount; i++)
+    
+    //그림자
+    float currentShadowDepth = input.PositionShadow.z / input.PositionShadow.w;
+    float2 uv = input.PositionShadow.xy / input.PositionShadow.w;
+    uv.y = -uv.y;
+    uv = uv * 0.5f + 0.5f;
+        
+    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
-        float3 L = normalize(-Lights[i].LightDir.xyz); // 광원 방향
-        float3 H = normalize(L + V);     // Half Vector
-        float NoL = max(0.0, dot(N, L)); // N·L 계산
-        float HoV = max(0.0, dot(L, H)); // H·V 계산
-        float NoH = max(0.0, dot(N, H)); // N·H 계산
+        float sampleShadowDepth = ShadowMapTexture.Sample(defaultSampler, uv).r;
+        if (!(currentShadowDepth > sampleShadowDepth + 0.001))
+        {
+              //directLighting
+            for (int i = 0; i < LightsCount; i++)
+            {
+                float3 L = normalize(-Lights[i].LightDir.xyz); // 광원 방향
+                float3 H = normalize(L + V); // Half Vector
+                float NoL = max(0.0, dot(N, L)); // N·L 계산
+                float HoV = max(0.0, dot(L, H)); // H·V 계산
+                float NoH = max(0.0, dot(N, H)); // N·H 계산
             
-        // 프레널 반사
-        float3 F = FresnelReflection(F0, HoV);
+                // 프레널 반사
+                float3 F = FresnelReflection(F0, HoV);
 
-        // 법선 분포 함수
-        float D = NormalDistribution(roughness, NoH);
+                // 법선 분포 함수
+                float D = NormalDistribution(roughness, NoH);
 
-        // 폐쇄성 감쇠
-        float G = GeometricAttenuation(NoV, NoL, roughness);
+                // 폐쇄성 감쇠
+                float G = GeometricAttenuation(NoV, NoL, roughness);
 
-        // Specular 반사
-        float3 specular = SpecularBRDF(D, F, G, NoL, NoV);
+                // Specular 반사
+                float3 specular = SpecularBRDF(D, F, G, NoL, NoV);
 
-        // Diffuse 반사
-        float3 diffuse = DiffuseBRDF(albedo, F, NoL, metalness);
+                // Diffuse 반사
+                float3 diffuse = DiffuseBRDF(albedo, F, NoL, metalness);
 
-        // 조명 계산
-        float3 radiance = Lights[i].LightColor.rgb * Lights[i].LightIntensity;
-        float3 directLighting = (diffuse + specular) * radiance * NoL;
-        finalColor += directLighting;
+                // 조명 계산
+                float3 radiance = Lights[i].LightColor.rgb * Lights[i].LightIntensity;
+                float3 directLighting = (diffuse + specular) * radiance * NoL;
+                finalColor += directLighting;
+            }
+        }
     }
-   
+    
     // 표면이 받는 반구의 여러 방향에서 오는 광량을 샘플링한다. Lambertian BRDF를 가정하여 포함되어 있다.
     float3 irradiance = Diffuse_IBL_Texture.Sample(defaultSampler, N).rgb;
  

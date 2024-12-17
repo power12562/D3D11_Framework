@@ -22,7 +22,11 @@ struct SYSTEM_MEMORY_INFO;
 struct RENDERER_DRAW_DESC;
 struct RENDERER_SETTING_DESC
 {
+	//수직 동기화 사용 여부
 	bool UseVSync = false;
+
+	//사용할 RTV 개수. [0]번은 스왑체인 백버퍼이다.
+	UINT RTVCount = 1; 
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -47,7 +51,8 @@ public:
 	ID3D11Device*			GetDevice() { return pDevice; }
 	ID3D11DeviceContext*	GetDeviceContext() { return pDeviceContext; }
 	IDXGISwapChain1*		GetSwapChain() { return pSwapChain; }
-	ID3D11RenderTargetView* GetRenderTargetView() { return pRenderTargetView; }
+	ID3D11RenderTargetView* GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
+	ID3D11RenderTargetView* GetRTV(int index) { return pRenderTargetViewArray[index]; }
 	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
 
 	/** Vram 사용량 확인용.*/
@@ -89,7 +94,7 @@ private:
 	ID3D11Device*				pDevice;					// 디바이스	
 	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
 	IDXGISwapChain1*			pSwapChain;					// 스왑체인
-	ID3D11RenderTargetView*		pRenderTargetView;			// RTV
+	ID3D11RenderTargetView*		pRenderTargetViewArray[8]{};// RTV Array
 	ID3D11DepthStencilView*		pDepthStencilView;			// 깊이 버퍼
 
 	ID3D11DepthStencilState*	pDefaultDepthStencilState;  // 기본 상태
@@ -107,12 +112,12 @@ private:
 	ID3D11VertexShader*			pShadowVertexShader;		
 	ID3D11InputLayout*			pShadowSkinningInputLayout;		   
 	ID3D11VertexShader*			pShadowSkinningVertexShader;		
-	ID3D11PixelShader*			pShadowPiexlShader;
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	void Draw(RENDERER_DRAW_DESC& drawDesc);
 
+	void CreateRTV();
 public:
 	//현재 디스플레이 설정 가져오기.
 	DXGI_MODE_DESC1 GetDisplayMode(int AdapterIndex, int OutputIndex);

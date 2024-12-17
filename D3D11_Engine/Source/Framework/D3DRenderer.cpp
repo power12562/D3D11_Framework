@@ -5,6 +5,7 @@
 #include <Psapi.h>
 #include <framework.h>
 #include <Math/Mathf.h>
+#include <format>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -23,7 +24,6 @@ D3DRenderer::D3DRenderer()
     pDeviceContext = nullptr;
     pSwapChain = nullptr;
 
-    pRenderTargetView = nullptr;
     pDepthStencilView = nullptr;
     pDefaultDepthStencilState = nullptr;
     pSkyBoxDepthStencilState = nullptr;
@@ -38,7 +38,6 @@ D3DRenderer::D3DRenderer()
     pShadowVertexShader = nullptr;
     pShadowSkinningInputLayout = nullptr;
     pShadowSkinningVertexShader = nullptr;
-    pShadowPiexlShader = nullptr;
 }
 
 D3DRenderer::~D3DRenderer()
@@ -127,8 +126,11 @@ void D3DRenderer::Init()
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
         CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
         if(pBackBufferTexture)
-            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, nullptr, &pRenderTargetViewArray[0])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
+
+        //추가 RTV 생성
+        CreateRTV();
 
         //레스터화 기본 규칙
         D3D11_RASTERIZER_DESC rasterDesc;
@@ -229,31 +231,29 @@ void D3DRenderer::Init()
             CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, NULL, &pShadowMap));
             D3D_SET_OBJECT_NAME(pShadowMap, L"ShadowMap");
 
-            if (pShadowMap)
-            {
-                D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-                descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-                descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                CheckHRESULT(pDevice->CreateDepthStencilView(pShadowMap, &descDSV, &pShadowMapDSV));
-                D3D_SET_OBJECT_NAME(pShadowMapDSV, L"ShadowMapDSV");
+			if (pShadowMap)
+			{
+				D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+				descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+				descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+				CheckHRESULT(pDevice->CreateDepthStencilView(pShadowMap, &descDSV, &pShadowMapDSV));
+				D3D_SET_OBJECT_NAME(pShadowMapDSV, L"ShadowMapDSV");
 
-                D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
-                descSRV.Format = DXGI_FORMAT_R32_FLOAT;
-                descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-                descSRV.Texture2D.MipLevels = 1;
-                CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap, &descSRV, &pShadowMapSRV));
-                D3D_SET_OBJECT_NAME(pShadowMapSRV, L"ShadowMapSRV");
-            }
-            {
-                using namespace std::string_literals;
-                std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
-                hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
-                path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
-                hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
-                path = HLSLManager::EngineShaderPath + L"ShadowMapPS.hlsl"s;
-                hlslManager.MakeShader(path.c_str(), "ps_4_0", &pShadowPiexlShader);
-            }
-        }
+				D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
+				descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+				descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				descSRV.Texture2D.MipLevels = 1;
+				CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap, &descSRV, &pShadowMapSRV));
+				D3D_SET_OBJECT_NAME(pShadowMapSRV, L"ShadowMapSRV");
+                {
+                    using namespace std::string_literals;
+                    std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
+                    hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
+                    path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
+                    hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
+                }
+			}
+		}
         D3DConstBuffer::CreateStaticCbuffer();
     }
     catch (const std::exception& ex)
@@ -265,6 +265,7 @@ void D3DRenderer::Init()
     }
     return;
 }
+
 
 void D3DRenderer::Uninit()
 {
@@ -282,7 +283,6 @@ void D3DRenderer::Uninit()
      
     //dxd11 개체
     D3DConstBuffer::ReleaseStaticCbuffer();
-    SafeRelease(pShadowPiexlShader);
     SafeRelease(pShadowInputLayout);
     SafeRelease(pShadowVertexShader);
     SafeRelease(pShadowSkinningInputLayout);
@@ -292,7 +292,10 @@ void D3DRenderer::Uninit()
     SafeRelease(pShadowMap);
     SafeRelease(pDefaultRRState);
     SafeRelease(pDefaultBlendState);
-    SafeRelease(pRenderTargetView);
+    for (auto& rtv  : pRenderTargetViewArray)
+    {
+        SafeRelease(rtv);
+    }
     SafeRelease(pSkyBoxDepthStencilState);
     SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
@@ -314,6 +317,7 @@ void D3DRenderer::Uninit()
     //    debug->Release();
     //}
 #endif // _DEBUG
+
     ULONG refcount = SafeRelease(pDevice);
     if (refcount != 0)
     {
@@ -428,8 +432,12 @@ void D3DRenderer::BegineDraw()
     }
 
     //clear buffer
-    pDeviceContext->ClearRenderTargetView(pRenderTargetView, backgroundColor);  // 화면 칠하기.  
-    pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);  //flip 모드를 사용하기 때문에 매 프레임 설정해주어야 한다.
+    for (UINT i = 0; i < setting.RTVCount; i++)
+    {
+        pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], backgroundColor);  // 화면 초기화 
+    }
+    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    pDeviceContext->ClearDepthStencilView(pShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
@@ -445,7 +453,8 @@ void D3DRenderer::BegineDraw()
             ID3D11ShaderResourceView* srv = mainSkybox->textures[i - index2SkyBox];
             if(srv)
                 pDeviceContext->PSSetShaderResources(i, 1, &srv);
-        }
+        }      
+        pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
     }
     else
     {
@@ -495,7 +504,6 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
     pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-    pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
 
     //set const buffer
     if (prevTransform != drawDesc.pTransform)
@@ -514,10 +522,10 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 
     //Shadow Map Pass
     {      
-        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV);
-        pDeviceContext->ClearDepthStencilView(pShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        ID3D11ShaderResourceView* nullSRV = nullptr;
+        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &nullSRV);
         pDeviceContext->RSSetViewports(1, &shadowViewPort);
-
+        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV);
         if (drawDesc.isSkinning)
         {
             pDeviceContext->IASetInputLayout(pShadowSkinningInputLayout);
@@ -528,15 +536,14 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
             pDeviceContext->IASetInputLayout(pShadowInputLayout);
             pDeviceContext->VSSetShader(pShadowVertexShader, nullptr, 0);
         }
-        pDeviceContext->PSSetShader(pShadowPiexlShader, nullptr, 0);
+        pDeviceContext->PSSetShader(nullptr, nullptr, 0);
         pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
     }
 
     //Render pass
     {
-        pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, pDepthStencilView);
-        pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
         pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
 
         pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
         pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
@@ -568,9 +575,40 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
             //pDeviceContext->VSSetShaderResources(i, 1, &srv);
             pDeviceContext->PSSetShaderResources(i, 1, &srv);
         }
-        //pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &pShadowMapSRV);
+        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &pShadowMapSRV);
 
         pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
+    }
+}
+
+void D3DRenderer::CreateRTV()
+{
+    DXGI_SWAP_CHAIN_DESC1 desc;
+    pSwapChain->GetDesc1(&desc);
+
+    D3D11_TEXTURE2D_DESC textureDesc = {};
+    textureDesc.Width = desc.Width;
+    textureDesc.Height = desc.Height;
+    textureDesc.Format = desc.Format;
+    textureDesc.MipLevels = 1;
+    textureDesc.ArraySize = 1;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.Usage = D3D11_USAGE_DEFAULT;
+    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;  // 렌더 타겟으로 사용
+    textureDesc.CPUAccessFlags = 0;
+
+    for (int i = 1; i < 8; i++)
+    {
+        ID3D11Texture2D* newBuffer;
+        CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, nullptr, &newBuffer));
+        D3D_SET_OBJECT_NAME(newBuffer, L"d3dRenderer");
+
+        if (newBuffer)
+        {
+            CheckHRESULT(pDevice->CreateRenderTargetView(newBuffer, nullptr, &pRenderTargetViewArray[i])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+            D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"RTV");
+        }          
+        SafeRelease(newBuffer);
     }
 }
 
@@ -680,7 +718,7 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         float resolutionScaleY = (float)swapChainDesc->Height / (float)pervDesc.Height;
 
         pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr); //렌더타겟 바인딩 해제
-        unsigned long ref = SafeRelease(pRenderTargetView); //RTV 리소스 제거
+        unsigned long ref = SafeRelease(pRenderTargetViewArray[0]); //RTV 리소스 제거
         CheckHRESULT(pSwapChain->SetFullscreenState(FALSE, NULL));
    
         ref = SafeRelease(pSwapChain);
@@ -719,7 +757,7 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
         ID3D11Texture2D* pBackBufferTexture = nullptr; //백버퍼
         CheckHRESULT(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture)); //스왑체인 백버퍼를 가져온다.
         if (pBackBufferTexture)
-            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetView)); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
+            CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetViewArray[0])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);      
 
         //깊이 버퍼 재 생성
@@ -755,6 +793,8 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
             viewport.Width = std::round(viewport.Width * resolutionScaleX);
             viewport.Height = std::round(viewport.Height * resolutionScaleY);
         }
+
+        CreateRTV();
     }
 }
 
