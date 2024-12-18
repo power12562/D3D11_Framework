@@ -38,6 +38,7 @@ D3DRenderer::D3DRenderer()
     pShadowVertexShader = nullptr;
     pShadowSkinningInputLayout = nullptr;
     pShadowSkinningVertexShader = nullptr;
+
 }
 
 D3DRenderer::~D3DRenderer()
@@ -129,6 +130,10 @@ void D3DRenderer::Init()
             CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, nullptr, &pRenderTargetViewArray[0])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);
 
+        //디버그 드로우용 객체 초기화
+        pPrimitiveBatch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(pDeviceContext);
+        pBasicEffect = std::make_unique<BasicEffect>(pDevice);
+
         //추가 RTV 생성
         CreateRTV();
 
@@ -213,8 +218,8 @@ void D3DRenderer::Init()
    
         //Shadow Map 생성
         {
-            shadowViewPort.Width = 8192.f;
-            shadowViewPort.Height = 8192.f;
+            shadowViewPort.Width = (float)SHADOW_MAP_SIZE;
+            shadowViewPort.Height = (float)SHADOW_MAP_SIZE;
             shadowViewPort.MinDepth = 0.0f;
             shadowViewPort.MaxDepth = 1.0f;
 
@@ -269,6 +274,10 @@ void D3DRenderer::Init()
 
 void D3DRenderer::Uninit()
 {
+    //디버그용 개체
+    pPrimitiveBatch.reset();
+    pBasicEffect.reset();
+
     //dxgi 개체
     for (auto& list : DXGIOutputs)
     {
@@ -292,7 +301,7 @@ void D3DRenderer::Uninit()
     SafeRelease(pShadowMap);
     SafeRelease(pDefaultRRState);
     SafeRelease(pDefaultBlendState);
-    for (auto& rtv  : pRenderTargetViewArray)
+    for (auto rtv  : pRenderTargetViewArray)
     {
         SafeRelease(rtv);
     }
@@ -409,25 +418,37 @@ void D3DRenderer::BegineDraw()
 {   
     //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
-    cbuffer::camera.MainCamPos = mainCam->transform.position;
-    cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
-    cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
-    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
+    {
+        cbuffer::camera.MainCamPos = mainCam->transform.position;
+        cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
+        cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
+    }
 
     //Set Light cb
     {   
         using namespace DirectionalLight;
+        Vector3& lightDir = DirectionalLights.Lights[0].LightDir;
+
         float camHalfFar = (mainCam->Far / 2.f);
-        float viewWidth = camHalfFar;
-        float viewHeight = camHalfFar;
+        float viewWidth = mainCam->Far * 2.f;
+        float viewHeight = mainCam->Far * 2.f;
         constexpr float nearPlane = 0.1f;
-        constexpr float farPlane = 100.0f;
-        constexpr float halfFar = farPlane / 2.f;
-        Vector3 lightPos = mainCam->transform.position;
-        lightPos += Vector3::Up * halfFar;
-        lightPos += mainCam->transform.Front * camHalfFar;
-        cbuffer::ShadowMap.ShadowView = XMMatrixLookToLH(lightPos, DirectionalLights.Lights[0].LightDir, Vector3::Up);
-        cbuffer::ShadowMap.ShadowProjection = XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane);
+        float farPlane = mainCam->Far * 2.f;
+
+        // 카메라 절두체의 중심 계산
+        Vector3 frustumCenter = mainCam->transform.position +
+            mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
+
+        //투영 행렬 위치
+        Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
+        bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
+        if (lightDir.Length() < Mathf::Epsilon)
+        {
+            lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
+        }
+        cbuffer::ShadowMap.ShadowView = XMMatrixTranspose(XMMatrixLookToLH(lightPos, lightDir, isNan ? Vector3::Right : Vector3::Up));
+        cbuffer::ShadowMap.ShadowProjection = XMMatrixTranspose(XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane));
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
     }
 
@@ -443,8 +464,10 @@ void D3DRenderer::BegineDraw()
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
         pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
+        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
+        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
         RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
-        Draw(desc); //SkyBox draw
+        Draw(desc);
        
         constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
         //SetIBLTexture
@@ -479,22 +502,129 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
+    //텍스쳐 기준 정렬.
+    auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {
+        return reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[E_TEXTURE::Albedo]) < reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[E_TEXTURE::Albedo]);
+        };
+    std::sort(opaquerenderOueue.begin(), opaquerenderOueue.end(), textureSort);
+    std::sort(alphaRenderQueue.begin(), alphaRenderQueue.end(), textureSort);
+
     prevTransform = nullptr;
-    for (auto& item : opaquerenderOueue)
-    {     
-        Draw(item);
-    }
-    for (auto& item : alphaRenderQueue)
+    //Shadow Map Pass
     {
-        Draw(item);
+        ID3D11ShaderResourceView* nullSRV = nullptr;
+        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &nullSRV); //SRV 바인딩 해제
+        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV); //렌더타겟 설정
+        pDeviceContext->RSSetViewports(1, &shadowViewPort);            //뷰포트 설정
+        pDeviceContext->PSSetShader(nullptr, nullptr, 0);
+        for (auto& item : opaquerenderOueue)
+        {
+            DrawShadow(item);
+        }
+        for (auto& item : alphaRenderQueue)
+        {
+            DrawShadow(item);
+        }
     }
+
+    prevTransform = nullptr;
+    //Render pass
+    {
+        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
+        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        for (auto& item : opaquerenderOueue)
+        {
+            Draw(item);
+        }
+        for (auto& item : alphaRenderQueue)
+        {
+            Draw(item);
+        }
+    }
+
     opaquerenderOueue.clear();
     alphaRenderQueue.clear();
+
+    DrawDebug();
 }
 
 void D3DRenderer::Present()
 {
 	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
+}
+
+void D3DRenderer::DrawDebug()
+{
+    pPrimitiveBatch->Begin();  // PrimitiveBatch 시작
+    Camera* mainCamera = Camera::GetMainCamera();
+    pBasicEffect->SetView(mainCamera->GetVM());
+    pBasicEffect->SetProjection(mainCamera->GetPM());
+    ComPtr<ID3D11InputLayout> inputLayout;
+    CheckHRESULT(DirectX::CreateInputLayoutFromEffect<VertexPositionColor>(pDevice, pBasicEffect.get(), inputLayout.ReleaseAndGetAddressOf()));
+    pDeviceContext->IASetInputLayout(inputLayout.Get());
+    if (DebugDrawLightFrustum)
+    {
+        Matrix shadowWorld = DirectX::XMMatrixInverse(nullptr, XMMatrixTranspose(cbuffer::ShadowMap.ShadowView));
+        DirectX::BoundingFrustum shadowFrustum(XMMatrixTranspose(cbuffer::ShadowMap.ShadowProjection));
+        pBasicEffect->SetWorld(shadowWorld);
+        pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
+        pBasicEffect->Apply(pDeviceContext);
+        DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
+    }
+
+    for (auto& [Frustum, World, Color] : debugFrustumVec)
+    {
+        DirectX::BoundingFrustum frustum(*Frustum);
+        pBasicEffect->SetWorld(*World);
+        pBasicEffect->SetColorAndAlpha(Color);
+        pBasicEffect->Apply(pDeviceContext);
+        DebugDraw::Draw(pPrimitiveBatch.get(), frustum);
+    }
+    pPrimitiveBatch->End();   // PrimitiveBatch 종료
+}
+
+void D3DRenderer::PushDebugFrustum(Matrix* frustum, Matrix* WM, XMVECTORF32 color)
+{
+    debugFrustumVec.emplace_back(frustum, WM, color);
+}
+
+void D3DRenderer::PopDebugFrustum()
+{
+    if(!debugFrustumVec.empty())
+        debugFrustumVec.pop_back();
+}
+
+void D3DRenderer::DrawShadow(RENDERER_DRAW_DESC& drawDesc)
+{
+    //set IA
+    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
+    pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+
+    //set const buffer
+    if (prevTransform != drawDesc.pTransform)
+    {
+        const Matrix& WM = drawDesc.pTransform->GetWM();
+        cbuffer::transform.World = XMMatrixTranspose(WM);
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+        prevTransform = drawDesc.pTransform;
+    }
+    drawDesc.pConstBuffer->UpdateEvent();
+    drawDesc.pConstBuffer->SetConstBuffer();
+
+	//Shadow Map Pass
+	if (drawDesc.isSkinning)
+	{
+		pDeviceContext->IASetInputLayout(pShadowSkinningInputLayout);
+		pDeviceContext->VSSetShader(pShadowSkinningVertexShader, nullptr, 0);
+	}
+	else
+	{
+		pDeviceContext->IASetInputLayout(pShadowInputLayout);
+		pDeviceContext->VSSetShader(pShadowVertexShader, nullptr, 0);
+	}
+	pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
 }
 
 void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
@@ -513,38 +643,15 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
 
         cbuffer::transform.World = XMMatrixTranspose(WM);
         cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, WM);
-        cbuffer::transform.WVP = XMMatrixTranspose(drawDesc.pTransform->GetWM() * VP);
+        cbuffer::transform.WVP = XMMatrixTranspose(WM * VP);
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
     drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
 
-    //Shadow Map Pass
-    {      
-        ID3D11ShaderResourceView* nullSRV = nullptr;
-        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &nullSRV);
-        pDeviceContext->RSSetViewports(1, &shadowViewPort);
-        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV);
-        if (drawDesc.isSkinning)
-        {
-            pDeviceContext->IASetInputLayout(pShadowSkinningInputLayout);
-            pDeviceContext->VSSetShader(pShadowSkinningVertexShader, nullptr, 0);
-        }    
-        else
-        {
-            pDeviceContext->IASetInputLayout(pShadowInputLayout);
-            pDeviceContext->VSSetShader(pShadowVertexShader, nullptr, 0);
-        }
-        pDeviceContext->PSSetShader(nullptr, nullptr, 0);
-        pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
-    }
-
     //Render pass
     {
-        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
-
         pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
         pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
         pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
@@ -599,6 +706,8 @@ void D3DRenderer::CreateRTV()
 
     for (int i = 1; i < 8; i++)
     {
+        SafeRelease(pRenderTargetViewArray[i]);
+
         ID3D11Texture2D* newBuffer;
         CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, nullptr, &newBuffer));
         D3D_SET_OBJECT_NAME(newBuffer, L"d3dRenderer");

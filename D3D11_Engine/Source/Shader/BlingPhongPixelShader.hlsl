@@ -6,7 +6,20 @@ Texture2D specularMap : register(t2);
 Texture2D emissiveMap : register(t3);
 Texture2D opacityMap : register(t4);
 
-cbuffer cb_Material : register(b2)
+#define MAX_LIGHT_COUNT 4
+cbuffer cb_Light : register(b3)
+{
+    struct
+    {
+        float4 LightColor;
+        float3 LightDir;
+        float LightIntensity;
+    }
+    Lights[MAX_LIGHT_COUNT];
+    int LightsCount;
+}
+
+cbuffer cb_Material : register(b4)
 {
     float4 MaterialAmbient;
     float4 MaterialDiffuse;
@@ -15,17 +28,6 @@ cbuffer cb_Material : register(b2)
     float3 MaterialSpecularPad;
 }
 
-cbuffer cbuffer_Light : register(b3)
-{
-    float4 LightDiffuse;
-    float4 LightAmbient;
-    float4 LightSpecular;
-    float3 LightDir;
-}
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
 float4 main(PS_INPUT input) : SV_Target
 {
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
@@ -42,16 +44,16 @@ float4 main(PS_INPUT input) : SV_Target
     if (0.f < length(mapNormal))
         input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
     
-    float4 diffuse = saturate(dot(input.Normal, (float3) -LightDir) * LightDiffuse) * MaterialDiffuse * txColor;
+    float4 diffuse = saturate(dot(input.Normal, (float3) -Lights[0].LightDir) * Lights[0].LightColor) * MaterialDiffuse * txColor;
 
-    float4 ambient = LightAmbient * MaterialAmbient;
+    float4 ambient = Lights[0].LightIntensity / 1000.f * MaterialAmbient;
     
     float3 View = normalize(MainCamPos.xyz - input.World);
-    float3 HalfVector = normalize(-LightDir.xyz + View);
+    float3 HalfVector = normalize(-Lights[0].LightDir.xyz + View);
     float fHDotN = max(0.0f, dot(HalfVector, input.Normal * mapNormal));
  
     float4 specular;
-    specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * LightSpecular * mapSpecular;
+    specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * mapSpecular;
  
     float4 final = diffuse + specular + mapEmissive + ambient;
     final.rgb = LinearToGammaSpace(final.rgb);

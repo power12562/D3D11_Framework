@@ -1,8 +1,8 @@
 #include "ShadowTestScene.h"
 #include <framework.h>
 
-constexpr float positionDumpX = 20;
-constexpr float positionDumpZ = 20;
+constexpr float positionDumpX = 15;
+constexpr float positionDumpZ = 15;
 void ShadowTestScene::Start()
 {
 	Scene::UseImGUI = true;
@@ -20,22 +20,21 @@ void ShadowTestScene::Start()
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::BRDF_LUT, L"Resource/Skybox/RoomBrdf.dds");
 	
 	cube = NewGameObject<CubeObject>(L"ground");
+	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 
-	constexpr int count = 1;
-	size_t zCount = static_cast<size_t>(std::sqrt(count * 3));
+	constexpr int count = 10;
+	size_t zCount = static_cast<size_t>(std::sqrt(count * 4));
 	for (size_t i = 0; i < count; i++)
 	{
 		AddObjects(zCount);
 	}
 	size_t centerRow = zCount / 2;
 	size_t centerColumn = zCount / 2;
-
+	
 	float centerX = centerColumn * positionDumpX;
 	float centerZ = centerRow * positionDumpZ;
-
+	
 	cube->transform.position = Vector3(centerX, -5.f, centerZ);
-	float cubeScale = (float)zCount;
-	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 }
 
 void ShadowTestScene::ImGUIRender()
@@ -50,6 +49,11 @@ void ShadowTestScene::ImGUIRender()
 		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
+		ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
+
+		ImGui::EditCamera("main Camera", pCamera, pCameraMoveHelper);
+
+		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(), ImVec2(256, 256));
 	}
 	ImGui::End();
 
@@ -161,6 +165,19 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	cha->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	cha->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	cha->transform.rotation = Vector3::Up * 23.f;
+
+	positionCountX++;
+	if (positionZcount == positionCountX)
+	{
+		positionCountZ++;
+		positionCountX = 0;
+	}
+	auto Kachujin = NewGameObject(L"Kachujin");
+	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *Kachujin, false, SURFACE_TYPE::BlingPhong);
+	Kachujin->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
+	Kachujin->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
+	Kachujin->transform.rotation = Vector3::Up * 23.f;
+	Kachujin->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	positionCountX++;
 	if (positionZcount == positionCountX)

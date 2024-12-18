@@ -1,5 +1,5 @@
 #include "BlingPhongMeshRender.h"
-#include <Light/SimpleDirectionalLight.h>
+#include <Light/PBRDirectionalLight.h>
 #include <Framework/HLSLManager.h>
 
 void BlingPhongMeshRender::Start()
@@ -9,12 +9,11 @@ void BlingPhongMeshRender::Start()
 	BlingPhongMeshObject* meshObj = dynamic_cast<BlingPhongMeshObject*>(&gameObject);
 	if (meshObj)
 	{
-		int index = constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
+		int index = constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
+		constBuffer.BindUpdateEvent(DirectionalLight::DirectionalLights);
+
+		index = constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
 		constBuffer.BindUpdateEvent(meshObj->Material);
-
-		index = constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-		constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
-
 
 		{
 			using namespace std::string_literals;

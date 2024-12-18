@@ -8,6 +8,12 @@
 #include <memory>
 #include <string>
 #include <Utility/MemoryUtility.h>
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
+#include <directxtk/PrimitiveBatch.h>
+#include <directxtk/VertexTypes.h>
+#include <directxtk/Effects.h>
+#include <directxtk/DirectXHelpers.h>
 using namespace Microsoft::WRL;
 
 namespace Utility
@@ -80,3 +86,44 @@ using DRAW_INDEX_RESOURCE = std::shared_ptr<DRAW_INDEX_DATA>;
 #else
 #define D3D_SET_OBJECT_NAME(pObject, pName)
 #endif
+
+namespace DebugDraw
+{
+	void XM_CALLCONV Draw(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		const DirectX::BoundingSphere& sphere,
+		DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV Draw(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		const DirectX::BoundingBox& box,
+		DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV Draw(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		const DirectX::BoundingOrientedBox& obb,
+		DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV Draw(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		const DirectX::BoundingFrustum& frustum,
+		DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV DrawGrid(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis,
+		DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs,
+		DirectX::GXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV DrawRing(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		DirectX::FXMVECTOR origin, DirectX::FXMVECTOR majorAxis, DirectX::FXMVECTOR minorAxis,
+		DirectX::GXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV DrawRay(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		DirectX::FXMVECTOR origin, DirectX::FXMVECTOR direction, bool normalize = true,
+		DirectX::FXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV DrawTriangle(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		DirectX::FXMVECTOR pointA, DirectX::FXMVECTOR pointB, DirectX::FXMVECTOR pointC,
+		DirectX::GXMVECTOR color = DirectX::Colors::White);
+
+	void XM_CALLCONV DrawQuad(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
+		DirectX::FXMVECTOR pointA, DirectX::FXMVECTOR pointB,
+		DirectX::FXMVECTOR pointC, DirectX::GXMVECTOR pointD,
+		DirectX::HXMVECTOR color = DirectX::Colors::White);
+}

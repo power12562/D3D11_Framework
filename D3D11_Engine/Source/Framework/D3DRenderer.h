@@ -6,6 +6,7 @@
 #include <string>
 #include <cassert>
 
+constexpr int SHADOW_MAP_SIZE = 8192;
 class Transform;
 class D3DRenderer;
 class D3DConstBuffer;
@@ -38,7 +39,6 @@ public:
 	{
 		SHADOW_SRV = 127
 	};
-
 protected:
 	D3DRenderer();
 	~D3DRenderer();
@@ -54,6 +54,7 @@ public:
 	ID3D11RenderTargetView* GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
 	ID3D11RenderTargetView* GetRTV(int index) { return pRenderTargetViewArray[index]; }
 	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
+	ID3D11ShaderResourceView* GetShadowMapSRV() { return pShadowMapSRV; }
 
 	/** Vram 사용량 확인용.*/
 	USAGE_VRAM_INFO GetLocalVramUsage();
@@ -112,9 +113,20 @@ private:
 	ID3D11VertexShader*			pShadowVertexShader;		
 	ID3D11InputLayout*			pShadowSkinningInputLayout;		   
 	ID3D11VertexShader*			pShadowSkinningVertexShader;		
+
+private:
+	std::unique_ptr<DirectX::DX11::PrimitiveBatch<DirectX::DX11::VertexPositionColor>> pPrimitiveBatch;
+	std::unique_ptr<DirectX::DX11::BasicEffect> pBasicEffect;
+	std::vector<std::tuple<DirectX::SimpleMath::Matrix*, DirectX::SimpleMath::Matrix*, DirectX::XMVECTORF32>> debugFrustumVec;	
+	void DrawDebug();
+public:
+	bool DebugDrawLightFrustum = false;
+	void PushDebugFrustum(DirectX::SimpleMath::Matrix* frustum, DirectX::SimpleMath::Matrix* WM, DirectX::XMVECTORF32 color);
+	void PopDebugFrustum();
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
+	void DrawShadow(RENDERER_DRAW_DESC& drawDesc);	  
 	void Draw(RENDERER_DRAW_DESC& drawDesc);
 
 	void CreateRTV();

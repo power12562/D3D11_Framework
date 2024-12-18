@@ -28,7 +28,6 @@ PS_INPUT main(VS_INPUT input)
     pos = mul(pos, matWorld);
     pos = mul(pos, ShadowView);
     pos = mul(pos, ShadowProjection);
-    
-	
+    output.Pos = pos;
     return output;
 }

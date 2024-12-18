@@ -40,12 +40,7 @@ void Camera::FixedUpdate()
 
 void Camera::Update()
 {
-	XMVECTOR Eye = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.f);
-	Vector3 to = transform.Front;
-	XMVECTOR To = XMVectorSet(to.x, to.y, to.z, 0.f);
-	Vector3 up = transform.Up;
-	XMVECTOR Up = XMVectorSet(up.x, up.y, up.z, 0.f);
-	view = XMMatrixLookToLH(Eye, To, Up);
+	view = XMMatrixLookToLH(transform.position, transform.Front, transform.Up);
 	 
 	const SIZE& size = D3D11_GameApp::GetClientSize();
 	projection = XMMatrixPerspectiveFovLH(FOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, Near, Far);

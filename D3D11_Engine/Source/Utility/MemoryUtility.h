@@ -1,7 +1,8 @@
 #pragma once
 #include <intrin.h>
+#include <memory>
 
-namespace Utility
+namespace Utility	
 {
 	template<typename T>
 	unsigned long SafeRelease(T& p)

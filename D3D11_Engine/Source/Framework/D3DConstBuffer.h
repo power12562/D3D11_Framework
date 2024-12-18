@@ -74,10 +74,6 @@ public:
 
 	template<typename T>
 	static void UpdateStaticCbuffer(const T& data);
-	template<>
-	static void UpdateStaticCbuffer(const cb_Transform& data);
-	template<>
-	static void UpdateStaticCbuffer(const cb_Camera& data);
 
 public:
 	D3DConstBuffer();
