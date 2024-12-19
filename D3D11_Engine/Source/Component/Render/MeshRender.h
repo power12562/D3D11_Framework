@@ -77,4 +77,9 @@ private:
 public:
 	RENDERER_DRAW_DESC GetRendererDesc();
 
+protected:
+	DirectX::BoundingOrientedBox boundingBox;
+
+public:
+	DirectX::BoundingOrientedBox GetBoundingBox();
 };

@@ -107,6 +107,11 @@ void SimpleBoneMeshRender::CreateMesh()
 	D3D11_SUBRESOURCE_DATA ibData = {};
 	ibData.pSysMem = indices.data();
 	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshResource->pIndexBuffer));
+	
+	//Create bounding box
+	BoundingBox box;
+	box.CreateFromPoints(box, vertices.size(), (XMFLOAT3*)vertices.data(), sizeof(Vertex));
+	boundingBox.CreateFromBoundingBox(boundingBox, box);
 
 	vertices.clear();
 	indices.clear();

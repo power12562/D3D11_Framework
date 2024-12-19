@@ -1,23 +1,27 @@
 #include "SphereObject.h"
 #include <Light/PBRDirectionalLight.h>
 #include <Framework/HLSLManager.h>
+#include <Utility/AssimpUtility.h>
+#include <Component/Render/PBRMeshRender.h>
 
-SphereObject::SphereObject() : 
-	sphereMeshRender(AddComponent<SphereMeshRender>())
+SphereObject::SphereObject() 
 {
-	sphereMeshRender.constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
-	sphereMeshRender.constBuffer.BindUpdateEvent(DirectionalLight::DirectionalLights);
-
-	sphereMeshRender.constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
-	sphereMeshRender.constBuffer.BindUpdateEvent(Material);
-
 	{
 		using namespace std::string_literals;
-		std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
-		sphereMeshRender.SetVertexShader(vertexPath.c_str());
+		auto MaterialInit = [this](MeshRender* mesh) {mesh->constBuffer.BindUpdateEvent(Material);};
 
-		std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBRPixelShader.hlsl"s);
-		sphereMeshRender.SetPixelShader(pixelPath.c_str());
+		std::wstring fbxPath(HLSLManager::EngineShaderPath + L"sphere.fbx"s);
+		Utility::LoadFBX(fbxPath.c_str(), *this, MaterialInit, false, SURFACE_TYPE::PBR);
+	}	
+
+	for(unsigned int i = 0; i < transform.GetChildCount(); i++)
+	{
+		SphereMeshRender = transform.GetChild(i)->gameObject.IsComponent<PBRMeshRender>();
+		
+		if (SphereMeshRender)
+		{
+			transform.scale = 0.1f;
+			break;
+		}	
 	}
-	sphereMeshRender.CreateSphere(); 
 }

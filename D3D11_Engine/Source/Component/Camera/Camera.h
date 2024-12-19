@@ -22,6 +22,7 @@ public:
 
 public:
 	const Matrix& GetVM() const;
+	const Matrix& GetIVM() const;
 	const Matrix& GetPM() const;
 
 public:
@@ -36,5 +37,6 @@ protected:
 
 private:
 	Matrix view;
+	Matrix inversView;
 	Matrix projection;
 };

@@ -6,6 +6,7 @@
 #include <framework.h>
 #include <Math/Mathf.h>
 #include <format>
+#include <Component/Render/MeshRender.h>
 
 D3DRenderer& d3dRenderer = D3DRenderer::GetInstance();
 
@@ -431,11 +432,12 @@ void D3DRenderer::BegineDraw()
         {
             Vector3& lightDir = DirectionalLights.Lights[i].LightDir;
 
+            //영역 설정
             float camHalfFar = (mainCam->Far / 2.f);
-            float viewWidth = mainCam->Far * 2.f;
-            float viewHeight = mainCam->Far * 2.f;
+            float viewWidth = mainCam->Far * 1.5f;
+            float viewHeight = mainCam->Far * 1.5f;
             constexpr float nearPlane = 0.1f;
-            float farPlane = mainCam->Far * 2.f;
+            float farPlane = mainCam->Far * 1.5f;
 
             //투영 행렬 위치
             Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
@@ -581,39 +583,67 @@ void D3DRenderer::DrawDebug()
     ComPtr<ID3D11InputLayout> inputLayout;
     CheckHRESULT(DirectX::CreateInputLayoutFromEffect<VertexPositionColor>(pDevice, pBasicEffect.get(), inputLayout.ReleaseAndGetAddressOf()));
     pDeviceContext->IASetInputLayout(inputLayout.Get());
+    pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
+    pBasicEffect->Apply(pDeviceContext);
     if (DebugDrawLightFrustum)
     {
         for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; ++i)
         {
             Matrix shadowWorld = DirectX::XMMatrixInverse(nullptr, shadowViews[i]);
             DirectX::BoundingFrustum shadowFrustum(shadowProjections[i]);
-            pBasicEffect->SetWorld(shadowWorld);
-            pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
-            pBasicEffect->Apply(pDeviceContext);
+            shadowFrustum.Transform(shadowFrustum, shadowWorld);
             DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
         }
     }
-
-    for (auto& [Frustum, World, Color] : debugFrustumVec)
+    if (DebugDrawCameraFrustum)
+    {
+        static Matrix camProjection;
+        static Matrix camWorld;
+        if (!DebugLockCameraFrustum)
+        {
+            camProjection = mainCamera->GetPM();
+            camWorld = mainCamera->GetIVM();
+        }
+        DirectX::BoundingFrustum cameraFrustum(camProjection);
+        cameraFrustum.Transform(cameraFrustum, camWorld);
+        DebugDraw::Draw(pPrimitiveBatch.get(), cameraFrustum);
+    }
+    for (auto& [Frustum, World] : debugFrustumVec)
     {
         DirectX::BoundingFrustum frustum(*Frustum);
-        pBasicEffect->SetWorld(*World);
-        pBasicEffect->SetColorAndAlpha(Color);
-        pBasicEffect->Apply(pDeviceContext);
+        frustum.Transform(frustum, *World);
         DebugDraw::Draw(pPrimitiveBatch.get(), frustum);
+    }
+    for (auto& mesh : debugMeshBounds)
+    {
+        DirectX::BoundingOrientedBox bounds = mesh->GetBoundingBox();
+        DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
     }
     pPrimitiveBatch->End();   // PrimitiveBatch 종료
 }
 
-void D3DRenderer::PushDebugFrustum(Matrix* frustum, Matrix* WM, XMVECTORF32 color)
+void D3DRenderer::PushDebugFrustum(const Matrix* frustum, const Matrix* WM)
 {
-    debugFrustumVec.emplace_back(frustum, WM, color);
+    debugFrustumVec.emplace_back(frustum, WM);
 }
 
 void D3DRenderer::PopDebugFrustum()
 {
     if(!debugFrustumVec.empty())
         debugFrustumVec.pop_back();
+}
+
+void D3DRenderer::PushDebugBoundingBox(MeshRender* mesh)
+{
+    debugMeshBounds.emplace_back(mesh);
+}
+
+void D3DRenderer::PopDebugBoundingBox()
+{
+    if(!debugMeshBounds.empty())
+    { 
+        debugFrustumVec.pop_back();
+    }
 }
 
 void D3DRenderer::DrawShadow(RENDERER_DRAW_DESC& drawDesc)

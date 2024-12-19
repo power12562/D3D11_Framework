@@ -110,6 +110,8 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	auto pistol = NewGameObject(L"pistol");
 	auto initMesh = [this](MeshRender* mesh)
 		{
+			d3dRenderer.PushDebugBoundingBox(mesh);
+
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			obj.Material.UseRMACMap = true;
 			std::string key = obj.GetNameToString();
@@ -135,14 +137,15 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 
 	auto sphere = NewGameObject<SphereObject>(L"Sphere");
 	{
+		d3dRenderer.PushDebugBoundingBox(sphere->SphereMeshRender);
+
 		sphere->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 		if(sphereMaterial == nullptr)
 			sphereMaterial = &sphere->Material;
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
-		sphere->sphereMeshRender.CreateSphere(5.0f, 100, 100);;
-		sphere->sphereMeshRender.constBuffer.BindUpdateEvent(*sphereMaterial);
+		sphere->SphereMeshRender->constBuffer.BindUpdateEvent(*sphereMaterial);
 	}
 	positionCountX++;
 	if (positionZcount == positionCountX)
@@ -154,6 +157,8 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	auto cha = NewGameObject(L"ch");
 	auto charInit = [this](MeshRender* mesh)
 		{
+			d3dRenderer.PushDebugBoundingBox(mesh);
+
 			PBRMeshObject* obj = static_cast<PBRMeshObject*>(&mesh->gameObject);
 			std::string key = obj->GetNameToString();
 			if (charMaterials.find(key) == charMaterials.end())

@@ -44,7 +44,6 @@ void IBLTestScene::Start()
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
-		Sphere->sphereMeshRender.CreateSphere(5.0f, 100, 100);;
 	}
 
 	cha = NewGameObject(L"ch");

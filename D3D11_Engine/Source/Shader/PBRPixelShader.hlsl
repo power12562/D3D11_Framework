@@ -63,7 +63,7 @@ float4 main(PS_INPUT input) : SV_Target
         N = normalize(mul(normalSample * 2.0f - 1.0f, TBN));
     }
     else
-        N = input.Normal;
+        N = normalize(input.Normal);
     
     // 재질 특성
     float metalness = Metalness;

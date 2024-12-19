@@ -152,6 +152,8 @@ void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCa
 	ImGui::Text(label);
 	EditTransform(&pCamera->gameObject);
 	ImGui::PushID(g_id);
+	ImGui::Checkbox("Draw Frustum", &d3dRenderer.DebugDrawCameraFrustum);
+	ImGui::Checkbox("Lock Frustum", &d3dRenderer.DebugLockCameraFrustum);
 	ImGui::SliderFloat("FOV", &pCamera->FOV, 10, 120);
 	ImGui::SliderFloat("Near", &pCamera->Near, 0.05f, 10.f);
 	ImGui::SliderFloat("Far", &pCamera->Far, 15.f, 10000.f);

@@ -9,6 +9,7 @@
 
 constexpr int SHADOW_MAP_SIZE = 8192;
 class Transform;
+class MeshRender;
 class D3DRenderer;
 class D3DConstBuffer;
 class D3DSamplerState;
@@ -122,12 +123,18 @@ private:
 private:
 	std::unique_ptr<DirectX::DX11::PrimitiveBatch<DirectX::DX11::VertexPositionColor>> pPrimitiveBatch;
 	std::unique_ptr<DirectX::DX11::BasicEffect> pBasicEffect;
-	std::vector<std::tuple<DirectX::SimpleMath::Matrix*, DirectX::SimpleMath::Matrix*, DirectX::XMVECTORF32>> debugFrustumVec;	
+	std::vector<std::tuple<const DirectX::SimpleMath::Matrix*, const DirectX::SimpleMath::Matrix*>> debugFrustumVec;
+	std::vector<MeshRender*> debugMeshBounds;
 	void DrawDebug();
 public:
 	bool DebugDrawLightFrustum = false;
-	void PushDebugFrustum(DirectX::SimpleMath::Matrix* frustum, DirectX::SimpleMath::Matrix* WM, DirectX::XMVECTORF32 color);
+	bool DebugDrawCameraFrustum = false;
+	bool DebugLockCameraFrustum = false;
+	void PushDebugFrustum(const DirectX::SimpleMath::Matrix* frustum, const DirectX::SimpleMath::Matrix* WM);
 	void PopDebugFrustum();
+
+	void PushDebugBoundingBox(MeshRender* mesh);
+	void PopDebugBoundingBox();
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
