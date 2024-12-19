@@ -428,26 +428,26 @@ void D3DRenderer::BegineDraw()
         Vector3 frustumCenter = mainCam->transform.position +
             mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
 
+        constexpr float lightScale =  1.5f;
+        constexpr float lightNear = 0.1f;
+        float lightFar = mainCam->Far * lightScale;
+        float viewWidth = lightFar;
+        float viewHeight = lightFar;
+        float lightHalfFar = lightFar * 0.5f;
+
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
             Vector3& lightDir = DirectionalLights.Lights[i].LightDir;
-
-            //영역 설정
-            float camHalfFar = (mainCam->Far / 2.f);
-            float viewWidth = mainCam->Far;
-            float viewHeight = mainCam->Far;
-            constexpr float nearPlane = 0.1f;
-            float farPlane = mainCam->Far;
-
+ 
             //투영 행렬 위치
-            Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
+            Vector3 lightPos = frustumCenter - lightDir * lightHalfFar;
             bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
             if (lightDir.Length() < Mathf::Epsilon)
             {
                 lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
             }
             shadowViews[i] = XMMatrixLookToLH(lightPos, lightDir, isNan ? Vector3::Right : Vector3::Up);
-            shadowProjections[i] = XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane);
+            shadowProjections[i] = XMMatrixOrthographicLH(viewWidth, viewHeight, lightNear, lightFar);
         }
     }
 

@@ -21,16 +21,24 @@ void SimpleBoneMeshRender::Start()
 	constBuffer.BindUpdateEvent(boneWIT);
 
 	// Create Liner Sampler
-	samplerState.resize(1);
-	D3D11_SAMPLER_DESC linerSampler = {};
-	linerSampler.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	linerSampler.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	linerSampler.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	linerSampler.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	linerSampler.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	linerSampler.MinLOD = 0;
-	linerSampler.MaxLOD = D3D11_FLOAT32_MAX;
-	samplerState.SetSamplerState(0, linerSampler);
+	samplerState.resize(2);
+	D3D11_SAMPLER_DESC SamplerDesc = {};
+	SamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	SamplerDesc.MinLOD = 0;
+	SamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerState.SetSamplerState(0, SamplerDesc);
+
+	//Shadow Sampler
+	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerState.SetSamplerState(1, SamplerDesc);
 }
 
 void SimpleBoneMeshRender::FixedUpdate()

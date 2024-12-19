@@ -160,7 +160,7 @@ void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCa
 	if (pCameraMoveHelper)
 	{
 		ImGui::DragFloat("Move Speed", &pCameraMoveHelper->moveSpeed, 1.f, 1.f, 1000.f);
-		ImGui::DragFloat("Rotation Speed", &pCameraMoveHelper->rotSpeed, 1.f, 1.f, 30.f);
+		ImGui::DragFloat("Rotation Speed", &pCameraMoveHelper->rotSpeed, 0.1f, 0.1f, 1.f);
 	}
 	ImGui::Text("");
 	ImGui::PopID();

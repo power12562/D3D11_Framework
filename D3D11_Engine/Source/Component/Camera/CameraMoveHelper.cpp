@@ -4,7 +4,7 @@
 
 CameraMoveHelper::CameraMoveHelper()
 {
-	rotSpeed = 15;
+	rotSpeed = 0.1f;
 	moveSpeed = 10.0f;
 }
 
@@ -28,18 +28,12 @@ void CameraMoveHelper::Update()
 	}
 	if (yawRotation)
 	{
-		transform.rotation *= Quaternion::CreateFromAxisAngle(Vector3::UnitX, -yawRotation * TimeSystem::Time.DeltaTime);
-		Quaternion rot = transform.rotation;
-		rot.Normalize();
-		transform.rotation = rot;
+		transform.rotation *= Quaternion::CreateFromAxisAngle(Vector3::UnitX, -yawRotation);
 		yawRotation = 0;
 	}
 	if (pitchRotation)
 	{
-		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -pitchRotation * TimeSystem::Time.DeltaTime) * transform.rotation;
-		Quaternion rot = transform.rotation;
-		rot.Normalize();
-		transform.rotation = rot;
+		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -pitchRotation) * transform.rotation;
 		pitchRotation = 0;
 	}
 	inputVector = Vector3::Zero;
