@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 SamplerState defaultSampler : register(s0);
 SamplerState BRDF_LUTSampler : register(s1);
 SamplerComparisonState ShadowMapSampler : register(s2);
@@ -17,10 +17,8 @@ TextureCube Diffuse_IBL_Texture : register(t9);
 TextureCube Specular_IBL_Texture : register(t10);
 Texture2D BRDF_LUT : register(t11);
 
-Texture2D ShadowMapTexture : register(t127);
+Texture2D ShadowMapTextures[4] : register(t124);
 
-#define MAX_LIGHT_COUNT 4
-#define SHADOW_MAP_SIZE 8192
 cbuffer cb_Light : register(b3)
 {
     struct
@@ -93,46 +91,50 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 V = normalize(MainCamPos - input.World); // 뷰 방향  
     float NoV = max(0.0, dot(N, V)); // N·V 계산
-    
-    //최종 계산용
-    float3 finalColor = 0;   
-    int i = 0;
-    
-    //그림자 확인
-    float currentShadowDepth = input.PositionShadow.z;
-    float2 uv = input.PositionShadow.xy;
-    uv.y = -uv.y;
-    uv = uv * 0.5f + 0.5f;
        
-    float shadowFactor[MAX_LIGHT_COUNT] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
+    //3x3 PCF 샘플링    
+    float2 offsets[9] =
     {
-        //3x3 PCF 샘플링
-        float2 offsets[9] =
-        {
-            float2(-1, -1), float2(0, -1), float2(1, -1),
-            float2(-1, 0),  float2(0, 0), float2(1, 0),
-            float2(-1, 1),  float2(0, 1), float2(1, 1)
-        };
-        float texelSize = 1.0 / SHADOW_MAP_SIZE;
-        [unroll]
-        for (int j = 0; j < 9; j++)
-        {
-            float2 sampleUV = uv + offsets[j] * texelSize;
-            shadowFactor[0] += ShadowMapTexture.SampleCmpLevelZero(ShadowMapSampler, sampleUV, currentShadowDepth - 0.001);
-        }     
-        shadowFactor[0] = shadowFactor[0] / 9.0f;
+        float2(-1, -1), float2(0, -1), float2(1, -1),
+            float2(-1, 0), float2(0, 0), float2(1, 0),
+            float2(-1, 1), float2(0, 1), float2(1, 1)
+    };
+    float texelSize = 1.0 / SHADOW_MAP_SIZE;
+    
+    float shadowFactor[MAX_LIGHT_COUNT] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    [unroll]
+    for (int i = 0; i < LightsCount; i++)
+    {
+        //그림자 확인
+        float currentShadowDepth = input.PositionShadows[i].z;
+        float2 uv = input.PositionShadows[i].xy;
+        uv.y = -uv.y;
+        uv = uv * 0.5f + 0.5f;
         
-        //리니어 그림자 샘플링
-        //float sampleShadowDepth = ShadowMapTexture.Sample(defaultSampler, uv).r;
-        //if (currentShadowDepth > sampleShadowDepth + 0.001)
-        //{
-        //    i++;
-        //}
+        if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
+        {       
+            [unroll]
+            for (int j = 0; j < 9; j++)
+            {
+                float2 sampleUV = uv + offsets[j] * texelSize;
+                shadowFactor[i] += ShadowMapTextures[i].SampleCmpLevelZero(ShadowMapSampler, sampleUV, currentShadowDepth - 0.001);
+            }
+            shadowFactor[i] = shadowFactor[i] / 9.0f;
+        
+            ////리니어 그림자 샘플링
+            //float sampleShadowDepth = ShadowMapTextures[i].Sample(defaultSampler, uv).r;
+            //if (currentShadowDepth > sampleShadowDepth + 0.001)
+            //{
+            //    shadowFactor[i] = 0;
+            //} 
+        }
     }
     
+    //최종 계산용
+    float3 finalColor = 0;
+    
     //directLighting
-    for (; i < LightsCount; i++)
+    for (i = 0; i < LightsCount; i++)
     {
         float3 L = normalize(-Lights[i].LightDir.xyz); // 광원 방향
         float3 H = normalize(L + V); // Half Vector

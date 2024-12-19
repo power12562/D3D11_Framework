@@ -325,7 +325,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Shader\SkyBoxShared.hlsli" />
-    <None Include="Source\Shader\Shared.fxh" />
+    <None Include="Source\Shader\Shared.hlsli" />
     <None Include="Source\Shader\VSInput.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

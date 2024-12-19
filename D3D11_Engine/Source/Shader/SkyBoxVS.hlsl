@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 #include "SkyBoxShared.hlsli"
 
 PixelShaderInput main(float4 localPosition : POSITION)

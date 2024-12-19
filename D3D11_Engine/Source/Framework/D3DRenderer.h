@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <cassert>
+#include <Light/PBRDirectionalLight.h>
 
 constexpr int SHADOW_MAP_SIZE = 8192;
 class Transform;
@@ -35,9 +36,12 @@ class D3DRenderer : public TSingleton<D3DRenderer>
 	friend class WinGameApp;
 	friend TSingleton;
 public:
-	enum 
+	enum
 	{
-		SHADOW_SRV = 127
+		SHADOW_SRV0 = 128 - cb_PBRDirectionalLight::MAX_LIGHT_COUNT,
+		SHADOW_SRV1,
+		SHADOW_SRV2,
+		SHADOW_SRV3
 	};
 protected:
 	D3DRenderer();
@@ -48,13 +52,13 @@ private:
 	void Uninit();	   
 	
 public:
-	ID3D11Device*			GetDevice() { return pDevice; }
-	ID3D11DeviceContext*	GetDeviceContext() { return pDeviceContext; }
-	IDXGISwapChain1*		GetSwapChain() { return pSwapChain; }
-	ID3D11RenderTargetView* GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
-	ID3D11RenderTargetView* GetRTV(int index) { return pRenderTargetViewArray[index]; }
-	ID3D11DepthStencilView* GetDepthStencilView() { return pDepthStencilView; }
-	ID3D11ShaderResourceView* GetShadowMapSRV() { return pShadowMapSRV; }
+	ID3D11Device*				GetDevice() { return pDevice; }
+	ID3D11DeviceContext*		GetDeviceContext() { return pDeviceContext; }
+	IDXGISwapChain1*			GetSwapChain() { return pSwapChain; }
+	ID3D11RenderTargetView*		GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
+	ID3D11RenderTargetView*		GetRTV(int index) { return pRenderTargetViewArray[index]; }
+	ID3D11DepthStencilView*		GetDepthStencilView() { return pDepthStencilView; }
+	ID3D11ShaderResourceView*	GetShadowMapSRV(int index) { return pShadowMapSRV[index]; }
 
 	/** Vram 사용량 확인용.*/
 	USAGE_VRAM_INFO GetLocalVramUsage();
@@ -104,11 +108,12 @@ private:
 	ID3D11BlendState*			pDefaultBlendState;			// 기본 블렌드 상태
 	ID3D11RasterizerState*		pDefaultRRState;			// 기본 레스터화 규칙
 
-
 	D3D11_VIEWPORT				shadowViewPort{};			// Shadow 뷰포트
-	ID3D11Texture2D*			pShadowMap;					// Shadow 맵
-	ID3D11DepthStencilView*		pShadowMapDSV;				// Shadow Map용 DSV
-	ID3D11ShaderResourceView*	pShadowMapSRV;				// Shadow Map용 SRV
+	ID3D11Texture2D*			pShadowMap[cb_PBRDirectionalLight::MAX_LIGHT_COUNT]{};		// Shadow 맵
+	ID3D11DepthStencilView*		pShadowMapDSV[cb_PBRDirectionalLight::MAX_LIGHT_COUNT]{};	// Shadow Map용 DSV
+	ID3D11ShaderResourceView*	pShadowMapSRV[cb_PBRDirectionalLight::MAX_LIGHT_COUNT]{};	// Shadow Map용 SRV
+	DirectX::SimpleMath::Matrix	shadowViews[cb_PBRDirectionalLight::MAX_LIGHT_COUNT]{};
+	DirectX::SimpleMath::Matrix	shadowProjections[cb_PBRDirectionalLight::MAX_LIGHT_COUNT]{};
 	ID3D11InputLayout*			pShadowInputLayout;			
 	ID3D11VertexShader*			pShadowVertexShader;		
 	ID3D11InputLayout*			pShadowSkinningInputLayout;		   

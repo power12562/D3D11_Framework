@@ -53,7 +53,10 @@ void ShadowTestScene::ImGUIRender()
 
 		ImGui::EditCamera("main Camera", pCamera, pCameraMoveHelper);
 
-		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(), ImVec2(256, 256));
+		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(0), ImVec2(256, 256));
+		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(1), ImVec2(256, 256));
+		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(2), ImVec2(256, 256));
+		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(3), ImVec2(256, 256));
 	}
 	ImGui::End();
 

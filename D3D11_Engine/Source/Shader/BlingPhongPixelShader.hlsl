@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 SamplerState samLinear : register(s0);
 Texture2D txDiffuse : register(t0);
 Texture2D normalMap : register(t1);

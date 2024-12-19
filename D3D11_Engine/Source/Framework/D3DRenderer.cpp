@@ -31,14 +31,10 @@ D3DRenderer::D3DRenderer()
     pDefaultBlendState = nullptr;
     pDefaultRRState = nullptr;
 
-    pShadowMap = nullptr;
-    pShadowMapDSV = nullptr;
-    pShadowMapSRV = nullptr;
     pShadowInputLayout = nullptr;
     pShadowVertexShader = nullptr;
     pShadowSkinningInputLayout = nullptr;
     pShadowSkinningVertexShader = nullptr;
-
 }
 
 D3DRenderer::~D3DRenderer()
@@ -233,30 +229,35 @@ void D3DRenderer::Init()
             textureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
             textureDesc.SampleDesc.Count = 1;
             textureDesc.SampleDesc.Quality = 0;
-            CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, NULL, &pShadowMap));
-            D3D_SET_OBJECT_NAME(pShadowMap, L"ShadowMap");
-
-			if (pShadowMap)
+           
+			for (int i = 0; i < cb_PBRDirectionalLight::MAX_LIGHT_COUNT; i++)
 			{
-				D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-				descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-				descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-				CheckHRESULT(pDevice->CreateDepthStencilView(pShadowMap, &descDSV, &pShadowMapDSV));
-				D3D_SET_OBJECT_NAME(pShadowMapDSV, L"ShadowMapDSV");
+				CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, NULL, &pShadowMap[i]));
+				D3D_SET_OBJECT_NAME(pShadowMap[i], L"ShadowMap");
 
-				D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
-				descSRV.Format = DXGI_FORMAT_R32_FLOAT;
-				descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				descSRV.Texture2D.MipLevels = 1;
-				CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap, &descSRV, &pShadowMapSRV));
-				D3D_SET_OBJECT_NAME(pShadowMapSRV, L"ShadowMapSRV");
+                if (pShadowMap[i])
                 {
-                    using namespace std::string_literals;
-                    std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
-                    hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
-                    path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
-                    hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
+                    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+                    descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+                    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                    CheckHRESULT(pDevice->CreateDepthStencilView(pShadowMap[i], &descDSV, &pShadowMapDSV[i]));
+                    D3D_SET_OBJECT_NAME(pShadowMapDSV[i], L"ShadowMapDSV");
+
+                    D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
+                    descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+                    descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+                    descSRV.Texture2D.MipLevels = 1;
+                    CheckHRESULT(pDevice->CreateShaderResourceView(pShadowMap[i], &descSRV, &pShadowMapSRV[i]));
+                    D3D_SET_OBJECT_NAME(pShadowMapSRV[i], L"ShadowMapSRV");
                 }
+			}
+
+			{
+				using namespace std::string_literals;
+				std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
+				hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
+				path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
+				hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
 			}
 		}
         D3DConstBuffer::CreateStaticCbuffer();
@@ -279,15 +280,11 @@ void D3DRenderer::Uninit()
     pBasicEffect.reset();
 
     //dxgi 개체
-    for (auto& list : DXGIOutputs)
+    for (auto& outputs : DXGIOutputs)
     {
-        for(auto& Output : list)
-            SafeRelease(Output);
+        SafeReleaseArray(outputs);
     }
-    for (auto& Adapters : DXGIAdapters)
-    {
-        SafeRelease(Adapters);
-    }
+	SafeReleaseArray(DXGIAdapters);
     SafeRelease(pDXGIFactory);
      
     //dxd11 개체
@@ -296,15 +293,12 @@ void D3DRenderer::Uninit()
     SafeRelease(pShadowVertexShader);
     SafeRelease(pShadowSkinningInputLayout);
     SafeRelease(pShadowSkinningVertexShader);
-    SafeRelease(pShadowMapSRV);
-    SafeRelease(pShadowMapDSV);
-    SafeRelease(pShadowMap);
+    SafeReleaseArray(pShadowMapSRV);
+    SafeReleaseArray(pShadowMapDSV);
+    SafeReleaseArray(pShadowMap);
     SafeRelease(pDefaultRRState);
     SafeRelease(pDefaultBlendState);
-    for (auto rtv  : pRenderTargetViewArray)
-    {
-        SafeRelease(rtv);
-    }
+    SafeReleaseArray(pRenderTargetViewArray);
     SafeRelease(pSkyBoxDepthStencilState);
     SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
@@ -425,31 +419,34 @@ void D3DRenderer::BegineDraw()
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
     }
 
-    //Set Light cb
-    {   
+    //Set lights view
+    {
         using namespace DirectionalLight;
-        Vector3& lightDir = DirectionalLights.Lights[0].LightDir;
-
-        float camHalfFar = (mainCam->Far / 2.f);
-        float viewWidth = mainCam->Far * 2.f;
-        float viewHeight = mainCam->Far * 2.f;
-        constexpr float nearPlane = 0.1f;
-        float farPlane = mainCam->Far * 2.f;
 
         // 카메라 절두체의 중심 계산
         Vector3 frustumCenter = mainCam->transform.position +
             mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
 
-        //투영 행렬 위치
-        Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
-        bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
-        if (lightDir.Length() < Mathf::Epsilon)
+        for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
-            lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
+            Vector3& lightDir = DirectionalLights.Lights[i].LightDir;
+
+            float camHalfFar = (mainCam->Far / 2.f);
+            float viewWidth = mainCam->Far * 2.f;
+            float viewHeight = mainCam->Far * 2.f;
+            constexpr float nearPlane = 0.1f;
+            float farPlane = mainCam->Far * 2.f;
+
+            //투영 행렬 위치
+            Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
+            bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
+            if (lightDir.Length() < Mathf::Epsilon)
+            {
+                lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
+            }
+            shadowViews[i] = XMMatrixLookToLH(lightPos, lightDir, isNan ? Vector3::Right : Vector3::Up);
+            shadowProjections[i] = XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane);
         }
-        cbuffer::ShadowMap.ShadowView = XMMatrixTranspose(XMMatrixLookToLH(lightPos, lightDir, isNan ? Vector3::Right : Vector3::Up));
-        cbuffer::ShadowMap.ShadowProjection = XMMatrixTranspose(XMMatrixOrthographicLH(viewWidth, viewHeight, nearPlane, farPlane));
-        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
     }
 
     //clear buffer
@@ -457,8 +454,11 @@ void D3DRenderer::BegineDraw()
     {
         pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], backgroundColor);  // 화면 초기화 
     }
+    for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+    {
+        pDeviceContext->ClearDepthStencilView(pShadowMapDSV[i], D3D11_CLEAR_DEPTH, 1.0f, 0);
+    }
     pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    pDeviceContext->ClearDepthStencilView(pShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
@@ -513,17 +513,29 @@ void D3DRenderer::EndDraw()
     //Shadow Map Pass
     {
         ID3D11ShaderResourceView* nullSRV = nullptr;
-        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &nullSRV); //SRV 바인딩 해제
-        pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV); //렌더타겟 설정
+        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        {
+            pDeviceContext->PSSetShaderResources(SHADOW_SRV0 + i, 1, &nullSRV); //SRV 바인딩 해제
+        }   
         pDeviceContext->RSSetViewports(1, &shadowViewPort);            //뷰포트 설정
-        pDeviceContext->PSSetShader(nullptr, nullptr, 0);
-        for (auto& item : opaquerenderOueue)
+        pDeviceContext->PSSetShader(nullptr, nullptr, 0);              //픽셀 셰이더 해제
+
+        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
         {
-            DrawShadow(item);
-        }
-        for (auto& item : alphaRenderQueue)
-        {
-            DrawShadow(item);
+            //set constbuffer
+            cbuffer::ShadowMap.ShadowViews[0] = XMMatrixTranspose(shadowViews[i]);
+            cbuffer::ShadowMap.ShadowProjections[0] = XMMatrixTranspose(shadowProjections[i]);
+            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+
+            pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i] ); //렌더타겟 설정
+            for (auto& item : opaquerenderOueue)
+            {
+                DrawShadow(item);
+            }
+            for (auto& item : alphaRenderQueue)
+            {
+                DrawShadow(item);
+            }
         }
     }
 
@@ -532,6 +544,13 @@ void D3DRenderer::EndDraw()
     {
         pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
         pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
+        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        {     
+            cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
+            cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
+            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+        }         
         for (auto& item : opaquerenderOueue)
         {
             Draw(item);
@@ -564,12 +583,15 @@ void D3DRenderer::DrawDebug()
     pDeviceContext->IASetInputLayout(inputLayout.Get());
     if (DebugDrawLightFrustum)
     {
-        Matrix shadowWorld = DirectX::XMMatrixInverse(nullptr, XMMatrixTranspose(cbuffer::ShadowMap.ShadowView));
-        DirectX::BoundingFrustum shadowFrustum(XMMatrixTranspose(cbuffer::ShadowMap.ShadowProjection));
-        pBasicEffect->SetWorld(shadowWorld);
-        pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
-        pBasicEffect->Apply(pDeviceContext);
-        DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
+        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; ++i)
+        {
+            Matrix shadowWorld = DirectX::XMMatrixInverse(nullptr, shadowViews[i]);
+            DirectX::BoundingFrustum shadowFrustum(shadowProjections[i]);
+            pBasicEffect->SetWorld(shadowWorld);
+            pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
+            pBasicEffect->Apply(pDeviceContext);
+            DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
+        }
     }
 
     for (auto& [Frustum, World, Color] : debugFrustumVec)
@@ -682,8 +704,6 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
             //pDeviceContext->VSSetShaderResources(i, 1, &srv);
             pDeviceContext->PSSetShaderResources(i, 1, &srv);
         }
-        pDeviceContext->PSSetShaderResources(SHADOW_SRV, 1, &pShadowMapSRV);
-
         pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
     }
 }

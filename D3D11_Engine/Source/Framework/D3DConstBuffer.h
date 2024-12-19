@@ -22,8 +22,8 @@ struct cb_Camera
 /* b2 레지스터는 ShadowMap 버퍼*/
 struct cb_ShadowMap
 {
-	DirectX::SimpleMath::Matrix ShadowProjection;
-	DirectX::SimpleMath::Matrix ShadowView;
+	DirectX::SimpleMath::Matrix ShadowProjections[cb_PBRDirectionalLight::MAX_LIGHT_COUNT];
+	DirectX::SimpleMath::Matrix ShadowViews[cb_PBRDirectionalLight::MAX_LIGHT_COUNT];
 };
 
 /*copy to fxh file
@@ -44,8 +44,8 @@ cbuffer cb_Camera : register(b1)
 
 cbuffer cb_ShadowMap : register(b2)
 {
-	Matrix ShadowProjection;
-	Matrix ShadowView;
+	Matrix ShadowProjections[MAX_LIGHT_COUNT];
+	Matrix ShadowViews[MAX_LIGHT_COUNT];
 };
 
 */

@@ -2,6 +2,8 @@ static const float PI = 3.141592654;
 static const float3 Fdielectric = 0.04f;
 static const float Epsilon = 1e-6;
 static const float MinRoughness = 0.04f;
+#define MAX_LIGHT_COUNT 4
+#define SHADOW_MAP_SIZE 8192
 
 inline float GammaToLinearSpaceExact(float value)
 {
@@ -123,8 +125,8 @@ cbuffer cb_Camera : register(b1)
 
 cbuffer cb_ShadowMap : register(b2)
 {
-    Matrix ShadowProjection;
-    Matrix ShadowView;
+    Matrix ShadowProjections[MAX_LIGHT_COUNT];
+    Matrix ShadowViews[MAX_LIGHT_COUNT];
 };
 
 struct PS_INPUT
@@ -135,5 +137,6 @@ struct PS_INPUT
     float3 Tangent : NORMAL1;
     float3 BiTangent : NORMAL2;
     float2 Tex : TEXCOORD0;
-    float4 PositionShadow : TEXCOORD1;
+    float4 PositionShadows[MAX_LIGHT_COUNT] : TEXCOORD1;
 };
+

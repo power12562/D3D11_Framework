@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 #ifdef VERTEX_SKINNING
 cbuffer MatrixPallete : register(b3)
 {
@@ -26,8 +26,8 @@ PS_INPUT main(VS_INPUT input)
     matWorld = World;
 #endif 
     pos = mul(pos, matWorld);
-    pos = mul(pos, ShadowView);
-    pos = mul(pos, ShadowProjection);
+    pos = mul(pos, ShadowViews[0]);
+    pos = mul(pos, ShadowProjections[0]);
     output.Pos = pos;
     return output;
 }

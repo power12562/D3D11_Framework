@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 #include "SkyBoxShared.hlsli"
 SamplerState samLinear : register(s0);
 TextureCube envTexture : register(t0);

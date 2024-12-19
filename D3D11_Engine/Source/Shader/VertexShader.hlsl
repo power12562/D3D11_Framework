@@ -1,4 +1,4 @@
-#include "Shared.fxh"
+#include "Shared.hlsli"
 #ifdef VERTEX_SKINNING
 cbuffer MatrixPallete : register(b3)
 {
@@ -46,7 +46,12 @@ PS_INPUT main(VS_INPUT input)
     output.BiTangent = normalize(cross(output.Normal, output.Tangent));
     
     output.Tex = input.Tex;
-    output.PositionShadow = mul(float4(output.World.xyz, 1.0f), ShadowView);
-    output.PositionShadow = mul(output.PositionShadow, ShadowProjection);
+    
+    [unroll]
+    for (int i = 0; i < MAX_LIGHT_COUNT; i++)
+    {
+        output.PositionShadows[i] = mul(float4(output.World.xyz, 1.0f), ShadowViews[i]);
+        output.PositionShadows[i] = mul(output.PositionShadows[i], ShadowProjections[i]);       
+    }
     return output;
 }

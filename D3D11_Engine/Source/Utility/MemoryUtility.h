@@ -15,6 +15,18 @@ namespace Utility
 		}
 		return -1;
 	}
+	template<typename T>
+	void SafeReleaseArray(T& pArr)
+	{
+		int i = 0;
+		for (auto& p : pArr)
+		{
+			p->Release();
+			pArr[i] = nullptr;
+			i++;
+		}
+		return;
+	}
 
 	template<typename T>
 	void SafeDelete(T& p)
