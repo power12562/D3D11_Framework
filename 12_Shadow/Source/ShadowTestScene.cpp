@@ -22,7 +22,7 @@ void ShadowTestScene::Start()
 	cube = NewGameObject<CubeObject>(L"ground");
 	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 
-	constexpr int count = 10;
+	constexpr int count = 100;
 	size_t zCount = static_cast<size_t>(std::sqrt(count * 4));
 	for (size_t i = 0; i < count; i++)
 	{
@@ -43,15 +43,20 @@ void ShadowTestScene::ImGUIRender()
 	static bool ShowPistolEdit = false;
 	static bool ShowCharEdit = false;
 
+	ImGui::Begin("Hierarchy");
+	{
+		ImGui::EditHierarchyView();
+	}
+	ImGui::End();
+
 	ImGui::Begin("Debug");
 	{
-		ImGui::Text("%d", TimeSystem::Time.GetFrameRate());
+		ImGui::Text("FPS : %d, DRAW CALL : %llu", TimeSystem::Time.GetFrameRate(), d3dRenderer.GetDrawCount());
 		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
 		ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
-
-		ImGui::EditCamera("main Camera", pCamera, pCameraMoveHelper);
+		ImGui::EditCamera("Main Camera", pCamera, pCameraMoveHelper);
 
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(0), ImVec2(256, 256));
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(1), ImVec2(256, 256));
@@ -108,10 +113,9 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	static size_t positionCountZ = 1;
 
 	auto pistol = NewGameObject(L"pistol");
+	d3dRenderer.PushDebugOBB(pistol);
 	auto initMesh = [this](MeshRender* mesh)
-		{
-			d3dRenderer.PushDebugBoundingBox(mesh);
-
+		{		
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			obj.Material.UseRMACMap = true;
 			std::string key = obj.GetNameToString();
@@ -137,7 +141,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 
 	auto sphere = NewGameObject<SphereObject>(L"Sphere");
 	{
-		d3dRenderer.PushDebugBoundingBox(sphere->SphereMeshRender);
+		d3dRenderer.PushDebugOBB(sphere);
 
 		sphere->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 		if(sphereMaterial == nullptr)
@@ -155,10 +159,9 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	}
 
 	auto cha = NewGameObject(L"ch");
+	d3dRenderer.PushDebugOBB(cha);
 	auto charInit = [this](MeshRender* mesh)
-		{
-			d3dRenderer.PushDebugBoundingBox(mesh);
-
+		{	
 			PBRMeshObject* obj = static_cast<PBRMeshObject*>(&mesh->gameObject);
 			std::string key = obj->GetNameToString();
 			if (charMaterials.find(key) == charMaterials.end())
@@ -181,6 +184,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 		positionCountX = 0;
 	}
 	auto Kachujin = NewGameObject(L"Kachujin");
+	d3dRenderer.PushDebugOBB(Kachujin);
 	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *Kachujin, false, SURFACE_TYPE::BlingPhong);
 	Kachujin->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	Kachujin->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };

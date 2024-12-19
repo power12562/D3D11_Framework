@@ -51,7 +51,7 @@ Transform& Transform::operator=(const Transform& rhs)
 	return *this;
 }
 
-GameObject& Transform::GetGameObject()
+GameObject& Transform::GetGameObject() const
 {
 	return *_gameObject;
 }

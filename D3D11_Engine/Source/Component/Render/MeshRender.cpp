@@ -139,10 +139,3 @@ RENDERER_DRAW_DESC MeshRender::GetRendererDesc()
 	return desc;
 }
 
-DirectX::BoundingOrientedBox MeshRender::GetBoundingBox()
-{
-	BoundingOrientedBox boundingBoxOut(boundingBox);
-	boundingBoxOut.Transform(boundingBoxOut, transform.GetWM());
-	return boundingBoxOut;
-}
-

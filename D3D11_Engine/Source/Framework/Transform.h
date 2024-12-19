@@ -17,7 +17,7 @@ public:
 
 	Transform& operator=(const Transform& rhs);
 public:
-	GameObject& GetGameObject();
+	GameObject& GetGameObject() const;
 	__declspec(property(get = GetGameObject)) GameObject& gameObject;
 
 	const Vector3& SetPosition(const Vector3& value);
@@ -77,7 +77,7 @@ public:
 	__declspec(property(get = GetParent)) Transform* Parent;
 
 	/*최상위 부모*/
-	Transform* GetRootParent() { return rootParent; }
+	Transform* GetRootParent() const { return rootParent; }
 	__declspec(property(get = GetRootParent)) Transform* RootParent;
 public:
 	/*Transform 정보로 메트릭스를 업데이트합니다.*/

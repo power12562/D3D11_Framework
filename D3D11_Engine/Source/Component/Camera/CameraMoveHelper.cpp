@@ -26,11 +26,20 @@ void CameraMoveHelper::Update()
 		transform.position += inputVector * moveSpeed * TimeSystem::Time.DeltaTime;
 		inputVector = Vector3::Zero;
 	}
-	if (yawRotation || pitchRotation)
+	if (yawRotation)
 	{
 		transform.rotation *= Quaternion::CreateFromAxisAngle(Vector3::UnitX, -yawRotation * TimeSystem::Time.DeltaTime);
-		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -pitchRotation * TimeSystem::Time.DeltaTime) * transform.rotation;
+		Quaternion rot = transform.rotation;
+		rot.Normalize();
+		transform.rotation = rot;
 		yawRotation = 0;
+	}
+	if (pitchRotation)
+	{
+		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -pitchRotation * TimeSystem::Time.DeltaTime) * transform.rotation;
+		Quaternion rot = transform.rotation;
+		rot.Normalize();
+		transform.rotation = rot;
 		pitchRotation = 0;
 	}
 	inputVector = Vector3::Zero;
@@ -112,10 +121,10 @@ void CameraMoveHelper::Reset()
 
 void CameraMoveHelper::AddYaw(float value)
 {	
-	yawRotation += value;
+	yawRotation = value;
 }
 
 void CameraMoveHelper::AddPitch(float value)
 {
-	pitchRotation += value;
+	pitchRotation = value;
 }

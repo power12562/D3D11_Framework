@@ -434,10 +434,10 @@ void D3DRenderer::BegineDraw()
 
             //영역 설정
             float camHalfFar = (mainCam->Far / 2.f);
-            float viewWidth = mainCam->Far * 1.5f;
-            float viewHeight = mainCam->Far * 1.5f;
+            float viewWidth = mainCam->Far;
+            float viewHeight = mainCam->Far;
             constexpr float nearPlane = 0.1f;
-            float farPlane = mainCam->Far * 1.5f;
+            float farPlane = mainCam->Far;
 
             //투영 행렬 위치
             Vector3 lightPos = frustumCenter - lightDir * camHalfFar;
@@ -495,10 +495,36 @@ void D3DRenderer::BegineDraw()
 
 void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
 {
-    if (isAlpha)
-        alphaRenderQueue.emplace_back(darwDesc);
-    else
-        opaquerenderOueue.emplace_back(darwDesc);
+    using namespace DirectX::DX11;
+    Camera* mainCam = Camera::GetMainCamera();
+    if (mainCam)
+    {
+        bool isDraw = false; 
+        BoundingOrientedBox OB;
+        //절두체 컬링
+        if (darwDesc.pTransform->RootParent)
+        {
+            OB = darwDesc.pTransform->RootParent->gameObject.GetOBBToWorld();
+        }
+        else
+        {
+            OB = darwDesc.pTransform->gameObject.GetOBBToWorld();
+        }
+        if (!DebugLockCameraFrustum)
+        {
+            camProjection = mainCam->GetPM();
+            camWorld = mainCam->GetIVM();
+        }
+        DirectX::BoundingFrustum cameraFrustum(camProjection);
+        cameraFrustum.Transform(cameraFrustum, (camWorld));
+        if (OB.Intersects(cameraFrustum))
+        {
+            if (isAlpha)
+                alphaRenderQueue.emplace_back(darwDesc);
+            else
+                opaquerenderOueue.emplace_back(darwDesc);
+        }
+    }
 }
 
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
@@ -563,9 +589,9 @@ void D3DRenderer::EndDraw()
         }
     }
 
+    DrawCallCount = opaquerenderOueue.size() + alphaRenderQueue.size();
     opaquerenderOueue.clear();
     alphaRenderQueue.clear();
-
     DrawDebug();
 }
 
@@ -596,14 +622,7 @@ void D3DRenderer::DrawDebug()
         }
     }
     if (DebugDrawCameraFrustum)
-    {
-        static Matrix camProjection;
-        static Matrix camWorld;
-        if (!DebugLockCameraFrustum)
-        {
-            camProjection = mainCamera->GetPM();
-            camWorld = mainCamera->GetIVM();
-        }
+    {      
         DirectX::BoundingFrustum cameraFrustum(camProjection);
         cameraFrustum.Transform(cameraFrustum, camWorld);
         DebugDraw::Draw(pPrimitiveBatch.get(), cameraFrustum);
@@ -614,9 +633,9 @@ void D3DRenderer::DrawDebug()
         frustum.Transform(frustum, *World);
         DebugDraw::Draw(pPrimitiveBatch.get(), frustum);
     }
-    for (auto& mesh : debugMeshBounds)
+    for (auto& mesh : debugOBBVec)
     {
-        DirectX::BoundingOrientedBox bounds = mesh->GetBoundingBox();
+        DirectX::BoundingOrientedBox bounds = mesh->GetOBBToWorld();
         DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
     }
     pPrimitiveBatch->End();   // PrimitiveBatch 종료
@@ -633,14 +652,14 @@ void D3DRenderer::PopDebugFrustum()
         debugFrustumVec.pop_back();
 }
 
-void D3DRenderer::PushDebugBoundingBox(MeshRender* mesh)
+void D3DRenderer::PushDebugOBB(GameObject* obj)
 {
-    debugMeshBounds.emplace_back(mesh);
+    debugOBBVec.emplace_back(obj);
 }
 
-void D3DRenderer::PopDebugBoundingBox()
+void D3DRenderer::PopDebugOBB()
 {
-    if(!debugMeshBounds.empty())
+    if(!debugOBBVec.empty())
     { 
         debugFrustumVec.pop_back();
     }

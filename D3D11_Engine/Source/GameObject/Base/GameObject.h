@@ -25,6 +25,44 @@ public:
 	GameObject(); 
 	virtual ~GameObject();
 
+public:
+	unsigned int GetInstanceID() const { return instanceID; }
+	const std::wstring& GetName() const { return name; }
+	const std::wstring& SetName(const wchar_t* _name);
+	std::string GetNameToString() const;
+public:
+	/*오브젝트 이름. (중복 가능)*/
+	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;
+	Transform transform;
+	bool Active = true;
+
+public:
+	/*컴포넌트 추가*/
+	template <typename T>
+	T& AddComponent();
+
+	/*컴포넌트 가져오기*/
+	template <typename T>
+	T& GetComponent();
+
+	/*컴포넌트 가져오기. (없으면 nullptr 반환)*/
+	template <typename T>
+	T* IsComponent();
+
+	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
+	template <typename T>
+	T* GetComponentAtIndex(int index);
+
+	/*이 오브젝트의 컴포넌트 개수*/
+	int GetComponentCount() { return componentList.size(); }
+
+	void DestroyComponent(Component& component);
+
+	void DestroyComponent(Component* component);
+
+	DirectX::BoundingOrientedBox GetOBBToWorld() const;
+	DirectX::BoundingBox BoundingBox;
+
 private:
 	void FixedUpdate();
 	void Update();
@@ -47,43 +85,9 @@ public:
 private:
 	std::weak_ptr<GameObject> myptr;
 
-public:
-	unsigned int GetInstanceID() const { return instanceID; }
-	const std::wstring& GetName() const { return name; }
-	const std::wstring& SetName(const wchar_t* _name);
-	std::string GetNameToString() const;
-public:
-	/*오브젝트 이름. (중복 가능)*/
-	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;
-	Transform transform;
-	bool Active = true;
-
 private:
 	bool checkActive = true;
 	inline bool CheckActive() const { return checkActive != Active; }
-public:
-	/*컴포넌트 추가*/
-	template <typename T>
-	T& AddComponent();
-
-	/*컴포넌트 가져오기*/
-	template <typename T>
-	T& GetComponent();
-
-	/*컴포넌트 가져오기. (없으면 nullptr 반환)*/
-	template <typename T>
-	T* IsComponent();
-
-	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
-	template <typename T>
-	T* GetComponentAtIndex(int index);
-	
-	/*이 오브젝트의 컴포넌트 개수*/
-	int GetComponentCount() { return componentList.size(); }
-
-	void DestroyComponent(Component& component);
-
-	void DestroyComponent(Component* component);
 };
 
 template<typename T>

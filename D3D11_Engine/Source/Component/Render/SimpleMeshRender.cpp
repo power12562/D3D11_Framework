@@ -87,10 +87,19 @@ void SimpleMeshRender::CreateMesh()
 	ibData.pSysMem = indices.data();
 	CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bd, &ibData, &meshResource->pIndexBuffer));
 
-    //Create bounding box
+	//Create bounding box
 	BoundingBox box;
-	box.CreateFromPoints(box, vertices.size(), (XMFLOAT3*)vertices.data(), sizeof(Vertex));
-	boundingBox.CreateFromBoundingBox(boundingBox, box);
+	box.CreateFromPoints(box, vertices.size(), reinterpret_cast<XMFLOAT3*>(vertices.data()), sizeof(Vertex));
+	box.Transform(box, 1.0f, transform.rotation, transform.position);
+	if (transform.RootParent)
+	{	
+		BoundingBox::CreateMerged(transform.RootParent->gameObject.BoundingBox,
+			transform.RootParent->gameObject.BoundingBox, box);
+	}
+	else
+	{
+		BoundingBox::CreateMerged(gameObject.BoundingBox, gameObject.BoundingBox, box);
+	}
 
 	vertices.clear();
 	indices.clear();

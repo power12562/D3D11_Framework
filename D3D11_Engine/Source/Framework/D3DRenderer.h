@@ -8,8 +8,8 @@
 #include <Light/PBRDirectionalLight.h>
 
 constexpr int SHADOW_MAP_SIZE = 8192;
+class GameObject;
 class Transform;
-class MeshRender;
 class D3DRenderer;
 class D3DConstBuffer;
 class D3DSamplerState;
@@ -86,6 +86,7 @@ private:
 	IDXGIFactory4* pDXGIFactory = nullptr;
 	std::vector<IDXGIAdapter3*> DXGIAdapters;
 	std::vector<std::vector<IDXGIOutput1*>> DXGIOutputs;
+
 public:
 	void BegineDraw();
 	void DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha);
@@ -124,23 +125,29 @@ private:
 	std::unique_ptr<DirectX::DX11::PrimitiveBatch<DirectX::DX11::VertexPositionColor>> pPrimitiveBatch;
 	std::unique_ptr<DirectX::DX11::BasicEffect> pBasicEffect;
 	std::vector<std::tuple<const DirectX::SimpleMath::Matrix*, const DirectX::SimpleMath::Matrix*>> debugFrustumVec;
-	std::vector<MeshRender*> debugMeshBounds;
+	std::vector<GameObject*> debugOBBVec;
 	void DrawDebug();
 public:
+	DirectX::SimpleMath::Matrix camProjection; //카메라 투영
+	DirectX::SimpleMath::Matrix camWorld;	  //카메라 월드
 	bool DebugDrawLightFrustum = false;
 	bool DebugDrawCameraFrustum = false;
 	bool DebugLockCameraFrustum = false;
 	void PushDebugFrustum(const DirectX::SimpleMath::Matrix* frustum, const DirectX::SimpleMath::Matrix* WM);
 	void PopDebugFrustum();
 
-	void PushDebugBoundingBox(MeshRender* mesh);
-	void PopDebugBoundingBox();
+	void PushDebugOBB(GameObject* obj);
+	void PopDebugOBB();
+
+public:
+	size_t GetDrawCount() const { return DrawCallCount; }
+
 private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
+	size_t DrawCallCount = 0;
 	void DrawShadow(RENDERER_DRAW_DESC& drawDesc);	  
 	void Draw(RENDERER_DRAW_DESC& drawDesc);
-
 	void CreateRTV();
 public:
 	//현재 디스플레이 설정 가져오기.

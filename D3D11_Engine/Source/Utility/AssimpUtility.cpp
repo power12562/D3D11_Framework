@@ -336,6 +336,9 @@ namespace Utility
 
 			if (isRoot)
 			{
+				//copy Bounds
+				currDestObj->BoundingBox = currSourceObj->BoundingBox;
+
 				//copy Animation
 				if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 				{
