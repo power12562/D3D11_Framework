@@ -98,8 +98,8 @@ void MappingCubeObject::Start()
     textures.SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
     textures.SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 
-    hlslManager.CreateSharingShader(L"VertexShader.hlsl", "vs_4_0", &pVertexShader, &pInputLayout);
-    hlslManager.CreateSharingShader(L"PixelShader.hlsl", "ps_4_0", &pPixelShader);
+    hlslManager.CreateSharingShader(L"VertexShader.hlsl", &pVertexShader, &pInputLayout);
+    hlslManager.CreateSharingShader(L"PixelShader.hlsl", &pPixelShader);
 
     //Set sampler
     D3D11_SAMPLER_DESC sampDesc = {};

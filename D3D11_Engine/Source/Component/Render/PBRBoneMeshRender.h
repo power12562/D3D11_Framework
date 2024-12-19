@@ -5,7 +5,7 @@
 class PBRBoneMeshRender : public SimpleBoneMeshRender
 {
 public:
-	PBRBoneMeshRender() = default;
+	PBRBoneMeshRender();
 	virtual ~PBRBoneMeshRender() override = default;
 
 	virtual void Start() override;

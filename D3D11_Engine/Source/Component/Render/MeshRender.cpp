@@ -68,13 +68,13 @@ void MeshRender::CopyShader(MeshRender& rhs)
 
 void MeshRender::SetVertexShader(const wchar_t* path)
 {
-	hlslManager.CreateSharingShader(path, "vs_4_0", &pVertexShader, &pInputLayout);
+	hlslManager.CreateSharingShader(path, &pVertexShader, &pInputLayout);
 	vertexShaderPath = path;
 }
 
 void MeshRender::SetPixelShader(const wchar_t* path)
 {
-	hlslManager.CreateSharingShader(path, "ps_4_0", &pPixelShader);
+	hlslManager.CreateSharingShader(path, &pPixelShader);
 	pixelShaderPath = path;
 }
 

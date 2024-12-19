@@ -30,6 +30,7 @@ void IBLTestScene::Start()
 		{
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			obj.Material.UseRMACMap = true;
+			obj.Material.UseSpecularMap = false;
 			pistolMaterials[obj.GetNameToString()] = &obj.Material;
 			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
 		};

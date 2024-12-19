@@ -256,9 +256,9 @@ void D3DRenderer::Init()
 			{
 				using namespace std::string_literals;
 				std::wstring path = HLSLManager::EngineShaderPath + L"ShadowMapVS.hlsl"s;
-				hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowVertexShader, &pShadowInputLayout);
+				hlslManager.MakeShader(path.c_str(), &pShadowVertexShader, &pShadowInputLayout);
 				path = HLSLManager::EngineShaderPath + L"ShadowMapSkinningVS.hlsl"s;
-				hlslManager.MakeShader(path.c_str(), "vs_4_0", &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
+				hlslManager.MakeShader(path.c_str(), &pShadowSkinningVertexShader, &pShadowSkinningInputLayout);
 			}
 		}
         D3DConstBuffer::CreateStaticCbuffer();
@@ -501,13 +501,16 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
     {
         bool isDraw = false; 
         BoundingOrientedBox OB;
+        GameObject* obj = nullptr;
         //절두체 컬링
         if (darwDesc.pTransform->RootParent)
         {
+            obj = &darwDesc.pTransform->RootParent->gameObject;
             OB = darwDesc.pTransform->RootParent->gameObject.GetOBBToWorld();
         }
         else
         {
+            obj = &darwDesc.pTransform->gameObject;
             OB = darwDesc.pTransform->gameObject.GetOBBToWorld();
         }
         if (!DebugLockCameraFrustum)
@@ -517,7 +520,8 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
         }
         DirectX::BoundingFrustum cameraFrustum(camProjection);
         cameraFrustum.Transform(cameraFrustum, (camWorld));
-        if (OB.Intersects(cameraFrustum))
+        obj->isCulling = OB.Intersects(cameraFrustum);
+        if (obj->isCulling)
         {
             if (isAlpha)
                 alphaRenderQueue.emplace_back(darwDesc);
@@ -583,6 +587,7 @@ void D3DRenderer::EndDraw()
         {
             Draw(item);
         }
+
         for (auto& item : alphaRenderQueue)
         {
             Draw(item);

@@ -22,7 +22,7 @@ void ShadowTestScene::Start()
 	cube = NewGameObject<CubeObject>(L"ground");
 	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 
-	constexpr int count = 100;
+	constexpr int count = 10;
 	size_t zCount = static_cast<size_t>(std::sqrt(count * 4));
 	for (size_t i = 0; i < count; i++)
 	{
@@ -117,6 +117,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	auto initMesh = [this](MeshRender* mesh)
 		{		
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
+			obj.Material.UseSpecularMap = false;
 			obj.Material.UseRMACMap = true;
 			std::string key = obj.GetNameToString();
 			if (pistolMaterials.find(key) == pistolMaterials.end())

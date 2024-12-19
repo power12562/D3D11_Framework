@@ -178,6 +178,7 @@ void ImGui::EditMaterial(const char* label, cb_PBRMaterial* Material)
 
 	ImGui::Checkbox("Metalness Map", &Material->UseMetalnessMap);
 	ImGui::Checkbox("Roughness Map", &Material->UseRoughnessMap);
+	ImGui::Checkbox("SpecularMap Map", &Material->UseSpecularMap);
 	ImGui::Checkbox("Ambient Occulusion Map", &Material->UseAmbientOcculusionMap);
 	ImGui::Checkbox("RMAC Map", &Material->UseRMACMap);
 

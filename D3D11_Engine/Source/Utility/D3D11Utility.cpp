@@ -94,6 +94,7 @@ namespace Utility
 						ShowErrorMessageBox();
 						return hr;
 					}
+					D3D_SET_OBJECT_NAME(*texture, L"D3DUtility");
 				}
 				if (textureView)
 				{
@@ -103,6 +104,7 @@ namespace Utility
 						ShowErrorMessageBox();
 						return hr;
 					}
+					D3D_SET_OBJECT_NAME(*textureView, szFileName);
 				}
 			}
 			else

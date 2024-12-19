@@ -31,8 +31,17 @@ cbuffer cb_Material : register(b4)
     float3 MaterialSpecularPad;
 }
 
+#ifdef OPACITY
+[earlydepthstencil]
+#endif
 float4 main(PS_INPUT input) : SV_Target
 {
+    float opacity = opacityMap.Sample(samLinear, input.Tex).a;
+#ifdef OPACITY
+    if (opacity < Epsilon)
+        discard;
+#endif
+    
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
     txColor.rgb = GammaToLinearSpace(txColor.rgb);
     
@@ -40,15 +49,17 @@ float4 main(PS_INPUT input) : SV_Target
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
     mapEmissive.rgb = GammaToLinearSpace(mapEmissive.rgb);
-    
-    float opacity = opacityMap.Sample(samLinear, input.Tex).a;
-    
+       
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     if (0.f < length(mapNormal))
         input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
     
-    float4 diffuse = saturate(dot(input.Normal, (float3) -Lights[0].LightDir) * Lights[0].LightColor) * MaterialDiffuse * txColor;
-    
+    float4 diffuse[4] = { 
+        float4(0, 0, 0, 0),
+        float4(0, 0, 0, 0),
+        float4(0, 0, 0, 0),
+        float4(0, 0, 0, 0)
+    };
     //3x3 PCF »ùÇÃ¸µ    
     float2 offsets[9] =
     {
@@ -58,6 +69,7 @@ float4 main(PS_INPUT input) : SV_Target
     };
     float texelSize = 1.0 / SHADOW_MAP_SIZE;
     float shadowFactor[MAX_LIGHT_COUNT] = { 1.0f, 1.0f, 1.0f, 1.0f };
+   
     [unroll]
     for (int i = 0; i < LightsCount; i++)
     {
@@ -84,9 +96,9 @@ float4 main(PS_INPUT input) : SV_Target
             //    shadowFactor[i] = 0;
             //} 
         }
-    }
-    diffuse *= shadowFactor[0];
-      
+        diffuse[i] = saturate(dot(input.Normal, (float3) -Lights[i].LightDir) * Lights[i].LightColor) * MaterialDiffuse * txColor * (Lights[i].LightIntensity / 5.f);
+        diffuse[i] *= shadowFactor[i];
+    }    
     float4 ambient = Lights[0].LightIntensity / 1000.f * MaterialAmbient;
     
     float3 View = normalize(MainCamPos.xyz - input.World);
@@ -96,7 +108,11 @@ float4 main(PS_INPUT input) : SV_Target
     float4 specular;
     specular = pow(fHDotN, MaterialSpecularPower) * MaterialSpecular * mapSpecular;
  
-    float4 final = diffuse + specular + mapEmissive + ambient;
+    float4 final = specular + mapEmissive + ambient;
+    for (i = 0; i < LightsCount; i++)
+    {
+        final += diffuse[i];
+    }
     final.rgb = LinearToGammaSpace(final.rgb);
     final.a = opacity;
     //return float4((input.Normal + 1) / 2, 1.0f);

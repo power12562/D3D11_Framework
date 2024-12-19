@@ -71,9 +71,13 @@ void TransformAnimation::LateUpdate()
 	if (currClip && !isPause)
 	{
 		elapsedTime += currClip->TickTime * TimeSystem::Time.DeltaTime;
-		for (auto& nodeAni : currClip->nodeAnimations)
+		bool isCulling = gameObject.transform.RootParent ? gameObject.transform.RootParent->gameObject.IsCameraCulling() : gameObject.IsCameraCulling();
+		if(isCulling)
 		{
-			nodeAni.Evaluate(elapsedTime);		
+			for (auto& nodeAni : currClip->nodeAnimations)
+			{
+				nodeAni.Evaluate(elapsedTime);
+			}
 		}
 		while (elapsedTime >= currClip->Duration)
 		{

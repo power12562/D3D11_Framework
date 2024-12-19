@@ -14,6 +14,7 @@ class GameObject
 	SERIALIZED_OBJECT(GameObject)
 	friend class Scene;
 	friend class SceneManager;
+	friend class D3DRenderer;
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
@@ -63,6 +64,8 @@ public:
 	DirectX::BoundingOrientedBox GetOBBToWorld() const;
 	DirectX::BoundingBox BoundingBox;
 
+	/*카메라 컬링 여부*/
+	inline bool IsCameraCulling() const { return isCulling; }
 private:
 	void FixedUpdate();
 	void Update();
@@ -76,6 +79,7 @@ private:
 private:
 	unsigned int instanceID = -1;
 	std::wstring name;
+	bool isCulling = false; //이번 프레임 카메라 컬링 여부
 
 private:
 	void UpdateChildActive(Transform* rootTransform);

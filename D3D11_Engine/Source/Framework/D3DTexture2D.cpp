@@ -7,7 +7,7 @@ D3DTexture2D::D3DTexture2D()
 	resize(E_TEXTURE::PBRTextureCount);
 	SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::ZERO);
-	SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
+	SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);

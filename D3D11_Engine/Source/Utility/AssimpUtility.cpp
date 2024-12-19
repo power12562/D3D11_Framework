@@ -13,6 +13,7 @@
 #include <Material\BlingPhongMaterial.h>
 #include <Component/Animation/TransformAnimation.h>
 #include <Framework\ResourceManager.h>
+#include <Framework/HLSLManager.h>
 
 #include <Component/Render/PBRMeshRender.h>
 #include <Component/Render/PBRBoneMeshRender.h>
@@ -127,6 +128,11 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
+
+					if (surface == SURFACE_TYPE::PBR)
+					{
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseSpecularMap = true;
+					}
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -148,6 +154,24 @@ namespace Utility
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
 					meshRender->isAlpha = true;
+					
+					if(meshRender->IsPSShader())
+					{
+						std::wstring path = HLSLManager::EngineShaderPath;
+						switch (surface)
+						{
+						case SURFACE_TYPE::BlingPhong:
+							path += L"BlingPhongOpacitiyPS.hlsl";
+							meshRender->SetPixelShader(path.c_str());
+							break;
+						case SURFACE_TYPE::PBR:
+							path += L"PBROpacitiyPS.hlsl";
+							meshRender->SetPixelShader(path.c_str());
+							break;
+						default:
+							break;
+						}
+					}
 				}
 			}
 
@@ -167,6 +191,13 @@ namespace Utility
 					}
 				}
 			}
+			else if (float scala; ai_material->Get(AI_MATKEY_METALLIC_FACTOR, scala) == AI_SUCCESS)
+			{
+				if (surface == SURFACE_TYPE::PBR)
+				{
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
+				}
+			}
 
 			//블랜더 기준 러프니스 맵
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path)) 
@@ -182,6 +213,13 @@ namespace Utility
 					{
 						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseRoughnessMap = true;
 					}
+				}
+			}
+			else if (float scala; ai_material->Get(AI_MATKEY_ROUGHNESS_FACTOR, scala) == AI_SUCCESS)
+			{
+				if (surface == SURFACE_TYPE::PBR)
+				{
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
 				}
 			}
 		}

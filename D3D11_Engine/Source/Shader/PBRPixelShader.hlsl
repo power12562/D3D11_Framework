@@ -5,7 +5,7 @@ SamplerComparisonState ShadowMapSampler : register(s2);
 
 Texture2D albedoTexture : register(t0);
 Texture2D normalTexture : register(t1);
-Texture2D specularMap : register(t2);
+Texture2D specularTexture : register(t2);
 Texture2D emissiveTexture : register(t3);
 Texture2D opacityTexture : register(t4);
 Texture2D metalnessTexture : register(t5);
@@ -39,18 +39,28 @@ cbuffer cb_PBRMaterial : register(b4)
     
     bool UseMetalnessMap;
     bool UseRoughnessMap;
+    bool UseSpecularMap;
     bool UseAmbientOcculusionMap;
     bool UseRMACMap;
 };
 
+#ifdef OPACITY
+[earlydepthstencil]
+#endif
 float4 main(PS_INPUT input) : SV_Target
 {   
+    float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
+    
+#ifdef OPACITY
+    if (opacitySample < Epsilon)
+        discard;
+#endif
+    
     float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
     albedoSample.rgb = GammaToLinearSpaceExact(albedoSample.rgb);
     float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb;
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
-    float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
     float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
@@ -87,7 +97,11 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 albedo = albedoSample.rgb * baseColor.rgb;
           
-    float3 F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
+    float3 F0 = 0;
+    if (UseSpecularMap)
+        specularTexture.Sample(defaultSampler, input.Tex).rgb;
+    else
+        F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
     
     float3 V = normalize(MainCamPos - input.World); // 뷰 방향  
     float NoV = max(0.0, dot(N, V)); // N·V 계산

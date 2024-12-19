@@ -2,6 +2,11 @@
 #include <Light/PBRDirectionalLight.h>
 #include <Framework/HLSLManager.h>
 
+PBRBoneMeshRender::PBRBoneMeshRender()
+{
+
+}
+
 void PBRBoneMeshRender::Start()
 {
 	SimpleBoneMeshRender::Start();

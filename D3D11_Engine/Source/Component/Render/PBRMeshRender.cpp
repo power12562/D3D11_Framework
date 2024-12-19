@@ -2,6 +2,11 @@
 #include <Light/PBRDirectionalLight.h>
 #include <Framework/HLSLManager.h>
 
+PBRMeshRender::PBRMeshRender()
+{
+    
+}
+
 void PBRMeshRender::Start()
 {
     SimpleMeshRender::Start();

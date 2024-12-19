@@ -5,7 +5,7 @@
 class PBRMeshRender : public SimpleMeshRender
 {
 public:
-	PBRMeshRender() = default;
+	PBRMeshRender();
 	virtual ~PBRMeshRender() override = default;
 
 	virtual void Start() override;
