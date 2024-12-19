@@ -413,6 +413,10 @@ namespace Utility
 						SimpleBoneMeshRender& destMesh = AddBoneMeshComponent(currDestObj, surface);
 						destMesh.baseColor = sourceMesh->baseColor;
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
+						if (surface == SURFACE_TYPE::PBR && typeid(PBRMeshObject) == typeid(sourceMesh->gameObject))
+						{
+							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
+						}
 
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
@@ -439,6 +443,10 @@ namespace Utility
 						SimpleMeshRender& destMesh = AddMeshComponent(currDestObj, surface);
 						destMesh.baseColor = sourceMesh->baseColor;
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
+						if (surface == SURFACE_TYPE::PBR && typeid(PBRMeshObject) == typeid(sourceMesh->gameObject))
+						{
+							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
+						}
 
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;

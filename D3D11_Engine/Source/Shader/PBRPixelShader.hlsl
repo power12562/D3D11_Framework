@@ -52,7 +52,7 @@ float4 main(PS_INPUT input) : SV_Target
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
     
 #ifdef OPACITY
-    if (opacitySample < Epsilon)
+    if(opacitySample < Epsilon)
         discard;
 #endif
     
