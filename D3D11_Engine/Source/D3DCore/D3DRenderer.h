@@ -125,20 +125,18 @@ private:
 	std::unique_ptr<DirectX::DX11::PrimitiveBatch<DirectX::DX11::VertexPositionColor>> pPrimitiveBatch;
 	std::unique_ptr<DirectX::DX11::BasicEffect> pBasicEffect;
 	std::vector<std::tuple<const DirectX::SimpleMath::Matrix*, const DirectX::SimpleMath::Matrix*>> debugFrustumVec;
-	std::vector<GameObject*> debugOBBVec;
 	void DrawDebug();
 public:
-	DirectX::SimpleMath::Matrix camProjection; //카메라 투영
-	DirectX::SimpleMath::Matrix camWorld;	  //카메라 월드
+	DirectX::SimpleMath::Matrix cullingIVM;	   //카메라 월드
+	DirectX::SimpleMath::Matrix cullingView;	   //카메라 뷰
+	DirectX::SimpleMath::Matrix cullingProjection; //카메라 투영
 	bool DebugDrawLightFrustum = false;
+	bool DebugDrawObjectCullingBox = false;
 	bool DebugDrawCameraFrustum = false;
 	bool DebugLockCameraFrustum = false;
+
 	void PushDebugFrustum(const DirectX::SimpleMath::Matrix* frustum, const DirectX::SimpleMath::Matrix* WM);
 	void PopDebugFrustum();
-
-	void PushDebugOBB(GameObject* obj);
-	void PopDebugOBB();
-
 public:
 	size_t GetDrawCount() const { return DrawCallCount; }
 
@@ -146,6 +144,7 @@ private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	size_t DrawCallCount = 0;
+	void DrawSkyBox(class SkyBoxRender* skyBox);
 	void DrawShadow(RENDERER_DRAW_DESC& drawDesc);	  
 	void Draw(RENDERER_DRAW_DESC& drawDesc);
 	void CreateRTV();

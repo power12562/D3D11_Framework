@@ -28,10 +28,10 @@ public:
 	bool Enable = true;
 
 public:
-	GameObject& GetGameObject();
+	GameObject& GetGameObject() const;
 	_declspec (property(get = GetGameObject)) GameObject& gameObject;
 
-	Transform& GetTransform();
+	Transform& GetTransform() const;
 	Transform& SetTransform(const Transform& tr);
 	__declspec (property(get = GetTransform, put = SetTransform)) Transform& transform;
 

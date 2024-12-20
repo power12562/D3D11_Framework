@@ -413,16 +413,21 @@ void D3DRenderer::BegineDraw()
 {   
     //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
+    if (!DebugLockCameraFrustum)
     {
-        cbuffer::camera.MainCamPos = mainCam->transform.position;
-        cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
-        cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
-        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
+        cullingIVM  = mainCam->GetIVM();
+        cullingView   = mainCam->GetVM();
+        cullingProjection = mainCam->GetPM();
     }
+    cbuffer::camera.MainCamPos = mainCam->transform.position;
+    cbuffer::camera.View = XMMatrixTranspose(mainCam->GetVM());
+    cbuffer::camera.Projection = XMMatrixTranspose(mainCam->GetPM());
+    D3DConstBuffer::UpdateStaticCbuffer(cbuffer::camera);
 
     //Set lights view
     {
         using namespace DirectionalLight;
+        using namespace Utility;
 
         // 카메라 절두체의 중심 계산
         Vector3 frustumCenter = mainCam->transform.position +
@@ -431,23 +436,26 @@ void D3DRenderer::BegineDraw()
         constexpr float lightScale =  1.5f;
         constexpr float lightNear = 0.1f;
         float lightFar = mainCam->Far * lightScale;
-        float viewWidth = lightFar;
-        float viewHeight = lightFar;
         float lightHalfFar = lightFar * 0.5f;
 
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
             Vector3& lightDir = DirectionalLights.Lights[i].LightDir;
+            lightDir.Normalize();
  
-            //투영 행렬 위치
-            Vector3 lightPos = frustumCenter - lightDir * lightHalfFar;
-            bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
-            if (lightDir.Length() < Mathf::Epsilon)
-            {
-                lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
-            }
+            //Light View 생성
+            XMVECTOR lightPos = XMVectorSubtract(XMLoadFloat3(&frustumCenter), XMLoadFloat3(&lightDir) * lightHalfFar);
+			bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
+			if (lightDir.Length() < Mathf::Epsilon)
+			{
+				lightDir = Vector3(Mathf::Epsilon, Mathf::Epsilon, Mathf::Epsilon);
+			}
             shadowViews[i] = XMMatrixLookToLH(lightPos, lightDir, isNan ? Vector3::Right : Vector3::Up);
-            shadowProjections[i] = XMMatrixOrthographicLH(viewWidth, viewHeight, lightNear, lightFar);
+
+            //투영 행렬 위치
+            XMFLOAT3 cameraCorners[8];
+            CalculateBoundsFrustumCorners(cullingView, cullingProjection, cameraCorners);
+            shadowProjections[i] = CreateOrthographicProjection(CalculateBoundsLightSpace(shadowViews[i], cameraCorners), lightNear, lightFar);
         }
     }
 
@@ -465,21 +473,7 @@ void D3DRenderer::BegineDraw()
     //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
-        pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0);
-        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
-        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-        RENDERER_DRAW_DESC desc = mainSkybox->GetRendererDesc();
-        Draw(desc);
-       
-        constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
-        //SetIBLTexture
-        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::Null; ++i)
-        {        
-            ID3D11ShaderResourceView* srv = mainSkybox->textures[i - index2SkyBox];
-            if(srv)
-                pDeviceContext->PSSetShaderResources(i, 1, &srv);
-        }      
-        pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
+        DrawSkyBox(mainSkybox);
     }
     else
     {
@@ -502,24 +496,12 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
         bool isDraw = false; 
         BoundingOrientedBox OB;
         GameObject* obj = nullptr;
-        //절두체 컬링
-        if (darwDesc.pTransform->RootParent)
-        {
-            obj = &darwDesc.pTransform->RootParent->gameObject;
-            OB = darwDesc.pTransform->RootParent->gameObject.GetOBBToWorld();
-        }
-        else
-        {
-            obj = &darwDesc.pTransform->gameObject;
-            OB = darwDesc.pTransform->gameObject.GetOBBToWorld();
-        }
-        if (!DebugLockCameraFrustum)
-        {
-            camProjection = mainCam->GetPM();
-            camWorld = mainCam->GetIVM();
-        }
-        DirectX::BoundingFrustum cameraFrustum(camProjection);
-        cameraFrustum.Transform(cameraFrustum, (camWorld));
+
+		obj = &darwDesc.pTransform->gameObject;
+		OB = darwDesc.pTransform->gameObject.GetOBBToWorld();
+
+        DirectX::BoundingFrustum cameraFrustum(cullingProjection);
+        cameraFrustum.Transform(cameraFrustum,(cullingIVM));
         obj->isCulling = OB.Intersects(cameraFrustum);
         if (obj->isCulling)
         {
@@ -534,16 +516,24 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
-    //텍스쳐 기준 정렬.
+    //Texture sort
     auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {
-        return reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[E_TEXTURE::Albedo]) < reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[E_TEXTURE::Albedo]);
-        };
+		for (int i = 0; i < E_TEXTURE::Roughness; i++)
+		{
+            uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[i]);
+            uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[i]);
+			if (textureB != textureA)
+				return textureA < textureB;
+		}
+        return reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[E_TEXTURE::AmbientOcculusion]) < reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[E_TEXTURE::AmbientOcculusion]);
+	};
     std::sort(opaquerenderOueue.begin(), opaquerenderOueue.end(), textureSort);
     std::sort(alphaRenderQueue.begin(), alphaRenderQueue.end(), textureSort);
 
-    prevTransform = nullptr;
     //Shadow Map Pass
     {
+        prevTransform = nullptr;
+
         ID3D11ShaderResourceView* nullSRV = nullptr;
         for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
         {
@@ -571,9 +561,10 @@ void D3DRenderer::EndDraw()
         }
     }
 
-    prevTransform = nullptr;
     //Render pass
     {
+        prevTransform = nullptr;
+
         pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
         pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
         pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
@@ -628,20 +619,26 @@ void D3DRenderer::DrawDebug()
     }
     if (DebugDrawCameraFrustum)
     {      
-        DirectX::BoundingFrustum cameraFrustum(camProjection);
-        cameraFrustum.Transform(cameraFrustum, camWorld);
+        DirectX::BoundingFrustum cameraFrustum(cullingProjection);
+        cameraFrustum.Transform(cameraFrustum, cullingIVM);
         DebugDraw::Draw(pPrimitiveBatch.get(), cameraFrustum);
+    }
+    if(DebugDrawObjectCullingBox)
+    {
+        for (auto& obj : sceneManager.GetObjectList())
+        {
+            if (!obj->Active || typeid(*obj) == typeid(CameraObject))
+                continue;
+            
+            DirectX::BoundingOrientedBox bounds = obj->GetOBBToWorld();
+            DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
+        }
     }
     for (auto& [Frustum, World] : debugFrustumVec)
     {
         DirectX::BoundingFrustum frustum(*Frustum);
         frustum.Transform(frustum, *World);
         DebugDraw::Draw(pPrimitiveBatch.get(), frustum);
-    }
-    for (auto& mesh : debugOBBVec)
-    {
-        DirectX::BoundingOrientedBox bounds = mesh->GetOBBToWorld();
-        DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
     }
     pPrimitiveBatch->End();   // PrimitiveBatch 종료
 }
@@ -657,17 +654,48 @@ void D3DRenderer::PopDebugFrustum()
         debugFrustumVec.pop_back();
 }
 
-void D3DRenderer::PushDebugOBB(GameObject* obj)
+void D3DRenderer::DrawSkyBox(SkyBoxRender* skyBox)
 {
-    debugOBBVec.emplace_back(obj);
-}
+    constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
+    RENDERER_DRAW_DESC drawDesc = skyBox->GetRendererDesc();
 
-void D3DRenderer::PopDebugOBB()
-{
-    if(!debugOBBVec.empty())
-    { 
-        debugFrustumVec.pop_back();
+    //set IA
+    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
+    pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+  
+    pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0); //깊이 테스트 실행 X
+    pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
+    pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+
+    pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
+    pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
+    pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
+	pDeviceContext->RSSetState(pDefaultRRState);
+    
+    for (int i = 0; i < drawDesc.pSamperState->size(); i++)
+    {
+        ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
+        pDeviceContext->PSSetSamplers(i, 1, &sampler);
     }
+    //set texture
+    for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
+    {
+        ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
+        pDeviceContext->PSSetShaderResources(i, 1, &srv);
+    }
+    pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
+
+    //SetIBLTexture
+    for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::Null; ++i)
+    {
+        ID3D11ShaderResourceView* srv = skyBox->textures[i - index2SkyBox];
+        if (srv)
+            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+    }
+    //reset DepthStencilState
+    pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
 }
 
 void D3DRenderer::DrawShadow(RENDERER_DRAW_DESC& drawDesc)
@@ -748,14 +776,12 @@ void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
         for (int i = 0; i < drawDesc.pSamperState->size(); i++)
         {
             ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
-            //pDeviceContext->VSSetSamplers(i, 1, &sampler);
             pDeviceContext->PSSetSamplers(i, 1, &sampler);
         }
         //set texture
         for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
         {
             ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
-            //pDeviceContext->VSSetShaderResources(i, 1, &srv);
             pDeviceContext->PSSetShaderResources(i, 1, &srv);
         }
         pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);

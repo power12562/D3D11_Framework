@@ -11,7 +11,5 @@ struct alignas(16) cb_PBRMaterial
 
     CBbool UseMetalnessMap = false;
     CBbool UseRoughnessMap = false;
-    CBbool UseSpecularMap = false;
-    CBbool UseAmbientOcculusionMap = false;
     CBbool UseRMACMap = false;
 };

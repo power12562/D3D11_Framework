@@ -255,7 +255,6 @@ void WinGameApp::UninitImGUI()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-	ImGui::ClearTempMap();
 }
 
 //

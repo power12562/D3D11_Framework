@@ -61,6 +61,13 @@ namespace Utility
 
 	bool XMMatrixIsNaN(const DirectX::XMMATRIX& matrix);
 
+	/*카메라 행렬로 프러스텀 코너를 계산합니다.*/
+	void CalculateBoundsFrustumCorners(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, DirectX::XMFLOAT3(&out_frustumCorners)[DirectX::BoundingFrustum::CORNER_COUNT]);
+	/*View 메트릭스로 프러스텀을 덮는 BundingBox를 계산합니다.*/
+	DirectX::BoundingBox CalculateBoundsLightSpace(const DirectX::XMMATRIX& ViewMatrix, const DirectX::XMFLOAT3(&frustumCorners)[DirectX::BoundingFrustum::CORNER_COUNT]);
+	/*Bounding Box로 OrthographicProjection 생성합니다..*/
+	DirectX::XMMATRIX CreateOrthographicProjection(const DirectX::BoundingBox& boundingBox, float nearPlane, float farPlane);
+
 	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString);
 }
 

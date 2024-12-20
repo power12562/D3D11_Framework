@@ -12,7 +12,6 @@ struct PBRDirectionalLight;
 struct cb_PBRDirectionalLight;
 namespace ImGui
 {
-	void ClearTempMap();
 	void ResetGlobalID();
 
 	void Button(const char* label, bool* v, const ImVec2& size = ImVec2(0, 0));

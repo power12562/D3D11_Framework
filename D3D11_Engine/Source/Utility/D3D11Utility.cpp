@@ -9,6 +9,8 @@
 
 namespace Utility
 {
+	using namespace DirectX;
+
 	LPCWSTR GetComErrorString(HRESULT hr)
 	{
 		_com_error err(hr);
@@ -323,6 +325,85 @@ namespace Utility
 	{
 		return DirectX::XMVector4IsNaN(matrix.r[0]) || DirectX::XMVector4IsNaN(matrix.r[1]) ||
 			DirectX::XMVector4IsNaN(matrix.r[2]) || DirectX::XMVector4IsNaN(matrix.r[3]);
+	}
+
+	void CalculateBoundsFrustumCorners(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, XMFLOAT3 (&out_frustumCorners)[BoundingFrustum::CORNER_COUNT])
+	{
+		// 1. View-Projection 행렬 계산 및 역변환
+		XMMATRIX viewProjectionMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
+		XMMATRIX invViewProjectionMatrix = XMMatrixInverse(nullptr, viewProjectionMatrix);
+
+		// 2. NDC 좌표 정의
+		static const XMFLOAT3 ndcCorners[8] =
+		{
+			 { -1.0f, -1.0f, 0.0f }, // Near bottom-left
+			 {  1.0f, -1.0f, 0.0f }, // Near bottom-right
+			 {  1.0f,  1.0f, 0.0f }, // Near top-right
+			 { -1.0f,  1.0f, 0.0f }, // Near top-left
+			 { -1.0f, -1.0f, 1.0f }, // Far bottom-left
+			 {  1.0f, -1.0f, 1.0f }, // Far bottom-right
+			 {  1.0f,  1.0f, 1.0f }, // Far top-right
+			 { -1.0f,  1.0f, 1.0f }  // Far top-left
+		};
+
+		// NDC -> World 좌표 변환
+		for (size_t i = 0; i < BoundingFrustum::CORNER_COUNT; ++i)
+		{
+			XMVECTOR corner = XMVectorSet(ndcCorners[i].x, ndcCorners[i].y, ndcCorners[i].z, 1.0f);
+			corner = XMVector3TransformCoord(corner, invViewProjectionMatrix);
+
+			XMStoreFloat3(&out_frustumCorners[i], corner);
+		}
+		return;
+	}
+
+	DirectX::BoundingBox CalculateBoundsLightSpace(const DirectX::XMMATRIX& ViewMatrix, const DirectX::XMFLOAT3(&frustumCorners)[DirectX::BoundingFrustum::CORNER_COUNT])
+	{
+		BoundingBox lightSpaceBounds;
+
+		// Frustum Corners를 빛의 View 공간으로 변환
+		XMFLOAT3 minPoint(FLT_MAX, FLT_MAX, FLT_MAX);
+		XMFLOAT3 maxPoint(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+		for (const auto& corner : frustumCorners)
+		{
+			XMVECTOR cornerVec = XMVector3Transform(XMLoadFloat3(&corner), ViewMatrix);
+
+			XMFLOAT3 transformedCorner;
+			XMStoreFloat3(&transformedCorner, cornerVec);
+
+			minPoint.x = std::min<float>(minPoint.x, transformedCorner.x);
+			minPoint.y = std::min<float>(minPoint.y, transformedCorner.y);
+			minPoint.z = std::min<float>(minPoint.z, transformedCorner.z);
+
+			maxPoint.x = std::max<float>(maxPoint.x, transformedCorner.x);
+			maxPoint.y = std::max<float>(maxPoint.y, transformedCorner.y);
+			maxPoint.z = std::max<float>(maxPoint.z, transformedCorner.z);
+		}
+
+		// BoundingBox 생성
+		lightSpaceBounds.Center = {
+			(minPoint.x + maxPoint.x) * 0.5f,
+			(minPoint.y + maxPoint.y) * 0.5f,
+			(minPoint.z + maxPoint.z) * 0.5f
+		};
+
+		lightSpaceBounds.Extents = {
+			(maxPoint.x - minPoint.x) * 0.5f,
+			(maxPoint.y - minPoint.y) * 0.5f,
+			(maxPoint.z - minPoint.z) * 0.5f
+		};
+
+		return lightSpaceBounds;
+	}
+
+	XMMATRIX CreateOrthographicProjection(const BoundingBox& boundingBox, float nearPlane, float farPlane)
+	{
+		float left = boundingBox.Center.x - boundingBox.Extents.x;
+		float right = boundingBox.Center.x + boundingBox.Extents.x;
+		float bottom = boundingBox.Center.y - boundingBox.Extents.y;
+		float top = boundingBox.Center.y + boundingBox.Extents.y;
+		return XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 	}
 
 	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString)

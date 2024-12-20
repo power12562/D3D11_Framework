@@ -98,16 +98,8 @@ void SimpleMeshRender::CreateMesh()
 	//Create bounding box
 	BoundingBox box;
 	box.CreateFromPoints(box, vertices.size(), reinterpret_cast<XMFLOAT3*>(vertices.data()), sizeof(Vertex));
-	box.Transform(box, 1.0f, transform.rotation, transform.position);
-	if (transform.RootParent)
-	{	
-		BoundingBox::CreateMerged(transform.RootParent->gameObject.BoundingBox,
-			transform.RootParent->gameObject.BoundingBox, box);
-	}
-	else
-	{
-		BoundingBox::CreateMerged(gameObject.BoundingBox, gameObject.BoundingBox, box);
-	}
+	box.Transform(box, transform.GetWM());
+	BoundingBox::CreateMerged(gameObject.BoundingBox, gameObject.BoundingBox, box);
 
 	vertices.clear();
 	indices.clear();

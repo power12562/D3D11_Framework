@@ -67,7 +67,8 @@ public:
 	void SetDefaultTexture(int index, E_TEXTURE_DEFAULT::DEFAULT_TEXTURE type);
 	void ResetTexture2D(int index);
 
-	ID3D11ShaderResourceView* operator[](int index) { return SRVList[index]; }
+	/*SRV를 반환합니다. 없으면 nullptr 반환.*/
+	ID3D11ShaderResourceView* operator[](int index);
 public:
 	D3DTexture2D(const D3DTexture2D& rhs);
 	D3DTexture2D& operator=(const D3DTexture2D& rhs);

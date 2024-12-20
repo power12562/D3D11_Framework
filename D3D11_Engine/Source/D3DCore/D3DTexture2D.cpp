@@ -7,7 +7,7 @@ D3DTexture2D::D3DTexture2D()
 	resize(E_TEXTURE::PBRTextureCount);
 	SetDefaultTexture(E_TEXTURE::Albedo, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Normal, E_TEXTURE_DEFAULT::ZERO);
-	SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ZERO);
+	SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Emissive, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);
@@ -91,6 +91,15 @@ D3DTexture2D::D3DTexture2D(const D3DTexture2D& rhs)
 		if(pathList[i] != L"")
 			textureManager.CreateSharingTexture(pathList[i].c_str(), &SRVList[i]);
 	}
+}
+
+ID3D11ShaderResourceView* D3DTexture2D::operator[](int index)
+{
+	if (0 <= index && index < SRVList.size())
+	{
+		return SRVList[index];
+	}
+	return nullptr;
 }
 
 D3DTexture2D& D3DTexture2D::operator=(const D3DTexture2D& rhs)

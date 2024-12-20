@@ -6,6 +6,7 @@ constexpr float positionDumpZ = 15;
 void ShadowTestScene::Start()
 {
 	Scene::UseImGUI = true;
+	d3dRenderer.DebugDrawObjectCullingBox = true;
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
 	mainCam->transform.position += Vector3(0.f, 0.f, -20.f);
@@ -56,8 +57,8 @@ void ShadowTestScene::ImGUIRender()
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
 		ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
+		ImGui::Checkbox("Draw Object Bounds", &d3dRenderer.DebugDrawObjectCullingBox);
 		ImGui::EditCamera("Main Camera", pCamera, pCameraMoveHelper);
-
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(0), ImVec2(256, 256));
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(1), ImVec2(256, 256));
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(2), ImVec2(256, 256));
@@ -113,11 +114,9 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	static size_t positionCountZ = 1;
 
 	auto pistol = NewGameObject(L"pistol");
-	d3dRenderer.PushDebugOBB(pistol);
 	auto initMesh = [this](MeshRender* mesh)
 		{		
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
-			obj.Material.UseSpecularMap = false;
 			obj.Material.UseRMACMap = true;
 			std::string key = obj.GetNameToString();
 			if (pistolMaterials.find(key) == pistolMaterials.end())
@@ -142,15 +141,13 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 
 	auto sphere = NewGameObject<SphereObject>(L"Sphere");
 	{
-		d3dRenderer.PushDebugOBB(sphere);
-
 		sphere->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 		if(sphereMaterial == nullptr)
 			sphereMaterial = &sphere->Material;
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
-		sphere->SphereMeshRender->constBuffer.BindUpdateEvent(*sphereMaterial);
+		sphere->SphereMeshRender->constBuffer.BindUpdateEvent(*sphereMaterial);	
 	}
 	positionCountX++;
 	if (positionZcount == positionCountX)
@@ -160,7 +157,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	}
 
 	auto cha = NewGameObject(L"ch");
-	d3dRenderer.PushDebugOBB(cha);
 	auto charInit = [this](MeshRender* mesh)
 		{	
 			PBRMeshObject* obj = static_cast<PBRMeshObject*>(&mesh->gameObject);
@@ -185,7 +181,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 		positionCountX = 0;
 	}
 	auto Kachujin = NewGameObject(L"Kachujin");
-	d3dRenderer.PushDebugOBB(Kachujin);
 	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *Kachujin, false, SURFACE_TYPE::BlingPhong);
 	Kachujin->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	Kachujin->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };

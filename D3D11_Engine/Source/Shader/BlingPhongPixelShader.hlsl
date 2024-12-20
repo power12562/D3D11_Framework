@@ -32,6 +32,7 @@ cbuffer cb_Material : register(b4)
 }
 
 #ifdef OPACITY
+#else
 [earlydepthstencil]
 #endif
 float4 main(PS_INPUT input) : SV_Target

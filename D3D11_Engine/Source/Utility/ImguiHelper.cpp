@@ -8,32 +8,6 @@
 #include <memory>
 
 static int g_id = 0;
-namespace ImGui
-{
-	auto arrDeleter = [](float* b)->void
-		{
-			delete[] b;
-		};
-	std::unordered_map<std::string, std::unique_ptr<float, decltype(arrDeleter)>> tempFloatMap;
-	static std::unique_ptr<float, decltype(arrDeleter)>& GetTemp(const char* key, int size)
-	{
-		auto findIter = tempFloatMap.find(key);
-		if (findIter != tempFloatMap.end())
-		{
-			return tempFloatMap[key];
-		}
-		else
-		{
-			tempFloatMap[key].reset(new float[size]{});
-			return tempFloatMap[key];
-		}
-	}
-};
-
-void ImGui::ClearTempMap()
-{
-	tempFloatMap.clear();
-}
 
 void ImGui::ResetGlobalID()
 {
@@ -64,18 +38,27 @@ void ImGui::DragVector4(const char* label, const Vector4* pVector, float v_speed
 }
 
 void ImGui::DragQuaternion(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
-{
-	auto& temp = GetTemp(label, 3);
-	Vector3 previousRotation = pQuaternion->ToEuler() * Mathf::Rad2Deg;
-
-	temp.get()[0] = previousRotation.x;
-	temp.get()[1] = previousRotation.y;
-	temp.get()[2] = previousRotation.z;
-
-	ImGui::DragFloat3(label, temp.get(), v_speed, v_min, v_max, format, flags);
+{	
+	static std::unordered_map<int, Vector3> prevEuler;
 
 	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
-	*qu = Quaternion::CreateFromYawPitchRoll(Vector3(temp.get()) * Mathf::Deg2Rad);
+	Vector3 euler = qu->ToEuler() * Mathf::Rad2Deg;
+	Vector3 prev = prevEuler[g_id];
+	if (ImGui::DragFloat3(label, (float*)&euler, 1.f))
+	{
+		Quaternion deltaQuat = Quaternion::CreateFromYawPitchRoll(
+			(euler.y - prev.y) * Mathf::Deg2Rad,
+			(euler.x - prev.x) * Mathf::Deg2Rad,
+			(euler.z - prev.z) * Mathf::Deg2Rad
+		);
+		if (deltaQuat.Length() > Mathf::Epsilon)
+		{
+			*qu = deltaQuat * (*qu);
+			euler = qu->ToEuler() * Mathf::Rad2Deg;
+		}
+	}
+    prevEuler[g_id] = euler;
+	++g_id;
 }
 
 void ImGui::ColorEdit3(const char* label, const Vector3* pColor, ImGuiColorEditFlags flags)
@@ -178,8 +161,6 @@ void ImGui::EditMaterial(const char* label, cb_PBRMaterial* Material)
 
 	ImGui::Checkbox("Metalness Map", &Material->UseMetalnessMap);
 	ImGui::Checkbox("Roughness Map", &Material->UseRoughnessMap);
-	ImGui::Checkbox("SpecularMap Map", &Material->UseSpecularMap);
-	ImGui::Checkbox("Ambient Occulusion Map", &Material->UseAmbientOcculusionMap);
 	ImGui::Checkbox("RMAC Map", &Material->UseRMACMap);
 
 	ImGui::Text("");

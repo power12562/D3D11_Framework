@@ -39,12 +39,11 @@ cbuffer cb_PBRMaterial : register(b4)
     
     bool UseMetalnessMap;
     bool UseRoughnessMap;
-    bool UseSpecularMap;
-    bool UseAmbientOcculusionMap;
     bool UseRMACMap;
 };
 
 #ifdef OPACITY
+#else
 [earlydepthstencil]
 #endif
 float4 main(PS_INPUT input) : SV_Target
@@ -52,8 +51,7 @@ float4 main(PS_INPUT input) : SV_Target
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
     
 #ifdef OPACITY
-    if(opacitySample < Epsilon)
-        discard;
+    clip( opacitySample - 0.33333333f );
 #endif
     
     float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
@@ -78,7 +76,7 @@ float4 main(PS_INPUT input) : SV_Target
     // 재질 특성
     float metalness = Metalness;
     float roughness = Roughness;
-    float ambientOcculusion = 1;
+    float ambientOcculusion = ambientSample;
 
     if (UseMetalnessMap)
         metalness = metalnessSample;
@@ -89,19 +87,14 @@ float4 main(PS_INPUT input) : SV_Target
         roughness = roughnessSample;
     else if (UseRMACMap)
         roughness = RMACSample.a;
-    
-    if (UseAmbientOcculusionMap)
-        ambientOcculusion = ambientSample;
-    else if (UseRMACMap)
+          
+    if (UseRMACMap)
         ambientOcculusion = RMACSample.b;
     
     float3 albedo = albedoSample.rgb * baseColor.rgb;
           
-    float3 F0 = 0;
-    if (UseSpecularMap)
-        specularTexture.Sample(defaultSampler, input.Tex).rgb;
-    else
-        F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
+    float3 F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
+    F0 *= specularTexture.Sample(defaultSampler, input.Tex).rgb; //Specular Map
     
     float3 V = normalize(MainCamPos - input.World); // 뷰 방향  
     float NoV = max(0.0, dot(N, V)); // N·V 계산

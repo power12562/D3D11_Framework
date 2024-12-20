@@ -17,12 +17,12 @@ Component::~Component()
 	//Debug_printf("ÄÄÆ÷³ÍÆ® ¼Ò¸ê\n");
 }
 
-GameObject& Component::GetGameObject()
+GameObject& Component::GetGameObject() const
 {
 	return *_gameObject;
 }
 
-Transform& Component::GetTransform()
+Transform& Component::GetTransform() const
 {
 	return gameObject.transform;
 }

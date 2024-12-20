@@ -71,13 +71,9 @@ void TransformAnimation::LateUpdate()
 	if (currClip && !isPause)
 	{
 		elapsedTime += currClip->TickTime * TimeSystem::Time.DeltaTime;
-		bool isCulling = gameObject.transform.RootParent ? gameObject.transform.RootParent->gameObject.IsCameraCulling() : gameObject.IsCameraCulling();
-		if(isCulling)
+		for (auto& nodeAni : currClip->nodeAnimations)
 		{
-			for (auto& nodeAni : currClip->nodeAnimations)
-			{
-				nodeAni.Evaluate(elapsedTime);
-			}
+			nodeAni.Evaluate(elapsedTime);
 		}
 		while (elapsedTime >= currClip->Duration)
 		{
@@ -99,6 +95,9 @@ void TransformAnimation::LateUpdate()
 void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 {
 	// 위치, 회전, 스케일에 대한 키를 찾기
+	if (objTarget->IsCameraCulling()) //카메라에 안나오면 업데이트 할 필요 없음 근데 대상이 Bone일때는 처리가 안됨..
+		return;
+
 	PositionKey* currPositionKey = nullptr;
 	PositionKey* nextPositionKey = nullptr;
 	for (int i = lastPosIndex; i < positionKeys->size(); i++)

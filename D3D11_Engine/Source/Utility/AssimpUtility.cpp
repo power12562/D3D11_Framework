@@ -128,11 +128,6 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
-
-					if (surface == SURFACE_TYPE::PBR)
-					{
-						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseSpecularMap = true;
-					}
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -372,11 +367,11 @@ namespace Utility
 			currDestObj = objDestQue.front();
 			objDestQue.pop();
 
+			//copy Bounds
+			currDestObj->BoundingBox = currSourceObj->BoundingBox;
+
 			if (isRoot)
 			{
-				//copy Bounds
-				currDestObj->BoundingBox = currSourceObj->BoundingBox;
-
 				//copy Animation
 				if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 				{
@@ -417,7 +412,7 @@ namespace Utility
 						{
 							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
 						}
-
+						destMesh.isAlpha = sourceMesh->isAlpha;
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 
@@ -447,7 +442,7 @@ namespace Utility
 						{
 							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
 						}
-
+						destMesh.isAlpha = sourceMesh->isAlpha;
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 
