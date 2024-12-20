@@ -43,6 +43,7 @@ void SimpleBoneMeshRender::Start()
 
 void SimpleBoneMeshRender::FixedUpdate()
 {
+
 }
 
 void SimpleBoneMeshRender::Update()

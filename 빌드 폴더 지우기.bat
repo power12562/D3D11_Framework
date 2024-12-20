@@ -10,7 +10,7 @@ setlocal enabledelayedexpansion
 set found=0
 
 :: 삭제 대상 폴더 검색 및 출력
-for %%f in (.vs x64 x86 bin) do (
+for %%f in (x64 x86 bin) do (
     for /d /r "%~dp0" %%d in (%%f) do (
         if exist "%%d" (
             echo 삭제할 폴더: "%%d"
