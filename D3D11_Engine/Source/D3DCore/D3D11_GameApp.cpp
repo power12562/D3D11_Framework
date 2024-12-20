@@ -111,7 +111,7 @@ void D3D11_GameApp::Start()
 	if (sceneManager.nextScene == nullptr)
 		sceneManager.LoadScene<Scene>(); //빈 씬 로드
 
-	sceneManager.NextSccene();
+	sceneManager.ChangeScene();
 	sceneManager.AddObjects();
 }
 
@@ -133,7 +133,7 @@ void D3D11_GameApp::Render()
 	sceneManager.RenderScene(); //씬 렌더링 함수.
 	sceneManager.AddObjects();  //오브젝트 생성
 	sceneManager.EraseObjects(); //오브젝트 삭제.
-	sceneManager.NextSccene(); //다음 씬 있으면 전환 
+	sceneManager.ChangeScene(); //다음 씬 있으면 전환 
 }
 
 

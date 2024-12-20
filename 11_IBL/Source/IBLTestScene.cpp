@@ -32,6 +32,7 @@ void IBLTestScene::Start()
 			obj.Material.UseRMACMap = true;
 			pistolMaterials[obj.GetNameToString()] = &obj.Material;
 			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
+			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);
 	pistol->transform.position = Vector3(-20.f, 0.f, 0.f);

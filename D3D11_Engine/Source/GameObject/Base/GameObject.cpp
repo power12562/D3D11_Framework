@@ -20,6 +20,16 @@ void GameObject::Destroy(GameObject* obj)
 	sceneManager.DestroyObject(obj);
 }
 
+void GameObject::DontDestroyOnLoad(GameObject& obj)
+{
+	sceneManager.DontDestroyOnLoad(obj);
+}
+
+void GameObject::DontDestroyOnLoad(GameObject* obj)
+{
+	sceneManager.DontDestroyOnLoad(obj);
+}
+
 GameObject* GameObject::Find(const wchar_t* name)
 {
 	return sceneManager.FindObject(name);
@@ -35,6 +45,7 @@ GameObject::~GameObject()
 {
 	//Debug_printf("%s, destroy\n", Name);
 	instanceIDManager.returnID(instanceID);
+	sceneManager.EraseObjectFindMap(this);
 }
 
 void GameObject::DestroyComponent(Component& component)

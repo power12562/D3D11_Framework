@@ -32,6 +32,8 @@ private:
 	std::set<GameObject*> eraseSet;		  //게임 오브젝트 삭제 대기열
 
 	std::list<std::pair<std::wstring, GameObject*>> resourceObjectList; //리소스로 등록할 오브젝트 대기열
+
+	std::map<std::wstring, std::unordered_set<Scene::InstanceID>> objectFindMap;
 public:
 	template <typename T>
 	void LoadScene();
@@ -50,6 +52,9 @@ public:
 
 	void DestroyObject(GameObject* obj);
 	void DestroyObject(GameObject& obj);
+
+	void DontDestroyOnLoad(GameObject* obj);
+	void DontDestroyOnLoad(GameObject& obj);
 
 	GameObject* FindObject(const wchar_t* name);
 	GameObject* GetObjectToID(unsigned int instanceID);
@@ -70,13 +75,14 @@ private:
 	void RenderScene();
 	void AddObjects();
 	void EraseObjects();
-	void NextSccene();
+	void ChangeScene();
 	
 private:
-	void AddObjectCurrScene(std::shared_ptr<GameObject> obj);
-	void AddObjectNextScene(std::shared_ptr<GameObject> obj);
+	void AddObjectCurrScene(std::shared_ptr<GameObject>& obj);
+	void AddObjectNextScene(std::shared_ptr<GameObject>& obj);
 	void ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName);
-	void EraseObject(GameObject* obj);
+	void EraseObject(unsigned int id);
+	unsigned int EraseObjectFindMap(GameObject* obj);
 };
 
 template<typename T>

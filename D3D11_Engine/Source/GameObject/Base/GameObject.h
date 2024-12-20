@@ -18,6 +18,8 @@ class GameObject
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
+	static void DontDestroyOnLoad(GameObject& obj);
+	static void DontDestroyOnLoad(GameObject* obj);
 	static GameObject* Find(const wchar_t* name);
 	template<typename ObjectType>
 	inline static ObjectType* NewGameObject(const wchar_t* name);

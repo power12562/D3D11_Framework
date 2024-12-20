@@ -2,6 +2,7 @@
 #include <GameObject\Base\CameraObject.h>
 #include <Core/DXTKInputSystem.h>
 #include <D3DCore/D3D11_GameApp.h>
+#include <Component/Render/MeshRender.h>
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 
@@ -15,7 +16,7 @@ void SceneManager::AddGameObject(std::shared_ptr<GameObject>& object)
 
 SceneManager::SceneManager()
 {
-
+	
 }
 
 SceneManager::~SceneManager()
@@ -88,6 +89,31 @@ void SceneManager::DestroyObject(GameObject& obj)
 	DestroyObject(&obj);
 }
 
+void SceneManager::DontDestroyOnLoad(GameObject* obj)
+{
+	if (nextScene)
+	{
+		nextScene->dontdestroyonloadList.emplace_back(obj->GetWeakPtr());
+	}
+	else
+	{
+		currScene->dontdestroyonloadList.emplace_back(obj->GetWeakPtr());
+	}
+
+	if (obj->transform.GetChildCount() > 0)
+	{
+		for (Transform* childObj : obj->transform.childList)
+		{
+			DontDestroyOnLoad(childObj->_gameObject);
+		}
+	}
+}
+
+void SceneManager::DontDestroyOnLoad(GameObject& obj)
+{
+	DontDestroyOnLoad(&obj);
+}
+
 size_t SceneManager::GetObjectsCount()
 {
 	if (currScene)
@@ -125,8 +151,8 @@ ObjectList SceneManager::GetObjectList()
 GameObject* SceneManager::FindObject(const wchar_t* name)
 {
 	GameObject* obj = nullptr;
-	auto findIter = currScene->objectFindMap.find(name);
-	if (findIter != currScene->objectFindMap.end())
+	auto findIter = objectFindMap.find(name);
+	if (findIter != objectFindMap.end())
 	{
 		int firstID = *(findIter->second.begin());
 		obj = currScene->objectList[firstID].get();
@@ -147,8 +173,8 @@ GameObject* SceneManager::GetObjectToID(unsigned int instanceID)
 std::vector<GameObject*> SceneManager::FindObjects(const wchar_t* name)
 {
 	std::vector<GameObject*> objects;
-	auto findIter = currScene->objectFindMap.find(name);
-	if(findIter != currScene->objectFindMap.end())
+	auto findIter = objectFindMap.find(name);
+	if(findIter != objectFindMap.end())
 	{
 		for (auto index : findIter->second)
 		{
@@ -201,7 +227,7 @@ void SceneManager::EraseObjects()
 	{
 		for (auto& obj : eraseSet)
 		{
-			EraseObject(obj);
+			EraseObject(EraseObjectFindMap(obj));
 		}
 		eraseSet.clear();
 
@@ -213,27 +239,47 @@ void SceneManager::EraseObjects()
 	}
 }
 
-void SceneManager::NextSccene()
+void SceneManager::ChangeScene()
 {
 	if (nextScene)
 	{
 		while (!nextAddQueue.empty())
 		{
-			auto obj = nextAddQueue.front();
+			auto& obj = nextAddQueue.front();
 			AddObjectNextScene(obj);
 			nextAddQueue.pop();
 		}
-		currScene.reset();
+		if (currScene)
+		{
+			std::erase_if(currScene->dontdestroyonloadList, [](std::weak_ptr<GameObject> ptr) {return ptr.expired(); });
+			if (nextScene->dontdestroyonloadList.empty())
+			{
+				nextScene->dontdestroyonloadList = std::move(currScene->dontdestroyonloadList);
+				for (auto& weakptr : nextScene->dontdestroyonloadList)
+				{
+					unsigned int id = weakptr.lock()->GetInstanceID();
+					if (nextScene->objectList.size() <= id)
+						nextScene->objectList.resize(id + 1);
+
+					nextScene->objectList[id] = currScene->objectList[id];
+				}
+			}
+			currScene.reset();
+			MeshRender::ReloadShaderAll(); //유효한 메시 객체들 셰이더 다시 생성
+		}
 		currScene = std::move(nextScene);
 		currScene->Start();
+		
 		if (Camera::GetMainCamera() == nullptr)
 		{
 			auto mainCamera = std::make_shared<CameraObject>();
 			mainCamera->SetMainCamera();
 			mainCamera->Name = L"MainCamera";
 			mainCamera->instanceID = instanceIDManager.getUniqueID();
-			AddObjectCurrScene(std::static_pointer_cast<GameObject>(mainCamera));
+			auto obj = std::static_pointer_cast<GameObject>(mainCamera);
+			AddObjectCurrScene(obj);
 		}
+		AddObjects();
 	}
 	else if (EndGame)
 	{
@@ -243,10 +289,10 @@ void SceneManager::NextSccene()
 	}
 }
 
-void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject> obj)
+void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject>& obj)
 {
 	unsigned int id = obj->GetInstanceID();
-	currScene->objectFindMap[obj->Name].insert(id);
+	objectFindMap[obj->Name].insert(id);
 	if (id >= currScene->objectList.size())
 	{
 		currScene->objectList.resize(id + 1);
@@ -254,10 +300,10 @@ void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject> obj)
 	currScene->objectList[id] = obj;
 }
 
-void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject> obj)
+void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject>& obj)
 {
 	unsigned int id = obj->GetInstanceID();
-	nextScene->objectFindMap[obj->Name].insert(id);
+	objectFindMap[obj->Name].insert(id);
 	if (id >= nextScene->objectList.size())
 	{
 		nextScene->objectList.resize(id + 1);
@@ -267,47 +313,29 @@ void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject> obj)
 
 void SceneManager::ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName)
 {
-	if (nextScene)
-	{
-		auto pervNameIter = nextScene->objectFindMap.find(_pervName);
-		if (pervNameIter == nextScene->objectFindMap.end())
-			return;
-		
-		nextScene->objectFindMap[_newName].insert(instanceID);
-		nextScene->objectFindMap[_pervName].erase(instanceID);
-	}
-	else if(currScene)
-	{
-		auto pervNameIter = currScene->objectFindMap.find(_pervName);
-		if(pervNameIter == currScene->objectFindMap.end())
-			return;
+	auto pervNameIter = objectFindMap.find(_pervName);
+	if (pervNameIter == objectFindMap.end())
+		return;
 
-		currScene->objectFindMap[_newName].insert(instanceID);
-		currScene->objectFindMap[_pervName].erase(instanceID);
-	}
+	objectFindMap[_newName].insert(instanceID);
+	objectFindMap[_pervName].erase(instanceID);
 }
 
-void SceneManager::EraseObject(GameObject* obj)
+void SceneManager::EraseObject(unsigned int id)
 {
-	if (nextScene)
-	{
-		auto findIter = nextScene->objectFindMap.find(obj->Name);
-		if (findIter == nextScene->objectFindMap.end())
-			return;
-
-		int index = obj->GetInstanceID();
-		findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
-		nextScene->objectList[index].reset(); //오브젝트 삭제
-	}
-	else if (currScene)
-	{
-		auto findIter = currScene->objectFindMap.find(obj->Name);
-		if (findIter == currScene->objectFindMap.end())
-			return;
-
-		int index = obj->GetInstanceID();
-		findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
-		currScene->objectList[index].reset(); //오브젝트 삭제
-	}
+	currScene->objectList[id].reset(); //오브젝트 삭제
 }
+
+unsigned int SceneManager::EraseObjectFindMap(GameObject* obj)
+{
+	auto findIter = objectFindMap.find(obj->Name);
+	if (findIter == objectFindMap.end())
+		return -1;
+
+	int index = obj->GetInstanceID();
+	findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
+
+	return index;
+}
+
 

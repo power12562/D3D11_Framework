@@ -42,10 +42,10 @@ private:
 
 private:
 	std::unordered_map<std::wstring, std::list<std::shared_ptr<GameObject>>> sceneResourceList;
-
+	
 private:
 	std::vector<std::shared_ptr<GameObject>> objectList;
-	std::map<std::wstring, std::unordered_set<InstanceID>> objectFindMap;
+	std::vector<std::weak_ptr<GameObject>>   dontdestroyonloadList;
 private:
 	//Update
 	void FixedUpdate();

@@ -46,6 +46,7 @@ void TestMainScene::Start()
     chara->transform.position = Vector3(10.0f, 0.f, 0.f);
     chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
+    GameObject::DontDestroyOnLoad(chara);
 }
 
 

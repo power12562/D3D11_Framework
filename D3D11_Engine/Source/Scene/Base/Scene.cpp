@@ -15,6 +15,7 @@ Scene::Scene()
 	constexpr unsigned int ReserveSize = 100000;
 	sceneResourceList.reserve(ReserveSize);
 	objectList.reserve(ReserveSize);
+	dontdestroyonloadList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
 }
 
