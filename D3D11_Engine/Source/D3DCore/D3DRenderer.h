@@ -145,9 +145,9 @@ private:
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	size_t DrawCallCount = 0;
-	void DrawSkyBox(class SkyBoxRender* skyBox);
-	void DrawShadow(RENDERER_DRAW_DESC& drawDesc);	  
-	void Draw(RENDERER_DRAW_DESC& drawDesc);
+	void RenderSkyBox(class SkyBoxRender* skyBox);
+	void RenderShadowMap(RENDERER_DRAW_DESC& drawDesc);	  
+	void RenderScene(RENDERER_DRAW_DESC& drawDesc);
 	void CreateRTV();
 public:
 	//현재 디스플레이 설정 가져오기.

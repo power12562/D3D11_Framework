@@ -440,8 +440,8 @@ void D3DRenderer::BegineDraw()
 
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
-            Vector3& lightDir = DirectionalLights.Lights[i].LightDir;
-            lightDir.Normalize();
+            Vector3 lightDir; 
+            DirectionalLights.Lights[i].LightDir.Normalize(lightDir);
  
             //Light View »ý¼º
             XMVECTOR lightPos = XMVectorSubtract(XMLoadFloat3(&frustumCenter), XMLoadFloat3(&lightDir) * lightHalfFar);
@@ -473,7 +473,7 @@ void D3DRenderer::BegineDraw()
     //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
-        DrawSkyBox(mainSkybox);
+        RenderSkyBox(mainSkybox);
     }
     else
     {
@@ -539,11 +539,11 @@ void D3DRenderer::EndDraw()
             pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i] ); //·»´õÅ¸°Ù ¼³Á¤
             for (auto& item : opaquerenderOueue)
             {
-                DrawShadow(item);
+                RenderShadowMap(item);
             }
             for (auto& item : alphaRenderQueue)
             {
-                DrawShadow(item);
+                RenderShadowMap(item);
             }
         }
     }
@@ -563,18 +563,19 @@ void D3DRenderer::EndDraw()
         }         
         for (auto& item : opaquerenderOueue)
         {
-            Draw(item);
+            RenderScene(item);
         }
 
         for (auto& item : alphaRenderQueue)
         {
-            Draw(item);
+            RenderScene(item);
         }
     }
 
     DrawCallCount = opaquerenderOueue.size() + alphaRenderQueue.size();
     opaquerenderOueue.clear();
     alphaRenderQueue.clear();
+
     DrawDebug();
 }
 
@@ -651,7 +652,7 @@ bool D3DRenderer::CheckFrustumCulling(GameObject* obj) const
     return cameraFrustum.Intersects(OB);
 }
 
-void D3DRenderer::DrawSkyBox(SkyBoxRender* skyBox)
+void D3DRenderer::RenderSkyBox(SkyBoxRender* skyBox)
 {
     constexpr int index2SkyBox = E_TEXTURE::Diffuse_IBL - SkyBoxRender::Diffuse_IBL;
     RENDERER_DRAW_DESC drawDesc = skyBox->GetRendererDesc();
@@ -695,7 +696,7 @@ void D3DRenderer::DrawSkyBox(SkyBoxRender* skyBox)
     pDeviceContext->OMSetDepthStencilState(pDefaultDepthStencilState, 0);
 }
 
-void D3DRenderer::DrawShadow(RENDERER_DRAW_DESC& drawDesc)
+void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
 {
     //set IA
     DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
@@ -728,7 +729,7 @@ void D3DRenderer::DrawShadow(RENDERER_DRAW_DESC& drawDesc)
 	pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
 }
 
-void D3DRenderer::Draw(RENDERER_DRAW_DESC& drawDesc)
+void D3DRenderer::RenderScene(RENDERER_DRAW_DESC& drawDesc)
 {
     //set IA
     DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
