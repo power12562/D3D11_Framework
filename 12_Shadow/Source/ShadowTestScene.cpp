@@ -1,8 +1,8 @@
 #include "ShadowTestScene.h"
 #include <framework.h>
 
-constexpr float positionDumpX = 15;
-constexpr float positionDumpZ = 15;
+constexpr float positionDumpX = 50;
+constexpr float positionDumpZ = 50;
 void ShadowTestScene::Start()
 {
 	Scene::UseImGUI = true;
@@ -23,7 +23,7 @@ void ShadowTestScene::Start()
 	cube = NewGameObject<CubeObject>(L"ground");
 	cube->transform.scale = Vector3(1000.f, 0.5f, 1000.f);
 
-	constexpr int count = 10;
+	constexpr int count = 100;
 	size_t zCount = static_cast<size_t>(std::sqrt(count * 4));
 	for (size_t i = 0; i < count; i++)
 	{

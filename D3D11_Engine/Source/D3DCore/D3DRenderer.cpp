@@ -518,15 +518,10 @@ void D3DRenderer::EndDraw()
 {
     //Texture sort
     auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {
-		for (int i = 0; i < E_TEXTURE::Roughness; i++)
-		{
-            uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[i]);
-            uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[i]);
-			if (textureB != textureA)
-				return textureA < textureB;
-		}
-        return reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[E_TEXTURE::AmbientOcculusion]) < reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[E_TEXTURE::AmbientOcculusion]);
-	};
+            uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[0]);
+            uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[0]);
+            return textureA < textureB;    
+    };
     std::sort(opaquerenderOueue.begin(), opaquerenderOueue.end(), textureSort);
     std::sort(alphaRenderQueue.begin(), alphaRenderQueue.end(), textureSort);
 
