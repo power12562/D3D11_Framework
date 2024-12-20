@@ -1,11 +1,11 @@
 #include "D3D11_GameApp.h"
-#include <Framework\SceneManager.h>
-#include <Framework\TimeSystem.h>
-#include <Framework/D3DRenderer.h>
+#include <Manager/SceneManager.h>
+#include <Core/TimeSystem.h>
+#include <D3DCore/D3DRenderer.h>
 #include <GameObject\Base\CameraObject.h>
-#include <Framework\DXTKInputSystem.h>
-#include <Framework\ImguiHelper.h>
-#include <Framework\ResourceManager.h>
+#include <Core/DXTKInputSystem.h>
+#include <Utility/ImguiHelper.h>
+#include <Manager/ResourceManager.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

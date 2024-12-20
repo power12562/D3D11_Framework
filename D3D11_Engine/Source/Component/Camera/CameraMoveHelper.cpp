@@ -1,5 +1,5 @@
 #include "CameraMoveHelper.h"
-#include <Framework\TimeSystem.h>
+#include <Core/TimeSystem.h>
 #include <Math\Mathf.h>
 
 CameraMoveHelper::CameraMoveHelper()

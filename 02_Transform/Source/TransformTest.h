@@ -1,5 +1,5 @@
 #pragma once
-#include <Framework/WinGameApp.h>
+#include <Core/WinGameApp.h>
 #include <vector>
 
 class SimpleObject;

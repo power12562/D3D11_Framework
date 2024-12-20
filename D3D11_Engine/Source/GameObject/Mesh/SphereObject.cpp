@@ -1,6 +1,6 @@
 #include "SphereObject.h"
 #include <Light/PBRDirectionalLight.h>
-#include <Framework/HLSLManager.h>
+#include <Manager/HLSLManager.h>
 #include <Utility/AssimpUtility.h>
 #include <Component/Render/PBRMeshRender.h>
 

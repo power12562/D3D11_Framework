@@ -2,11 +2,11 @@
 #include <Utility/Console.h>
 
 #include <Component/Camera/Camera.h>
-#include <Component\Base\RenderComponent.h>
-#include <Framework/D3DRenderer.h>
-#include <Framework/SceneManager.h>
-#include <Framework/InstanceIDManager.h>
-#include <Framework/D3DConstBuffer.h>
+#include <Component/Base/RenderComponent.h>
+#include <D3DCore/D3DRenderer.h>
+#include <Manager/SceneManager.h>
+#include <Manager/InstanceIDManager.h>
+#include <D3DCore/D3DConstBuffer.h>
 #include <Utility/utfConvert.h>
 
 void GameObject::Destroy(GameObject& obj)

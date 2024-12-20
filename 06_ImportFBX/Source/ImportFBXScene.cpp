@@ -1,16 +1,16 @@
 #include "ImportFBXScene.h"
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
-#include <Framework\ImguiHelper.h>
+#include <Utility/ImguiHelper.h>
 #include <Math\Mathf.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
 #include <Component/Animation/TransformAnimation.h>
-#include <Framework\ResourceManager.h>
+#include <Manager/ResourceManager.h>
 
 #include "../Source/SimpleUpdateCbuffer.h"
 #include "../Source/Global_Cbuffer.h"

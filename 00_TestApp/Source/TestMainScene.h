@@ -1,11 +1,11 @@
 #pragma once
 #include <Scene/Base/Scene.h>
-#include <Framework/DXTKInputSystem.h>
+#include <Core/DXTKInputSystem.h>
 #include <Material/BlingPhongMaterial.h>
 #include <Material/PBRMaterial.h>
 #include <Light/PBRDirectionalLight.h>
 #include <map>
-#include <Framework/GameObjectFactory.h>
+#include <Manager/GameObjectFactory.h>
 
 class Camera;
 class TestMainScene : public Scene, public InputProcesser

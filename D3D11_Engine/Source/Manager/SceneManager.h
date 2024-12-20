@@ -1,5 +1,5 @@
 #pragma once
-#include <Framework\TSingleton.h>
+#include <Core/TSingleton.h>
 #include <Utility/AssimpUtility.h>
 #include <unordered_map>
 #include <string>

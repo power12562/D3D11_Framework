@@ -1,6 +1,6 @@
 #include "MeshRender.h"
-#include <Framework/ResourceManager.h>
-#include <Framework/HLSLManager.h>
+#include <Manager/ResourceManager.h>
+#include <Manager/HLSLManager.h>
 #include <Utility/MemoryUtility.h>
 
 using namespace Utility;

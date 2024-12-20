@@ -1,6 +1,6 @@
 #include "AssimpUtility.h"
 #include <Light/SimpleDirectionalLight.h>
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 #include <GameObject\Base\GameObject.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
@@ -12,8 +12,8 @@
 #include <Utility\utfConvert.h>
 #include <Material\BlingPhongMaterial.h>
 #include <Component/Animation/TransformAnimation.h>
-#include <Framework\ResourceManager.h>
-#include <Framework/HLSLManager.h>
+#include <Manager\ResourceManager.h>
+#include <Manager/HLSLManager.h>
 
 #include <Component/Render/PBRMeshRender.h>
 #include <Component/Render/PBRBoneMeshRender.h>

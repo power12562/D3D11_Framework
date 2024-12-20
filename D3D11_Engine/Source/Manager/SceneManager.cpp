@@ -1,7 +1,7 @@
 #include "SceneManager.h"
 #include <GameObject\Base\CameraObject.h>
-#include <Framework\DXTKInputSystem.h>
-#include <Framework/D3D11_GameApp.h>
+#include <Core/DXTKInputSystem.h>
+#include <D3DCore/D3D11_GameApp.h>
 
 SceneManager& sceneManager = SceneManager::GetInstance();
 

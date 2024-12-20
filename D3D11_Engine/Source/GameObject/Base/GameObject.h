@@ -1,9 +1,9 @@
 #pragma once
-#include <Framework\Transform.h>
+#include <Core/Transform.h>
 #include <Utility/Console.h>
 #include <memory>
 #include <string>
-#include <Framework/GameObjectFactory.h>
+#include <Manager/GameObjectFactory.h>
 
 #pragma warning( disable : 4267)
 
@@ -163,7 +163,7 @@ ObjectType* NewGameObject(const wchar_t* name)
 	return GameObject::NewGameObject<ObjectType>(name);
 }
 
-#include <Framework\InstanceIDManager.h>
+#include <Manager/InstanceIDManager.h>
 template<typename ObjectType>
 inline ObjectType* GameObject::NewGameObject(const wchar_t* name)
 {

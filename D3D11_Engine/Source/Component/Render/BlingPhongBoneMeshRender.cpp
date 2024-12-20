@@ -1,6 +1,6 @@
 #include "BlingPhongBoneMeshRender.h"
 #include <Light/PBRDirectionalLight.h>
-#include <Framework/HLSLManager.h>
+#include <Manager/HLSLManager.h>
 
 void BlingPhongBoneMeshRender::Start()
 {

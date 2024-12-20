@@ -1,8 +1,8 @@
 #pragma once
 #include <Component/Base/RenderComponent.h>
-#include <Framework/D3DConstBuffer.h>
-#include <Framework/D3DTexture2D.h>
-#include <Framework/D3DSamplerState.h>
+#include <D3DCore/D3DConstBuffer.h>
+#include <D3DCore/D3DTexture2D.h>
+#include <D3DCore/D3DSamplerState.h>
 #include <string>
 
 class MeshRender : public RenderComponent

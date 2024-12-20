@@ -1,5 +1,5 @@
 #include "TextureManager.h"
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Math/Mathf.h>
 
 TextureManager& textureManager = TextureManager::GetInstance();

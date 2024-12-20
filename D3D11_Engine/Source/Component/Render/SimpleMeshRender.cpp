@@ -1,8 +1,8 @@
 #include "SimpleMeshRender.h"
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
-#include <Framework\ResourceManager.h>
+#include <Manager/ResourceManager.h>
 
 SimpleMeshRender::SimpleMeshRender()
 {

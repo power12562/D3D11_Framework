@@ -1,5 +1,5 @@
 #include "SkyBoxRender.h"
-#include <Framework/HLSLManager.h>
+#include <Manager/HLSLManager.h>
 
 SkyBoxRender* SkyBoxRender::GetMainSkyBox()
 {

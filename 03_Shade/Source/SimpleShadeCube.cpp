@@ -1,7 +1,7 @@
 #include "SimpleShadeCube.h"
 #include "ShadeTestApp.h"
 
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Utility/D3D11Utility.h>
 #include <Utility\MemoryUtility.h>
 

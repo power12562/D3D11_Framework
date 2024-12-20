@@ -1,9 +1,9 @@
 #pragma once
 #include <Component\Base\RenderComponent.h>
 #include <Material\BlingPhongMaterial.h>
-#include <Framework/D3DConstBuffer.h>
-#include <Framework/D3DSamplerState.h>
-#include <Framework/D3DTexture2D.h>
+#include <D3DCore/D3DConstBuffer.h>
+#include <D3DCore/D3DSamplerState.h>
+#include <D3DCore/D3DTexture2D.h>
 
 class MappingCubeObject	: public RenderComponent
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
-#include <Framework\DXTKInputSystem.h>
+#include <Core/DXTKInputSystem.h>
 
 class CameraMoveHelper : public Component, public InputProcesser 
 {

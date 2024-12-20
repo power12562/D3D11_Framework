@@ -1,6 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include <Framework\TSingleton.h>
+#include <Core/TSingleton.h>
 #include <directXTK/Mouse.h>
 #include <directXTK/Keyboard.h>
 #include <vector>

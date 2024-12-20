@@ -1,7 +1,7 @@
 #pragma once
 #include <Utility\D3D11Utility.h> //helper
 #include <Utility\MemoryUtility.h>
-#include <Framework\TSingleton.h>
+#include <Core/TSingleton.h>
 #include <map>
 #include <string>
 #include <cassert>

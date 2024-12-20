@@ -1,6 +1,6 @@
 #include "LightManager.h"
 #include <GameObject\Base\CameraObject.h>
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 
 LightManager::LightManager()
 {

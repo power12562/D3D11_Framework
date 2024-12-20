@@ -1,5 +1,5 @@
 #include "CameraObject.h"
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 
 CameraObject::CameraObject()
 {

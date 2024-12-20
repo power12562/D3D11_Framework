@@ -1,5 +1,5 @@
 #pragma once
-#include <Framework/WinGameApp.h>
+#include <Core/WinGameApp.h>
 #include <d3d11.h>
 
 class D3D11_BoxDrawApp : public WinGameApp

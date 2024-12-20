@@ -1,6 +1,6 @@
 #include "PBRBoneMeshRender.h"
 #include <Light/PBRDirectionalLight.h>
-#include <Framework/HLSLManager.h>
+#include <Manager/HLSLManager.h>
 
 PBRBoneMeshRender::PBRBoneMeshRender()
 {

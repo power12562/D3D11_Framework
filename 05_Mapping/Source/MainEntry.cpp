@@ -1,6 +1,6 @@
 #include "MappingTestApp.h"
 #include <GameObject\Base\CameraObject.h>
-#include <Framework/SceneManager.h>
+#include <Manager/SceneManager.h>
 
 #include "../Source/MappingTestScene.h"
 

@@ -1,6 +1,6 @@
 #include "Camera.h"
-#include <Framework/D3DRenderer.h>
-#include <Framework/D3D11_GameApp.h>
+#include <D3DCore/D3DRenderer.h>
+#include <D3DCore/D3D11_GameApp.h>
 #include <Math/Mathf.h>
 
 using namespace DirectX;

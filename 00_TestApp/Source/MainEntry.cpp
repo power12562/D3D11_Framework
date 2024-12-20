@@ -2,7 +2,7 @@
 #include <GameObject/Base/CameraObject.h>
 #include <Math/Mathf.h>
 #include <Component\Camera\CameraMoveHelper.h>
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 
 #include "../Source/TestMainScene.h"
 

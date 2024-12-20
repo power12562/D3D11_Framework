@@ -5,7 +5,7 @@
 #include <Math\Mathf.h>
 #include <Utility\D3D11Utility.h>
 #include <Utility/MemoryUtility.h>
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>

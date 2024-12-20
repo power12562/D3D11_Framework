@@ -1,5 +1,5 @@
 #pragma once
-#include <Framework/TSingleton.h>
+#include <Core/TSingleton.h>
 #include <windows.h>
 #include <cmath>
 

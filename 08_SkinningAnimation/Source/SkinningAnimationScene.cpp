@@ -1,15 +1,15 @@
 #include "SkinningAnimationScene.h"
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
-#include <Framework\ImguiHelper.h>
+#include <Utility/ImguiHelper.h>
 #include <Math\Mathf.h>
 #include <Component/Animation/TransformAnimation.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Utility\AssimpUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework\ResourceManager.h>
+#include <Manager/ResourceManager.h>
 #include <Material/BlingPhongMaterial.h>
 
 #pragma warning(disable : 4305)

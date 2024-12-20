@@ -1,11 +1,11 @@
 #pragma once
 #include <Utility\D3D11Utility.h>
-#include <Framework\TSingleton.h>
+#include <Core/TSingleton.h>
 #include <unordered_map>
 #include <string>
 #include <minwindef.h>
 #include <Material/BlingPhongMaterial.h>
-#include <Framework/D3DTexture2D.h>
+#include <D3DCore/D3DTexture2D.h>
 
 class TextureManager;
 extern TextureManager& textureManager;

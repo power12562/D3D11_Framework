@@ -1,6 +1,6 @@
 #pragma once
 #include <Component\Base\Component.h>
-#include <Framework\D3DConstBuffer.h>
+#include <D3DCore/D3DConstBuffer.h>
 
 struct cb_DirectionalLight
 {

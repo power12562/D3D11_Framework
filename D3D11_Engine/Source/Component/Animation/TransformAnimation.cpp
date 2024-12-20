@@ -1,5 +1,5 @@
 #include "TransformAnimation.h"
-#include <Framework\TimeSystem.h>
+#include <Core/TimeSystem.h>
 #include <Utility\AssimpUtility.h>
 
 void TransformAnimation::CopyClips(TransformAnimation* dest, TransformAnimation* source)

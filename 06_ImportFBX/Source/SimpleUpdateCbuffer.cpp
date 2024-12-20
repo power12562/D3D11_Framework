@@ -2,7 +2,7 @@
 #include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework\ResourceManager.h>
+#include <Manager/ResourceManager.h>
 #include <Utility/AssimpUtility.h>
 
 #include "../Source/Global_Cbuffer.h"

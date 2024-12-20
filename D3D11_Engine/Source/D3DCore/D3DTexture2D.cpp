@@ -1,6 +1,6 @@
 #include "D3DTexture2D.h"
 #include <Utility/AssimpUtility.h>
-#include <Framework/TextureManager.h>
+#include <Manager/TextureManager.h>
 
 D3DTexture2D::D3DTexture2D()
 {

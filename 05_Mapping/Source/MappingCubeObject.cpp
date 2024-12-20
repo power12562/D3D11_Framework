@@ -1,7 +1,7 @@
 #include "MappingCubeObject.h"
 #include <Utility/MemoryUtility.h>
 #include <Component\Render\SimpleMeshRender.h>
-#include <Framework/HLSLManager.h>
+#include <Manager/HLSLManager.h>
 #include <Utility/AssimpUtility.h>
 
 #include "../Source/LightManager.h"

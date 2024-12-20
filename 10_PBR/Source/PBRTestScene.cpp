@@ -1,13 +1,13 @@
 #include "PBRTestScene.h"
-#include <Framework\SceneManager.h>
+#include <Manager/SceneManager.h>
 #include <Component\Camera\CameraMoveHelper.h>
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <GameObject/Base/CameraObject.h>
-#include <Framework\ImguiHelper.h>
+#include <Utility/ImguiHelper.h>
 #include <Utility\AssimpUtility.h>
-#include <Framework/TimeSystem.h>
+#include <Core/TimeSystem.h>
 #include <Component/Render/MeshRender.h>
-#include <Framework/ResourceManager.h>
+#include <Manager/ResourceManager.h>
 #include <Utility/utfConvert.h>
 #include <GameObject/Mesh/SphereObject.h>
 

@@ -3,7 +3,7 @@
 #include <Utility/MemoryUtility.h>
 #include <Math/Mathf.h>
 #include <Utility/Console.h>
-#include <Framework/TimeSystem.h>
+#include <Core/TimeSystem.h>
 #include <cassert>
 #include "SimpleObject.h"
 #include <Windows.h>

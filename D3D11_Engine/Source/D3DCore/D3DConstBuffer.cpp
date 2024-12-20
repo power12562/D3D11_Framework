@@ -1,5 +1,5 @@
 #include "D3DConstBuffer.h"
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 
 void D3DConstBuffer::CreateStaticCbuffer()
 {

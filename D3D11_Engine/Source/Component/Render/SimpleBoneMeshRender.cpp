@@ -1,8 +1,8 @@
 #include "SimpleBoneMeshRender.h"
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
-#include <Framework\ResourceManager.h>
+#include <Manager/ResourceManager.h>
 #include <Component/Bone/BoneComponent.h>
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()

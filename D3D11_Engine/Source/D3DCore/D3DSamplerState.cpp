@@ -1,6 +1,6 @@
 #include "D3DSamplerState.h"
 #include <Utility/MemoryUtility.h>
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Utility/Console.h>
 
 using namespace Utility;

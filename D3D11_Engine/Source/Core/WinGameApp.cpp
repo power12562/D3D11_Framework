@@ -1,8 +1,8 @@
 #include "WinGameApp.h"
 
-#include <Framework\D3DRenderer.h>
-#include <Framework/TimeSystem.h>
-#include <Framework/SceneManager.h>
+#include <D3DCore/D3DRenderer.h>
+#include <Core/TimeSystem.h>
+#include <Manager/SceneManager.h>
 #include <cassert>
 #include <cstdio>
 #include <clocale>
@@ -10,7 +10,7 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-#include <Framework/ImguiHelper.h>
+#include <Utility/ImguiHelper.h>
 #include <Math/Mathf.h>
 #include <Utility/Console.h>
 

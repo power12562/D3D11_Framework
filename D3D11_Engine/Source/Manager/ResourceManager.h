@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
-#include <Framework/D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 #include <Utility/utfConvert.h>
 #include <Utility/Console.h>
 

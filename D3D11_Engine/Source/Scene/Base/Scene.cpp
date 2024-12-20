@@ -1,11 +1,11 @@
 #include "Scene.h"
-#include <Framework\SceneManager.h>
-#include <Framework/D3DRenderer.h>
-#include <Framework/HLSLManager.h>
-#include <Framework/ResourceManager.h>
-#include <Framework/D3DSamplerState.h>
+#include <Manager/SceneManager.h>
+#include <D3DCore/D3DRenderer.h>
+#include <Manager/HLSLManager.h>
+#include <Manager/ResourceManager.h>
+#include <D3DCore/D3DSamplerState.h>
 #include <typeinfo>
-#include <Framework/ImguiHelper.h>
+#include <Utility/ImguiHelper.h>
 #include <Utility/Console.h>
 #include <Utility/SpinLock.h>
 #include <GameObject/Base/GameObject.h>

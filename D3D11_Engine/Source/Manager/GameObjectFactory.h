@@ -1,6 +1,6 @@
 #pragma once
-#include <Framework/TSingleton.h>
-#include <Framework/SceneManager.h>
+#include <Core/TSingleton.h>
+#include <Manager/SceneManager.h>
 #include <map>
 #include <string>
 #include <functional>

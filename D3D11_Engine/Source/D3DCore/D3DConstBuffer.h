@@ -1,5 +1,5 @@
 #pragma once
-#include <Framework\D3DRenderer.h>
+#include <D3DCore/D3DRenderer.h>
 
 /* b0 레지스터는 Transform 버퍼*/
 struct cb_Transform
