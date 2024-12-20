@@ -1,6 +1,7 @@
 #include "TransformAnimation.h"
 #include <Core/TimeSystem.h>
 #include <Utility\AssimpUtility.h>
+#include <D3DCore/D3DRenderer.h>
 
 void TransformAnimation::CopyClips(TransformAnimation* dest, TransformAnimation* source)
 {
@@ -71,10 +72,13 @@ void TransformAnimation::LateUpdate()
 	if (currClip && !isPause)
 	{
 		elapsedTime += currClip->TickTime * TimeSystem::Time.DeltaTime;
-		for (auto& nodeAni : currClip->nodeAnimations)
-		{
-			nodeAni.Evaluate(elapsedTime);
-		}
+
+		if(d3dRenderer.CheckFrustumCulling(&gameObject))
+			for (auto& nodeAni : currClip->nodeAnimations)
+			{
+				nodeAni.Evaluate(elapsedTime);
+			}
+
 		while (elapsedTime >= currClip->Duration)
 		{
 			if (isLoop)
@@ -95,9 +99,6 @@ void TransformAnimation::LateUpdate()
 void TransformAnimation::Clip::NodeAnimation::Evaluate(float elapsedTime)
 {
 	// 위치, 회전, 스케일에 대한 키를 찾기
-	if (objTarget->IsCameraCulling()) //카메라에 안나오면 업데이트 할 필요 없음 근데 대상이 Bone일때는 처리가 안됨..
-		return;
-
 	PositionKey* currPositionKey = nullptr;
 	PositionKey* nextPositionKey = nullptr;
 	for (int i = lastPosIndex; i < positionKeys->size(); i++)

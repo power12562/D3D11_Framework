@@ -8,6 +8,7 @@
 #include <Manager/InstanceIDManager.h>
 #include <D3DCore/D3DConstBuffer.h>
 #include <Utility/utfConvert.h>
+#include <Math/Mathf.h>
 
 void GameObject::Destroy(GameObject& obj)
 {
@@ -26,7 +27,8 @@ GameObject* GameObject::Find(const wchar_t* name)
 
 GameObject::GameObject()
 {
-	transform._gameObject = this;
+	transform._gameObject = this;	 
+	Bounds.Center = { Mathf::FLOAT_MAX, Mathf::FLOAT_MAX, Mathf::FLOAT_MAX };
 }
 
 GameObject::~GameObject()
@@ -71,7 +73,7 @@ void GameObject::DestroyComponent(Component* component)
 DirectX::BoundingOrientedBox GameObject::GetOBBToWorld() const
 {
 	BoundingOrientedBox boundingBoxOut;
-	boundingBoxOut.CreateFromBoundingBox(boundingBoxOut, BoundingBox);
+	boundingBoxOut.CreateFromBoundingBox(boundingBoxOut, Bounds);
 	boundingBoxOut.Transform(boundingBoxOut, transform.GetWM());
 	return boundingBoxOut;
 }

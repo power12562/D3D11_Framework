@@ -8,6 +8,8 @@
 
 namespace Mathf
 {
+	constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
+	constexpr float FLOAT_MIN = std::numeric_limits<float>::min();
 	constexpr float PI = 3.14159265f;
 	constexpr float Deg2Rad = 0.01745329f;
 	constexpr float Rad2Deg = 57.29578f;

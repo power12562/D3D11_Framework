@@ -487,25 +487,17 @@ void D3DRenderer::BegineDraw()
     }
 }
 
-void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha)
+void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
 {
     using namespace DirectX::DX11;
     Camera* mainCam = Camera::GetMainCamera();
     if (mainCam)
-    {
-        bool isDraw = false; 
-        BoundingOrientedBox OB;
-        GameObject* obj = nullptr;
-
-		obj = &darwDesc.pTransform->gameObject;
-		OB = darwDesc.pTransform->gameObject.GetOBBToWorld();
-
-        DirectX::BoundingFrustum cameraFrustum(cullingProjection);
-        cameraFrustum.Transform(cameraFrustum,(cullingIVM));
-        obj->isCulling = OB.Intersects(cameraFrustum);
+    {      
+        GameObject* obj = &darwDesc.pTransform->gameObject;
+        obj->isCulling = CheckFrustumCulling(obj);
         if (obj->isCulling)
         {
-            if (isAlpha)
+            if (darwDesc.isAlpha)
                 alphaRenderQueue.emplace_back(darwDesc);
             else
                 opaquerenderOueue.emplace_back(darwDesc);
@@ -647,6 +639,16 @@ void D3DRenderer::PopDebugFrustum()
 {
     if(!debugFrustumVec.empty())
         debugFrustumVec.pop_back();
+}
+
+bool D3DRenderer::CheckFrustumCulling(GameObject* obj) const
+{
+    BoundingOrientedBox OB;
+    OB = obj->GetOBBToWorld();
+    DirectX::BoundingFrustum cameraFrustum(cullingProjection);
+    cameraFrustum.Transform(cameraFrustum, (cullingIVM));
+
+    return cameraFrustum.Intersects(OB);
 }
 
 void D3DRenderer::DrawSkyBox(SkyBoxRender* skyBox)

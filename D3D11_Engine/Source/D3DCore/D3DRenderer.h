@@ -89,7 +89,7 @@ private:
 
 public:
 	void BegineDraw();
-	void DrawIndex(RENDERER_DRAW_DESC& darwDesc, bool isAlpha);
+	void DrawIndex(RENDERER_DRAW_DESC& darwDesc);
 	void EndDraw();
 	void Present();
 
@@ -137,6 +137,7 @@ public:
 
 	void PushDebugFrustum(const DirectX::SimpleMath::Matrix* frustum, const DirectX::SimpleMath::Matrix* WM);
 	void PopDebugFrustum();
+	bool CheckFrustumCulling(GameObject* obj) const;
 public:
 	size_t GetDrawCount() const { return DrawCallCount; }
 
@@ -212,6 +213,7 @@ struct RENDERER_DRAW_DESC
 	ID3D11PixelShader* pPixelShader;
 	ID3D11RasterizerState* pRRState = nullptr;
 	bool isSkinning;
+	bool isAlpha;
 };
 
 

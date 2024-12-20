@@ -61,7 +61,7 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 	ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
-	ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
+	ImGui::DragQuaternionWorld("Cam Rotation", &mainCam->transform.rotation, 0);
 	ImGui::Text("");
 
 	ImGui::Text("Light");
@@ -78,7 +78,7 @@ void TransAnimationScene::ImGUIRender()
 	ImGui::Text("");
 
 	ImGui::Text("Box Robot");
-	ImGui::DragQuaternion("Box rotation", &box->transform.rotation);
+	ImGui::DragQuaternionWorld("Box rotation", &box->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Background");

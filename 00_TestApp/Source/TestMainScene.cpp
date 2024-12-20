@@ -56,7 +56,7 @@ void TestMainScene::ImGUIRender()
     {
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
         ImGui::DragVector3("Camera Position", &mainCam->transform.position);
-        ImGui::DragQuaternion("Camera Rotation", &mainCam->transform.rotation);
+        ImGui::DragQuaternionWorld("Camera Rotation", &mainCam->transform.rotation);
         ImGui::SliderFloat("Cam FOV", &camera->FOV, 10.f, 105.f);
         ImGui::SliderFloat("Camera Near", &camera->Near, 0.001f, 10.f);
         ImGui::SliderFloat("Camera Far", &camera->Far, 100.f, 10000.f);

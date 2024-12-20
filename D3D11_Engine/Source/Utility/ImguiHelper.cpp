@@ -37,7 +37,7 @@ void ImGui::DragVector4(const char* label, const Vector4* pVector, float v_speed
 	ImGui::DragFloat3(label,  (float*)pVector, v_speed, v_min, v_max, format, flags);
 }
 
-void ImGui::DragQuaternion(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+void ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
 	static std::unordered_map<int, Vector3> prevEuler;
 
@@ -58,6 +58,30 @@ void ImGui::DragQuaternion(const char* label, const Quaternion* pQuaternion, flo
 		}
 	}
     prevEuler[g_id] = euler;
+	++g_id;
+}
+
+void ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{	
+	static std::unordered_map<int, Vector3> prevEuler;
+
+	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
+	Vector3 euler = qu->ToEuler() * Mathf::Rad2Deg;
+	Vector3 prev = prevEuler[g_id];
+	if (ImGui::DragFloat3(label, (float*)&euler, 1.f))
+	{
+		Quaternion deltaQuat = Quaternion::CreateFromYawPitchRoll(
+			(euler.y - prev.y) * Mathf::Deg2Rad,
+			(euler.x - prev.x) * Mathf::Deg2Rad,
+			(euler.z - prev.z) * Mathf::Deg2Rad
+		);
+		if (deltaQuat.Length() > Mathf::Epsilon)
+		{
+			*qu *= deltaQuat;
+			euler = qu->ToEuler() * Mathf::Rad2Deg;
+		}
+	}
+	prevEuler[g_id] = euler;
 	++g_id;
 }
 
@@ -91,9 +115,18 @@ void ImGui::EditHierarchyView()
 	auto ObjectEditUI = [](GameObject* object) 
 		{
 			ImGui::Checkbox("Active", &object->Active);
-			ImGui::DragVector3("Position", &object->transform.position, 0.1f);
-			ImGui::DragQuaternion("Rotation", &object->transform.rotation);
-			ImGui::DragVector3("Scale", &object->transform.scale, 0.1f);
+			if (object->transform.Parent)
+			{
+				ImGui::DragVector3("Position", &object->transform.localPosition, 0.1f);
+				ImGui::DragQuaternionLocal("Rotation", &object->transform.localRotation);
+				ImGui::DragVector3("Scale", &object->transform.localScale, 0.1f);			
+			}
+			else
+			{
+				ImGui::DragVector3("Position", &object->transform.position, 0.1f);
+				ImGui::DragQuaternionWorld("Rotation", &object->transform.rotation);
+				ImGui::DragVector3("Scale", &object->transform.scale, 0.1f);
+			}
 		};
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
 		{
@@ -123,9 +156,18 @@ void ImGui::EditHierarchyView()
 void ImGui::EditTransform(GameObject* gameObject)
 {
 	ImGui::PushID(g_id);
-	ImGui::DragVector3("Position", &gameObject->transform.position, 0.1f);
-	ImGui::DragQuaternion("Rotation", &gameObject->transform.rotation);
-	ImGui::DragVector3("Scale", &gameObject->transform.scale, 0.1f);
+	if (gameObject->transform.Parent)
+	{
+		ImGui::DragVector3("Position", &gameObject->transform.localPosition, 0.1f);
+		ImGui::DragQuaternionLocal("Rotation", &gameObject->transform.localRotation);
+		ImGui::DragVector3("Scale", &gameObject->transform.localScale, 0.1f);
+	}
+	else
+	{
+		ImGui::DragVector3("Position", &gameObject->transform.position, 0.1f);
+		ImGui::DragQuaternionWorld("Rotation", &gameObject->transform.rotation);
+		ImGui::DragVector3("Scale", &gameObject->transform.scale, 0.1f);
+	}
 	ImGui::PopID();
 	g_id++;
 }

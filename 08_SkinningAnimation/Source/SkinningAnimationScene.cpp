@@ -75,7 +75,7 @@ void SkinningAnimationScene::ImGUIRender()
 	ImGui::SliderFloat("FOV", &mainCam->FOV, 10, 120);
 	ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
 	ImGui::DragVector3("Cam Position", &mainCam->transform.position, 0);
-	ImGui::DragQuaternion("Cam Rotation", &mainCam->transform.rotation, 0);
+	ImGui::DragQuaternionWorld("Cam Rotation", &mainCam->transform.rotation, 0);
 	ImGui::Text("");
 
 	ImGui::Text("Light");
@@ -87,12 +87,12 @@ void SkinningAnimationScene::ImGUIRender()
 
 	ImGui::Text("Test1");
 	ImGui::DragVector3("Test1 Position", &test1->transform.position);
-	ImGui::DragQuaternion("Test1 Rotation", &test1->transform.rotation);
+	ImGui::DragQuaternionWorld("Test1 Rotation", &test1->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Test2");
 	ImGui::DragVector3("Test2 Position", &test2->transform.position);
-	ImGui::DragQuaternion("Test2 Rotation", &test2->transform.rotation);
+	ImGui::DragQuaternionWorld("Test2 Rotation", &test2->transform.rotation);
 	ImGui::Text("");
 
 	ImGui::Text("Background");

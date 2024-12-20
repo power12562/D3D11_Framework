@@ -40,7 +40,7 @@ void MappingTestScene::ImGUIRender()
 	ImGui::Text("");
 	ImGui::Text("Cube");	
 	ImGui::DragVector3("Cube Position", &cube1->transform.position);
-	ImGui::DragQuaternion("Cube Rotation", &cube1->transform.rotation);
+	ImGui::DragQuaternionWorld("Cube Rotation", &cube1->transform.rotation);
 	ImGui::SliderFloat("Cube Scale", &cubeScale, 1.0f, 10.0f);
 	cube1->transform.scale = Vector3(cubeScale, cubeScale, cubeScale);
 	ImGui::Text("");

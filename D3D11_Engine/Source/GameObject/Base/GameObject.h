@@ -62,7 +62,9 @@ public:
 	void DestroyComponent(Component* component);
 
 	DirectX::BoundingOrientedBox GetOBBToWorld() const;
-	DirectX::BoundingBox BoundingBox;
+
+	//오브젝트 BB 초기 center 값은 Mathf::FLOAT_MAX로 초기화 됩니다.
+	DirectX::BoundingBox Bounds;
 
 	/*카메라 컬링 여부*/
 	inline bool IsCameraCulling() const { return isCulling; }

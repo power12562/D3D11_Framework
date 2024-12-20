@@ -57,9 +57,11 @@ public:
 	Vector3 GetFront();
 	__declspec(property(get = GetFront)) Vector3 Front;
 
-	/* *Get world matrix*/
+	/**Get world matrix*/
 	const Matrix& GetWM() const { return _WM; }
 
+	/**Get local matrix*/
+	const Matrix& GetLM() const { return _LM; }
 public:
 	/**부모로 만들 Transform을 설정합니다.*/
 	void SetParent(Transform& parent, bool worldPositionStays = true);

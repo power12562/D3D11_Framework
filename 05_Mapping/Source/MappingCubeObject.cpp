@@ -141,6 +141,6 @@ void MappingCubeObject::Render()
     draw_desc.pPixelShader = pPixelShader;
     draw_desc.pTransform = &gameObject.transform;
 
-    d3dRenderer.DrawIndex(draw_desc, false);
+    d3dRenderer.DrawIndex(draw_desc);
 }
 

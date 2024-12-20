@@ -368,7 +368,7 @@ namespace Utility
 			objDestQue.pop();
 
 			//copy Bounds
-			currDestObj->BoundingBox = currSourceObj->BoundingBox;
+			currDestObj->Bounds = currSourceObj->Bounds;
 
 			if (isRoot)
 			{

@@ -4,6 +4,7 @@
 #include <Light\SimpleDirectionalLight.h>
 #include <Manager/ResourceManager.h>
 #include <Component/Bone/BoneComponent.h>
+#include <Math/Mathf.h>
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {
@@ -74,7 +75,7 @@ void SimpleBoneMeshRender::Render()
 		if (IsVSShader() && IsPSShader())
 		{
 			RENDERER_DRAW_DESC desc = GetRendererDesc();
-			d3dRenderer.DrawIndex(desc, isAlpha);
+			d3dRenderer.DrawIndex(desc);
 		}
 	}
 	else
@@ -120,9 +121,25 @@ void SimpleBoneMeshRender::CreateMesh()
 	//Create bounding box
 	BoundingBox box;
 	box.CreateFromPoints(box, vertices.size(), reinterpret_cast<XMFLOAT3*>(vertices.data()), sizeof(Vertex));
-	box.Transform(box, transform.GetWM());
-	BoundingBox::CreateMerged(gameObject.BoundingBox, gameObject.BoundingBox, box);
-	
+	if (gameObject.Bounds.Center.x < Mathf::FLOAT_MAX)
+	{
+		BoundingBox::CreateMerged(gameObject.Bounds, gameObject.Bounds, box);
+	}
+	else
+		gameObject.Bounds = box;
+
+
+	if (Transform* root = transform.RootParent)
+	{
+		box.Transform(box, transform.scale.x, transform.rotation, transform.position);
+		if (root->gameObject.Bounds.Center.x < Mathf::FLOAT_MAX)
+		{
+			BoundingBox::CreateMerged(root->gameObject.Bounds, root->gameObject.Bounds, box);
+		}
+		else
+			root->gameObject.Bounds = box;
+	}
+
 	vertices.clear();
 	indices.clear();
 }
