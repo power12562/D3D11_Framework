@@ -331,11 +331,9 @@ void D3DRenderer::Uninit()
 
 void D3DRenderer::reserveRenderQueue(size_t size)
 {
-    opaquerenderOueue.clear();
     opaquerenderOueue.reserve(size);
-
-    alphaRenderQueue.clear();
     alphaRenderQueue.reserve(size);
+    transformUpdateList.reserve(size);
 }
 
 void D3DRenderer::SetDefaultOMState()
@@ -413,6 +411,7 @@ void D3DRenderer::BegineDraw()
 {   
     //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
+    mainCam->transform.UpdateTransform();
     if (!DebugLockCameraFrustum)
     {
         cullingIVM  = mainCam->GetIVM();
@@ -434,9 +433,9 @@ void D3DRenderer::BegineDraw()
             mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
 
         constexpr float lightScale =  1.5f;
-        constexpr float lightNear = 0.1f;
+        constexpr float lightNear = 1.f;
         float lightFar = mainCam->Far * lightScale;
-        float lightHalfFar = lightFar * 0.5f;
+        float lightHalfFar = mainCam->Far * 0.5f;
 
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
@@ -508,8 +507,8 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
 static const Transform* prevTransform = nullptr; //¸¶Áö¸·À¸·Î ÂüÁ¶ÇÑ Trnasform
 void D3DRenderer::EndDraw()
 {
-    //Texture sort
-    auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {
+    //Texture sort and Transform update
+    auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {            
             uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[0]);
             uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[0]);
             return textureA < textureB;    
@@ -520,7 +519,6 @@ void D3DRenderer::EndDraw()
     //Shadow Map Pass
     {
         prevTransform = nullptr;
-
         ID3D11ShaderResourceView* nullSRV = nullptr;
         for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
         {
@@ -539,10 +537,12 @@ void D3DRenderer::EndDraw()
             pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i] ); //·»´õÅ¸°Ù ¼³Á¤
             for (auto& item : opaquerenderOueue)
             {
+                CheckUpdateTransform(item.pTransform);
                 RenderShadowMap(item);
             }
             for (auto& item : alphaRenderQueue)
             {
+                CheckUpdateTransform(item.pTransform);
                 RenderShadowMap(item);
             }
         }
@@ -551,7 +551,6 @@ void D3DRenderer::EndDraw()
     //Render pass
     {
         prevTransform = nullptr;
-
         pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
         pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
         pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //¼¨µµ¿ì¸Ê
@@ -572,16 +571,35 @@ void D3DRenderer::EndDraw()
         }
     }
 
+    //debug
+    DrawDebug();
+
+    //clear renderQueue
     DrawCallCount = opaquerenderOueue.size() + alphaRenderQueue.size();
     opaquerenderOueue.clear();
     alphaRenderQueue.clear();
 
-    DrawDebug();
+    //flag reset
+    for (auto& item : transformUpdateList)
+    {
+        item->ResetFlagUpdateWM();      
+    }
+    transformUpdateList.clear();
 }
 
 void D3DRenderer::Present()
 {
 	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
+}
+
+void D3DRenderer::CheckUpdateTransform(const Transform* pTransform)
+{
+    if (!pTransform->IsUpdateWM())
+    {
+        Transform* transform = const_cast<Transform*>(pTransform);
+        transform->UpdateTransform();
+        transformUpdateList.push_back(transform->RootParent ? transform->RootParent : transform);
+    }
 }
 
 void D3DRenderer::DrawDebug()
@@ -613,12 +631,14 @@ void D3DRenderer::DrawDebug()
     }
     if(DebugDrawObjectCullingBox)
     {
-        for (auto& obj : sceneManager.GetObjectList())
+        for (auto& desc : opaquerenderOueue)
+        {            
+            DirectX::BoundingOrientedBox bounds = desc.pTransform->gameObject.GetOBBToWorld();
+            DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
+        }
+        for (auto& desc : alphaRenderQueue)
         {
-            if (!obj->Active || typeid(*obj) == typeid(CameraObject))
-                continue;
-            
-            DirectX::BoundingOrientedBox bounds = obj->GetOBBToWorld();
+            DirectX::BoundingOrientedBox bounds = desc.pTransform->gameObject.GetOBBToWorld();
             DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
         }
     }

@@ -69,7 +69,6 @@ private:
 	void FixedUpdateScene();
 	void UpdateScene();
 	void LateUpdateScene();
-	void UpdateTransformScene();
 
 	//Render
 	void RenderScene();

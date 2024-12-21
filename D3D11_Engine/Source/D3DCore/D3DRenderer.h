@@ -93,6 +93,9 @@ public:
 	void EndDraw();
 	void Present();
 
+private:
+	void CheckUpdateTransform(const Transform* pTransform);
+	std::vector<Transform*> transformUpdateList;
 public:
 	std::vector<D3D11_VIEWPORT> ViewPortsVec;				// 뷰포트들
 	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
@@ -126,6 +129,7 @@ private:
 	std::unique_ptr<DirectX::DX11::BasicEffect> pBasicEffect;
 	std::vector<std::tuple<const DirectX::SimpleMath::Matrix*, const DirectX::SimpleMath::Matrix*>> debugFrustumVec;
 	void DrawDebug();
+
 public:
 	DirectX::SimpleMath::Matrix cullingIVM;	   //카메라 월드
 	DirectX::SimpleMath::Matrix cullingView;	   //카메라 뷰

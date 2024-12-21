@@ -60,17 +60,6 @@ void Scene::LateUpdate()
 	}
 }
 
-void Scene::UpdateTransform()
-{
-	for (auto& obj : objectList)
-	{
-		if (obj && obj->Active)
-		{
-			obj->transform.UpdateTransform();
-		}
-	}
-}
-
 void Scene::Render()
 {
 	d3dRenderer.BegineDraw();	

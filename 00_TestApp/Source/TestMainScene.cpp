@@ -1,7 +1,6 @@
 #include "TestMainScene.h"
 #include <framework.h>
-
-#include "../../11_IBL/Source/IBLTestScene.h"
+#include "TestAppManagerObject.h"
 
 TestMainScene::TestMainScene()
 {
@@ -35,7 +34,7 @@ void TestMainScene::Start()
     dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
     dancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
-    auto chara = NewGameObject(L"char");
+    chara = NewGameObject(L"char");
     auto initMeshChar = [this](MeshRender* mesh)
         {
             PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
@@ -46,7 +45,8 @@ void TestMainScene::Start()
     chara->transform.position = Vector3(10.0f, 0.f, 0.f);
     chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
-    GameObject::DontDestroyOnLoad(chara);
+    auto Manager = NewGameObject<TestAppManagerObject>(L"TestAppManager");
+    GameObject::DontDestroyOnLoad(Manager);
 }
 
 
@@ -137,18 +137,5 @@ void TestMainScene::ImGUIRender()
             id++;
         }
         ImGui::End();
-    }
-}
-
-void TestMainScene::OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker, const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker)
-{
-    if (KeyState.IsKeyDown(Keyboard::F1))
-    {
-        sceneManager.LoadScene<IBLTestScene>();
-    }
-
-    if (KeyState.IsKeyDown(Keyboard::Escape))
-    {
-        D3D11_GameApp::GameEnd();
     }
 }

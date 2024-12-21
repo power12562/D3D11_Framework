@@ -200,11 +200,6 @@ void SceneManager::LateUpdateScene()
 	currScene->LateUpdate();
 }
 
-void SceneManager::UpdateTransformScene()
-{
-	currScene->UpdateTransform();
-}
-
 void SceneManager::RenderScene()
 {
 	if(Camera::GetMainCamera())
@@ -217,6 +212,8 @@ void SceneManager::AddObjects()
 	{
 		auto obj = currAddQueue.front();
 		AddObjectCurrScene(obj);
+		obj->transform.UpdateTransform();
+		obj->transform.ResetFlagUpdateWM();	
 		currAddQueue.pop();
 	}
 }
@@ -251,8 +248,9 @@ void SceneManager::ChangeScene()
 		}
 		if (currScene)
 		{
+			currScene->ClearResouceObj();
 			std::erase_if(currScene->dontdestroyonloadList, [](std::weak_ptr<GameObject> ptr) {return ptr.expired(); });
-			if (nextScene->dontdestroyonloadList.empty())
+			if (!currScene->dontdestroyonloadList.empty())
 			{
 				nextScene->dontdestroyonloadList = std::move(currScene->dontdestroyonloadList);
 				for (auto& weakptr : nextScene->dontdestroyonloadList)

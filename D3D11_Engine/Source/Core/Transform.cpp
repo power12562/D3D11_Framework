@@ -1,6 +1,7 @@
 #include "Transform.h"
 #include <Math/Mathf.h>
 #include <GameObject/Base/GameObject.h>	
+#include <D3DCore/D3DRenderer.h>
 				
 Transform::Transform()
 {
@@ -216,7 +217,7 @@ Transform* Transform::GetChild(unsigned int index)
 }
 
 void Transform::UpdateTransform()
-{
+{	
 	if (parent == nullptr)
 	{
 		_WM = DirectX::XMMatrixScalingFromVector(scale) *
@@ -224,6 +225,11 @@ void Transform::UpdateTransform()
 			DirectX::XMMatrixTranslationFromVector(position);
 
 		UpdateChildTransform();
+		isUpdateWM = true;
+	}
+	else
+	{
+		rootParent->UpdateTransform();
 	}
 }
 

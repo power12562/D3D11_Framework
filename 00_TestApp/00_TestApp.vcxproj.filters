@@ -10,7 +10,10 @@
     <ClCompile Include="Source\TestMainScene.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\11_IBL\Source\IBLTestScene.cpp">
+    <ClCompile Include="Source\TestAppManagerObject.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\12_Shadow\Source\ShadowTestScene.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -21,7 +24,10 @@
     <ClInclude Include="Source\TestMainScene.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\11_IBL\Source\IBLTestScene.h">
+    <ClInclude Include="Source\TestAppManagerObject.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\12_Shadow\Source\ShadowTestScene.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

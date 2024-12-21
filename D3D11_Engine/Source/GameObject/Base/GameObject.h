@@ -16,6 +16,10 @@ class GameObject
 	friend class SceneManager;
 	friend class D3DRenderer;
 public:
+	GameObject();
+	virtual ~GameObject();
+
+public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);
 	static void DontDestroyOnLoad(GameObject& obj);
@@ -25,21 +29,22 @@ public:
 	inline static ObjectType* NewGameObject(const wchar_t* name);
 
 public:
-	GameObject(); 
-	virtual ~GameObject();
-
-public:
 	unsigned int GetInstanceID() const { return instanceID; }
 	const std::wstring& GetName() const { return name; }
 	const std::wstring& SetName(const wchar_t* _name);
 	std::string GetNameToString() const;
+private:
+	std::wstring name;
+	unsigned int instanceID = -1;
+
 public:
-	/*오브젝트 이름. (중복 가능)*/
-	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;
 	Transform transform;
 	bool Active = true;
 
 public:
+	/*오브젝트 이름. (중복 가능)*/
+	_declspec (property(get = GetName, put = SetName)) std::wstring& Name;
+
 	/*컴포넌트 추가*/
 	template <typename T>
 	T& AddComponent();
@@ -75,27 +80,17 @@ private:
 	void Update();
 	void LateUpdate();
 	void Render();
-
 private:
 	std::vector<std::unique_ptr<Component>> componentList;
 	std::vector<RenderComponent*> renderList;
-
-private:
-	unsigned int instanceID = -1;
-	std::wstring name;
-	bool isCulling = false; //이번 프레임 카메라 컬링 여부
-
-private:
-	void UpdateChildActive(Transform* rootTransform);
-
 public:
 	std::weak_ptr<GameObject> GetWeakPtr() { return myptr; }
 private:
 	std::weak_ptr<GameObject> myptr;
-
-private:
+	bool isCulling = false; //이번 프레임 카메라 컬링 여부
 	bool checkActive = true;
 	inline bool CheckActive() const { return checkActive != Active; }
+	void UpdateChildActive(Transform* rootTransform);
 };
 
 template<typename T>

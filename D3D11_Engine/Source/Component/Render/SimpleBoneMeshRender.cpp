@@ -60,22 +60,24 @@ void SimpleBoneMeshRender::Render()
 {
 	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer)
 	{
-		Matrix temp{};
-		for (int i = 0; i < boneList.size(); i++)
-		{
-			temp = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
-
-			matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(temp);
-
-			temp = XMMatrixInverse(nullptr, temp);
-			temp = Utility::XMMatrixIsNaN(temp) ? Matrix() : temp;
-			boneWIT.BoneWIT[i] = temp;
-		}
-		const auto& pDeviceContext = d3dRenderer.GetDeviceContext();
 		if (IsVSShader() && IsPSShader())
 		{
 			RENDERER_DRAW_DESC desc = GetRendererDesc();
 			d3dRenderer.DrawIndex(desc);
+		}
+
+		if (gameObject.IsCameraCulling())
+		{
+			Matrix temp{};
+			for (int i = 0; i < boneList.size(); i++)
+			{
+				temp = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
+				matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(temp);
+
+				temp = XMMatrixInverse(nullptr, temp);
+				temp = Utility::XMMatrixIsNaN(temp) ? Matrix() : temp;
+				boneWIT.BoneWIT[i] = temp;
+			}
 		}
 	}
 	else

@@ -51,7 +51,6 @@ private:
 	void FixedUpdate();
 	void Update();
 	void LateUpdate();
-	void UpdateTransform();
 
 	//Render
 	void Render();

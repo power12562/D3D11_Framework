@@ -57,6 +57,12 @@ public:
 	Vector3 GetFront();
 	__declspec(property(get = GetFront)) Vector3 Front;
 
+	/*이번 프레임 WM 업데이트 여부*/
+	inline bool IsUpdateWM() const { return rootParent ? rootParent->isUpdateWM : isUpdateWM; }
+
+	/** isUpdateWM 플래그 초기화*/
+	inline void ResetFlagUpdateWM() { rootParent ? rootParent->isUpdateWM = false : isUpdateWM = false; }
+
 	/**Get world matrix*/
 	const Matrix& GetWM() const { return _WM; }
 
@@ -84,6 +90,7 @@ public:
 public:
 	/*Transform 정보로 메트릭스를 업데이트합니다.*/
 	void UpdateTransform();
+
 private:
 	void UpdateChildTransform();
 
@@ -112,5 +119,7 @@ private:
 private:
 	Matrix _WM{};
 	Matrix _LM{};
-	Matrix _rotationMatrix{};
+
+private:
+	bool isUpdateWM = false;
 };

@@ -125,7 +125,6 @@ void D3D11_GameApp::Update()
 	}
 	sceneManager.UpdateScene();
 	sceneManager.LateUpdateScene();
-	sceneManager.UpdateTransformScene();
 }
 
 void D3D11_GameApp::Render()

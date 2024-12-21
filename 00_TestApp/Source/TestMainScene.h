@@ -8,7 +8,7 @@
 #include <Manager/GameObjectFactory.h>
 
 class Camera;
-class TestMainScene : public Scene, public InputProcesser
+class TestMainScene : public Scene
 {
 public:
 	TestMainScene();
@@ -20,11 +20,8 @@ private:
 	GameObject* mainCam = nullptr;
 	Camera* camera = nullptr;
 	float* pCamSpeed = nullptr;
+	GameObject* chara = nullptr;
 
 	std::shared_ptr<cb_BlingPhongMaterial> material;
 	std::map<std::string, GameObject*> charObjectList;
-
-public:
-	void OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker,
-		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker) override;
 };

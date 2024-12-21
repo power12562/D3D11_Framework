@@ -12,7 +12,10 @@ SkyBoxRender* SkyBoxRender::GetMainSkyBox()
 
 SkyBoxRender::~SkyBoxRender()
 {
-   
+    if (mainSkyBox == this)
+    {
+        mainSkyBox = nullptr;
+    }
 }
 
 void SkyBoxRender::Start()
