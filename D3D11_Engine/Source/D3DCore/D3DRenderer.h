@@ -130,10 +130,12 @@ private:
 	std::vector<std::tuple<const DirectX::SimpleMath::Matrix*, const DirectX::SimpleMath::Matrix*>> debugFrustumVec;
 	void DrawDebug();
 
-public:
+private:
 	DirectX::SimpleMath::Matrix cullingIVM;	   //카메라 월드
 	DirectX::SimpleMath::Matrix cullingView;	   //카메라 뷰
 	DirectX::SimpleMath::Matrix cullingProjection; //카메라 투영
+
+public:
 	bool DebugDrawLightFrustum = false;
 	bool DebugDrawObjectCullingBox = false;
 	bool DebugDrawCameraFrustum = false;

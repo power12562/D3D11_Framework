@@ -95,6 +95,12 @@ void TestMainScene::ImGUIRender()
     }
     ImGui::End();
 
+    ImGui::Begin("D3DRenderer");
+    {
+        ImGui::EditD3DRenderer();
+    }
+    ImGui::End();
+
     ImGui::Begin("Lights");
     {
         ImGui::EditLight(&DirectionalLight::DirectionalLights);

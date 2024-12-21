@@ -31,7 +31,11 @@ namespace ImGui
 	void ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags = 0);
 
 	void EditHierarchyView();
+
+	void EditD3DRenderer();
+
 	void EditTransform(GameObject* gameObject);
+
 	void EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCameraMoveHelper = nullptr);
 
 	void EditMaterial(const char* label, cb_PBRMaterial* Material);

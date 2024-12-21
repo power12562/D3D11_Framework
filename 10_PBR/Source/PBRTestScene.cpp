@@ -71,14 +71,7 @@ void PBRTestScene::Start()
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 
-	//Copy Test
-	//auto charater2 = NewGameObject(L"charater2");
-	//Utility::LoadFBX(L"Resource/char/char.fbx", *charater2, false, SURFACE_TYPE::PBR);
-	//charater2->transform.position += Vector3::Right * 20.f;
-	//charater2->transform.rotation = Vector3::Up * 23.f;
-	//charater2->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
-
-	auto Sphere = NewGameObject<SphereObject>(L"Sphere");
+	SphereObject* Sphere = (SphereObject*)gameObjectFactory.NewGameObjectToKey(typeid(SphereObject).name())(L"Sphere");
 	Sphere->transform.position += Vector3::Up * 15.f;
 	{
 		sphereMaterial = &Sphere->Material;

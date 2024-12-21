@@ -2,6 +2,7 @@
 #include "Math\Mathf.h"
 
 #include <framework.h>
+#include <D3DCore/D3DRenderer.h>
 
 #include <unordered_map>
 #include <string>
@@ -151,6 +152,25 @@ void ImGui::EditHierarchyView()
 		if(object->transform.Parent == nullptr)
 			TransformBFS(&object->transform);
 	}
+}
+
+void ImGui::EditD3DRenderer()
+{
+	ImGui::PushID(g_id);
+	ImGui::Text("D3DRenderer");
+	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
+	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugLockCameraFrustum);
+	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugDrawCameraFrustum);
+	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
+	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugDrawObjectCullingBox);
+	ImGui::Text("Setting");
+	ImGui::Checkbox("VSync", &d3dRenderer.setting.UseVSync);
+	if (ImGui::Button("Toggle Fullscreen"))
+		d3dRenderer.ToggleFullscreenMode();
+
+	ImGui::Text("");
+	ImGui::PopID();
+	g_id++;
 }
 
 void ImGui::EditTransform(GameObject* gameObject)
