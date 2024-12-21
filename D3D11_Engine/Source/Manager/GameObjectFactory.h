@@ -8,7 +8,7 @@
 /*오브젝트 클래스 선언시 다음 매크로 포함*/
 #define SERIALIZED_OBJECT(TypeName)	\
 friend class GameObjectFactory;	\
-inline static bool TypeName##FactoryInit = gameObjectFactory.AddNewObjectFuntion<TypeName>();
+inline static bool TypeName##FactoryInit = gameObjectFactory.AddNewObjectFuntion<TypeName>(); \
 
 class GameObject;
 class GameObjectFactory;
@@ -18,10 +18,11 @@ class GameObjectFactory : public TSingleton<GameObjectFactory>
 {
 	friend class TSingleton;
     inline static std::map<std::string, std::function<GameObject*(const wchar_t* name)>> newGameObjectFuncMap;
+	inline static size_t MaxSizeGameObjectClass = 0;
+	inline static std::string MaxSizeGameObjectClassName;
 private:
 	GameObjectFactory() = default;
 	~GameObjectFactory() = default;
-
 public:
 	template<typename T>
 	bool AddNewObjectFuntion()
@@ -31,8 +32,12 @@ public:
 
 		auto func = [](const wchar_t* name) { return NewGameObject<T>(name); };
 		newGameObjectFuncMap[key] = func;
+		if (MaxSizeGameObjectClass < sizeof(T))
+		{
+			MaxSizeGameObjectClass = sizeof(T);
+			MaxSizeGameObjectClassName = key;
+		}	
 		return true;
 	}
-
 	std::function<GameObject*(const wchar_t* name)>& NewGameObjectToKey(const char* key);
 };
