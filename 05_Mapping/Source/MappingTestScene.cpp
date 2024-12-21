@@ -9,7 +9,7 @@
 #include "../Source/LightManager.h"
 #include "../Source/MappingCubeObject.h"
 
-MappingTestScene::MappingTestScene()
+void MappingTestScene::Start()
 {
 	UseImGUI = true;
 

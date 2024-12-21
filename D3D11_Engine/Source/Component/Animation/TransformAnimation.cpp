@@ -24,6 +24,15 @@ bool TransformAnimation::PlayClip(const wchar_t* clipName, bool _isLoop)
 		currClip = &findIter->second;
 		isPause = false;
 		isLoop = _isLoop;
+
+		//첫프레임은 Matrix 바로 갱신
+		elapsedTime = currClip->TickTime * TimeSystem::Time.DeltaTime;
+		for (auto& nodeAni : currClip->nodeAnimations)
+		{
+			nodeAni.Evaluate(elapsedTime);
+		}
+		transform.UpdateTransform();
+		transform.ResetFlagUpdateWM();
 		return true;
 	}
 	else

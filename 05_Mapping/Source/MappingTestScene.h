@@ -3,8 +3,9 @@
 class MappingTestScene : public Scene
 {
 public:
-	MappingTestScene();
+	MappingTestScene() = default;
 	virtual	~MappingTestScene() override;
+	virtual void Start() override;
 
 	void ImGUIRender() override;
 

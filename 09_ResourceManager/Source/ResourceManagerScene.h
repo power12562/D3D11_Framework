@@ -7,9 +7,9 @@ struct cb_BlingPhongMaterial;
 class ResourceManagerScene : public Scene
 {
 public:
-	ResourceManagerScene();
+	ResourceManagerScene() = default;
 	virtual ~ResourceManagerScene() override;
-
+	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
 

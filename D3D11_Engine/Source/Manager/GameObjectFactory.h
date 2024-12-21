@@ -4,11 +4,12 @@
 #include <map>
 #include <string>
 #include <functional>
+#include <Core/StaticBlockMemoryPool.h>
 
 /*오브젝트 클래스 선언시 다음 매크로 포함*/
 #define SERIALIZED_OBJECT(TypeName)	\
 friend class GameObjectFactory;	\
-inline static bool TypeName##FactoryInit = gameObjectFactory.AddNewObjectFuntion<TypeName>(); \
+inline static bool TypeName##FactoryInit = GameObjectFactory::AddNewObjectFuntion<TypeName>(); \
 
 class GameObject;
 class GameObjectFactory;
@@ -18,26 +19,38 @@ class GameObjectFactory : public TSingleton<GameObjectFactory>
 {
 	friend class TSingleton;
     inline static std::map<std::string, std::function<GameObject*(const wchar_t* name)>> newGameObjectFuncMap;
-	inline static size_t MaxSizeGameObjectClass = 0;
+	inline static size_t MaxGameObjectClassSize = 0;
 	inline static std::string MaxSizeGameObjectClassName;
-private:
-	GameObjectFactory() = default;
-	~GameObjectFactory() = default;
 public:
+	//게임 오브젝트 커스텀 딜리터
+	static void GameObjectDeleter(GameObject* pObj);
+
 	template<typename T>
-	bool AddNewObjectFuntion()
+	static bool AddNewObjectFuntion()
 	{
 		static_assert(std::is_base_of_v<GameObject, T>, "T is not gameObject");
 		std::string key = typeid(T).name();
 
 		auto func = [](const wchar_t* name) { return NewGameObject<T>(name); };
 		newGameObjectFuncMap[key] = func;
-		if (MaxSizeGameObjectClass < sizeof(T))
+		if (MaxGameObjectClassSize < sizeof(T))
 		{
-			MaxSizeGameObjectClass = sizeof(T);
+			MaxGameObjectClassSize = sizeof(T);
 			MaxSizeGameObjectClassName = key;
-		}	
+		}
 		return true;
 	}
+
+private:
+	GameObjectFactory() = default;
+	~GameObjectFactory() override;
+
+public:
+	void Initialize();
+	void* GameObjectAlloc(size_t id);
 	std::function<GameObject*(const wchar_t* name)>& NewGameObjectToKey(const char* key);
+
+private:
+	StaticBlockMemoryPool gameObjectMemoryPool;
 };
+

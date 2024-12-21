@@ -116,6 +116,7 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
+	gameObjectFactory.Initialize();
 	DXTKinputSystem.Initialize(GetHWND());
 
 	if (sceneManager.nextScene == nullptr)

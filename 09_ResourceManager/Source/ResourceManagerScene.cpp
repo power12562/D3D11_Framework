@@ -15,7 +15,7 @@
 #include <Core/TimeSystem.h>
 
 #pragma warning(disable : 4305)
-ResourceManagerScene::ResourceManagerScene()
+void ResourceManagerScene::Start()
 {
 	UseImGUI = true;
 

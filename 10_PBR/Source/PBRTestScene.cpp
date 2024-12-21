@@ -19,7 +19,7 @@ struct alignas(16) cb_bool
 cb_bool testBool;
 
 #pragma warning(disable : 4305)
-PBRTestScene::PBRTestScene()
+void PBRTestScene::Start()
 {
 	D3D11_RASTERIZER_DESC rasterDesc;
 	ZeroMemory(&rasterDesc, sizeof(rasterDesc));

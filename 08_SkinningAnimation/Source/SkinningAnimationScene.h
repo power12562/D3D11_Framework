@@ -5,9 +5,9 @@ struct cb_BlingPhongMaterial;
 class SkinningAnimationScene : public Scene
 {
 public:
-	SkinningAnimationScene();
+	SkinningAnimationScene() = default;
 	virtual ~SkinningAnimationScene() override;
-
+	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
 

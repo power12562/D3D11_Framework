@@ -9,9 +9,10 @@ class SimpleMaterial;
 class PBRTestScene : public Scene
 {
 public:
-	PBRTestScene();
+	PBRTestScene() = default;
 	virtual ~PBRTestScene() override;
 
+	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
 

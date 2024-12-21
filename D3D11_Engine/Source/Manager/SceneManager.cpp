@@ -210,7 +210,7 @@ void SceneManager::AddObjects()
 {
 	while (!currAddQueue.empty())
 	{
-		auto obj = currAddQueue.front();
+		auto& obj = currAddQueue.front();
 		AddObjectCurrScene(obj);
 		obj->transform.UpdateTransform();
 		obj->transform.ResetFlagUpdateWM();	
@@ -330,7 +330,7 @@ unsigned int SceneManager::EraseObjectFindMap(GameObject* obj)
 	if (findIter == objectFindMap.end())
 		return -1;
 
-	int index = obj->GetInstanceID();
+	unsigned int index = obj->GetInstanceID();
 	findIter->second.erase(obj->GetInstanceID()); //맵에서 삭제
 
 	return index;

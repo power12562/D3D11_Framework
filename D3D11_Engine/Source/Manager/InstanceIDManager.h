@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <unordered_set>
+#include <set>
 #include <queue>
 #include <Core/TSingleton.h>
 
@@ -13,7 +13,7 @@ class InstanceIDManager : public TSingleton<InstanceIDManager>
     InstanceIDManager();
     virtual ~InstanceIDManager() override;
 private:
-    std::unordered_set<unsigned int> activeIDs;  // 사용 중인 ID를 추적
+    std::set<unsigned int> activeIDs;  // 사용 중인 ID를 추적
     std::queue<unsigned int> availableIDs;       // 재사용 가능한 ID 목록
     unsigned int nextID = 0;
 public:

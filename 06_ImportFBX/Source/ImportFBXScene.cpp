@@ -60,7 +60,7 @@ void AddUpdateCbufferAllChild(GameObject* root)
 	}
 }
 
-ImportFBXScene::ImportFBXScene()
+void ImportFBXScene::Start()
 {
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0.5, 0.5, 0.5, 1);

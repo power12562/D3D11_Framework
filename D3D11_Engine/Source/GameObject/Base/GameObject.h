@@ -168,13 +168,26 @@ inline ObjectType* GameObject::NewGameObject(const wchar_t* name)
 {
 	static_assert(std::is_base_of_v<GameObject, ObjectType>, "is not gameObject");
 
-	std::shared_ptr<ObjectType> newObject = std::make_shared<ObjectType>();
-	std::shared_ptr<GameObject> baseObject = std::static_pointer_cast<GameObject>(newObject);
-	baseObject->Name = name;
-	baseObject->instanceID = instanceIDManager.getUniqueID();
-	baseObject->myptr = baseObject;
+	unsigned int id = instanceIDManager.getUniqueID();
+	void* pointer = gameObjectFactory.GameObjectAlloc(id);
+	if (pointer)
+	{
+		//이미 할당된 메모리에서 생성자 호출 (placement new)
+		ObjectType* pObject = new(pointer)ObjectType();
 
-	sceneManager.AddGameObject(baseObject);
+		std::shared_ptr<ObjectType> newObject(pObject, GameObjectFactory::GameObjectDeleter);
+		std::shared_ptr<GameObject> baseObject = std::static_pointer_cast<GameObject>(newObject);
 
-	return newObject.get();
+		baseObject->Name = name;
+		baseObject->instanceID = id;
+		baseObject->myptr = baseObject;
+
+		sceneManager.AddGameObject(baseObject);
+		return newObject.get();
+	}
+	else
+	{
+		__debugbreak();
+		return nullptr;
+	}
 }

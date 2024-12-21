@@ -4,9 +4,9 @@
 class ImportFBXScene : public Scene
 {
 public:
-	ImportFBXScene();
+	ImportFBXScene() = default;
 	virtual ~ImportFBXScene() override;
-
+	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
 

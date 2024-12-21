@@ -4,7 +4,7 @@ InstanceIDManager& instanceIDManager = InstanceIDManager::GetInstance();
 
 InstanceIDManager::InstanceIDManager()
 {
-
+  
 }
 
 InstanceIDManager::~InstanceIDManager()

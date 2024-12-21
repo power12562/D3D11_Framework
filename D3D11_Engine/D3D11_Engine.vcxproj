@@ -163,6 +163,7 @@
     <ClInclude Include="Source\Component\Render\SimpleBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\SkyBoxRender.h" />
     <ClInclude Include="Source\Component\Animation\TransformAnimation.h" />
+    <ClInclude Include="Source\Core\StaticBlockMemoryPool.h" />
     <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\D3DCore\D3DSamplerState.h" />
     <ClInclude Include="Source\D3DCore\D3DTexture2D.h" />
@@ -221,6 +222,7 @@
     <ClCompile Include="Source\Component\Render\SimpleBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\SkyBoxRender.cpp" />
     <ClCompile Include="Source\Component\Animation\TransformAnimation.cpp" />
+    <ClCompile Include="Source\Core\StaticBlockMemoryPool.cpp" />
     <ClCompile Include="Source\D3DCore\D3DSamplerState.cpp" />
     <ClCompile Include="Source\D3DCore\D3DTexture2D.cpp" />
     <ClCompile Include="Source\Manager\GameObjectFactory.cpp" />

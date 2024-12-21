@@ -13,7 +13,7 @@
 #include <Material/BlingPhongMaterial.h>
 
 #pragma warning(disable : 4305)
-SkinningAnimationScene::SkinningAnimationScene()
+void SkinningAnimationScene::Start()
 {
 	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
 

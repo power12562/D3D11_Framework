@@ -5,9 +5,9 @@
 class TransAnimationScene : public Scene
 {
 public:
-	TransAnimationScene();
+	TransAnimationScene() = default;
 	virtual ~TransAnimationScene() override;
-
+	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
 
