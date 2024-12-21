@@ -432,18 +432,16 @@ void D3DRenderer::BegineDraw()
         Vector3 frustumCenter = mainCam->transform.position +
             mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
 
-        constexpr float lightScale =  1.5f;
         constexpr float lightNear = 1.f;
-        float lightFar = mainCam->Far * lightScale;
-        float lightHalfFar = mainCam->Far * 0.5f;
-
+        float lightFar = mainCam->Far * 1.5f;
+        float camHalfFar = mainCam->Far * 0.5f;
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
             Vector3 lightDir; 
             DirectionalLights.Lights[i].LightDir.Normalize(lightDir);
  
             //Light View 생성
-            XMVECTOR lightPos = XMVectorSubtract(XMLoadFloat3(&frustumCenter), XMLoadFloat3(&lightDir) * lightHalfFar);
+            XMVECTOR lightPos = XMVectorSubtract(XMLoadFloat3(&frustumCenter), XMLoadFloat3(&lightDir) * camHalfFar);
 			bool isNan = std::abs(lightDir.x) < Mathf::Epsilon && std::abs(lightDir.z) < Mathf::Epsilon;
 			if (lightDir.Length() < Mathf::Epsilon)
 			{
@@ -507,7 +505,7 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
-    //Texture sort and Transform update
+    //Texture sort
     auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {            
             uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[0]);
             uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[0]);
@@ -666,8 +664,8 @@ bool D3DRenderer::CheckFrustumCulling(GameObject* obj) const
 {
     BoundingOrientedBox OB;
     OB = obj->GetOBBToWorld();
-    DirectX::BoundingFrustum cameraFrustum(cullingProjection);
-    cameraFrustum.Transform(cameraFrustum, (cullingIVM));
+    BoundingFrustum cameraFrustum(cullingProjection);
+    cameraFrustum.Transform(cameraFrustum, cullingIVM);
 
     return cameraFrustum.Intersects(OB);
 }
@@ -973,6 +971,7 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
             }
         }
 
+        
         DXGI_MODE_DESC modeDesc{};
         modeDesc.Width = swapChainDesc->Width;
         modeDesc.Height = swapChainDesc->Height;

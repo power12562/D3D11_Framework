@@ -53,7 +53,7 @@ void TestMainScene::Start()
 void TestMainScene::ImGUIRender()
 {
     static bool showCharEdit = false;
-    ImGui::Begin("Debug");
+    ImGui::Begin("Debug Window");
     {
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
         ImGui::DragVector3("Camera Position", &mainCam->transform.position);

@@ -69,6 +69,16 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	{
 		break;
 	}
+
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_INACTIVE) 
+		{
+			if (!d3dRenderer.IsSwapChainWindowed())
+			{
+				d3dRenderer.ToggleFullscreenMode();
+			}
+		}
+		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

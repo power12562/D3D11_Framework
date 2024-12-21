@@ -4,6 +4,14 @@
 
 TestAppManagerObject::TestAppManagerObject()
 {
+    if (instance)
+    {
+        GameObject::Destroy(this);
+    }
+    else
+    {
+        instance = this;
+    }
 }
 
 TestAppManagerObject::~TestAppManagerObject()

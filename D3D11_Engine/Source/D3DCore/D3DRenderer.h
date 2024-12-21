@@ -168,6 +168,9 @@ public:
 
 	//전체화면 <-> 창모드 전환.
 	void ToggleFullscreenMode();
+
+	bool IsSwapChainWindowed() const { return swapChainWindowed; }
+
 private:
 	bool swapChainWindowed = false;
 	const wchar_t* GetDisplayRotationToCWStr(DXGI_MODE_ROTATION rotation);

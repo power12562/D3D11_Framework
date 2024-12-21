@@ -13,5 +13,6 @@ protected:
 		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker) override;
 
 private:
+	inline static TestAppManagerObject* instance = nullptr;
 	bool mainScene = true;
 };

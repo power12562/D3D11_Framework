@@ -22,4 +22,7 @@ private:
 	class SkyBoxObject* skyBox = nullptr;
 	class GameObject* cube = nullptr;
 	void AddObjects(size_t positionZcount);
+
+	size_t positionCountX;
+	size_t positionCountZ;
 };

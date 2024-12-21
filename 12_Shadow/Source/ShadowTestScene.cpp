@@ -5,6 +5,9 @@ constexpr float positionDumpX = 50;
 constexpr float positionDumpZ = 50;
 void ShadowTestScene::Start()
 {
+	positionCountX = 0;
+	positionCountZ = 1;
+
 	Scene::UseImGUI = true;
 	d3dRenderer.DebugDrawObjectCullingBox = true;
 
@@ -110,9 +113,6 @@ void ShadowTestScene::ImGUIRender()
 
 void ShadowTestScene::AddObjects(size_t positionZcount)
 {
-	static size_t positionCountX = 0;
-	static size_t positionCountZ = 1;
-
 	auto pistol = NewGameObject(L"pistol");
 	auto initMesh = [this](MeshRender* mesh)
 		{		
