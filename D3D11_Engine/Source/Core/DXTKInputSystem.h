@@ -45,6 +45,9 @@ public:
 	void Update();
 	void Initialize(HWND hWnd);
 
-	DirectX::Mouse& GetMouse(){ return *mouse; }
+	DirectX::Mouse& GetMouse() { return *mouse; }
+	DirectX::Mouse::ButtonStateTracker& GetMouseStateTracker() { return mouseStateTracker; };
 
+	DirectX::Keyboard& GetKeyboard() { return *keyboard; }
+	DirectX::Keyboard::KeyboardStateTracker& GetKeyboardStateTracker() { return keyboardStateTracker; };
 };

@@ -30,9 +30,4 @@ void TestAppManagerObject::OnInputProcess(const Keyboard::State& KeyState, const
 
         mainScene = !mainScene;
     }
-
-    if (KeyState.IsKeyDown(Keyboard::Escape))
-    {
-        D3D11_GameApp::GameEnd();
-    }
 }

@@ -146,7 +146,7 @@ void ImGui::EditHierarchyView()
 			g_id++;
 		};
 
-	ObjectList& objects = sceneManager.GetObjectList();
+	const ObjectList& objects = sceneManager.GetObjectList();
 	for (auto& object : objects)
 	{
 		if(object->transform.Parent == nullptr)

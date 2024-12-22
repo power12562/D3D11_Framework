@@ -68,6 +68,9 @@ namespace Utility
 	/*Bounding Box로 OrthographicProjection 생성합니다..*/
 	DirectX::XMMATRIX CreateOrthographicProjection(const DirectX::BoundingBox& boundingBox, float nearPlane, float farPlane);
 
+	/*뷰 및 프로젝션 행렬 왼손 -> 오른손 좌표계로 변환하는 함수.*/
+	void ConvertLHtoRHViewAndProj(const DirectX::XMMATRIX& viewLH, const DirectX::XMMATRIX& projLH, float* viewRH_m16, float* projRH_m16);
+
 	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString);
 }
 

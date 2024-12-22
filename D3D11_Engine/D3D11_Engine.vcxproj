@@ -167,6 +167,12 @@
     <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\D3DCore\D3DSamplerState.h" />
     <ClInclude Include="Source\D3DCore\D3DTexture2D.h" />
+    <ClInclude Include="Source\ImGuizmo\GraphEditor.h" />
+    <ClInclude Include="Source\ImGuizmo\ImCurveEdit.h" />
+    <ClInclude Include="Source\ImGuizmo\ImGradient.h" />
+    <ClInclude Include="Source\ImGuizmo\ImGuizmo.h" />
+    <ClInclude Include="Source\ImGuizmo\ImSequencer.h" />
+    <ClInclude Include="Source\ImGuizmo\ImZoomSlider.h" />
     <ClInclude Include="Source\Manager\GameObjectFactory.h" />
     <ClInclude Include="Source\Manager\ResourceManager.h" />
     <ClInclude Include="Source\Manager\TextureManager.h" />
@@ -225,6 +231,11 @@
     <ClCompile Include="Source\Core\StaticBlockMemoryPool.cpp" />
     <ClCompile Include="Source\D3DCore\D3DSamplerState.cpp" />
     <ClCompile Include="Source\D3DCore\D3DTexture2D.cpp" />
+    <ClCompile Include="Source\ImGuizmo\GraphEditor.cpp" />
+    <ClCompile Include="Source\ImGuizmo\ImCurveEdit.cpp" />
+    <ClCompile Include="Source\ImGuizmo\ImGradient.cpp" />
+    <ClCompile Include="Source\ImGuizmo\ImGuizmo.cpp" />
+    <ClCompile Include="Source\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="Source\Manager\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Manager\TextureManager.cpp" />
     <ClCompile Include="Source\Manager\ResourceManager.cpp" />

@@ -10,7 +10,7 @@
 #include <Scene\Base\Scene.h>
 
 extern class SceneManager& sceneManager;
-using ObjectList = const std::vector<GameObject*>;
+using ObjectList = std::vector<GameObject*>;
 class SceneManager : public TSingleton<SceneManager>
 {
 	friend TSingleton;

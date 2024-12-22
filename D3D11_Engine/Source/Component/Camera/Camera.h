@@ -24,9 +24,12 @@ public:
 	const Matrix& GetVM() const;
 	const Matrix& GetIVM() const;
 	const Matrix& GetPM() const;
+	const Matrix& GetIPM() const;
 
 public:
 	void SetMainCamera() { mainCam = this; }
+	Vector3 ScreenToWorldPoint(float screenX, float screenY, float distance);
+	Ray ScreenPointToRay(int pointX, int pointY);
 
 public:
 	virtual void Start() override;
@@ -39,4 +42,5 @@ private:
 	Matrix view;
 	Matrix inversView;
 	Matrix projection;
+	Matrix inversProjection;
 };

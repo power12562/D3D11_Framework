@@ -9,6 +9,13 @@
 #include <Utility/Console.h>
 #include <Utility/SpinLock.h>
 #include <GameObject/Base/GameObject.h>
+#include <Component/Camera/Camera.h>
+#include <D3DCore/D3D11_GameApp.h>
+#include <Math/Mathf.h>
+#include <GameObject/Base/CameraObject.h>
+#include <Core/DXTKInputSystem.h>
+#include <algorithm>
+#include <ImGuizmo/ImGuizmo.h>
 
 Scene::Scene()
 {
@@ -69,9 +76,11 @@ void Scene::Render()
 			obj->Render();
 	}
 	d3dRenderer.EndDraw();
-	if (UseImGUI && !objectList.empty())
+
+	if (UseImGUI)
 	{
 		ImGUIBegineDraw();
+		ImGuizmoDraw();
 		ImGUIRender();
 		ImGUIEndDraw();
 	}
@@ -87,6 +96,114 @@ void Scene::ImGUIBegineDraw()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+}
+
+void Scene::ImGuizmoDraw()
+{
+	using namespace DirectX::SimpleMath;
+	using namespace DirectX;
+	if (GuizmoSetting.UseImGuizmo == true)
+	{
+		if (Camera* mainCamera = Camera::GetMainCamera())
+		{
+			SIZE clientSize = D3D11_GameApp::GetClientSize();
+			const Matrix& cameraVM = mainCamera->GetVM();
+			const Matrix& cameraPM = mainCamera->GetPM();
+
+			Mouse::ButtonStateTracker& mouseTracker = DXTKinputSystem.GetMouseStateTracker();
+			bool isNotRightClickHELD = mouseTracker.rightButton != Mouse::ButtonStateTracker::HELD;
+			if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD)
+			{			
+				if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
+				{
+					Mouse::State state = DXTKinputSystem.GetMouse().GetState();
+					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);
+					float Dist = 0;
+
+					ObjectList list = sceneManager.GetObjectList();
+					std::sort(list.begin(), list.end(), [mainCamera](GameObject* a, GameObject* b)
+						{
+							auto fastDistance = [](const Vector3& p1, const Vector3& p2) {
+								Vector3 diff = p1 - p2;
+								return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+								};
+							float disA = fastDistance(mainCamera->transform.position, a->transform.position);
+							float disB = fastDistance(mainCamera->transform.position, b->transform.position);
+							return disA < disB;
+						});
+
+					for (auto& obj : list)
+					{
+						if (typeid(CameraObject) == typeid(*obj))
+							continue;
+
+						if (obj->isCulling && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
+						{
+							GuizmoSetting.SelectObject = obj->transform.RootParent ? &obj->transform.RootParent->gameObject : obj;
+							break;
+						}
+					}
+				}
+			}
+
+			if (GuizmoSetting.SelectObject)
+			{
+				ImGuizmo::BeginFrame();
+				ImGuizmo::SetRect(0, 0, (float)clientSize.cx, (float)clientSize.cy);
+				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
+				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
+
+				if (isNotRightClickHELD)
+				{
+					//Draw Guizmo
+					{
+						const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
+						const float* cameraProjection = reinterpret_cast<const float*>(&cameraPM);
+
+						bool isParent = GuizmoSetting.SelectObject->transform.RootParent != nullptr;
+
+						Matrix objMatrix = GuizmoSetting.SelectObject->transform.GetWM();
+						float* pMatrix = reinterpret_cast<float*>(&objMatrix);
+						ImGuizmo::Manipulate(cameraView, cameraProjection, operation, mode, pMatrix);
+
+						Vector3 postion, scale;
+						Quaternion rotation;
+
+						objMatrix.Decompose(scale, rotation, postion);
+						GuizmoSetting.SelectObject->transform.position = postion;
+						GuizmoSetting.SelectObject->transform.rotation = rotation;
+						GuizmoSetting.SelectObject->transform.scale = scale;
+					}
+					
+					Keyboard::KeyboardStateTracker& keyboardTracker = DXTKinputSystem.GetKeyboardStateTracker();
+					if(keyboardTracker.IsKeyPressed(Keyboard::Keys::W))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
+					}
+					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
+					}
+					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::R))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
+					}
+					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::T))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
+					}
+					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::X))
+					{
+						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
+					}
+					if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape))
+					{
+						GuizmoSetting.SelectObject = nullptr;
+					}
+				}
+			}		
+		}
+	}
 }
 
 void Scene::ImGUIEndDraw()

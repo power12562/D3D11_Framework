@@ -5,10 +5,11 @@ constexpr float positionDumpX = 50;
 constexpr float positionDumpZ = 50;
 void ShadowTestScene::Start()
 {
+	Scene::UseImGUI = true;
+
 	positionCountX = 0;
 	positionCountZ = 1;
 
-	Scene::UseImGUI = true;
 	d3dRenderer.DebugDrawObjectCullingBox = true;
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");

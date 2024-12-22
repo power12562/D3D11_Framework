@@ -46,60 +46,67 @@ void CameraMoveHelper::LateUpdate()
 
 void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker, const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker)
 {
-	Vector3 forward = transform.Front;
-	Vector3 right = transform.Right;
+	if (MouseTracker.rightButton == Mouse::ButtonStateTracker::ButtonState::HELD)
+	{
+		Vector3 forward = transform.Front;
+		Vector3 right = transform.Right;
 
-	if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
-	{
-		Reset();
-	}
+		if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
+		{
+			Reset();
+		}
 
-	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::W))
-	{
-		inputVector += forward;
-	}
-	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::S))
-	{
-		inputVector += -forward;
-	}
+		if (KeyState.IsKeyDown(Keyboard::Keys::W))
+		{
+			inputVector += forward;
+		}
+		else if (KeyState.IsKeyDown(Keyboard::Keys::S))
+		{
+			inputVector += -forward;
+		}
 
-	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::A))
-	{
-		inputVector += -right;
-	}
-	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::D))
-	{
-		inputVector += right;
-	}
+		if (KeyState.IsKeyDown(Keyboard::Keys::A))
+		{
+			inputVector += -right;
+		}
+		else if (KeyState.IsKeyDown(Keyboard::Keys::D))
+		{
+			inputVector += right;
+		}
 
-	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::E))
-	{
-		inputVector += -Vector3::Up;
-	}
-	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::Q))
-	{
-		inputVector += Vector3::Up;
-	}
+		if (KeyState.IsKeyDown(Keyboard::Keys::E))
+		{
+			inputVector += -Vector3::Up;
+		}
+		else if (KeyState.IsKeyDown(Keyboard::Keys::Q))
+		{
+			inputVector += Vector3::Up;
+		}
 
-	if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F1))
-	{
-		moveSpeed = 10;
-	}
-	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F2))
-	{
-		moveSpeed = 100;
-	}
-	else if (KeyState.IsKeyDown(DirectX::Keyboard::Keys::F3))
-	{
-		moveSpeed = 1000;
-	}
+		if (KeyState.IsKeyDown(Keyboard::Keys::F1))
+		{
+			moveSpeed = 10;
+		}
+		else if (KeyState.IsKeyDown(Keyboard::Keys::F2))
+		{
+			moveSpeed = 100;
+		}
+		else if (KeyState.IsKeyDown(Keyboard::Keys::F3))
+		{
+			moveSpeed = 1000;
+		}
 
-	DXTKinputSystem.GetMouse().SetMode(MouseState.rightButton ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
-	if (MouseState.positionMode == Mouse::MODE_RELATIVE)
+		DXTKinputSystem.GetMouse().SetMode(Mouse::MODE_RELATIVE);
+		if(MouseState.positionMode == Mouse::MODE_RELATIVE)
+		{
+			Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * Mathf::Deg2Rad;
+			AddPitch(delta.x);
+			AddYaw(delta.y);
+		}
+	}
+	else
 	{
-		Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * Mathf::Deg2Rad;
-		AddPitch(delta.x);
-		AddYaw(delta.y);
+		DXTKinputSystem.GetMouse().SetMode(Mouse::MODE_ABSOLUTE);
 	}
 }
 

@@ -22,11 +22,12 @@ protected:
 
 private:
 	void ImGUIBegineDraw();
+	void ImGuizmoDraw();
 	void ImGUIEndDraw();
 
 public:
 	bool UseImGUI = false;
-
+	
 protected:
 	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
 	void SetResouceObj(const wchar_t* key, GameObject* obj);
@@ -54,4 +55,14 @@ private:
 
 	//Render
 	void Render();
+
+public:
+	inline static struct ImGuizmoSetting
+	{
+		bool UseImGuizmo = false;
+		GameObject* SelectObject = nullptr;
+		int operation = 7;		//ImGuizmo::OPERATION::TRANSLATE
+		int mode = 1;			//ImGuizmo::WORLD
+	}
+	GuizmoSetting;
 };

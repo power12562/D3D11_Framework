@@ -406,6 +406,25 @@ namespace Utility
 		return XMMatrixOrthographicOffCenterLH(left, right, bottom, top, nearPlane, farPlane);
 	}
 
+	void ConvertLHtoRHViewAndProj(const XMMATRIX& viewLH, const XMMATRIX& projLH, float* viewRH_m16, float* projRH_m16)
+	{
+		// Z축 반전 행렬
+		XMMATRIX zFlip = XMMatrixScaling(1.0f, 1.0f, -1.0f);
+
+		// 변환된 오른손 좌표계 행렬
+		XMMATRIX viewRH = viewLH * zFlip;
+		XMMATRIX projRH = projLH * zFlip;
+
+		// 결과를 m16 배열로 저장
+		XMFLOAT4X4 viewMatrixRH, projMatrixRH;
+		XMStoreFloat4x4(&viewMatrixRH, viewRH);
+		XMStoreFloat4x4(&projMatrixRH, projRH);
+
+		// 메모리 복사
+		memcpy(viewRH_m16, &viewMatrixRH, sizeof(float) * 16);
+		memcpy(projRH_m16, &projMatrixRH, sizeof(float) * 16);
+	}
+
 	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString)
 	{
 		if (flieString.compare(L".tga") == 0)

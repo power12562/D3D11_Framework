@@ -4,12 +4,14 @@
 
 TestMainScene::TestMainScene()
 {
+    Scene::UseImGUI = true;
+    GuizmoSetting.UseImGuizmo = true;
+
     D3D11_RASTERIZER_DESC rasterDesc{};
     rasterDesc.FillMode = D3D11_FILL_SOLID;
     rasterDesc.CullMode = D3D11_CULL_BACK;
     d3dRenderer.SetRRState(rasterDesc);
 
-	Scene::UseImGUI = true;
     d3dRenderer.backgroundColor = { 1.f,1.f,1.f,1.f };
 
     material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
@@ -25,7 +27,7 @@ void TestMainScene::Start()
     camera = &mainCam->GetComponent<Camera>();
     camera->SetMainCamera();
     mainCam->transform.position = Vector3(0.f, 15.f, -23.f);
-    mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
+    //mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
