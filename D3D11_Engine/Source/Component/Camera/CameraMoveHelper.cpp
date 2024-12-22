@@ -5,7 +5,7 @@
 CameraMoveHelper::CameraMoveHelper()
 {
 	rotSpeed = 0.1f;
-	moveSpeed = 10.0f;
+	moveSpeed = 100.0f;
 }
 
 void CameraMoveHelper::Start()

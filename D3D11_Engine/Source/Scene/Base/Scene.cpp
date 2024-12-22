@@ -16,6 +16,7 @@
 #include <Core/DXTKInputSystem.h>
 #include <algorithm>
 #include <ImGuizmo/ImGuizmo.h>
+#include <imgui_internal.h>
 
 Scene::Scene()
 {
@@ -106,13 +107,16 @@ void Scene::ImGuizmoDraw()
 	{
 		if (Camera* mainCamera = Camera::GetMainCamera())
 		{
+			ImGuiIO& io = ImGui::GetIO();
+			ImGuiContext& imGuiContext = *ImGui::GetCurrentContext();
 			SIZE clientSize = D3D11_GameApp::GetClientSize();
 			const Matrix& cameraVM = mainCamera->GetVM();
 			const Matrix& cameraPM = mainCamera->GetPM();
 
 			Mouse::ButtonStateTracker& mouseTracker = DXTKinputSystem.GetMouseStateTracker();
 			bool isNotRightClickHELD = mouseTracker.rightButton != Mouse::ButtonStateTracker::HELD;
-			if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD)
+			bool isHoveredWindow = imGuiContext.HoveredWindow != nullptr;
+			if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD && !isHoveredWindow)
 			{			
 				if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
 				{
@@ -136,7 +140,7 @@ void Scene::ImGuizmoDraw()
 						if (typeid(CameraObject) == typeid(*obj))
 							continue;
 
-						if (obj->isCulling && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
+						if (obj->Active && obj->isCulling && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
 						{
 							GuizmoSetting.SelectObject = obj->transform.RootParent ? &obj->transform.RootParent->gameObject : obj;
 							break;
@@ -160,16 +164,49 @@ void Scene::ImGuizmoDraw()
 					bool isParent = GuizmoSetting.SelectObject->transform.RootParent != nullptr;
 
 					Matrix objMatrix = GuizmoSetting.SelectObject->transform.GetWM();
+					
 					float* pMatrix = reinterpret_cast<float*>(&objMatrix);
 					ImGuizmo::Manipulate(cameraView, cameraProjection, operation, mode, pMatrix);
 
+					Transform* rootParent = GuizmoSetting.SelectObject->transform.RootParent;
+					if (rootParent)
+						objMatrix *= rootParent->GetIWM();
+
 					Vector3 postion, scale;
 					Quaternion rotation;
-
 					objMatrix.Decompose(scale, rotation, postion);
-					GuizmoSetting.SelectObject->transform.position = postion;
-					GuizmoSetting.SelectObject->transform.rotation = rotation;
-					GuizmoSetting.SelectObject->transform.scale = scale;
+					
+					if (rootParent)
+					{
+						GuizmoSetting.SelectObject->transform.localPosition = postion;
+						GuizmoSetting.SelectObject->transform.localRotation = rotation;
+						GuizmoSetting.SelectObject->transform.localScale = scale;
+					}
+					else
+					{
+						GuizmoSetting.SelectObject->transform.position = postion;
+						GuizmoSetting.SelectObject->transform.rotation = rotation;
+						GuizmoSetting.SelectObject->transform.scale = scale;
+					}
+				}
+
+				//Select Object Window
+				{
+					constexpr float damp = 10.f;
+					static ImVec2 windowSize(500, 400); 
+					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
+					ImGui::SetNextWindowSize(windowSize); // 창 크기 설정
+					ImGui::SetNextWindowPos(windowPos);   // 위치 설정
+					ImGui::Begin(GuizmoSetting.SelectObject->GetNameToString().c_str());
+					{
+						windowPos = ImGui::GetWindowPos();
+						windowSize = ImGui::GetWindowSize();
+
+						Transform* pTransform = nullptr;
+						pTransform = &GuizmoSetting.SelectObject->transform;
+						ImGui::EditTransformHierarchy(pTransform);
+					}
+					ImGui::End();
 				}
 
 				if (isNotRightClickHELD)

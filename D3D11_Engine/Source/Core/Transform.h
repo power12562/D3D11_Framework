@@ -66,6 +66,9 @@ public:
 	/**Get world matrix*/
 	const Matrix& GetWM() const { return _WM; }
 
+	/**Get Invers World matrix*/
+	const Matrix& GetIWM() const { return _IWM; }
+
 	/**Get local matrix*/
 	const Matrix& GetLM() const { return _LM; }
 public:
@@ -119,7 +122,7 @@ private:
 private:
 	Matrix _WM{};
 	Matrix _LM{};
-
+	Matrix _IWM{};
 private:
 	bool isUpdateWM = false;
 };

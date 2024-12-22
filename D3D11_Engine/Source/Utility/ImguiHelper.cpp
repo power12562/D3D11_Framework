@@ -111,16 +111,16 @@ void ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditF
 	ImGui::ColorEdit4(label, (float*)pColor, flags);
 }
 
-void ImGui::EditHierarchyView()
+void ImGui::EditTransformHierarchy(Transform* pTransform)
 {
-	auto ObjectEditUI = [](GameObject* object) 
+	auto ObjectEditUI = [](GameObject* object)
 		{
 			ImGui::Checkbox("Active", &object->Active);
 			if (object->transform.Parent)
 			{
 				ImGui::DragVector3("Position", &object->transform.localPosition, 0.1f);
 				ImGui::DragQuaternionLocal("Rotation", &object->transform.localRotation);
-				ImGui::DragVector3("Scale", &object->transform.localScale, 0.1f);			
+				ImGui::DragVector3("Scale", &object->transform.localScale, 0.1f);
 			}
 			else
 			{
@@ -131,37 +131,45 @@ void ImGui::EditHierarchyView()
 		};
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
 		{
+			g_id++;
 			ImGui::PushID(g_id);
-			if(ImGui::TreeNodeEx(transform->gameObject.GetNameToString().c_str(),
-				ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
+			unsigned int childCount = transform->GetChildCount();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth;
+			if (Scene::GuizmoSetting.SelectObject == &transform->gameObject)
+				flags |= ImGuiTreeNodeFlags_DefaultOpen;
+
+			if (ImGui::TreeNodeEx(transform->gameObject.GetNameToString().c_str(), flags))
 			{
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
 				{
 					Scene::GuizmoSetting.SelectObject = &transform->gameObject;
-				}
+				}			
 				ObjectEditUI(&transform->gameObject);
-				unsigned int childCount = transform->GetChildCount();
 				for (size_t i = 0; i < childCount; ++i)
 				{
 					TransformBFS(transform->GetChild(i));
-				}			
+				}
 				ImGui::TreePop();
-			}	
-			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			}
+			else if(ImGui::IsItemClicked(ImGuiMouseButton_Left))
 			{
 				Scene::GuizmoSetting.SelectObject = &transform->gameObject;
 			}
-				
-			ImGui::PopID();
-			g_id++;
+			ImGui::PopID();	
 		};
 
+	TransformBFS(pTransform);
+}
+
+void ImGui::EditHierarchyView()
+{
 	const ObjectList& objects = sceneManager.GetObjectList();
 	for (auto& object : objects)
 	{
 		if(object->transform.Parent == nullptr)
-			TransformBFS(&object->transform);
+			EditTransformHierarchy(&object->transform);
 	}
+	g_id++;
 }
 
 void ImGui::EditD3DRenderer()

@@ -26,15 +26,13 @@ void TestMainScene::Start()
     mainCam = NewGameObject<CameraObject>(L"Camera");
     camera = &mainCam->GetComponent<Camera>();
     camera->SetMainCamera();
-    mainCam->transform.position = Vector3(0.f, 15.f, -23.f);
-    //mainCam->transform.rotation = Vector3(-13.f, -21.f, 5.f);
+    mainCam->transform.position = Vector3(70.f, 80.f, -200.f);
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
     auto dancing = NewGameObject(L"HipHopDancing");
     Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *dancing, false, SURFACE_TYPE::BlingPhong);
     dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
-    dancing->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
 
     chara = NewGameObject(L"char");
     auto initMeshChar = [this](MeshRender* mesh)
@@ -44,8 +42,7 @@ void TestMainScene::Start()
         };
 
     Utility::LoadFBX(L"Resource/char/char.fbx", *chara, initMeshChar, false, SURFACE_TYPE::PBR);
-    chara->transform.position = Vector3(10.0f, 0.f, 0.f);
-    chara->transform.scale = Vector3(0.1f, 0.1f, 0.1f);
+    chara->transform.position = Vector3(100.0f, 0.f, 0.f);
 
     auto Manager = NewGameObject<TestAppManagerObject>(L"TestAppManager");
     GameObject::DontDestroyOnLoad(Manager);

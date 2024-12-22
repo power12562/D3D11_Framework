@@ -223,7 +223,7 @@ void Transform::UpdateTransform()
 		_WM = DirectX::XMMatrixScalingFromVector(scale) *
 			DirectX::XMMatrixRotationQuaternion(rotation) *
 			DirectX::XMMatrixTranslationFromVector(position);
-
+		_IWM = DirectX::XMMatrixInverse(nullptr, _WM);
 		UpdateChildTransform();
 		isUpdateWM = true;
 	}
@@ -243,6 +243,7 @@ void Transform::UpdateChildTransform()
 				DirectX::XMMatrixRotationQuaternion(child->localRotation) *
 				DirectX::XMMatrixTranslationFromVector(child->localPosition);
 			child->_WM = child->_LM *_WM;
+			child->_IWM = DirectX::XMMatrixInverse(nullptr, child->_WM);
 			child->UpdateChildTransform();
 		}
 	}

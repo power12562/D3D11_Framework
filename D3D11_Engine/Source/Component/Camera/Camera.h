@@ -12,9 +12,9 @@ private:
 	inline static Camera* mainCam{};
 
 public:
-	float FOV = 90;
-	float Near = 0.05f;
-	float Far = 500.f;
+	float FOV;
+	float Near;
+	float Far;
 
 public:
 	Camera();
