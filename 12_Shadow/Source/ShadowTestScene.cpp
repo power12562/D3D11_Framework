@@ -17,6 +17,7 @@ void ShadowTestScene::Start()
 	mainCam->SetMainCamera();
 	pCamera = Camera::GetMainCamera();
 	pCameraMoveHelper = &mainCam->AddComponent<CameraMoveHelper>();
+	pCamera->Far = 1000;
 
 	skyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
 	skyBox->skyBoxRender.SetSkyBox(SkyBoxRender::ENV, L"Resource/Skybox/RoomEnvHDR.dds");

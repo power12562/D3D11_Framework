@@ -304,7 +304,7 @@ void D3DRenderer::Uninit()
     SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
     {
-        CheckHRESULT(pSwapChain->SetFullscreenState(FALSE, nullptr)); //스왑체인 해제 전에는 창모드로 전환
+        pSwapChain->SetFullscreenState(FALSE, nullptr); //스왑체인 해제 전에는 창모드로 전환
         SafeRelease(pSwapChain);
         pDeviceContext->ClearState();   //상태 정리
         pDeviceContext->Flush();        //GPU 명령 대기
@@ -433,7 +433,7 @@ void D3DRenderer::BegineDraw()
             mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
 
         constexpr float lightNear = 1.f;
-        float lightFar = mainCam->Far * 1.5f;
+        float lightFar = mainCam->Far * 1.35f;
         float camHalfFar = mainCam->Far * 0.5f;
         for (int i = 0; i < DirectionalLights.LightsCount; i++)
         {
@@ -970,8 +970,7 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
                 __debugbreak(); //해상도 변경 실패
             }
         }
-
-        
+   
         DXGI_MODE_DESC modeDesc{};
         modeDesc.Width = swapChainDesc->Width;
         modeDesc.Height = swapChainDesc->Height;

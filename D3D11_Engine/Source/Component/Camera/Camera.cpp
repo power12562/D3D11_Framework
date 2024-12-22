@@ -8,8 +8,8 @@ using namespace DirectX;
 Camera::Camera()
 {
 	FOV = 90;
-	Near = 0.1f;
-	Far = 1000.f;
+	Near = 0.5f;
+	Far = 10000.f;
 }
 
 Camera::~Camera()
