@@ -102,7 +102,7 @@ void Scene::ImGuizmoDraw()
 {
 	using namespace DirectX::SimpleMath;
 	using namespace DirectX;
-	if (GuizmoSetting.UseImGuizmo == true)
+	if (GuizmoSetting.UseImGuizmo)
 	{
 		if (Camera* mainCamera = Camera::GetMainCamera())
 		{
@@ -119,7 +119,6 @@ void Scene::ImGuizmoDraw()
 					Mouse::State state = DXTKinputSystem.GetMouse().GetState();
 					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);
 					float Dist = 0;
-
 					ObjectList list = sceneManager.GetObjectList();
 					std::sort(list.begin(), list.end(), [mainCamera](GameObject* a, GameObject* b)
 						{
@@ -153,46 +152,47 @@ void Scene::ImGuizmoDraw()
 				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
 				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
 
+				//Draw Guizmo
+				{
+					const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
+					const float* cameraProjection = reinterpret_cast<const float*>(&cameraPM);
+
+					bool isParent = GuizmoSetting.SelectObject->transform.RootParent != nullptr;
+
+					Matrix objMatrix = GuizmoSetting.SelectObject->transform.GetWM();
+					float* pMatrix = reinterpret_cast<float*>(&objMatrix);
+					ImGuizmo::Manipulate(cameraView, cameraProjection, operation, mode, pMatrix);
+
+					Vector3 postion, scale;
+					Quaternion rotation;
+
+					objMatrix.Decompose(scale, rotation, postion);
+					GuizmoSetting.SelectObject->transform.position = postion;
+					GuizmoSetting.SelectObject->transform.rotation = rotation;
+					GuizmoSetting.SelectObject->transform.scale = scale;
+				}
+
 				if (isNotRightClickHELD)
 				{
-					//Draw Guizmo
-					{
-						const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
-						const float* cameraProjection = reinterpret_cast<const float*>(&cameraPM);
-
-						bool isParent = GuizmoSetting.SelectObject->transform.RootParent != nullptr;
-
-						Matrix objMatrix = GuizmoSetting.SelectObject->transform.GetWM();
-						float* pMatrix = reinterpret_cast<float*>(&objMatrix);
-						ImGuizmo::Manipulate(cameraView, cameraProjection, operation, mode, pMatrix);
-
-						Vector3 postion, scale;
-						Quaternion rotation;
-
-						objMatrix.Decompose(scale, rotation, postion);
-						GuizmoSetting.SelectObject->transform.position = postion;
-						GuizmoSetting.SelectObject->transform.rotation = rotation;
-						GuizmoSetting.SelectObject->transform.scale = scale;
-					}
-					
+					//Button Setting
 					Keyboard::KeyboardStateTracker& keyboardTracker = DXTKinputSystem.GetKeyboardStateTracker();
-					if(keyboardTracker.IsKeyPressed(Keyboard::Keys::W))
+					if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.TRANSLATE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
 					}
-					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::E))
+					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.ROTATE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
 					}
-					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::R))
+					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.SCALE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
 					}
-					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::T))
+					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.UNIVERSAL))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
 					}
-					else if (keyboardTracker.IsKeyPressed(Keyboard::Keys::X))
+					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.MODE))
 					{
 						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
 					}

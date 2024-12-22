@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_set>
 #include <Utility/AssimpUtility.h>
+#include <directxtk/Keyboard.h>
 
 class GameObject;
 class Scene
@@ -63,6 +64,14 @@ public:
 		GameObject* SelectObject = nullptr;
 		int operation = 7;		//ImGuizmo::OPERATION::TRANSLATE
 		int mode = 1;			//ImGuizmo::WORLD
+		struct 
+		{
+			DirectX::Keyboard::Keys TRANSLATE = DirectX::Keyboard::Keys::W;
+			DirectX::Keyboard::Keys ROTATE = DirectX::Keyboard::Keys::E;
+			DirectX::Keyboard::Keys SCALE = DirectX::Keyboard::Keys::R;
+			DirectX::Keyboard::Keys UNIVERSAL = DirectX::Keyboard::Keys::T;
+			DirectX::Keyboard::Keys MODE = DirectX::Keyboard::Keys::X;
+		}KeySetting;
 	}
 	GuizmoSetting;
 };

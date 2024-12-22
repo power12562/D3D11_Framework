@@ -132,16 +132,26 @@ void ImGui::EditHierarchyView()
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
 		{
 			ImGui::PushID(g_id);
-			if (ImGui::TreeNode(transform->gameObject.GetNameToString().c_str()))
+			if(ImGui::TreeNodeEx(transform->gameObject.GetNameToString().c_str(),
+				ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth))
 			{
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+				{
+					Scene::GuizmoSetting.SelectObject = &transform->gameObject;
+				}
 				ObjectEditUI(&transform->gameObject);
 				unsigned int childCount = transform->GetChildCount();
 				for (size_t i = 0; i < childCount; ++i)
 				{
 					TransformBFS(transform->GetChild(i));
-				}
+				}			
 				ImGui::TreePop();
+			}	
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			{
+				Scene::GuizmoSetting.SelectObject = &transform->gameObject;
 			}
+				
 			ImGui::PopID();
 			g_id++;
 		};
