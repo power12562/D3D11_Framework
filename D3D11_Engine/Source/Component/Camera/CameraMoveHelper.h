@@ -16,8 +16,7 @@ protected:
 	virtual void LateUpdate()	override;
 
 public:
-	virtual void OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker,
-		const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker) override;
+	virtual void OnInputProcess(DXTKInputSystem::InputSystem& Input) override;
 
 public:
 	void SetDefaultTransform(Transform& defaultTransform);

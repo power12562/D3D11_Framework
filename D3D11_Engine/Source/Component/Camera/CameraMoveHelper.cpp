@@ -44,69 +44,73 @@ void CameraMoveHelper::LateUpdate()
 
 }
 
-void CameraMoveHelper::OnInputProcess(const DirectX::Keyboard::State& KeyState, const DirectX::Keyboard::KeyboardStateTracker& KeyTracker, const DirectX::Mouse::State& MouseState, const DirectX::Mouse::ButtonStateTracker& MouseTracker)
+void CameraMoveHelper::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
-	if (MouseTracker.rightButton == Mouse::ButtonStateTracker::ButtonState::HELD)
+	if (Input.IsKey(MouseKeys::rightButton))
 	{
 		Vector3 forward = transform.Front;
 		Vector3 right = transform.Right;
 
-		if (KeyTracker.IsKeyPressed(Keyboard::Keys::R))
+		if (Input.IsKeyDown(Keyboard::Keys::R))
 		{
 			Reset();
 		}
 
-		if (KeyState.IsKeyDown(Keyboard::Keys::W))
+		if (Input.IsKey(Keyboard::Keys::W))
 		{
 			inputVector += forward;
 		}
-		else if (KeyState.IsKeyDown(Keyboard::Keys::S))
+		else if (Input.IsKey(Keyboard::Keys::S))
 		{
 			inputVector += -forward;
 		}
 
-		if (KeyState.IsKeyDown(Keyboard::Keys::A))
+		if (Input.IsKey(Keyboard::Keys::A))
 		{
 			inputVector += -right;
 		}
-		else if (KeyState.IsKeyDown(Keyboard::Keys::D))
+		else if (Input.IsKey(Keyboard::Keys::D))
 		{
 			inputVector += right;
 		}
 
-		if (KeyState.IsKeyDown(Keyboard::Keys::E))
+		if (Input.IsKey(Keyboard::Keys::E))
 		{
 			inputVector += -Vector3::Up;
 		}
-		else if (KeyState.IsKeyDown(Keyboard::Keys::Q))
+		else if (Input.IsKey(Keyboard::Keys::Q))
 		{
 			inputVector += Vector3::Up;
 		}
 
-		if (KeyState.IsKeyDown(Keyboard::Keys::F1))
+		if (Input.IsKeyDown(Keyboard::Keys::F1))
 		{
 			moveSpeed = 10;
 		}
-		else if (KeyState.IsKeyDown(Keyboard::Keys::F2))
+		else if (Input.IsKeyDown(Keyboard::Keys::F2))
 		{
 			moveSpeed = 100;
 		}
-		else if (KeyState.IsKeyDown(Keyboard::Keys::F3))
+		else if (Input.IsKeyDown(Keyboard::Keys::F3))
 		{
 			moveSpeed = 1000;
 		}
 
-		DXTKinputSystem.GetMouse().SetMode(Mouse::MODE_RELATIVE);
-		if(MouseState.positionMode == Mouse::MODE_RELATIVE)
+		const Mouse::State& MouseState = Input.GetMouseState();
+		if (MouseState.positionMode == Mouse::Mode::MODE_RELATIVE)
 		{
 			Vector2 delta = Vector2(float(MouseState.x), float(MouseState.y)) * rotSpeed * Mathf::Deg2Rad;
 			AddPitch(delta.x);
 			AddYaw(delta.y);
 		}
+		else
+		{
+			Input.SetMouseMode(Mouse::Mode::MODE_RELATIVE);
+		}
 	}
 	else
 	{
-		DXTKinputSystem.GetMouse().SetMode(Mouse::MODE_ABSOLUTE);
+		Input.SetMouseMode(Mouse::Mode::MODE_ABSOLUTE);
 	}
 }
 

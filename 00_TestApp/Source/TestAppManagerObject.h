@@ -9,8 +9,7 @@ public:
 	virtual ~TestAppManagerObject() override;
 
 protected:
-	virtual void OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker,
-		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker) override;
+	virtual void OnInputProcess(DXTKInputSystem::InputSystem& Input) override;
 
 private:
 	inline static TestAppManagerObject* instance = nullptr;

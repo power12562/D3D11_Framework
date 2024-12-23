@@ -10,6 +10,57 @@ using namespace DirectX;
 class DXTKInputSystem;
 extern DXTKInputSystem& DXTKinputSystem;
 
+using KeyboardKeys = DirectX::Keyboard::Keys;
+enum class MouseKeys
+{
+	leftButton,
+	middleButton,
+	rightButton,
+	xButton1,
+	xButton2
+};
+class DXTKInputSystem : public TSingleton<DXTKInputSystem>
+{
+	friend class TSingleton;
+	friend class InputProcesser;
+public:
+	class InputSystem 
+	{
+		friend class DXTKInputSystem;
+	public:
+		bool IsKeyDown(KeyboardKeys key) const;
+		bool IsKey(KeyboardKeys key) const;
+		bool IsKeyUp(KeyboardKeys key) const;
+
+		bool IsKeyDown(MouseKeys key) const;
+		bool IsKey(MouseKeys key) const;
+		bool IsKeyUp(MouseKeys key) const;
+
+		void SetMouseMode(DirectX::Mouse::Mode mode);
+		const DirectX::Mouse::State& GetMouseState();
+	private:
+		HWND hWnd;
+		std::unique_ptr<DirectX::Keyboard>              keyboard;
+		std::unique_ptr<DirectX::Mouse>                 mouse;
+
+		DirectX::Mouse::State                           mouseState{};
+
+		DirectX::Keyboard::State                        keyboardState{};
+
+		DirectX::Keyboard::KeyboardStateTracker         keyboardStateTracker;
+		DirectX::Mouse::ButtonStateTracker              mouseStateTracker;
+	}
+	Input;
+private:
+	DXTKInputSystem();
+	~DXTKInputSystem() = default;
+	std::vector<InputProcesser*>	inputProcessersList;
+
+public:
+	void Update();
+	void Initialize(HWND hWnd);
+};
+
 class InputProcesser
 {
 	friend class DXTKInputSystem;
@@ -18,36 +69,5 @@ protected:
 	~InputProcesser();
 
 protected:
-	virtual void OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker,
-		const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker) = 0;
-};
-
-class DXTKInputSystem : public TSingleton<DXTKInputSystem>
-{
-	friend class TSingleton;
-	friend InputProcesser::InputProcesser();
-	friend InputProcesser::~InputProcesser();		
-private:
-	DXTKInputSystem() = default;
-	~DXTKInputSystem() = default;
-
-	std::vector<InputProcesser*>					inputProcessersList;
-
-	std::unique_ptr<DirectX::Keyboard>              keyboard;
-	std::unique_ptr<DirectX::Mouse>                 mouse;
-	DirectX::Keyboard::KeyboardStateTracker         keyboardStateTracker;
-	DirectX::Mouse::ButtonStateTracker              mouseStateTracker;
-
-	DirectX::Mouse::State                           mouseState{};
-	DirectX::Keyboard::State                        keyboardState{};
-
-public:
-	void Update();
-	void Initialize(HWND hWnd);
-
-	DirectX::Mouse& GetMouse() { return *mouse; }
-	DirectX::Mouse::ButtonStateTracker& GetMouseStateTracker() { return mouseStateTracker; };
-
-	DirectX::Keyboard& GetKeyboard() { return *keyboard; }
-	DirectX::Keyboard::KeyboardStateTracker& GetKeyboardStateTracker() { return keyboardStateTracker; };
+	virtual void OnInputProcess(DXTKInputSystem::InputSystem& input) = 0;
 };

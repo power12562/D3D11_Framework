@@ -20,29 +20,118 @@ InputProcesser::~InputProcesser()
 	inputList.erase(std::find(inputList.begin(), inputList.end(), this));
 }
 
+DXTKInputSystem::DXTKInputSystem()
+{
+	
+}
 
 void DXTKInputSystem::Update()
 {
-	mouseState = mouse->GetState();
-	mouseStateTracker.Update(mouseState);
+	Input.mouseState = Input.mouse->GetState(); 
+	Input.mouseStateTracker.Update(Input.mouseState);
 
-	keyboardState = keyboard->GetState();
-	keyboardStateTracker.Update(keyboardState);
+	Input.keyboardState = Input.keyboard->GetState();
+	Input.keyboardStateTracker.Update(Input.keyboardState);
 
 	if (!inputProcessersList.empty())
 	{
 		int count = (int)inputProcessersList.size();
 		for (int i = 0; i < count; ++i)
 		{
-			inputProcessersList[i]->OnInputProcess(keyboardState, keyboardStateTracker, mouseState, mouseStateTracker);
+			inputProcessersList[i]->OnInputProcess(Input);
 		}
 	}
 }
 
 void DXTKInputSystem::Initialize(HWND hWnd)
 {
-	keyboard = std::make_unique<Keyboard>();
-	mouse = std::make_unique<Mouse>();
-	mouse->SetWindow(hWnd);
+	Input.hWnd = hWnd;
+	Input.keyboard = std::make_unique<Keyboard>();
+	Input.mouse = std::make_unique<Mouse>();
+	Input.mouse->SetWindow(hWnd);
+	Input.mouse->SetMode(Mouse::MODE_ABSOLUTE);
 }
 
+
+
+bool DXTKInputSystem::InputSystem::IsKeyDown(KeyboardKeys key) const
+{
+	return keyboardStateTracker.IsKeyPressed(key);
+}
+
+bool DXTKInputSystem::InputSystem::IsKey(KeyboardKeys key) const
+{
+	return keyboardState.IsKeyDown(key);
+}
+
+bool DXTKInputSystem::InputSystem::IsKeyUp(KeyboardKeys key) const
+{
+	return keyboardStateTracker.IsKeyReleased(key);
+}
+
+bool DXTKInputSystem::InputSystem::IsKeyDown(MouseKeys key) const
+{
+	switch (key)
+	{
+	case MouseKeys::leftButton:
+		return mouseStateTracker.leftButton == Mouse::ButtonStateTracker::PRESSED;
+	case MouseKeys::middleButton:
+		return mouseStateTracker.middleButton == Mouse::ButtonStateTracker::PRESSED;
+	case MouseKeys::rightButton:
+		return mouseStateTracker.rightButton == Mouse::ButtonStateTracker::PRESSED;
+	case MouseKeys::xButton1:
+		return mouseStateTracker.xButton1 == Mouse::ButtonStateTracker::PRESSED;
+	case MouseKeys::xButton2:
+		return mouseStateTracker.xButton2 == Mouse::ButtonStateTracker::PRESSED;
+	default:
+		return false;
+	}
+}
+
+bool  DXTKInputSystem::InputSystem::IsKey(MouseKeys key) const
+{
+	switch (key)
+	{
+	case MouseKeys::leftButton:
+		return mouseStateTracker.leftButton == Mouse::ButtonStateTracker::HELD;
+	case MouseKeys::middleButton:
+		return mouseStateTracker.middleButton == Mouse::ButtonStateTracker::HELD;
+	case MouseKeys::rightButton:
+		return mouseStateTracker.rightButton == Mouse::ButtonStateTracker::HELD;
+	case MouseKeys::xButton1:
+		return mouseStateTracker.xButton1 == Mouse::ButtonStateTracker::HELD;
+	case MouseKeys::xButton2:
+		return mouseStateTracker.xButton2 == Mouse::ButtonStateTracker::HELD;
+	default:
+		return false;
+	}
+}
+
+bool  DXTKInputSystem::InputSystem::IsKeyUp(MouseKeys key) const
+{
+	switch (key)
+	{
+	case MouseKeys::leftButton:
+		return mouseStateTracker.leftButton == Mouse::ButtonStateTracker::RELEASED;
+	case MouseKeys::middleButton:
+		return mouseStateTracker.middleButton == Mouse::ButtonStateTracker::RELEASED;
+	case MouseKeys::rightButton:
+		return mouseStateTracker.rightButton == Mouse::ButtonStateTracker::RELEASED;
+	case MouseKeys::xButton1:
+		return mouseStateTracker.xButton1 == Mouse::ButtonStateTracker::RELEASED;
+	case MouseKeys::xButton2:
+		return mouseStateTracker.xButton2 == Mouse::ButtonStateTracker::RELEASED;
+	default:
+		return false;
+	}
+}
+
+void DXTKInputSystem::InputSystem::SetMouseMode(DirectX::Mouse::Mode mode)
+{
+	mouse->SetMode(mode);
+}
+
+const DirectX::Mouse::State& DXTKInputSystem::InputSystem::GetMouseState()
+{
+	return mouseState;
+}

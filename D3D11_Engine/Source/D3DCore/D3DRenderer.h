@@ -97,8 +97,13 @@ private:
 	void CheckUpdateTransform(const Transform* pTransform);
 	std::vector<Transform*> transformUpdateList;
 public:
-	std::vector<D3D11_VIEWPORT> ViewPortsVec;				// 뷰포트들
-	DirectX::SimpleMath::Color backgroundColor{ 0,0,0,1 };
+	// ViewPorts
+	std::vector<D3D11_VIEWPORT> ViewPortsVec;			
+
+	//Clear Color
+	DirectX::SimpleMath::Color backgroundColor;
+
+	//Setting
 	RENDERER_SETTING_DESC setting;
 private:
 	ID3D11Device*				pDevice;					// 디바이스	
@@ -136,6 +141,9 @@ private:
 	DirectX::SimpleMath::Matrix cullingProjection; //카메라 투영
 
 public:
+	//Gizmo Color
+	DirectX::XMVECTORF32 debugDrawColor;
+
 	bool DebugDrawLightFrustum = false;
 	bool DebugDrawObjectCullingBox = false;
 	bool DebugDrawCameraFrustum = false;

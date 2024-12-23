@@ -21,6 +21,9 @@ namespace cbuffer
 
 D3DRenderer::D3DRenderer()
 {
+    backgroundColor = { 0, 0, 0, 1 };
+    debugDrawColor = DirectX::Colors::LightGreen;
+
     pDevice = nullptr;
     pDeviceContext = nullptr;
     pSwapChain = nullptr;
@@ -609,8 +612,9 @@ void D3DRenderer::DrawDebug()
     ComPtr<ID3D11InputLayout> inputLayout;
     CheckHRESULT(DirectX::CreateInputLayoutFromEffect<VertexPositionColor>(pDevice, pBasicEffect.get(), inputLayout.ReleaseAndGetAddressOf()));
     pDeviceContext->IASetInputLayout(inputLayout.Get());
-    pBasicEffect->SetColorAndAlpha(DirectX::Colors::Blue);
+    pBasicEffect->SetColorAndAlpha(debugDrawColor);
     pBasicEffect->Apply(pDeviceContext);
+
     if (DebugDrawLightFrustum)
     {
         for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; ++i)
@@ -640,6 +644,13 @@ void D3DRenderer::DrawDebug()
             DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
         }
     }
+    else if(Scene::GuizmoSetting.UseImGuizmo && Scene::GuizmoSetting.SelectObject)
+    {
+        Transform* pTransform = &Scene::GuizmoSetting.SelectObject->transform;
+        DirectX::BoundingOrientedBox bounds = pTransform->gameObject.GetOBBToWorld();
+        DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
+    }
+
     for (auto& [Frustum, World] : debugFrustumVec)
     {
         DirectX::BoundingFrustum frustum(*Frustum);

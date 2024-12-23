@@ -154,14 +154,12 @@ xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Res
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\12_Shadow\Source\ShadowTestScene.cpp" />
     <ClCompile Include="Source\MainEntry.cpp" />
     <ClCompile Include="Source\TestApp.cpp" />
     <ClCompile Include="Source\TestMainScene.cpp" />
     <ClCompile Include="Source\TestAppManagerObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\12_Shadow\Source\ShadowTestScene.h" />
     <ClInclude Include="Source\TestApp.h" />
     <ClInclude Include="Source\TestMainScene.h" />
     <ClInclude Include="Source\TestAppManagerObject.h" />

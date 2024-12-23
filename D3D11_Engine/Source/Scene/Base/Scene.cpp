@@ -113,14 +113,14 @@ void Scene::ImGuizmoDraw()
 			const Matrix& cameraVM = mainCamera->GetVM();
 			const Matrix& cameraPM = mainCamera->GetPM();
 
-			Mouse::ButtonStateTracker& mouseTracker = DXTKinputSystem.GetMouseStateTracker();
-			bool isNotRightClickHELD = mouseTracker.rightButton != Mouse::ButtonStateTracker::HELD;
+			DXTKInputSystem::InputSystem& Input = DXTKinputSystem.Input;
+			bool isNotRightClickHELD = !Input.IsKey(MouseKeys::rightButton);
 			bool isHoveredWindow = imGuiContext.HoveredWindow != nullptr;
 			if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD && !isHoveredWindow)
-			{			
-				if (mouseTracker.leftButton == Mouse::ButtonStateTracker::PRESSED)
-				{
-					Mouse::State state = DXTKinputSystem.GetMouse().GetState();
+			{		
+				const Mouse::State& state = Input.GetMouseState();
+				if (Input.IsKeyDown(MouseKeys::leftButton) && state.positionMode == Mouse::Mode::MODE_ABSOLUTE)
+				{								
 					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);
 					float Dist = 0;
 					ObjectList list = sceneManager.GetObjectList();
@@ -211,29 +211,28 @@ void Scene::ImGuizmoDraw()
 
 				if (isNotRightClickHELD)
 				{
-					//Button Setting
-					Keyboard::KeyboardStateTracker& keyboardTracker = DXTKinputSystem.GetKeyboardStateTracker();
-					if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.TRANSLATE))
+					//Button Setting				
+					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
 					}
-					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.ROTATE))
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
 					}
-					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.SCALE))
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
 					}
-					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.UNIVERSAL))
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
 					{
 						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
 					}
-					else if (keyboardTracker.IsKeyPressed(GuizmoSetting.KeySetting.MODE))
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
 					{
 						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
 					}
-					if (keyboardTracker.IsKeyPressed(Keyboard::Keys::Escape))
+					if (Input.IsKeyDown(Keyboard::Keys::Escape))
 					{
 						GuizmoSetting.SelectObject = nullptr;
 					}

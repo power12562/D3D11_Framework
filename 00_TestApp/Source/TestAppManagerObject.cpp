@@ -1,5 +1,4 @@
 #include "TestAppManagerObject.h"
-#include "../../12_Shadow/Source/ShadowTestScene.h"
 #include "TestMainScene.h"
 
 TestAppManagerObject::TestAppManagerObject()
@@ -18,16 +17,16 @@ TestAppManagerObject::~TestAppManagerObject()
 {
 }
 
-void TestAppManagerObject::OnInputProcess(const Keyboard::State& KeyState, const Keyboard::KeyboardStateTracker& KeyTracker, 
-	const Mouse::State& MouseState, const Mouse::ButtonStateTracker& MouseTracker)
+void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
-    if (KeyState.IsKeyDown(Keyboard::F5))
+    if (Input.IsKeyDown(Keyboard::F5))
     {
         if (mainScene)
-            sceneManager.LoadScene<ShadowTestScene>();
+            sceneManager.LoadScene<TestMainScene>();
         else
             sceneManager.LoadScene<TestMainScene>();
 
         mainScene = !mainScene;
     }
+   
 }

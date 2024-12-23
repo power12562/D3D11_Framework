@@ -28,6 +28,8 @@ void PBRTestScene::Start()
 	d3dRenderer.SetRRState(rasterDesc);
 
 	UseImGUI = true;
+	GuizmoSetting.UseImGuizmo = true;
+
 	d3dRenderer.backgroundColor = Color(0.3f, 0.3f, 0.3f, 1);
 
 	DirectionalLight::DirectionalLights.Lights[0].LightDir = {0.f,0.f,1.f,0.f};
