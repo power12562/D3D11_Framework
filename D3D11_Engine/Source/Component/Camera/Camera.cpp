@@ -107,12 +107,15 @@ void Camera::FixedUpdate()
 
 void Camera::Update()
 {
-	view = XMMatrixLookToLH(transform.position, transform.Front, transform.Up);
-	inversView = XMMatrixInverse(nullptr, view);
-	 
-	const SIZE& size = D3D11_GameApp::GetClientSize();
-	projection = XMMatrixPerspectiveFovLH(FOV * Mathf::Deg2Rad, (FLOAT)size.cx / (FLOAT)size.cy, Near, Far);
-	inversProjection = XMMatrixInverse(nullptr, projection);
+	if (mainCam == this)
+	{
+		view = XMMatrixLookToLH(transform.position, transform.Front, transform.Up);
+		inversView = XMMatrixInverse(nullptr, view);
+
+		D3D11_VIEWPORT& mainViewPort = d3dRenderer.ViewPortsVec[0];
+		projection = XMMatrixPerspectiveFovLH(FOV * Mathf::Deg2Rad, mainViewPort.Width / mainViewPort.Height, Near, Far);
+		inversProjection = XMMatrixInverse(nullptr, projection);
+	}
 }
 
 void Camera::LateUpdate()
