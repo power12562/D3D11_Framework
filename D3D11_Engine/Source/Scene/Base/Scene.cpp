@@ -195,12 +195,12 @@ void Scene::ImGuizmoDraw()
 					constexpr float damp = 10.f;
 					static ImVec2 windowSize(500, 400); 
 					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
-					ImGui::SetNextWindowSize(windowSize); // 창 크기 설정
-					ImGui::SetNextWindowPos(windowPos);   // 위치 설정
+					ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing); // 창 크기 설정
+					ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing);   // 위치 설정
 					ImGui::Begin(GuizmoSetting.SelectObject->GetNameToString().c_str());
 					{
-						windowPos = ImGui::GetWindowPos();
 						windowSize = ImGui::GetWindowSize();
+						windowPos = ImGui::GetWindowPos();
 
 						Transform* pTransform = nullptr;
 						pTransform = &GuizmoSetting.SelectObject->transform;

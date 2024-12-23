@@ -6,6 +6,7 @@ constexpr float positionDumpZ = 50;
 void ShadowTestScene::Start()
 {
 	Scene::UseImGUI = true;
+	GuizmoSetting.UseImGuizmo = true;
 
 	positionCountX = 0;
 	positionCountZ = 1;
