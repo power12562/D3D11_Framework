@@ -27,9 +27,6 @@ struct RENDERER_SETTING_DESC
 {
 	//수직 동기화 사용 여부
 	bool UseVSync = false;
-
-	//사용할 RTV 개수. [0]번은 스왑체인 백버퍼이다.
-	UINT RTVCount = 1; 
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -58,6 +55,7 @@ public:
 	IDXGISwapChain1*			GetSwapChain() { return pSwapChain; }
 	ID3D11RenderTargetView*		GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
 	ID3D11RenderTargetView*		GetRTV(int index) { return pRenderTargetViewArray[index]; }
+	ID3D11ShaderResourceView*	GetGbufferSRV(int index) { return pGbufferSRV[index]; }
 	ID3D11DepthStencilView*		GetDepthStencilView() { return pDepthStencilView; }
 	ID3D11ShaderResourceView*	GetShadowMapSRV(int index) { return pShadowMapSRV[index]; }
 
@@ -110,8 +108,10 @@ private:
 	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
 	IDXGISwapChain1*			pSwapChain;					// 스왑체인
 	ID3D11RenderTargetView*		pRenderTargetViewArray[8]{};// RTV Array
-	ID3D11DepthStencilView*		pDepthStencilView;			// 깊이 버퍼
+	ID3D11DepthStencilView*     pGbufferDSV;				// Gbuffer DSV;
+	ID3D11ShaderResourceView*	pGbufferSRV[7]{};			// Gbuffer SRV Array
 
+	ID3D11DepthStencilView*		pDepthStencilView;			// 메인 깊이/스텐실 버퍼
 	ID3D11DepthStencilState*	pDefaultDepthStencilState;  // 기본 상태
 	ID3D11DepthStencilState*	pSkyBoxDepthStencilState;   // 스카이 박스용
 
@@ -156,13 +156,20 @@ public:
 	size_t GetDrawCount() const { return DrawCallCount; }
 
 private:
+	inline static const int GbufferCount = 4;
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	size_t DrawCallCount = 0;
 	void RenderSkyBox(class SkyBoxRender* skyBox);
 	void RenderShadowMap(RENDERER_DRAW_DESC& drawDesc);	  
-	void RenderScene(RENDERER_DRAW_DESC& drawDesc);
-	void CreateRTV();
+	void RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc);
+	void RenderSceneLight(RENDERER_DRAW_DESC& drawDesc);
+	void RenderSceneForward(RENDERER_DRAW_DESC& drawDesc);
+
+private:
+	void CreateMainDSV();
+	void CreateGbufferRTV();
+	void CreateGbufferDSVnSRV();
 public:
 	//현재 디스플레이 설정 가져오기.
 	DXGI_MODE_DESC1 GetDisplayMode(int AdapterIndex, int OutputIndex);

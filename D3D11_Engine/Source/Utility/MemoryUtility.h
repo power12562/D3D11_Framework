@@ -21,9 +21,12 @@ namespace Utility
 		int i = 0;
 		for (auto& p : pArr)
 		{
-			p->Release();
-			pArr[i] = nullptr;
-			i++;
+			if (p)
+			{
+				p->Release();
+				pArr[i] = nullptr;
+				i++;
+			}
 		}
 		return;
 	}

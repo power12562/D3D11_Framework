@@ -27,8 +27,9 @@ D3DRenderer::D3DRenderer()
     pDevice = nullptr;
     pDeviceContext = nullptr;
     pSwapChain = nullptr;
-
+    
     pDepthStencilView = nullptr;
+    pGbufferDSV = nullptr;
     pDefaultDepthStencilState = nullptr;
     pSkyBoxDepthStencilState = nullptr;
 
@@ -135,7 +136,7 @@ void D3DRenderer::Init()
         pBasicEffect = std::make_unique<BasicEffect>(pDevice);
 
         //추가 RTV 생성
-        CreateRTV();
+        CreateGbufferRTV();
 
         //레스터화 기본 규칙
         D3D11_RASTERIZER_DESC rasterDesc;
@@ -186,10 +187,10 @@ void D3DRenderer::Init()
         depthStencilDesc.StencilEnable = FALSE;  // 스텐실 테스트 비활성화
         CheckHRESULT(pDevice->CreateDepthStencilState(&depthStencilDesc, &pSkyBoxDepthStencilState));
 
+        CreateGbufferDSVnSRV();
+
         //Set alpha blend
         D3D11_BLEND_DESC blendDesc{};
-
-        // 블렌딩 상태 설정
         blendDesc.AlphaToCoverageEnable = FALSE; // Alpha To Coverage 비활성화
         blendDesc.IndependentBlendEnable = FALSE; // 독립 블렌드 비활성화
         blendDesc.RenderTarget[0].BlendEnable = TRUE; // 블렌딩 활성화
@@ -303,6 +304,8 @@ void D3DRenderer::Uninit()
     SafeRelease(pDefaultRRState);
     SafeRelease(pDefaultBlendState);
     SafeReleaseArray(pRenderTargetViewArray);
+    SafeReleaseArray(pGbufferSRV);
+    SafeRelease(pGbufferDSV);
     SafeRelease(pSkyBoxDepthStencilState);
     SafeRelease(pDefaultDepthStencilState);
     SafeRelease(pDepthStencilView);
@@ -459,17 +462,12 @@ void D3DRenderer::BegineDraw()
         }
     }
 
-    //clear buffer
-    for (UINT i = 0; i < setting.RTVCount; i++)
+    //clear RTV
+    for (UINT i = 0; i < 1 + GbufferCount; i++)
     {
         pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], backgroundColor);  // 화면 초기화 
     }
-    for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
-    {
-        pDeviceContext->ClearDepthStencilView(pShadowMapDSV[i], D3D11_CLEAR_DEPTH, 1.0f, 0);
-    }
-    pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
+    
     //sky box draw
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {      
@@ -520,6 +518,11 @@ void D3DRenderer::EndDraw()
     //Shadow Map Pass
     {
         prevTransform = nullptr;
+        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        {
+            pDeviceContext->ClearDepthStencilView(pShadowMapDSV[i], D3D11_CLEAR_DEPTH, 1.0f, 0);
+        }
+
         ID3D11ShaderResourceView* nullSRV = nullptr;
         for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
         {
@@ -549,28 +552,37 @@ void D3DRenderer::EndDraw()
         }
     }
 
-    //Render pass
+    //Gbuffer Pass
     {
-        prevTransform = nullptr;
-        pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
-        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-        pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
-        {     
-            cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
-            cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
-            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
-        }         
-        for (auto& item : opaquerenderOueue)
-        {
-            RenderScene(item);
-        }
-
-        for (auto& item : alphaRenderQueue)
-        {
-            RenderScene(item);
-        }
+    	prevTransform = nullptr;      
+        pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    	pDeviceContext->OMSetRenderTargets(GbufferCount, &pRenderTargetViewArray[1], pGbufferDSV);
+    	pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+    	for (auto& item : opaquerenderOueue)
+    	{
+    		RenderSceneGbuffer(item);
+    	}
     }
+
+    //Alpha pass
+	{
+		prevTransform = nullptr;
+        pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pDepthStencilView);
+		pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+		pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
+		for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+		{
+			cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
+			cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
+			D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+		}
+
+		for (auto& item : alphaRenderQueue)
+		{
+			RenderSceneForward(item);
+		}
+	}
 
     //debug
     DrawDebug();
@@ -605,6 +617,8 @@ void D3DRenderer::CheckUpdateTransform(const Transform* pTransform)
 
 void D3DRenderer::DrawDebug()
 {
+    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pDepthStencilView);
+    pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
     pPrimitiveBatch->Begin();  // PrimitiveBatch 시작
     Camera* mainCamera = Camera::GetMainCamera();
     pBasicEffect->SetView(mainCamera->GetVM());
@@ -693,7 +707,7 @@ void D3DRenderer::RenderSkyBox(SkyBoxRender* skyBox)
     pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
   
     pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0); //깊이 테스트 실행 X
-    pDeviceContext->OMSetRenderTargets(setting.RTVCount, pRenderTargetViewArray, pDepthStencilView);
+    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pDepthStencilView);
     pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
 
     pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
@@ -758,7 +772,7 @@ void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
 	pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
 }
 
-void D3DRenderer::RenderScene(RENDERER_DRAW_DESC& drawDesc)
+void D3DRenderer::RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc)
 {
     //set IA
     DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
@@ -815,7 +829,102 @@ void D3DRenderer::RenderScene(RENDERER_DRAW_DESC& drawDesc)
     }
 }
 
-void D3DRenderer::CreateRTV()
+void D3DRenderer::RenderSceneLight(RENDERER_DRAW_DESC& drawDesc)
+{
+
+}
+
+void D3DRenderer::RenderSceneForward(RENDERER_DRAW_DESC& drawDesc)
+{
+    //set IA
+    DRAW_INDEX_DATA* data = drawDesc.pVertexIndex;
+    pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
+    pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
+    pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
+
+    //set const buffer
+    if (prevTransform != drawDesc.pTransform)
+    {
+        Matrix VP = Camera::GetMainCamera()->GetVM() * Camera::GetMainCamera()->GetPM();
+        const Matrix& WM = drawDesc.pTransform->GetWM();
+
+        cbuffer::transform.World = XMMatrixTranspose(WM);
+        cbuffer::transform.WorldInverseTranspose = XMMatrixInverse(nullptr, WM);
+        cbuffer::transform.WVP = XMMatrixTranspose(WM * VP);
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+        prevTransform = drawDesc.pTransform;
+    }
+    drawDesc.pConstBuffer->UpdateEvent();
+    drawDesc.pConstBuffer->SetConstBuffer();
+
+    //Render pass
+    {
+        pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
+        pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
+        pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
+
+        static bool isDefaultRRState = false;
+        if (drawDesc.pRRState)
+        {
+            pDeviceContext->RSSetState(drawDesc.pRRState);
+            isDefaultRRState = false;
+        }
+        else if (!isDefaultRRState)
+        {
+            pDeviceContext->RSSetState(pDefaultRRState);
+            isDefaultRRState = true;
+        }
+
+        //set sampler
+        for (int i = 0; i < drawDesc.pSamperState->size(); i++)
+        {
+            ID3D11SamplerState* sampler = (*drawDesc.pSamperState)[i];
+            pDeviceContext->PSSetSamplers(i, 1, &sampler);
+        }
+        //set texture
+        for (int i = 0; i < drawDesc.pD3DTexture2D->size(); i++)
+        {
+            ID3D11ShaderResourceView* srv = (*drawDesc.pD3DTexture2D)[i];
+            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        }
+        pDeviceContext->DrawIndexed(data->indicesCount, 0, 0);
+    }
+}
+
+void D3DRenderer::CreateMainDSV()
+{
+    DXGI_SWAP_CHAIN_DESC1 modeDesc;
+    CheckHRESULT(pSwapChain->GetDesc1(&modeDesc));
+
+    //깊이 버퍼 생성
+    SafeRelease(pDepthStencilView);
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = modeDesc.Width;
+    descDepth.Height = modeDesc.Height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+
+    ID3D11Texture2D* textureDepthStencil = nullptr;
+    CheckHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+
+    if (textureDepthStencil)
+        CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
+    SafeRelease(textureDepthStencil);
+}
+
+void D3DRenderer::CreateGbufferRTV()
 {
     DXGI_SWAP_CHAIN_DESC1 desc;
     pSwapChain->GetDesc1(&desc);
@@ -828,10 +937,10 @@ void D3DRenderer::CreateRTV()
     textureDesc.ArraySize = 1;
     textureDesc.SampleDesc.Count = 1;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
-    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;  // 렌더 타겟으로 사용
+    textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;  // 렌더 타겟으로 사용
     textureDesc.CPUAccessFlags = 0;
 
-    for (int i = 1; i < 8; i++)
+    for (int i = 1; i < 1 + GbufferCount; i++)
     {
         SafeRelease(pRenderTargetViewArray[i]);
 
@@ -842,9 +951,57 @@ void D3DRenderer::CreateRTV()
         if (newBuffer)
         {
             CheckHRESULT(pDevice->CreateRenderTargetView(newBuffer, nullptr, &pRenderTargetViewArray[i])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
-            D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"RTV");
+            D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"GbufferRTV");
+
+            CheckHRESULT(pDevice->CreateShaderResourceView(newBuffer, nullptr, &pGbufferSRV[i - 1]));
+            D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"GbufferSRV");
         }          
         SafeRelease(newBuffer);
+    }
+}
+
+void D3DRenderer::CreateGbufferDSVnSRV()
+{
+    if (pSwapChain)
+    {
+        DXGI_SWAP_CHAIN_DESC1 modeDesc;
+        CheckHRESULT(pSwapChain->GetDesc1(&modeDesc));
+
+        SafeRelease(pGbufferSRV[GbufferCount]); //이 자리는 DSV용
+        SafeRelease(pGbufferDSV);
+
+        D3D11_TEXTURE2D_DESC descDepth = {};
+        descDepth.Width = modeDesc.Width;
+        descDepth.Height = modeDesc.Height;
+        descDepth.MipLevels = 1;
+        descDepth.ArraySize = 1;
+        descDepth.SampleDesc.Count = 1;
+        descDepth.SampleDesc.Quality = 0;
+        descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+        descDepth.Usage = D3D11_USAGE_DEFAULT;
+        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+        descDepth.CPUAccessFlags = 0;
+        descDepth.MiscFlags = 0;
+
+        ID3D11Texture2D* textureDepthStencil = nullptr;
+        CheckHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
+        D3D_SET_OBJECT_NAME(textureDepthStencil, L"Gbuffer Depth Buffer");
+        if (textureDepthStencil)
+        {
+            D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+            descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+            descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+            CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pGbufferDSV));
+            D3D_SET_OBJECT_NAME(pGbufferDSV, L"GbufferDSV");
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC descSRV = {};
+            descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+            descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            descSRV.Texture2D.MipLevels = 1;
+            CheckHRESULT(pDevice->CreateShaderResourceView(textureDepthStencil, &descSRV, &pGbufferSRV[GbufferCount]));
+            D3D_SET_OBJECT_NAME(pGbufferSRV[GbufferCount], L"pGbufferDepthSRV");
+            SafeRelease(textureDepthStencil);
+        }
     }
 }
 
@@ -996,32 +1153,6 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
             CheckHRESULT(pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &pRenderTargetViewArray[0])); //백퍼퍼를 참조하는 뷰 생성(참조 카운트 증가.)
         SafeRelease(pBackBufferTexture);      
 
-        //깊이 버퍼 재 생성
-        ref = SafeRelease(pDepthStencilView);
-        D3D11_TEXTURE2D_DESC descDepth = {};
-        descDepth.Width = modeDesc.Width;
-        descDepth.Height = modeDesc.Height;
-        descDepth.MipLevels = 1;
-        descDepth.ArraySize = 1;
-        descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-        descDepth.SampleDesc.Count = 1;
-        descDepth.SampleDesc.Quality = 0;
-        descDepth.Usage = D3D11_USAGE_DEFAULT;
-        descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-        descDepth.CPUAccessFlags = 0;
-        descDepth.MiscFlags = 0;
-
-        ID3D11Texture2D* textureDepthStencil = nullptr;
-        CheckHRESULT(pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil));
-
-        D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
-        descDSV.Format = descDepth.Format;
-        descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-        descDSV.Texture2D.MipSlice = 0;
-        if (textureDepthStencil)
-            CheckHRESULT(pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &pDepthStencilView));
-        SafeRelease(textureDepthStencil);
-
         SetDefaultOMState();  
         //뷰포트 크기 재조정
         for (auto& viewport : ViewPortsVec)
@@ -1030,7 +1161,9 @@ void D3DRenderer::ReCreateSwapChain(DXGI_SWAP_CHAIN_DESC1* swapChainDesc)
             viewport.Height = std::round(viewport.Height * resolutionScaleY);
         }
 
-        CreateRTV();
+        CreateMainDSV();
+        CreateGbufferRTV();
+        CreateGbufferDSVnSRV();
     }
 }
 
