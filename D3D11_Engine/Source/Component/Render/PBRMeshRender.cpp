@@ -45,7 +45,7 @@ void PBRMeshRender::Start()
             std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
             SetVertexShader(vertexPath.c_str());
 
-            std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBRDeferredPS.hlsl"s);
+            std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBROpaquePS.hlsl"s);
             SetPixelShader(pixelPath.c_str());
         }
     }

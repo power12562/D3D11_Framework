@@ -26,6 +26,7 @@ public:
 	void SetSamplerState(int index, D3D11_SAMPLER_DESC& desc);
 	void ResetSamplerState(int index);
 
+	ID3D11SamplerState** data() { return samplerList.data(); }
 	ID3D11SamplerState* operator[](int index) { return samplerList[index]; }
 
 public:

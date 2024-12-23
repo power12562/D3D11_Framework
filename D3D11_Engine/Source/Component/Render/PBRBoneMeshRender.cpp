@@ -45,7 +45,7 @@ void PBRBoneMeshRender::Start()
             std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexSkinningShader.hlsl"s);
             SetVertexShader(vertexPath.c_str());
 
-            std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBRPixelShader.hlsl"s);
+            std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBROpaquePS.hlsl"s);
             SetPixelShader(pixelPath.c_str());
         }
     }

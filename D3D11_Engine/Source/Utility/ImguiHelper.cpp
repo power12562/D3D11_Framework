@@ -176,6 +176,11 @@ void ImGui::EditD3DRenderer()
 {
 	ImGui::PushID(g_id);
 	ImGui::Text("D3DRenderer");
+	if (ImGui::Button("Recompile Shader"))
+	{
+		MeshRender::ReloadShaderAll();
+		d3dRenderer.CreateDeferredResource();
+	}	
 	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
 	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.debugDrawColor);
 	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugLockCameraFrustum);
@@ -184,7 +189,7 @@ void ImGui::EditD3DRenderer()
 	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugDrawObjectCullingBox);
 	ImGui::Text("Setting");
 	ImGui::Checkbox("VSync", &d3dRenderer.setting.UseVSync);
-	if (ImGui::Button("Toggle Fullscreen"))
+	if (ImGui::Button("Toggle Fullscreen")) 
 		d3dRenderer.ToggleFullscreenMode();
 
 	ImGui::Text("");

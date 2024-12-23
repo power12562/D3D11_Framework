@@ -25,14 +25,6 @@ void SimpleMeshRender::Start()
 	SamplerDesc.MinLOD = 0;
 	SamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	samplerState.SetSamplerState(0, SamplerDesc);
-
-	//Shadow Sampler
-	SamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-	SamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerState.SetSamplerState(1, SamplerDesc);
 }
 
 void SimpleMeshRender::FixedUpdate()

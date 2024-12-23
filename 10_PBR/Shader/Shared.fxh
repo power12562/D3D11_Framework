@@ -115,6 +115,8 @@ cbuffer cb_Camera : register(b1)
     float3 MainCamPos;
     Matrix View;
     Matrix Projection;
+    Matrix IVM;
+    Matrix IPM;
 };
 
 cbuffer cb_ShadowMap : register(b2)

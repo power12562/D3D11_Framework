@@ -31,7 +31,6 @@ Scene::~Scene()
 {
 	hlslManager.ClearSharingShader();
 	Resource::ClearResourceManagers();
-	D3DSamplerState::ClearSamplerResources();
 }
 
 void Scene::FixedUpdate()

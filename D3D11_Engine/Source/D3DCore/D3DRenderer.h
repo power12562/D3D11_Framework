@@ -6,6 +6,7 @@
 #include <string>
 #include <cassert>
 #include <Light/PBRDirectionalLight.h>
+#include <D3DCore/D3DSamplerState.h>
 
 constexpr int SHADOW_MAP_SIZE = 8192;
 class GameObject;
@@ -108,8 +109,8 @@ private:
 	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
 	IDXGISwapChain1*			pSwapChain;					// 스왑체인
 	ID3D11RenderTargetView*		pRenderTargetViewArray[8]{};// RTV Array
-	ID3D11DepthStencilView*     pGbufferDSV;				// Gbuffer DSV;
 	ID3D11ShaderResourceView*	pGbufferSRV[7]{};			// Gbuffer SRV Array
+	ID3D11DepthStencilView*     pGbufferDSV;				// Gbuffer DSV;
 
 	ID3D11DepthStencilView*		pDepthStencilView;			// 메인 깊이/스텐실 버퍼
 	ID3D11DepthStencilState*	pDefaultDepthStencilState;  // 기본 상태
@@ -128,6 +129,8 @@ private:
 	ID3D11VertexShader*			pShadowVertexShader;		
 	ID3D11InputLayout*			pShadowSkinningInputLayout;		   
 	ID3D11VertexShader*			pShadowSkinningVertexShader;		
+private:
+	void CreateShadowMapResource();
 
 private:
 	std::unique_ptr<DirectX::DX11::PrimitiveBatch<DirectX::DX11::VertexPositionColor>> pPrimitiveBatch;
@@ -136,8 +139,8 @@ private:
 	void DrawDebug();
 
 private:
-	DirectX::SimpleMath::Matrix cullingIVM;	   //카메라 월드
-	DirectX::SimpleMath::Matrix cullingView;	   //카메라 뷰
+	DirectX::SimpleMath::Matrix cullingIVM;		   
+	DirectX::SimpleMath::Matrix cullingView;	   //카메라 뷰		
 	DirectX::SimpleMath::Matrix cullingProjection; //카메라 투영
 
 public:
@@ -162,11 +165,23 @@ private:
 	size_t DrawCallCount = 0;
 	void RenderSkyBox(class SkyBoxRender* skyBox);
 	void RenderShadowMap(RENDERER_DRAW_DESC& drawDesc);	  
+
+	//Deferred Scene
 	void RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc);
-	void RenderSceneLight(RENDERER_DRAW_DESC& drawDesc);
+	void RenderSceneLight();
+
+	//Forward Scene
 	void RenderSceneForward(RENDERER_DRAW_DESC& drawDesc);
 
+public:
+	void CreateDeferredResource();
 private:
+	ID3D11PixelShader*		pDeferredPixelShader  = nullptr;
+	ID3D11VertexShader*		pDeferredVertexShader  = nullptr;
+	ID3D11InputLayout*		pDeferredInputLayout  = nullptr;
+	DRAW_INDEX_DATA			deferredDrawData{};
+	std::unique_ptr<D3DSamplerState> deferredSamplers{};
+
 	void CreateMainDSV();
 	void CreateGbufferRTV();
 	void CreateGbufferDSVnSRV();

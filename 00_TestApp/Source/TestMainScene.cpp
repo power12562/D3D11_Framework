@@ -30,10 +30,6 @@ void TestMainScene::Start()
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
-    auto dancing = NewGameObject(L"HipHopDancing");
-    Utility::LoadFBX(L"Resource/Stupid Bodyguard.fbx", *dancing, false, SURFACE_TYPE::BlingPhong);
-    dancing->GetComponent<TransformAnimation>().PlayClip(L"Scene");
-
     chara = NewGameObject(L"char");
     auto initMeshChar = [this](MeshRender* mesh)
         {

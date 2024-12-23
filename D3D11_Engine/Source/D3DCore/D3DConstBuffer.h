@@ -17,6 +17,8 @@ struct cb_Camera
 
 	DirectX::SimpleMath::Matrix View;
 	DirectX::SimpleMath::Matrix Projection;
+	DirectX::SimpleMath::Matrix IVM;
+	DirectX::SimpleMath::Matrix IPM;
 };
 
 /* b2 레지스터는 ShadowMap 버퍼*/
@@ -40,6 +42,8 @@ cbuffer cb_Camera : register(b1)
 	float3 MainCamPos;
 	Matrix View;
 	Matrix Projection;
+	Matrix IVM;
+	Matrix IPM;
 };
 
 cbuffer cb_ShadowMap : register(b2)
