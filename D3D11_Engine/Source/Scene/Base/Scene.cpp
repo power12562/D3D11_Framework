@@ -142,7 +142,10 @@ void Scene::ImGuizmoDraw()
 
 						if (obj->Active && obj->isCulling && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
 						{
-							GuizmoSetting.SelectObject = obj->transform.RootParent ? &obj->transform.RootParent->gameObject : obj;
+							if (obj->transform.RootParent)
+								GuizmoSetting.SelectObject = Input.IsKey(KeyboardKeys::LeftControl) ? obj : &obj->transform.RootParent->gameObject;
+							else
+								GuizmoSetting.SelectObject = obj;
 							break;
 						}
 					}
@@ -192,8 +195,8 @@ void Scene::ImGuizmoDraw()
 
 				//Select Object Window
 				{
-					constexpr float damp = 10.f;
-					static ImVec2 windowSize(500, 400); 
+					constexpr float damp = 15.f;
+					static ImVec2 windowSize(300, 200); 
 					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
 					ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing); // 창 크기 설정
 					ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing);   // 위치 설정

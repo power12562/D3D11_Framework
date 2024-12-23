@@ -5,12 +5,11 @@ constexpr float positionDumpX = 50;
 constexpr float positionDumpZ = 50;
 void ShadowTestScene::Start()
 {
-	Scene::UseImGUI = true;
-	GuizmoSetting.UseImGuizmo = true;
-
 	positionCountX = 0;
 	positionCountZ = 1;
 
+	Scene::UseImGUI = true;
+	GuizmoSetting.UseImGuizmo = true;
 	d3dRenderer.DebugDrawObjectCullingBox = true;
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
@@ -49,6 +48,12 @@ void ShadowTestScene::ImGUIRender()
 	static bool ShowSphereEdit = false;
 	static bool ShowPistolEdit = false;
 	static bool ShowCharEdit = false;
+
+	ImGui::Begin("D3DRenderer");
+	{
+		ImGui::EditD3DRenderer();
+	}
+	ImGui::End();
 
 	ImGui::Begin("Hierarchy");
 	{

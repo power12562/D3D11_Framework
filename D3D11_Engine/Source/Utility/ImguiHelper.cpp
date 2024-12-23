@@ -177,6 +177,7 @@ void ImGui::EditD3DRenderer()
 	ImGui::PushID(g_id);
 	ImGui::Text("D3DRenderer");
 	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
+	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.debugDrawColor);
 	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugLockCameraFrustum);
 	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugDrawCameraFrustum);
 	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
