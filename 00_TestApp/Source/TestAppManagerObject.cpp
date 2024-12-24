@@ -1,5 +1,6 @@
 #include "TestAppManagerObject.h"
 #include "TestMainScene.h"
+#include "../../13_Deferred_01/Source/DeferredTestScene1.h"
 
 TestAppManagerObject::TestAppManagerObject()
 {
@@ -22,7 +23,7 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
     if (Input.IsKeyDown(Keyboard::F5))
     {
         if (mainScene)
-            sceneManager.LoadScene<TestMainScene>();
+            sceneManager.LoadScene<DeferredTestScene1>();
         else
             sceneManager.LoadScene<TestMainScene>();
 
