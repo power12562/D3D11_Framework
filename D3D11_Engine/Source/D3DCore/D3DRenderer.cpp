@@ -527,11 +527,11 @@ void D3DRenderer::EndDraw()
     }
 
     //sky box draw
+    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
     if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {
         ID3D11ShaderResourceView* nullSRV[GbufferCount + 1]{ nullptr, };
-        pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);
-        pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
+        pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);       
         RenderSkyBox(mainSkybox);
     }
     else
@@ -553,7 +553,7 @@ void D3DRenderer::EndDraw()
             RenderSceneForward(item);
         }
     }
-    //Alpha pass (Forward)
+    //alpha pass (Forward)
 	{           
 		for (auto& item : alphaRenderQueue)
 		{
