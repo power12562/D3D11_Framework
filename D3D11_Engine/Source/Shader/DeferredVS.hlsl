@@ -13,8 +13,11 @@ struct PS_Deferred
 PS_Deferred main(VS_INPUT input)
 {
     PS_Deferred output;
-    output.svposition = input.position;
-    output.Tex = input.Tex;
     
+    // Apply the viewport transform matrix to the NDC position
+    output.svposition = input.position;
+
+    // Pass through texture coordinates
+    output.Tex = input.Tex;  
     return output;
 }

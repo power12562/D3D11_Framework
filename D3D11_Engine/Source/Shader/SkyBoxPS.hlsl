@@ -3,8 +3,16 @@
 SamplerState samLinear : register(s0);
 TextureCube envTexture : register(t0);
 
-float4 main(PixelShaderInput input) : SV_Target
+struct ps_out
 {
-    float4 final = envTexture.Sample(samLinear, input.TexCoords);
-    return final;
+    float4 final : SV_Target;
+    float depth : SV_Depth;
+};
+
+ps_out main(PixelShaderInput input)
+{
+    ps_out Output;
+    Output.final = envTexture.Sample(samLinear, input.TexCoords);
+    Output.depth = 1.0 - Epsilon;
+    return Output;
 }

@@ -176,22 +176,39 @@ void ImGui::EditD3DRenderer()
 {
 	ImGui::PushID(g_id);
 	ImGui::Text("D3DRenderer");
+	ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
 	if (ImGui::Button("Recompile Shader"))
 	{
 		MeshRender::ReloadShaderAll();
 		d3dRenderer.CreateDeferredResource();
 	}	
+	if (ImGui::Button("Toggle Fullscreen"))
+		d3dRenderer.ToggleFullscreenMode();
 	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
 	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.debugDrawColor);
 	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugLockCameraFrustum);
 	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugDrawCameraFrustum);
 	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
 	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugDrawObjectCullingBox);
-	ImGui::Text("Setting");
 	ImGui::Checkbox("VSync", &d3dRenderer.setting.UseVSync);
-	if (ImGui::Button("Toggle Fullscreen")) 
-		d3dRenderer.ToggleFullscreenMode();
+	ImGui::Text("Viewport");
+	{
+		SIZE size = D3D11_GameApp::GetClientSize();
+		float sizeWidth = (float)size.cx;
+		float sizeHeight = (float)size.cy;
+		D3D11_VIEWPORT& viewPort = d3dRenderer.ViewPortsVec.front();
+		ImGui::SliderFloat("Width", (float*)&viewPort.Width, 100, sizeWidth);
+		viewPort.Width = std::clamp(viewPort.Width, 100.f, sizeWidth);
 
+		ImGui::SliderFloat("Height", (float*)&viewPort.Height, 100, sizeHeight);
+		viewPort.Height = std::clamp(viewPort.Height, 100.f, sizeHeight);
+
+		ImGui::SliderFloat("TopLeftX", (float*)&viewPort.TopLeftX, 0, size.cx - viewPort.Width);
+		viewPort.TopLeftX = std::clamp(viewPort.TopLeftX, 0.f, size.cx - viewPort.Width);
+
+		ImGui::SliderFloat("TopLeftY", (float*)&viewPort.TopLeftY, 0, size.cy - viewPort.Height);
+		viewPort.TopLeftY = std::clamp(viewPort.TopLeftY, 0.f, size.cy - viewPort.Height);
+	}
 	ImGui::Text("");
 	ImGui::PopID();
 	g_id++;

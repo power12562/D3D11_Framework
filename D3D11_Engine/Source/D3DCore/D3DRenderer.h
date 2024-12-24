@@ -98,6 +98,7 @@ private:
 public:
 	// ViewPorts
 	std::vector<D3D11_VIEWPORT> ViewPortsVec;			
+	D3D11_VIEWPORT GetClientSizeViewport();
 
 	//Clear Color
 	DirectX::SimpleMath::Color backgroundColor;
@@ -114,7 +115,6 @@ private:
 
 	ID3D11DepthStencilView*		pDepthStencilView;			// 메인 깊이/스텐실 버퍼
 	ID3D11DepthStencilState*	pDefaultDepthStencilState;  // 기본 상태
-	ID3D11DepthStencilState*	pSkyBoxDepthStencilState;   // 스카이 박스용
 
 	ID3D11BlendState*			pDefaultBlendState;			// 기본 블렌드 상태
 	ID3D11RasterizerState*		pDefaultRRState;			// 기본 레스터화 규칙

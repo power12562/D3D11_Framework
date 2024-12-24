@@ -154,10 +154,10 @@ void Scene::ImGuizmoDraw()
 			if (GuizmoSetting.SelectObject)
 			{
 				ImGuizmo::BeginFrame();
-				ImGuizmo::SetRect(0, 0, (float)clientSize.cx, (float)clientSize.cy);
+				D3D11_VIEWPORT& frontView = d3dRenderer.ViewPortsVec.front();
+				ImGuizmo::SetRect(frontView.TopLeftX, frontView.TopLeftY, frontView.Width, frontView.Height);
 				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
 				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
-
 				//Draw Guizmo
 				{
 					const float* cameraView = reinterpret_cast<const float*>(&cameraVM);

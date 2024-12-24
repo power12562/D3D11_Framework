@@ -85,11 +85,24 @@ void WinGameApp::Uninitialize()
 
 void WinGameApp::ClampScreenMaxSize(SIZE& size)
 {
-	static const SIZE maxClientSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	static const SIZE maxScreenSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 	if (size.cx <= 0 || 0 >= size.cy ||
-		size.cx > maxClientSize.cx || maxClientSize.cy < size.cy)
+		size.cx > maxScreenSize.cx || maxScreenSize.cy < size.cy)
 	{
-		size = maxClientSize;
+		size = maxScreenSize;
+	}
+}
+
+void WinGameApp::ClampClientMaxSize(SIZE& size)
+{
+	if (RunApp)
+	{
+		SIZE maxClientSize = RunApp->clientSize;
+		if (size.cx <= 0 || 0 >= size.cy ||
+			size.cx > maxClientSize.cx || maxClientSize.cy < size.cy)
+		{
+			size = maxClientSize;
+		}
 	}
 }
 

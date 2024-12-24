@@ -73,10 +73,16 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE) 
 		{
-			if (!d3dRenderer.IsSwapChainWindowed())
+			if (!d3dRenderer.IsSwapChainWindowed() && !sceneManager.EndGame)
 			{
 				d3dRenderer.ToggleFullscreenMode();
 			}
+		}
+		break;
+	case WM_SYSCOMMAND:
+		if (wParam == SC_CLOSE)
+		{
+			sceneManager.EndGame = true;
 		}
 		break;
 	default:

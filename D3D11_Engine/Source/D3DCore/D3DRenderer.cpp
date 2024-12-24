@@ -31,7 +31,6 @@ D3DRenderer::D3DRenderer()
     pDepthStencilView = nullptr;
     pGbufferDSV = nullptr;
     pDefaultDepthStencilState = nullptr;
-    pSkyBoxDepthStencilState = nullptr;
 
     pDefaultBlendState = nullptr;
     pDefaultRRState = nullptr;
@@ -148,19 +147,6 @@ void D3DRenderer::Init()
 
         // Create the depth stencil view
         CreateMainDSV();
-
-        // 스카이 박스 깊이 스텐실 상태 생성
-        D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-        depthStencilDesc.DepthEnable = TRUE;                         // 깊이 테스트 활성화
-        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL; // 깊이 버퍼 쓰기 활성화
-        depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;           // 깊이 비교 함수
-        depthStencilDesc.StencilEnable = FALSE;                      // 스텐실 테스트 활성화 
-        depthStencilDesc.DepthEnable = FALSE;  // 깊이 테스트 비활성화
-        depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // 깊이 버퍼 비활성화
-        depthStencilDesc.DepthFunc = D3D11_COMPARISON_NEVER; // 깊이 비교 함수
-        depthStencilDesc.StencilEnable = FALSE;  // 스텐실 테스트 비활성화
-        CheckHRESULT(pDevice->CreateDepthStencilState(&depthStencilDesc, &pSkyBoxDepthStencilState));
-
         CreateGbufferDSVnSRV();
 
         //Set alpha blend
@@ -251,12 +237,11 @@ void D3DRenderer::Uninit()
     SafeReleaseArray(pGbufferSRV);
     SafeRelease(pGbufferDSV);
 
-    SafeRelease(pSkyBoxDepthStencilState);
     SafeRelease(pDefaultDepthStencilState);
 
     SafeRelease(pDepthStencilView);
     {
-        pSwapChain->SetFullscreenState(FALSE, nullptr); //스왑체인 해제 전에는 창모드로 전환
+        pSwapChain->SetFullscreenState(FALSE, NULL); //스왑체인 해제 전에는 창모드로 전환
         SafeRelease(pSwapChain);
         pDeviceContext->ClearState();   //상태 정리
         pDeviceContext->Flush();        //GPU 명령 대기
@@ -265,13 +250,13 @@ void D3DRenderer::Uninit()
     textureManager.ReleaseDefaultTexture();
 
 #ifdef _DEBUG
-    //ID3D11Debug* debug = nullptr;
-    //pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
-    //if (debug)
-    //{
-    //    debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
-    //    debug->Release();
-    //}
+   //ID3D11Debug* debug = nullptr;
+   //pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
+   //if (debug)
+   //{
+   //    debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
+   //    debug->Release();
+   //}
 #endif // _DEBUG
 
     ULONG refcount = SafeRelease(pDevice);
@@ -418,22 +403,6 @@ void D3DRenderer::BegineDraw()
         constexpr float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
         pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], clearColor);  // 화면 초기화 
     }
-    
-    //sky box draw
-    if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
-    {      
-        RenderSkyBox(mainSkybox);
-    }
-    else
-    {
-        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::BRDF_LUT; ++i)
-        {
-            ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::CUBE_ZERO);
-            pDeviceContext->PSSetShaderResources(i, 1, &srv);
-        }
-        ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
-        pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
-    }
 }
 
 void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
@@ -513,10 +482,9 @@ void D3DRenderer::EndDraw()
     //Gbuffer Pass (Deferred 1)
     {
     	prevTransform = nullptr;      
-
-        pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+        pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);    
     	pDeviceContext->OMSetRenderTargets(GbufferCount, &pRenderTargetViewArray[1], pGbufferDSV);
-    	pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
     	for (auto& item : opaquerenderOueue)
     	{
     		RenderSceneGbuffer(item);
@@ -524,13 +492,28 @@ void D3DRenderer::EndDraw()
     }
     //Lights Pass (Deferred 2)
     {
+        //viewPort Transform
+        D3D11_VIEWPORT& viewPort = ViewPortsVec.front();
+        SIZE size = D3D11_GameApp::GetClientSize();
+        float screenWidth = (float)size.cx;
+        float screenHeight = (float)size.cy;
+        float scaleX = screenWidth / viewPort.Width;
+        float scaleY = screenHeight / viewPort.Height;
+        float offsetX = -viewPort.TopLeftX / screenWidth;
+        float offsetY = -viewPort.TopLeftY / screenHeight;
+        cbuffer::transform.World._11 = scaleX;
+        cbuffer::transform.World._12 = scaleY;
+        cbuffer::transform.World._13 = offsetX;
+        cbuffer::transform.World._14 = offsetY;
+        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+
         prevTransform = nullptr;
         ID3D11RenderTargetView* nullRTV[GbufferCount]{ nullptr, };
         pDeviceContext->OMSetRenderTargets(GbufferCount, nullRTV, nullptr);
-
         pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
         pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, nullptr);
-        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        const D3D11_VIEWPORT& ViewPort = GetClientSizeViewport();
+        pDeviceContext->RSSetViewports(1, &ViewPort);
         pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, pGbufferSRV);
         pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
         pDeviceContext->PSSetSamplers(0, deferredSamplers->size(), deferredSamplers->data()); //샘플러
@@ -543,11 +526,28 @@ void D3DRenderer::EndDraw()
 		RenderSceneLight();
     }
 
-    //opaque pass (Forward)
+    //sky box draw
+    if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {
         ID3D11ShaderResourceView* nullSRV[GbufferCount + 1]{ nullptr, };
         pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);
         pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
+        RenderSkyBox(mainSkybox);
+    }
+    else
+    {
+        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::BRDF_LUT; ++i)
+        {
+            ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::CUBE_ZERO);
+            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+        }
+        ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
+        pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
+    }
+
+    //opaque pass (Forward)
+    {
+        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
         for (auto& item : forwardrenderOueue)
         {
             RenderSceneForward(item);
@@ -591,6 +591,19 @@ void D3DRenderer::CheckUpdateTransform(const Transform* pTransform)
         transform->UpdateTransform();
         transformUpdateList.push_back(transform->RootParent ? transform->RootParent : transform);
     }
+}
+
+D3D11_VIEWPORT D3DRenderer::GetClientSizeViewport()
+{
+    SIZE size = D3D11_GameApp::GetClientSize();
+    D3D11_VIEWPORT viewPort{};
+    viewPort.TopLeftX = 0;
+    viewPort.TopLeftY = 0;
+    viewPort.Width = (float)size.cx;
+    viewPort.Height = (float)size.cy;
+    viewPort.MaxDepth = 1.f;
+    viewPort.MinDepth = 0.f;
+    return viewPort;
 }
 
 void D3DRenderer::CreateShadowMapResource()
@@ -743,11 +756,7 @@ void D3DRenderer::RenderSkyBox(SkyBoxRender* skyBox)
     pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); // 정점을 이어서 그릴 방식 설정.
     pDeviceContext->IASetVertexBuffers(0, 1, &data->pVertexBuffer, &data->vertexBufferStride, &data->vertexBufferOffset);
     pDeviceContext->IASetIndexBuffer(data->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);	// INDEX값의 범위
-  
-    pDeviceContext->OMSetDepthStencilState(pSkyBoxDepthStencilState, 0); //깊이 테스트 실행 X
-    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pDepthStencilView);
     pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-
     pDeviceContext->IASetInputLayout(drawDesc.pInputLayout);
     pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
     pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
@@ -948,23 +957,13 @@ void D3DRenderer::CreateDeferredResource()
     //linear sampler
     D3D11_SAMPLER_DESC sampDesc = {};
     sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    sampDesc.MinLOD = 0;
-    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    deferredSamplers->SetSamplerState(0, sampDesc);
-
-    //BRDF LookUp Table Sampler
-    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    deferredSamplers->SetSamplerState(1, sampDesc);
+    deferredSamplers->SetSamplerState(0, sampDesc);
 
     //Shadow Sampler
     sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
@@ -972,8 +971,7 @@ void D3DRenderer::CreateDeferredResource()
     sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
     sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    deferredSamplers->SetSamplerState(2, sampDesc);
-
+    deferredSamplers->SetSamplerState(1, sampDesc);
     {
         using namespace std::string_literals;
         std::wstring path = HLSLManager::EngineShaderPath + L"DeferredVS.hlsl"s;
@@ -1074,6 +1072,7 @@ void D3DRenderer::CreateGbufferRTV()
     for (int i = 1; i < 1 + GbufferCount; i++)
     {
         SafeRelease(pRenderTargetViewArray[i]);
+        SafeRelease(pGbufferSRV[i - 1]);
 
         ID3D11Texture2D* newBuffer;
         CheckHRESULT(pDevice->CreateTexture2D(&textureDesc, nullptr, &newBuffer));
@@ -1085,7 +1084,7 @@ void D3DRenderer::CreateGbufferRTV()
             D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"GbufferRTV");
 
             CheckHRESULT(pDevice->CreateShaderResourceView(newBuffer, nullptr, &pGbufferSRV[i - 1]));
-            D3D_SET_OBJECT_NAME(pRenderTargetViewArray[i], L"GbufferSRV");
+            D3D_SET_OBJECT_NAME(pGbufferSRV[i - 1], L"GbufferSRV");
         }          
         SafeRelease(newBuffer);
     }

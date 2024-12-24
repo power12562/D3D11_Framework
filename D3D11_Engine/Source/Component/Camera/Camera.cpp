@@ -72,9 +72,12 @@ Ray Camera::ScreenPointToRay(int pointX, int pointY)
 	float screenWidth = (float)clientSize.cx; // 화면 너비
 	float screenHeight = (float)clientSize.cy; // 화면 높이
 
+	//화면에 정의된 Viewport
+	D3D11_VIEWPORT& viewPort = d3dRenderer.ViewPortsVec.front();
+
 	// NDC로 변환 (x, y는 -1에서 1 사이 값으로 변환)
-	float ndcX = (2.0f * mouseX) / screenWidth - 1.0f;
-	float ndcY = 1.0f - (2.0f * mouseY) / screenHeight; // y축 반전 처리
+	float ndcX = (2.0f * (mouseX - viewPort.TopLeftX)) / viewPort.Width - 1.0f;
+	float ndcY = 1.0f - (2.0f * (mouseY - viewPort.TopLeftY)) / viewPort.Height;  // y축 반전 처리
 	float nearZ = 0.f;
 	float farZ = 1.0f;
 	XMFLOAT3 nearPoint(ndcX, ndcY, nearZ);

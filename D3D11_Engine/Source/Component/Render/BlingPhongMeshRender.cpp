@@ -5,7 +5,7 @@
 void BlingPhongMeshRender::Start()
 {
 	SimpleMeshRender::Start();
-	MeshRender::isForward = true;
+	//MeshRender::isForward = true;
 
 	BlingPhongMeshObject* meshObj = dynamic_cast<BlingPhongMeshObject*>(&gameObject);
 	if (meshObj)
@@ -21,7 +21,7 @@ void BlingPhongMeshRender::Start()
 			std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
 			SetVertexShader(vertexPath.c_str());
 
-			std::wstring pixelPath(HLSLManager::EngineShaderPath + L"BlingPhongPixelShader.hlsl"s);
+			std::wstring pixelPath(HLSLManager::EngineShaderPath + L"PBROpaquePS.hlsl"s);
 			SetPixelShader(pixelPath.c_str());
 		}
 	}

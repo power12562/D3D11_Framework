@@ -14,4 +14,7 @@ public:
 	class Camera* pCamera = nullptr;
 	class CameraMoveHelper* pCameraMoveHelper = nullptr;
 	class SphereObject* Sphere = nullptr;
+	std::vector<class MeshRender*> chrMeshs;
+
+	bool deferredFlag = true;
 };

@@ -1,7 +1,6 @@
 #include "Shared.hlsli"
-SamplerState defaultSampler : register(s0);
-SamplerState BRDF_LUTSampler : register(s1);
-SamplerComparisonState ShadowMapSampler : register(s2);
+SamplerState linearSampler : register(s0);
+SamplerComparisonState ShadowMapSampler : register(s1);
 
 Texture2D AlbedoTexture : register(t0);     //Albedo rgb
 Texture2D SpecularTexture : register(t1);   //Metallic.r + Specular.g + Roughness.b + AO.a
@@ -14,6 +13,14 @@ TextureCube Specular_IBL_Texture : register(t10);
 Texture2D BRDF_LUT : register(t11);
 
 Texture2D ShadowMapTextures[4] : register(t124);
+
+cbuffer cbuffer_Transform : register(b0)
+{
+    float scaleX;
+    float scaleY;
+    float offsetX;
+    float offsetY;
+}
 
 cbuffer cb_Light : register(b3)
 {
@@ -59,20 +66,25 @@ inline float4 ComputePositionShadow(float3 world, matrix shadowView, matrix shad
 
 float4 main(PS_Deferred input) : SV_Target
 {   
-    float3 N = NormalTexture.Sample(defaultSampler, input.Tex).rgb * 2.0f - 1.f;
+    float3 N = NormalTexture.Sample(linearSampler, input.Tex).rgb * 2.0f - 1.f;
     N = normalize(N);
-    clip(length(N) - Epsilon);
-    
-    float3 albedo = AlbedoTexture.Sample(defaultSampler, input.Tex).rgb;
-    float3 emissive = EmissiveTexture.Sample(defaultSampler, input.Tex).rgb;
-    float4 MSRAO = SpecularTexture.Sample(defaultSampler, input.Tex);
+   
+    float3 albedo = AlbedoTexture.Sample(linearSampler, input.Tex).rgb;
+    float3 emissive = EmissiveTexture.Sample(linearSampler, input.Tex).rgb;
+    float4 MSRAO = SpecularTexture.Sample(linearSampler, input.Tex);
     
     float metalness = MSRAO.r;
     float specular  = MSRAO.g;
     float roughness = MSRAO.b;
     float ambientOcculusion = MSRAO.a;
-    float Depth = DepthTexture.Sample(defaultSampler, input.Tex).r;
-    float3 World = ReconstructWorldPosition(input.Tex, Depth);
+        
+    float Depth = DepthTexture.Sample(linearSampler, input.Tex).r;
+    clip(1.f - Epsilon - Depth);
+    
+    float2 WorldUV;
+    WorldUV.x = (input.Tex.x + offsetX) * scaleX;
+    WorldUV.y = (input.Tex.y + offsetY) * scaleY;
+    float3 World = ReconstructWorldPosition(WorldUV, Depth);
     
     float4 PositionShadows[MAX_LIGHT_COUNT];
     [unroll]
@@ -159,7 +171,7 @@ float4 main(PS_Deferred input) : SV_Target
     }
     
     // 표면이 받는 반구의 여러 방향에서 오는 광량을 샘플링한다. Lambertian BRDF를 가정하여 포함되어 있다.
-    float3 irradiance = Diffuse_IBL_Texture.Sample(defaultSampler, N).rgb;
+    float3 irradiance = Diffuse_IBL_Texture.Sample(linearSampler, N).rgb;
  
     // 빛 방향은 특정 할 수 없으므로 cosLo = dot(Normal,View)을 사용한다.
     float3 F = FresnelReflection(F0, NoV);
@@ -171,7 +183,7 @@ float4 main(PS_Deferred input) : SV_Target
     float3 diffuseIBL = kd * albedo * irradiance;
 
     //Specular BRDF LookUpTable 이용해 구한다.
-    float2 specularBRDF = BRDF_LUT.Sample(BRDF_LUTSampler, float2(NoV, roughness)).rg;
+    float2 specularBRDF = BRDF_LUT.Sample(linearSampler, float2(NoV, roughness)).rg;
 
     // 원본 텍스처에서 LOD Mipmap 레벨 수를 얻는다.
     uint SpecularTextureLevels, width, height;
@@ -180,7 +192,7 @@ float4 main(PS_Deferred input) : SV_Target
     // Lr( View,Normal의 반사벡터) 와 거칠기를 사용하여 반사 빛을 샘플링한다. 
     // 거칠기에 따라 뭉게진 반사 빛을 표현하기위해  LOD 선형보간이 적용된다. 
     float3 Lr = reflect(-V, N);
-    float3 PrefilteredColor = Specular_IBL_Texture.SampleLevel(defaultSampler, Lr, roughness * SpecularTextureLevels).rgb;
+    float3 PrefilteredColor = Specular_IBL_Texture.SampleLevel(linearSampler, Lr, roughness * SpecularTextureLevels).rgb;
     
     // IBL Specular 
     float3 specularIBL = SpecularIBL(F0, specularBRDF, PrefilteredColor);
