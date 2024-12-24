@@ -13,4 +13,5 @@ public:
 	class SkyBoxObject* pSkyBox = nullptr;
 	class Camera* pCamera = nullptr;
 	class CameraMoveHelper* pCameraMoveHelper = nullptr;
+	class SphereObject* Sphere = nullptr;
 };

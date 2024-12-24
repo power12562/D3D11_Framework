@@ -195,20 +195,25 @@ void Scene::ImGuizmoDraw()
 				//Select Object Window
 				{
 					constexpr float damp = 15.f;
+					static std::string windowName;
 					static ImVec2 windowSize(300, 200); 
 					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
 					ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing); // 창 크기 설정
 					ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing);   // 위치 설정
-					ImGui::Begin(GuizmoSetting.SelectObject->GetNameToString().c_str());
+					ImGui::PushID("Select Object Window");
+					windowName = GuizmoSetting.SelectObject->GetNameToString();
+					windowName += "##Select Object Window";
+					ImGui::Begin(windowName.c_str());
 					{
 						windowSize = ImGui::GetWindowSize();
 						windowPos = ImGui::GetWindowPos();
-
 						Transform* pTransform = nullptr;
 						pTransform = &GuizmoSetting.SelectObject->transform;
 						ImGui::EditTransformHierarchy(pTransform);
 					}
 					ImGui::End();
+
+					ImGui::PopID();
 				}
 
 				if (isNotRightClickHELD)

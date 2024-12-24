@@ -18,10 +18,10 @@ void DeferredTestScene1::Start()
 	pCamera = Camera::GetMainCamera();
 	pCameraMoveHelper = &mainCamera->AddComponent<CameraMoveHelper>();
 
-	//auto cube = NewGameObject<CubeObject>(L"Cube");
-	//cube->transform.scale = Vector3(1000.f, 0.1f, 1000.f);
+	auto cube = NewGameObject<CubeObject>(L"Cube");
+	cube->transform.scale = Vector3(1000.f, 0.1f, 1000.f);
 
-	auto Sphere = NewGameObject<SphereObject>(L"Sphere");
+	Sphere = NewGameObject<SphereObject>(L"Sphere");
 	Sphere->transform.position = Vector3(-180.f, 65.f, 0.f);
 	Sphere->transform.scale = 1.25f;
 
@@ -33,6 +33,12 @@ void DeferredTestScene1::Start()
 
 void DeferredTestScene1::ImGUIRender()
 {
+	ImGui::Begin("Sphere");
+	{
+		ImGui::EditMaterial("Sphere Material", &Sphere->Material);
+	}
+	ImGui::End();
+
 	ImGui::Begin("Renderer");
 	{
 		ImGui::EditD3DRenderer();
