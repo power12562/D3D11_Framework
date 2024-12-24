@@ -527,22 +527,24 @@ void D3DRenderer::EndDraw()
     }
 
     //sky box draw
-    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
-    if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
     {
-        ID3D11ShaderResourceView* nullSRV[GbufferCount + 1]{ nullptr, };
-        pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);       
-        RenderSkyBox(mainSkybox);
-    }
-    else
-    {
-        for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::BRDF_LUT; ++i)
+        if (SkyBoxRender* mainSkybox = SkyBoxRender::GetMainSkyBox())
         {
-            ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::CUBE_ZERO);
-            pDeviceContext->PSSetShaderResources(i, 1, &srv);
+            ID3D11ShaderResourceView* nullSRV[GbufferCount + 1]{ nullptr, };
+            pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);
+            pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
+            RenderSkyBox(mainSkybox);
         }
-        ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
-        pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
+        else
+        {
+            for (int i = E_TEXTURE::Diffuse_IBL; i < E_TEXTURE::BRDF_LUT; ++i)
+            {
+                ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::CUBE_ZERO);
+                pDeviceContext->PSSetShaderResources(i, 1, &srv);
+            }
+            ID3D11ShaderResourceView* srv = textureManager.GetDefaultTexture(E_TEXTURE_DEFAULT::ZERO);
+            pDeviceContext->PSSetShaderResources(E_TEXTURE::BRDF_LUT, 1, &srv);
+        }
     }
 
     //opaque pass (Forward)
