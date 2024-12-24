@@ -73,7 +73,7 @@ const Vector3& Transform::GetPosition() const
 		_position = parent->_position + 
 			(parent->Right * _localPosition.x * parent->_scale.x) +
 			(parent->Up    * _localPosition.y * parent->_scale.y) +
-			(parent->Front * _localPosition.z * parent->_scale.z);
+			(parent->Forward * _localPosition.z * parent->_scale.z);
 		return _position;
 	}
 	return _position;
@@ -177,7 +177,7 @@ Vector3 Transform::GetUp() const
 	return Vector3::Transform(Vector3(0.0f, 1.0f, 0.0f), _rotation);
 }
 
-Vector3 Transform::GetFront() const
+Vector3 Transform::GetForward() const
 {
 	return Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
 }

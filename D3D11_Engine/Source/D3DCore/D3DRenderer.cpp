@@ -370,7 +370,7 @@ void D3DRenderer::BegineDraw()
 
         // 카메라 절두체의 중심 계산
         Vector3 frustumCenter = mainCam->transform.position +
-            mainCam->transform.Front * (mainCam->Near + mainCam->Far) * 0.5f;
+            mainCam->transform.Forward * (mainCam->Near + mainCam->Far) * 0.5f;
 
         constexpr float lightNear = 1.f;
         float lightFar = mainCam->Far * 1.35f;

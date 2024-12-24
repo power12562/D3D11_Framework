@@ -54,8 +54,8 @@ public:
 	Vector3 GetUp() const;
 	__declspec(property(get = GetUp)) Vector3 Up;
 
-	Vector3 GetFront() const;
-	__declspec(property(get = GetFront)) Vector3 Front;
+	Vector3 GetForward() const;
+	__declspec(property(get = GetForward)) Vector3 Forward;
 
 	/*이번 프레임 WM 업데이트 여부*/
 	inline bool IsUpdateWM() const { return rootParent ? rootParent->isUpdateWM : isUpdateWM; }

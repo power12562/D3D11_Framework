@@ -48,7 +48,7 @@ void CameraMoveHelper::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
 	if (Input.IsKey(MouseKeys::rightButton))
 	{
-		Vector3 forward = transform.Front;
+		Vector3 forward = transform.Forward;
 		Vector3 right = transform.Right;
 
 		if (Input.IsKeyDown(Keyboard::Keys::R))

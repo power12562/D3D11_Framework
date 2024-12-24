@@ -38,10 +38,10 @@ void DeferredTestScene1::Start()
 					chrMeshs.push_back(mesh);
 				};
 			Utility::LoadFBX(L"Resource/char/char.fbx", *chr, func, false, SURFACE_TYPE::PBR);
+			chr->transform.rotation = Vector3(0, 30, 0);
 			chr->transform.position += Vector3::Up * 10.f;
 			chr->transform.position += Vector3::Right * 50.f * (float)x;
 			chr->transform.position += Vector3::Forward * 50.f * (float)y;
-			chr->transform.rotation = Vector3(0, 30, 0);
 		}
 	}	
 }

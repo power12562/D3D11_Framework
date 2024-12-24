@@ -112,7 +112,7 @@ void Camera::Update()
 {
 	if (mainCam == this)
 	{
-		view = XMMatrixLookToLH(transform.position, transform.Front, transform.Up);
+		view = XMMatrixLookToLH(transform.position, transform.Forward, transform.Up);
 		inversView = XMMatrixInverse(nullptr, view);
 
 		D3D11_VIEWPORT& mainViewPort = d3dRenderer.ViewPortsVec[0];
