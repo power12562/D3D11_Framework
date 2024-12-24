@@ -565,7 +565,7 @@ void D3DRenderer::EndDraw()
     DrawDebug();
 
     //clear renderQueue
-    DrawCallCount = opaquerenderOueue.size() + alphaRenderQueue.size();
+    DrawCallCount = forwardrenderOueue.size() + opaquerenderOueue.size() + alphaRenderQueue.size();
     opaquerenderOueue.clear();
     forwardrenderOueue.clear();
     alphaRenderQueue.clear();
