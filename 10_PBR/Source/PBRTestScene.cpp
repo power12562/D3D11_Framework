@@ -45,6 +45,7 @@ void PBRTestScene::Start()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);
 
+			mesh->isForward = true;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 
@@ -62,6 +63,7 @@ void PBRTestScene::Start()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);
 
+			mesh->isForward = true;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 

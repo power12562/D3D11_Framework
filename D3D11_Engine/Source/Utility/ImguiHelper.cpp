@@ -177,6 +177,7 @@ void ImGui::EditD3DRenderer()
 	ImGui::PushID(g_id);
 	ImGui::Text("D3DRenderer");
 	ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
+	ImGui::Text("Draw call : %llu", d3dRenderer.GetDrawCount());
 	if (ImGui::Button("Recompile Shader"))
 	{
 		MeshRender::ReloadShaderAll();
