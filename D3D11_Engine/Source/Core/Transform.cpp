@@ -70,9 +70,9 @@ const Vector3& Transform::GetPosition() const
 {
 	if (parent) 
 	{
-		_position = parent->Right +
+		_position = parent->_position + 
 			(parent->Right * _localPosition.x * parent->_scale.x) +
-			(parent->Up * _localPosition.y * parent->_scale.y) +
+			(parent->Up    * _localPosition.y * parent->_scale.y) +
 			(parent->Front * _localPosition.z * parent->_scale.z);
 		return _position;
 	}
