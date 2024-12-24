@@ -66,6 +66,19 @@ const Vector3& Transform::SetPosition(const Vector3& value)
 	return _position;
 }
 
+const Vector3& Transform::GetPosition() const
+{
+	if (parent) 
+	{
+		_position = parent->Right +
+			(parent->Right * _localPosition.x * parent->_scale.x) +
+			(parent->Up * _localPosition.y * parent->_scale.y) +
+			(parent->Front * _localPosition.z * parent->_scale.z);
+		return _position;
+	}
+	return _position;
+}
+
 const Vector3& Transform::SetLocalPosition(const Vector3& value)
 {							  
 	if (parent)
@@ -92,6 +105,16 @@ const Quaternion& Transform::SetRotation(const Vector3& value)
 {
 	Quaternion quater = Quaternion::CreateFromYawPitchRoll(value * Mathf::Deg2Rad);
 	return SetRotation(quater);	
+}
+
+const Quaternion& Transform::GetRotation() const
+{
+	if (parent)
+	{
+		_rotation = parent->_rotation * _localRotation;
+		return _rotation;
+	}
+	return _rotation;
 }
 
 const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
@@ -124,6 +147,16 @@ const Vector3& Transform::SetScale(float value)
 	return SetScale(Vector3(value, value, value));
 }
 
+const Vector3& Transform::GetScale() const
+{
+	if (parent)
+	{
+		_scale = parent->_scale * _localScale;
+		return _scale;
+	}
+	return _scale;
+}
+
 const Vector3& Transform::SetLocalScale(const Vector3& value)
 {
 	if (parent)
@@ -134,25 +167,19 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 	return _localScale;
 }
 
-Vector3 Transform::GetRight()
+Vector3 Transform::GetRight() const
 {
-	Vector3 right = Vector3{ _WM._11, _WM._21, _WM._31 };
-	right.Normalize();
-	return right;
+	return Vector3::Transform(Vector3(1.0f, 0.0f, 0.0f), _rotation);
 }
 
-Vector3 Transform::GetUp()
+Vector3 Transform::GetUp() const
 {
-	Vector3 up = Vector3{_WM._12, _WM._22, _WM._32};
-	up.Normalize();
-	return up;
+	return Vector3::Transform(Vector3(0.0f, 1.0f, 0.0f), _rotation);
 }
 
-Vector3 Transform::GetFront()
+Vector3 Transform::GetFront() const
 {
-	Vector3 front = Vector3{ _WM._13, _WM._23, _WM._33 };
-	front.Normalize();
-	return front;
+	return Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
 }
 
 void Transform::SetParent(Transform& parent, bool worldPositionStays)
@@ -239,7 +266,6 @@ void Transform::UpdateChildTransform()
 				DirectX::XMMatrixRotationQuaternion(child->localRotation) *
 				DirectX::XMMatrixTranslationFromVector(child->localPosition);
 			child->_WM = child->_LM *_WM;
-			child->_WM.Decompose(child->_scale, child->_rotation, child->_position);
 			child->_IWM = DirectX::XMMatrixInverse(nullptr, child->_WM);
 			child->UpdateChildTransform();
 		}

@@ -21,7 +21,7 @@ public:
 	__declspec(property(get = GetGameObject)) GameObject& gameObject;
 
 	const Vector3& SetPosition(const Vector3& value);
-	const Vector3& GetPosition() const { return _position; }
+	const Vector3& GetPosition() const;
 	__declspec(property(get = GetPosition, put = SetPosition)) const Vector3& position;
 
 	const Vector3& SetLocalPosition(const Vector3& value);
@@ -30,7 +30,7 @@ public:
 						   
 	const Quaternion& SetRotation(const Quaternion& value);
 	const Quaternion& SetRotation(const Vector3& value);
-	const Quaternion& GetRotation() const { return _rotation; }
+	const Quaternion& GetRotation() const;
 	__declspec(property(get = GetRotation, put = SetRotation)) const Quaternion& rotation;
 
 	const Quaternion& SetLocalRotation(const Quaternion& value);
@@ -40,7 +40,7 @@ public:
 
 	const Vector3& SetScale(const Vector3& value);
 	const Vector3& SetScale(float value);
-	const Vector3& GetScale() const { return _scale; }
+	const Vector3& GetScale() const;
 	__declspec(property(get = GetScale, put = SetScale)) const Vector3& scale;
 
 	const Vector3& SetLocalScale(const Vector3& value);
@@ -48,13 +48,13 @@ public:
 	__declspec(property(get = GetLocalScale, put = SetLocalScale)) const Vector3& localScale;
 
 public:
-	Vector3 GetRight();
+	Vector3 GetRight() const;
 	__declspec(property(get = GetRight)) Vector3 Right;
 
-	Vector3 GetUp();
+	Vector3 GetUp() const;
 	__declspec(property(get = GetUp)) Vector3 Up;
 
-	Vector3 GetFront();
+	Vector3 GetFront() const;
 	__declspec(property(get = GetFront)) Vector3 Front;
 
 	/*이번 프레임 WM 업데이트 여부*/
@@ -110,14 +110,14 @@ private:
 	std::vector<Transform*>	childList{};
 
 private:
-	Vector3 _position{};
-	Vector3 _localPosition{};
+	mutable Vector3 _position{};
+	mutable Vector3 _localPosition{};
 
-	Quaternion _rotation{};
-	Quaternion _localRotation{};
+	mutable Quaternion _rotation{};
+	mutable Quaternion _localRotation{};
 
-	Vector3 _scale{1,1,1};
-	Vector3 _localScale{1,1,1};
+	mutable Vector3 _scale{ 1,1,1 };
+	mutable Vector3 _localScale{1,1,1};
 
 private:
 	Matrix _WM{};

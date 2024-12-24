@@ -28,12 +28,12 @@ void CameraMoveHelper::Update()
 	}
 	if (yawRotation)
 	{
-		transform.rotation *= Quaternion::CreateFromAxisAngle(Vector3::UnitX, -yawRotation);
+		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitX, yawRotation) * transform.rotation;
 		yawRotation = 0;
 	}
 	if (pitchRotation)
 	{
-		transform.rotation = Quaternion::CreateFromAxisAngle(Vector3::UnitY, -pitchRotation) * transform.rotation;
+		transform.rotation *= Quaternion::CreateFromAxisAngle(Vector3::UnitY, pitchRotation);
 		pitchRotation = 0;
 	}
 	inputVector = Vector3::Zero;
