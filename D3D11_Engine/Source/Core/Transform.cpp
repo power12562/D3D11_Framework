@@ -71,9 +71,8 @@ const Vector3& Transform::SetLocalPosition(const Vector3& value)
 	if (parent)
 	{
 		_localPosition = value;
-		_position = parent->_position + _localPosition;
+		position = parent->_position + _localPosition;
 	}
-
 	return _localPosition;
 }
 
@@ -86,7 +85,6 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 		parent->_rotation.Inverse(IProtation);
 		_localRotation = _rotation * IProtation;
 	}
-
 	return _rotation;
 }
 
@@ -103,7 +101,6 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 		_localRotation = value;
 		_rotation = parent->_rotation * _localRotation;
 	}
-
 	return _localRotation;
 }
 
@@ -134,7 +131,6 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 		_localScale = value;
 		_scale = parent->scale * _localScale;
 	}
-
 	return _localScale;
 }
 
@@ -243,6 +239,7 @@ void Transform::UpdateChildTransform()
 				DirectX::XMMatrixRotationQuaternion(child->localRotation) *
 				DirectX::XMMatrixTranslationFromVector(child->localPosition);
 			child->_WM = child->_LM *_WM;
+			child->_WM.Decompose(child->_scale, child->_rotation, child->_position);
 			child->_IWM = DirectX::XMMatrixInverse(nullptr, child->_WM);
 			child->UpdateChildTransform();
 		}

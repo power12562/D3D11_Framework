@@ -120,8 +120,7 @@ void Scene::ImGuizmoDraw()
 				const Mouse::State& state = Input.GetMouseState();
 				if (Input.IsKeyDown(MouseKeys::leftButton) && state.positionMode == Mouse::Mode::MODE_ABSOLUTE)
 				{								
-					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);
-					float Dist = 0;
+					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);			
 					ObjectList list = sceneManager.GetObjectList();
 					std::sort(list.begin(), list.end(), [mainCamera](GameObject* a, GameObject* b)
 						{
@@ -133,7 +132,7 @@ void Scene::ImGuizmoDraw()
 							float disB = fastDistance(mainCamera->transform.position, b->transform.position);
 							return disA < disB;
 						});
-
+					float Dist = 0;
 					for (auto& obj : list)
 					{
 						if (typeid(CameraObject) == typeid(*obj))

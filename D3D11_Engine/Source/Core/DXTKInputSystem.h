@@ -39,7 +39,7 @@ public:
 		void SetMouseMode(DirectX::Mouse::Mode mode);
 		const DirectX::Mouse::State& GetMouseState();
 	private:
-		HWND hWnd;
+		HWND hWnd{};
 		std::unique_ptr<DirectX::Keyboard>              keyboard;
 		std::unique_ptr<DirectX::Mouse>                 mouse;
 
