@@ -39,10 +39,10 @@ GBuffer main(PS_INPUT input)
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
-    float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
-    float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
-    float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
     float specular = specularTexture.Sample(defaultSampler, input.Tex).r;
+    float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
+    float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
+    float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
     
     float3 N;
     if (Epsilon < length(normalSample))
@@ -52,6 +52,9 @@ GBuffer main(PS_INPUT input)
     }
     else
         N = normalize(input.Normal);
+    
+    // G-Buffer에 저장하기 전에 0 ~ 1 범위로 변환
+    N = (N * 0.5f) + 0.5f;
     
     // 재질 특성
     float metalness = Metalness;

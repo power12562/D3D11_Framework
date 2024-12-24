@@ -36,14 +36,15 @@ struct PS_Deferred
 inline float3 ReconstructWorldPosition(float2 uv, float depth)
 {
     // Step 1: Reconstruct NDC
-    float4 clipSpacePos = float4(uv * 2.0f - 1.0f, depth, 1.0f);
+    float2 NDC = float2(uv.x * 2.0f - 1.0f, (1.0f - uv.y) * 2.0f - 1.0f);
+    float4 clipSpacePos = float4(NDC, depth, 1.0f);
 
     // Step 2: Convert to View Space
-    float4 viewSpacePos = mul(IPM, clipSpacePos);
-    viewSpacePos /= viewSpacePos.w;
+    float4 viewSpacePos = mul(clipSpacePos, IPM);
+    viewSpacePos = viewSpacePos / viewSpacePos.w;
 
     // Step 3: Convert to World Space
-    float4 worldPos = mul(IVM, viewSpacePos);
+    float4 worldPos = mul(viewSpacePos, IVM);
 
     return worldPos.xyz;
 }
@@ -58,11 +59,14 @@ inline float4 ComputePositionShadow(float3 world, matrix shadowView, matrix shad
 
 float4 main(PS_Deferred input) : SV_Target
 {   
+    float3 N = NormalTexture.Sample(defaultSampler, input.Tex).rgb * 2.0f - 1.f;
+    N = normalize(N);
+    clip(length(N) - Epsilon);
+    
     float3 albedo = AlbedoTexture.Sample(defaultSampler, input.Tex).rgb;
     float3 emissive = EmissiveTexture.Sample(defaultSampler, input.Tex).rgb;
     float4 MSRAO = SpecularTexture.Sample(defaultSampler, input.Tex);
     
-    float3 N = NormalTexture.Sample(defaultSampler, input.Tex).rgb;
     float metalness = MSRAO.r;
     float specular  = MSRAO.g;
     float roughness = MSRAO.b;

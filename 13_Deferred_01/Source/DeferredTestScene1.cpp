@@ -4,7 +4,7 @@
 void DeferredTestScene1::Start()
 {
 	UseImGUI = true;
-	//GuizmoSetting.UseImGuizmo = true;
+	GuizmoSetting.UseImGuizmo = true;
 
 	pSkyBox = NewGameObject<SkyBoxObject>(L"SkyBox");
 	pSkyBox->skyBoxRender.SetSkyBox(SkyBoxRender::ENV, L"Resource/Skybox/RoomEnvHDR.dds");
@@ -18,8 +18,8 @@ void DeferredTestScene1::Start()
 	pCamera = Camera::GetMainCamera();
 	pCameraMoveHelper = &mainCamera->AddComponent<CameraMoveHelper>();
 
-	auto cube = NewGameObject<CubeObject>(L"Cube");
-	cube->transform.scale = Vector3(1000.f, 0.1f, 1000.f);
+	//auto cube = NewGameObject<CubeObject>(L"Cube");
+	//cube->transform.scale = Vector3(1000.f, 0.1f, 1000.f);
 
 	auto Sphere = NewGameObject<SphereObject>(L"Sphere");
 	Sphere->transform.position = Vector3(-180.f, 65.f, 0.f);
@@ -51,8 +51,14 @@ void DeferredTestScene1::ImGUIRender()
 	{
 		for (int i = 0; i < 7; i++)
 		{
-			ImGui::Text("Gbuffer%d", i);
-			ImGui::Image((void*)d3dRenderer.GetGbufferSRV(i), ImVec2(960,540));
+			void* image = (void*)d3dRenderer.GetGbufferSRV(i);
+			if (image)
+			{
+				ImGui::Text("Gbuffer%d", i);
+				ImGui::Image(image, ImVec2(960, 540));
+			}
+			else
+				break;
 		}
 	}
 	ImGui::End();

@@ -411,9 +411,11 @@ void D3DRenderer::BegineDraw()
     }
 
     //clear RTV
-    for (UINT i = 0; i < 1 + GbufferCount; i++)
+    pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[0], backgroundColor);
+    for (UINT i = 1; i < 1 + GbufferCount; i++)
     {
-        pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], backgroundColor);  // 화면 초기화 
+        constexpr float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], clearColor);  // 화면 초기화 
     }
     
     //sky box draw
@@ -507,7 +509,6 @@ void D3DRenderer::EndDraw()
         pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
     	pDeviceContext->OMSetRenderTargets(GbufferCount, &pRenderTargetViewArray[1], pGbufferDSV);
     	pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-        pDeviceContext->PSSetShader(pDeferredPixelShader, nullptr, 0);
     	for (auto& item : opaquerenderOueue)
     	{
     		RenderSceneGbuffer(item);
@@ -531,7 +532,7 @@ void D3DRenderer::EndDraw()
             cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
             D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
         }
-        RenderSceneLight();
+		RenderSceneLight();
     }
 
     //Alpha pass (Forward)
@@ -959,10 +960,10 @@ void D3DRenderer::CreateDeferredResource()
 
     {
         using namespace std::string_literals;
-        std::wstring path = HLSLManager::EngineShaderPath + L"PBRDeferredPS.hlsl"s;
-        hlslManager.MakeShader(path.c_str(), &pDeferredPixelShader);
-        path = HLSLManager::EngineShaderPath + L"DeferredVS.hlsl"s;
+        std::wstring path = HLSLManager::EngineShaderPath + L"DeferredVS.hlsl"s;
         hlslManager.MakeShader(path.c_str(), &pDeferredVertexShader, &pDeferredInputLayout);
+        path = HLSLManager::EngineShaderPath + L"PBRDeferredPS.hlsl"s;
+        hlslManager.MakeShader(path.c_str(), &pDeferredPixelShader);
     }
 
     struct Vertex {
