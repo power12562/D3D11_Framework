@@ -5,6 +5,7 @@
 void BlingPhongMeshRender::Start()
 {
 	SimpleMeshRender::Start();
+	MeshRender::isForward = true;
 
 	BlingPhongMeshObject* meshObj = dynamic_cast<BlingPhongMeshObject*>(&gameObject);
 	if (meshObj)

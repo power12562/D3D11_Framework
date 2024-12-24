@@ -9,7 +9,7 @@ Camera::Camera()
 {
 	FOV = 90;
 	Near = 1.f;
-	Far = 10000.f;
+	Far = 1000.f;
 }
 
 Camera::~Camera()

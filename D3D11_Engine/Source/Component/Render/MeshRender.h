@@ -45,6 +45,7 @@ public:
 
 protected:
 	bool isSkinning = false;
+	bool isForward = false;
 
 public:
 	bool IsVSShader() { return pInputLayout && pVertexShader; }

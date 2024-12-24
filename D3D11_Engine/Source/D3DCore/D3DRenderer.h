@@ -161,6 +161,7 @@ public:
 private:
 	inline static const int GbufferCount = 4;
 	std::vector<RENDERER_DRAW_DESC> opaquerenderOueue; //불투명 오브젝트
+	std::vector<RENDERER_DRAW_DESC> forwardrenderOueue; //불투명 오브젝트 포워드
 	std::vector<RENDERER_DRAW_DESC> alphaRenderQueue;  //반투명 오브젝트
 	size_t DrawCallCount = 0;
 	void RenderSkyBox(class SkyBoxRender* skyBox);
@@ -252,6 +253,7 @@ struct RENDERER_DRAW_DESC
 	ID3D11PixelShader* pPixelShader;
 	ID3D11RasterizerState* pRRState = nullptr;
 	bool isSkinning;
+	bool isForward;
 	bool isAlpha;
 };
 

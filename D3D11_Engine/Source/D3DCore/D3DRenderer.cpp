@@ -284,6 +284,7 @@ void D3DRenderer::Uninit()
 void D3DRenderer::reserveRenderQueue(size_t size)
 {
     opaquerenderOueue.reserve(size);
+    forwardrenderOueue.reserve(size);
     alphaRenderQueue.reserve(size);
     transformUpdateList.reserve(size);
 }
@@ -447,6 +448,8 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
         {
             if (darwDesc.isAlpha)
                 alphaRenderQueue.emplace_back(darwDesc);
+            else if(darwDesc.isForward)
+                forwardrenderOueue.emplace_back(darwDesc);
             else
                 opaquerenderOueue.emplace_back(darwDesc);
         }
@@ -494,6 +497,11 @@ void D3DRenderer::EndDraw()
                 CheckUpdateTransform(item.pTransform);
                 RenderShadowMap(item);
             }
+            for (auto& item : forwardrenderOueue)
+            {
+                CheckUpdateTransform(item.pTransform);
+                RenderShadowMap(item);
+            }
             for (auto& item : alphaRenderQueue)
             {
                 CheckUpdateTransform(item.pTransform);
@@ -535,11 +543,18 @@ void D3DRenderer::EndDraw()
 		RenderSceneLight();
     }
 
-    //Alpha pass (Forward)
-	{       
+    //opaque pass (Forward)
+    {
         ID3D11ShaderResourceView* nullSRV[GbufferCount + 1]{ nullptr, };
         pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, nullSRV);
         pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
+        for (auto& item : forwardrenderOueue)
+        {
+            RenderSceneForward(item);
+        }
+    }
+    //Alpha pass (Forward)
+	{           
 		for (auto& item : alphaRenderQueue)
 		{
 			RenderSceneForward(item);
@@ -552,6 +567,7 @@ void D3DRenderer::EndDraw()
     //clear renderQueue
     DrawCallCount = opaquerenderOueue.size() + alphaRenderQueue.size();
     opaquerenderOueue.clear();
+    forwardrenderOueue.clear();
     alphaRenderQueue.clear();
 
     //flag reset
