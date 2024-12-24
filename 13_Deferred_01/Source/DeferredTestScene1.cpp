@@ -55,7 +55,7 @@ void DeferredTestScene1::ImGUIRender()
 			if (image)
 			{
 				ImGui::Text("Gbuffer%d", i);
-				ImGui::Image(image, ImVec2(960, 540));
+				ImGui::Image(image, ImVec2(426, 240));
 			}
 			else
 				break;
