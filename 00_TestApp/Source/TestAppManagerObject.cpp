@@ -1,5 +1,6 @@
 #include "TestAppManagerObject.h"
 #include "TestMainScene.h"
+#include <framework.h>
 #include "../../13_Deferred_01/Source/DeferredTestScene1.h"
 
 TestAppManagerObject::TestAppManagerObject()
@@ -29,5 +30,10 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 
         mainScene = !mainScene;
     }
-   
+    if (Input.IsKeyDown(Keyboard::F4))
+    {
+        GameObject* object = sceneManager.FindObject(L"char");
+        gameObjectFactory.SerializedObject(object, L"Test/");
+        gameObjectFactory.DeserializedObject(L"Test/char.GameObject");
+    }
 }

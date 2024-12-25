@@ -157,6 +157,36 @@ void Scene::ImGuizmoDraw()
 				ImGuizmo::SetRect(frontView.TopLeftX, frontView.TopLeftY, frontView.Width, frontView.Height);
 				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
 				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
+
+				if (isNotRightClickHELD)
+				{
+					//Button Setting				
+					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
+					{
+						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
+					}
+					if (Input.IsKeyDown(Keyboard::Keys::Escape))
+					{
+						GuizmoSetting.SelectObject = nullptr;
+					}
+				}
+
 				//Draw Guizmo
 				{
 					const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
@@ -191,57 +221,24 @@ void Scene::ImGuizmoDraw()
 					}
 				}
 
-				//Select Object Window
+				//Inspector
 				{
 					constexpr float damp = 15.f;
 					static std::string windowName;
-					static ImVec2 windowSize(300, 200); 
+					static ImVec2 windowSize(300, 200);
 					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
 					ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing); // 창 크기 설정
 					ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing);   // 위치 설정
-					ImGui::PushID("Select Object Window");
 					windowName = GuizmoSetting.SelectObject->GetNameToString();
-					windowName += "##Select Object Window";
+					windowName += "##Inspector";
+					ImGui::PushID("Inspector");
 					ImGui::Begin(windowName.c_str());
 					{
-						windowSize = ImGui::GetWindowSize();
-						windowPos = ImGui::GetWindowPos();
-						Transform* pTransform = nullptr;
-						pTransform = &GuizmoSetting.SelectObject->transform;
-						ImGui::EditTransformHierarchy(pTransform);
+						ImGui::EditTransform(GuizmoSetting.SelectObject);
 					}
 					ImGui::End();
-
 					ImGui::PopID();
-				}
-
-				if (isNotRightClickHELD)
-				{
-					//Button Setting				
-					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
-					{
-						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
-					}
-					if (Input.IsKeyDown(Keyboard::Keys::Escape))
-					{
-						GuizmoSetting.SelectObject = nullptr;
-					}
+					ImGui::ResetGlobalID();
 				}
 			}		
 		}

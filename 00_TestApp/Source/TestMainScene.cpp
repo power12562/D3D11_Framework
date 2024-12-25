@@ -102,6 +102,12 @@ void TestMainScene::ImGUIRender()
     }
     ImGui::End();
 
+    ImGui::Begin("Hierarchy View");
+    {
+        ImGui::EditHierarchyView();
+    }
+    ImGui::End();
+
     if (showCharEdit)
     {
         ImGui::Begin("Char Edit", &showCharEdit);

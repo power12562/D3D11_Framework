@@ -18,6 +18,7 @@ extern GameObjectFactory& gameObjectFactory;
 class GameObjectFactory : public TSingleton<GameObjectFactory>
 {
 	friend class TSingleton;
+	friend class D3D11_GameApp;
     inline static std::map<std::string, std::function<GameObject*(const wchar_t* name)>> newGameObjectFuncMap;
 	inline static size_t MaxGameObjectClassSize = 0;
 	inline static std::string MaxSizeGameObjectClassName;
@@ -44,13 +45,17 @@ public:
 private:
 	GameObjectFactory() = default;
 	~GameObjectFactory() override;
-
-public:
 	void Initialize();
+private:
+	StaticBlockMemoryPool gameObjectMemoryPool;
+public:
 	void* GameObjectAlloc(size_t id);
 	std::function<GameObject*(const wchar_t* name)>& NewGameObjectToKey(const char* key);
 
+	void SerializedObject(GameObject* object, const wchar_t* WritePath);
+	void DeserializedObject(const wchar_t* ReadPath);
 private:
-	StaticBlockMemoryPool gameObjectMemoryPool;
+	void Serialized(GameObject* object, std::ofstream& ofs, size_t level);
+	void Deserialized(std::ifstream& ifs);
 };
 

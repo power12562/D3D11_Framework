@@ -19,6 +19,10 @@ public:
 	GameObject();
 	virtual ~GameObject();
 
+	/** 추가적으로 직렬화할 데이터 필요시 오버라이딩*/
+	virtual void Serialized(std::ofstream& ofs) {};
+	/** 추가적으로 직렬화할 데이터 필요시 오버라이딩*/
+	virtual void Deserialized(std::ifstream& ifs) {};
 public:
 	static void Destroy(GameObject& obj);
 	static void Destroy(GameObject* obj);

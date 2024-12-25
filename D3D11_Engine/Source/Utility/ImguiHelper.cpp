@@ -64,11 +64,11 @@ void ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion
 
 void ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
-	static std::unordered_map<int, Vector3> prevEuler;
+	static std::unordered_map<Quaternion*, Vector3> prevEuler;
 
 	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
 	Vector3 euler = qu->ToEuler() * Mathf::Rad2Deg;
-	Vector3 prev = prevEuler[g_id];
+	Vector3 prev = prevEuler[qu];
 	if (ImGui::DragFloat3(label, (float*)&euler, 1.f))
 	{
 		Quaternion deltaQuat = Quaternion::CreateFromYawPitchRoll(
@@ -82,8 +82,7 @@ void ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion
 			euler = qu->ToEuler() * Mathf::Rad2Deg;
 		}
 	}
-	prevEuler[g_id] = euler;
-	++g_id;
+	prevEuler[qu] = euler;
 }
 
 void ImGui::ColorEdit3(const char* label, const Vector3* pColor, ImGuiColorEditFlags flags)
@@ -130,20 +129,25 @@ void ImGui::EditTransformHierarchy(Transform* pTransform)
 			}
 		};
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
-		{
-			g_id++;
-			ImGui::PushID(g_id);
+		{		
+			static std::string nodeName;			
+			nodeName = transform->gameObject.GetNameToString();
+			nodeName += "##";
+			nodeName += std::to_string(g_id);
 			unsigned int childCount = transform->GetChildCount();
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth;
-			if (Scene::GuizmoSetting.SelectObject == &transform->gameObject)
-				flags |= ImGuiTreeNodeFlags_DefaultOpen;
-
-			if (ImGui::TreeNodeEx(transform->gameObject.GetNameToString().c_str(), flags))
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanFullWidth;
+			bool isSelect = Scene::GuizmoSetting.SelectObject == &transform->gameObject;
+			if (isSelect)
+				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.0f, 0.0f, 0.7f, 1.0f));
+			if (ImGui::TreeNodeEx(nodeName.c_str(), flags))
 			{
-				if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
-				{
-					Scene::GuizmoSetting.SelectObject = &transform->gameObject;
-				}			
+				if (isSelect)
+					ImGui::PopStyleColor();
+
+				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					//Debug_wprintf(L"%s\n", transform->gameObject.Name.c_str()); 
+				    Scene::GuizmoSetting.SelectObject = &transform->gameObject;
+
 				ObjectEditUI(&transform->gameObject);
 				for (size_t i = 0; i < childCount; ++i)
 				{
@@ -151,25 +155,32 @@ void ImGui::EditTransformHierarchy(Transform* pTransform)
 				}
 				ImGui::TreePop();
 			}
-			else if(ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			else
 			{
-				Scene::GuizmoSetting.SelectObject = &transform->gameObject;
-			}
-			ImGui::PopID();	
-		};
+				if(isSelect)
+					ImGui::PopStyleColor();
 
+				if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					//Debug_wprintf(L"%s\n", transform->gameObject.Name.c_str());
+				    Scene::GuizmoSetting.SelectObject = &transform->gameObject;
+			}
+		};	
 	TransformBFS(pTransform);
+	g_id++;
 }
 
 void ImGui::EditHierarchyView()
 {
 	const ObjectList& objects = sceneManager.GetObjectList();
+	PushID("EditHierarchyView");
 	for (auto& object : objects)
 	{
-		if(object->transform.Parent == nullptr)
+		if (object->transform.Parent == nullptr)
+		{		
 			EditTransformHierarchy(&object->transform);
+		}		
 	}
-	g_id++;
+	PopID();
 }
 
 void ImGui::EditD3DRenderer()

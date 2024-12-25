@@ -193,6 +193,7 @@
     <ClInclude Include="Source\D3DCore\D3DRenderer.h" />
     <ClInclude Include="Source\Core\DXTKInputSystem.h" />
     <ClInclude Include="Source\Manager\HLSLManager.h" />
+    <ClInclude Include="Source\Utility\FileSystemUtility.h" />
     <ClInclude Include="Source\Utility\ImguiHelper.h" />
     <ClInclude Include="Source\Manager\InstanceIDManager.h" />
     <ClInclude Include="Source\GameObject\Base\CameraObject.h" />
@@ -212,6 +213,7 @@
     <ClInclude Include="Source\Utility\D3D11Utility.h" />
     <ClInclude Include="Source\Utility\DumpUtility.h" />
     <ClInclude Include="Source\Utility\MemoryUtility.h" />
+    <ClInclude Include="Source\Utility\SerializedUtility.h" />
     <ClInclude Include="Source\Utility\SpinLock.h" />
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
@@ -248,6 +250,7 @@
     <ClCompile Include="Source\D3DCore\D3DRenderer.cpp" />
     <ClCompile Include="Source\Core\DXTKInputSystem.cpp" />
     <ClCompile Include="Source\Manager\HLSLManager.cpp" />
+    <ClCompile Include="Source\Utility\FileSystemUtility.cpp" />
     <ClCompile Include="Source\Utility\ImguiHelper.cpp" />
     <ClCompile Include="Source\Manager\InstanceIDManager.cpp" />
     <ClCompile Include="Source\GameObject\Base\CameraObject.cpp" />
@@ -268,6 +271,7 @@
     <ClCompile Include="Source\Utility\D3D11Utility.cpp" />
     <ClCompile Include="Source\Utility\DumpUtility.cpp" />
     <ClCompile Include="Source\Utility\MemoryUtility.cpp" />
+    <ClCompile Include="Source\Utility\SerializedUtility.cpp" />
     <ClCompile Include="Source\Utility\SpinLock.cpp" />
     <ClCompile Include="Source\Utility\utfConvert.cpp" />
   </ItemGroup>

@@ -47,6 +47,7 @@
 #include <Utility/SpinLock.h>
 #include <Utility/utfConvert.h>
 #include <Utility/ImguiHelper.h>
+#include <Utility/FileSystemUtility.h>
 
 //Math
 #include <Math/Mathf.h>

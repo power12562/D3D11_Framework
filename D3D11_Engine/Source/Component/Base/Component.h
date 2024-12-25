@@ -9,7 +9,10 @@ class Component
 public:
 	Component();
 	virtual ~Component();
-
+	/** 추가적으로 직렬화할 데이터 필요시 오버라이딩*/
+	virtual void Serialized(std::ofstream& ofs) {};
+	/** 추가적으로 직렬화할 데이터 필요시 오버라이딩*/
+	virtual void Deserialized(std::ifstream& ifs) {};
 private:
 	void SetOwner(GameObject* gameObject);
 	int index = -1;
