@@ -54,11 +54,10 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 			d3dRenderer.ToggleFullscreenMode();
 		}
 		return DefWindowProc(hWnd, message, wParam, lParam);
-		break;
 	}
 	case WM_STYLECHANGED:
 	{
-		break;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -67,9 +66,8 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 		break;
 	case WM_EXITSIZEMOVE: 
 	{
-		break;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE) 
 		{
@@ -84,7 +82,7 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 		{
 			sceneManager.EndGame = true;
 		}
-		break;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

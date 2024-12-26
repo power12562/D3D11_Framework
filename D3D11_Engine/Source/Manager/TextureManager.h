@@ -21,6 +21,7 @@ public:
 	ULONG CreateSharingTexture(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
 	ULONG CreateSharingCubeMap(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
 	ULONG ReleaseSharingTexture(const wchar_t* path);
+	void  CompressTexture();
 
 public:
 	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture);

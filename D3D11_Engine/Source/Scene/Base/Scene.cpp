@@ -82,6 +82,8 @@ void Scene::Render()
 		ImGUIBegineDraw();
 		ImGuizmoDraw();
 		ImGUIRender();
+		if (ImGUIPopupFunc)
+			ImGUIPopupFunc();
 		ImGUIEndDraw();
 	}
 	d3dRenderer.Present();

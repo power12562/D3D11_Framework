@@ -63,6 +63,9 @@ public:
 	size_t GetObjectsCount();
 	ObjectList GetObjectList();
 
+	void BindImGUIPopupFunc(const std::function<void()>& func);
+	void ResetImGUIPopupFunc();
+
 	bool EndGame = false;
 private:
 	//Update

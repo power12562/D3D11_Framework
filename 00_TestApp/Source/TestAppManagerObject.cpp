@@ -21,6 +21,13 @@ TestAppManagerObject::~TestAppManagerObject()
 
 void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
+    if (Input.IsKeyDown(Keyboard::F4))
+    {
+        GameObject* object = sceneManager.FindObject(L"char");
+        gameObjectFactory.SerializedObject(object, L"Test/");
+        gameObjectFactory.DeserializedObject(L"Test/char.GameObject");
+    }
+
     if (Input.IsKeyDown(Keyboard::F5))
     {
         if (mainScene)
@@ -30,10 +37,8 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 
         mainScene = !mainScene;
     }
-    if (Input.IsKeyDown(Keyboard::F4))
+    else if (Input.IsKeyDown(Keyboard::F6))
     {
-        GameObject* object = sceneManager.FindObject(L"char");
-        gameObjectFactory.SerializedObject(object, L"Test/");
-        gameObjectFactory.DeserializedObject(L"Test/char.GameObject");
+        textureManager.CompressTexture();
     }
 }

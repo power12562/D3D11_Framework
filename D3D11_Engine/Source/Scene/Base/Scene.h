@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <Utility/AssimpUtility.h>
 #include <directxtk/Keyboard.h>
+#include <functional>
 
 class GameObject;
 class Scene
@@ -24,6 +25,7 @@ protected:
 private:
 	void ImGUIBegineDraw();
 	void ImGuizmoDraw();
+	std::function<void()> ImGUIPopupFunc;
 	void ImGUIEndDraw();
 
 public:

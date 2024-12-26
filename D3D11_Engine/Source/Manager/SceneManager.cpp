@@ -148,6 +148,22 @@ ObjectList SceneManager::GetObjectList()
 	else return std::vector<GameObject*>();
 }
 
+void SceneManager::BindImGUIPopupFunc(const std::function<void()>& func)
+{
+	if (nextScene)
+		nextScene->ImGUIPopupFunc = func;
+	else if (currScene)
+		currScene->ImGUIPopupFunc = func;
+}
+
+void SceneManager::ResetImGUIPopupFunc()
+{
+	if (nextScene)
+		nextScene->ImGUIPopupFunc = nullptr;
+	else if (currScene)
+		currScene->ImGUIPopupFunc = nullptr;
+}
+
 GameObject* SceneManager::FindObject(const wchar_t* name)
 {
 	GameObject* obj = nullptr;

@@ -44,7 +44,7 @@ protected:
 	UINT winClassStyle = CS_HREDRAW | CS_VREDRAW;
 
 	/** 클라이언트 윈도우 스타일. Initialize() 실행전에만 적용됩니다.*/
-	DWORD windowStyleEX = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;;
+	DWORD windowStyleEX = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 
 	/** 윈도우 클래스 구조체 이름. Initialize() 실행전에만 적용됩니다.*/
 	LPCWSTR winClassName = L"GAME_ENGINE";

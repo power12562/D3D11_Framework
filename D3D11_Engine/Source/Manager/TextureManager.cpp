@@ -1,6 +1,8 @@
 #include "TextureManager.h"
 #include <D3DCore/D3DRenderer.h>
 #include <Math/Mathf.h>
+#include <Utility/ImguiHelper.h>
+#include <Manager/SceneManager.h>
 
 TextureManager& textureManager = TextureManager::GetInstance();
 
@@ -67,6 +69,31 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 		__debugbreak(); //키값 x
 		return -1;
 	}
+}
+
+static void CompressPopup()
+{
+	// 모달 팝업 시작
+	if (ImGui::BeginPopupModal("My Modal Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("This is a modal popup!");
+		ImGui::Separator();
+
+		// 확인 버튼
+		if (ImGui::Button("OK"))
+		{
+			ImGui::CloseCurrentPopup(); // 팝업 닫기
+
+		}
+
+		ImGui::EndPopup(); // 팝업 끝
+	}
+	ImGui::SetNextWindowFocus(); // 포커스를 유지하여 다른 창을 막음
+}
+
+void TextureManager::CompressTexture()
+{
+	sceneManager.BindImGUIPopupFunc(CompressPopup);
 }
 
 ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture)
@@ -210,3 +237,4 @@ ID3D11ShaderResourceView* TextureManager::GetCubeZeroTexture()
 		return cubeZeroTexture;
 	}
 }
+
