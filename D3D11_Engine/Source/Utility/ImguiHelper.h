@@ -10,6 +10,7 @@ class Camera;
 struct cb_PBRMaterial;
 struct PBRDirectionalLight;
 struct cb_PBRDirectionalLight;
+struct ID3D11ShaderResourceView;
 namespace ImGui
 {
 	void ResetGlobalID();
@@ -42,4 +43,6 @@ namespace ImGui
 	void EditMaterial(const char* label, cb_PBRMaterial* Material);
 
 	void EditLight(cb_PBRDirectionalLight* Light);
+
+	void ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
 };

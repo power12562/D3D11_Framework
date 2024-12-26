@@ -307,3 +307,28 @@ void ImGui::EditLight(cb_PBRDirectionalLight* Light)
 		g_id++;
 	}
 }
+
+void ImGui::ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView)
+{
+	auto popupFunc = [=]()
+		{
+			// 팝업을 열기 위해 반드시 OpenPopup 호출
+			ImGui::OpenPopup("Compress Texture");
+
+			// 모달 팝업 시작
+			if (ImGui::BeginPopupModal("Compress Texture"))
+			{
+
+
+				// 확인 버튼
+				if (ImGui::Button("OK"))
+				{
+					textureManager.CreateSharingCompressTexture(path, ppOut_ResourceView, Utility::E_COMPRESS::BC7);
+					ImGui::CloseCurrentPopup();
+					sceneManager.PopImGuiPopupFunc();
+				}
+				ImGui::EndPopup();
+			}
+		};
+	sceneManager.PushImGuiPopupFunc(popupFunc);
+}

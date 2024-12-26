@@ -235,6 +235,110 @@ namespace Utility
 		}
 	}
 
+	HRESULT CreateCompressTexture(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView, E_COMPRESS::TYPE type)
+	{
+		HRESULT hr = S_OK;
+		auto ShowErrorMessageBox = [&]()
+			{
+				MessageBoxW(NULL, GetComErrorString(hr), szFileName, MB_OK);
+			};
+
+		std::filesystem::path filePath = szFileName;
+		DX_TEXTURE_EXTENSION extension = GetTexureExtension(filePath.extension().wstring());
+		DirectX::TexMetadata metaData;
+		std::unique_ptr<DirectX::ScratchImage> scratchImage;
+		switch (extension)
+		{
+		case Utility::DX_TEXTURE_EXTENSION::tga:
+		{
+			hr = DirectX::LoadFromTGAFile(szFileName, &metaData, *scratchImage);
+			if (FAILED(hr))
+			{
+				ShowErrorMessageBox();
+				return hr;
+			}
+			break;
+		}
+		case Utility::DX_TEXTURE_EXTENSION::dds:
+		{
+			hr = DirectX::LoadFromDDSFile(szFileName, DDS_FLAGS_NONE, &metaData, *scratchImage);
+			if (FAILED(hr))
+			{
+				ShowErrorMessageBox();
+				return hr;
+			}
+			break;
+		}
+		default:
+		{
+			hr = DirectX::LoadFromWICFile(szFileName, WIC_FLAGS_NONE, &metaData, *scratchImage);
+			if (FAILED(hr))
+			{
+				ShowErrorMessageBox();
+				return hr;
+			}
+			break;
+		}
+		}
+
+		if (scratchImage->GetMetadata().mipLevels <= 1 && scratchImage->GetMetadata().width > 1 && scratchImage->GetMetadata().height > 1)
+		{
+			std::unique_ptr<ScratchImage> tempimage(new (std::nothrow) ScratchImage);
+			hr = GenerateMipMaps(scratchImage->GetImages(), scratchImage->GetImageCount(), scratchImage->GetMetadata(), TEX_FILTER_DEFAULT, 0, *tempimage);
+			CheckHRESULT(hr);
+			std::swap(scratchImage, tempimage);
+		}
+
+		if (E_COMPRESS::None != type && !IsCompressed(scratchImage->GetMetadata().format))
+		{
+			std::unique_ptr<ScratchImage> compressedImage(new (std::nothrow) ScratchImage);
+			DXGI_FORMAT compressFormat;
+			TEX_COMPRESS_FLAGS compressFlag = TEX_COMPRESS_PARALLEL;
+			switch (type)
+			{
+			case E_COMPRESS::BC1:
+				compressFormat = DXGI_FORMAT_BC1_UNORM;
+				compressFlag |= TEX_COMPRESS_DITHER | TEX_COMPRESS_UNIFORM | TEX_COMPRESS_SRGB;
+				break;
+			case E_COMPRESS::BC3:
+				compressFormat = DXGI_FORMAT_BC3_UNORM;
+				compressFlag |= TEX_COMPRESS_UNIFORM | TEX_COMPRESS_SRGB;
+				break;
+			case E_COMPRESS::BC4:
+				compressFormat = DXGI_FORMAT_BC4_UNORM;
+				break;
+			case E_COMPRESS::BC5:
+				compressFormat = DXGI_FORMAT_BC5_SNORM;
+				break;
+			case E_COMPRESS::BC6:
+				compressFormat = DXGI_FORMAT_BC6H_SF16;
+				break;
+			case E_COMPRESS::BC7:
+				compressFormat = DXGI_FORMAT_BC7_UNORM;
+				compressFlag |= TEX_COMPRESS_BC7_QUICK;
+				break;
+			default:
+				compressFormat = DXGI_FORMAT_UNKNOWN;
+				break;
+			}
+			hr = Compress(scratchImage->GetImages(), scratchImage->GetImageCount(), scratchImage->GetMetadata(), compressFormat, compressFlag, TEX_ALPHA_WEIGHT_DEFAULT, *compressedImage);
+			CheckHRESULT(hr);
+			std::swap(scratchImage, compressedImage);
+		}
+
+		ComPtr<ID3D11Resource> tempTexture;
+		hr = CreateTexture(d3dDevice, 
+			scratchImage->GetImages(),
+			scratchImage->GetImageCount(),
+			scratchImage->GetMetadata(),
+			&tempTexture);
+		CheckHRESULT(hr);
+
+		hr = d3dDevice->CreateShaderResourceView(tempTexture.Get(), nullptr, textureView);
+		CheckHRESULT(hr);
+		return S_OK;
+	}
+
 	UINT GetMipmapLevels(UINT width, UINT height)
 	{
 		UINT levels = 1;
@@ -434,6 +538,7 @@ namespace Utility
 		else
 			return DX_TEXTURE_EXTENSION::null;
 	}
+
 }
 
 namespace DebugDraw

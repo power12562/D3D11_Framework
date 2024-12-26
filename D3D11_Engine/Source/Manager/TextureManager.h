@@ -19,10 +19,10 @@ private:
 
 public:
 	ULONG CreateSharingTexture(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
+	ULONG CreateSharingCompressTexture(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView, Utility::E_COMPRESS::TYPE type);
 	ULONG CreateSharingCubeMap(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
 	ULONG ReleaseSharingTexture(const wchar_t* path);
-	void  CompressTexture();
-
+	
 public:
 	ID3D11ShaderResourceView* GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture);
 	void ReleaseDefaultTexture();
@@ -42,3 +42,5 @@ private:
 	ID3D11ShaderResourceView* zeroTexture = nullptr;
 	ID3D11ShaderResourceView* cubeZeroTexture = nullptr;
 };
+
+

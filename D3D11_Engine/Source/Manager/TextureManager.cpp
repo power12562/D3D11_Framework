@@ -8,27 +8,6 @@ TextureManager& textureManager = TextureManager::GetInstance();
 
 using namespace Utility;
 
-static void CompressPopup()
-{
-	// 팝업을 열기 위해 반드시 OpenPopup 호출
-	ImGui::OpenPopup("Compress Texture");
-
-	// 모달 팝업 시작
-	if (ImGui::BeginPopupModal("Compress Texture"))
-	{
-
-
-
-		// 확인 버튼
-		if (ImGui::Button("OK"))
-		{
-			ImGui::CloseCurrentPopup();
-			sceneManager.PopImGuiPopupFunc();
-		}
-		ImGui::EndPopup();
-	}
-}
-
 TextureManager::TextureManager()
 {
 }
@@ -49,6 +28,24 @@ ULONG TextureManager::CreateSharingTexture(const wchar_t* path, ID3D11ShaderReso
 	{
 		ID3D11ShaderResourceView* newResource;
 		CheckHRESULT(CreateTextureFromFile(d3dRenderer.GetDevice(), path, nullptr, &newResource));
+		resourceMap[path] = newResource;
+		*ppOut_ResourceView = newResource;
+		return 1;
+	}
+}
+
+ULONG TextureManager::CreateSharingCompressTexture(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView, Utility::E_COMPRESS::TYPE type)
+{
+	auto findIter = resourceMap.find(path);
+	if (findIter != resourceMap.end())
+	{
+		*ppOut_ResourceView = findIter->second;
+		return findIter->second->AddRef();
+	}
+	else
+	{
+		ID3D11ShaderResourceView* newResource;
+		CheckHRESULT(CreateCompressTexture(d3dRenderer.GetDevice(), path, nullptr, &newResource, type));
 		resourceMap[path] = newResource;
 		*ppOut_ResourceView = newResource;
 		return 1;
@@ -92,10 +89,6 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 	}
 }
 
-void TextureManager::CompressTexture()
-{
-	sceneManager.PushImGuiPopupFunc(CompressPopup);
-}
 
 ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture)
 {
