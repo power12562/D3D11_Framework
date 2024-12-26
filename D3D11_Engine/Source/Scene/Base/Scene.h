@@ -8,6 +8,7 @@
 #include <Utility/AssimpUtility.h>
 #include <directxtk/Keyboard.h>
 #include <functional>
+#include <queue>
 
 class GameObject;
 class Scene
@@ -25,7 +26,7 @@ protected:
 private:
 	void ImGUIBegineDraw();
 	void ImGuizmoDraw();
-	std::function<void()> ImGUIPopupFunc;
+	std::queue<std::function<void()>> ImGUIPopupQue;
 	void ImGUIEndDraw();
 
 public:

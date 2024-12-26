@@ -413,6 +413,7 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
     {      
         GameObject* obj = &darwDesc.pTransform->gameObject;
         obj->isCulling = CheckFrustumCulling(obj);
+        obj->transform.ResetFlagUpdateWM();
         if (obj->isCulling)
         {
             if (darwDesc.isAlpha)
@@ -571,17 +572,16 @@ void D3DRenderer::EndDraw()
     opaquerenderOueue.clear();
     forwardrenderOueue.clear();
     alphaRenderQueue.clear();
-
-    //flag reset
-    for (auto& item : transformUpdateList)
-    {
-        item->ResetFlagUpdateWM();      
-    }
-    transformUpdateList.clear();
 }
 
 void D3DRenderer::Present()
 {
+    //flag reset
+    for (auto& item : transformUpdateList)
+    {
+        item->ResetFlagUpdateWM();
+    }
+    transformUpdateList.clear();
 	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
 }
 

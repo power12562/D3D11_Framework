@@ -8,6 +8,27 @@ TextureManager& textureManager = TextureManager::GetInstance();
 
 using namespace Utility;
 
+static void CompressPopup()
+{
+	// 팝업을 열기 위해 반드시 OpenPopup 호출
+	ImGui::OpenPopup("Compress Texture");
+
+	// 모달 팝업 시작
+	if (ImGui::BeginPopupModal("Compress Texture"))
+	{
+
+
+
+		// 확인 버튼
+		if (ImGui::Button("OK"))
+		{
+			ImGui::CloseCurrentPopup();
+			sceneManager.PopImGuiPopupFunc();
+		}
+		ImGui::EndPopup();
+	}
+}
+
 TextureManager::TextureManager()
 {
 }
@@ -71,29 +92,9 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 	}
 }
 
-static void CompressPopup()
-{
-	// 모달 팝업 시작
-	if (ImGui::BeginPopupModal("My Modal Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		ImGui::Text("This is a modal popup!");
-		ImGui::Separator();
-
-		// 확인 버튼
-		if (ImGui::Button("OK"))
-		{
-			ImGui::CloseCurrentPopup(); // 팝업 닫기
-
-		}
-
-		ImGui::EndPopup(); // 팝업 끝
-	}
-	ImGui::SetNextWindowFocus(); // 포커스를 유지하여 다른 창을 막음
-}
-
 void TextureManager::CompressTexture()
 {
-	sceneManager.BindImGUIPopupFunc(CompressPopup);
+	sceneManager.PushImGuiPopupFunc(CompressPopup);
 }
 
 ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture)

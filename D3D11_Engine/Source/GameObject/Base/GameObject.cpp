@@ -81,8 +81,12 @@ void GameObject::DestroyComponent(Component* component)
 	}
 }
 
-DirectX::BoundingOrientedBox GameObject::GetOBBToWorld() const
+DirectX::BoundingOrientedBox GameObject::GetOBBToWorld()
 {
+	if (!transform.IsUpdateWM())
+	{
+		transform.UpdateTransform();
+	}
 	BoundingOrientedBox boundingBoxOut;
 	boundingBoxOut.CreateFromBoundingBox(boundingBoxOut, Bounds);
 	boundingBoxOut.Transform(boundingBoxOut, transform.GetWM());

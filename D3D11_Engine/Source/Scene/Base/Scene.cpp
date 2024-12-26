@@ -82,8 +82,8 @@ void Scene::Render()
 		ImGUIBegineDraw();
 		ImGuizmoDraw();
 		ImGUIRender();
-		if (ImGUIPopupFunc)
-			ImGUIPopupFunc();
+		if (!ImGUIPopupQue.empty())
+			ImGUIPopupQue.front()();
 		ImGUIEndDraw();
 	}
 	d3dRenderer.Present();
@@ -179,7 +179,6 @@ void Scene::ImGuizmoDraw()
 					Vector3 postion, scale;
 					Quaternion rotation;
 					objMatrix.Decompose(scale, rotation, postion);
-					
 					if (rootParent)
 					{
 						GuizmoSetting.SelectObject->transform.localPosition = postion;

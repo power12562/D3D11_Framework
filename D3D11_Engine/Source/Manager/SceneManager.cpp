@@ -148,20 +148,20 @@ ObjectList SceneManager::GetObjectList()
 	else return std::vector<GameObject*>();
 }
 
-void SceneManager::BindImGUIPopupFunc(const std::function<void()>& func)
+void SceneManager::PushImGuiPopupFunc(const std::function<void()>& func)
 {
 	if (nextScene)
-		nextScene->ImGUIPopupFunc = func;
+		nextScene->ImGUIPopupQue.push(func);
 	else if (currScene)
-		currScene->ImGUIPopupFunc = func;
+		currScene->ImGUIPopupQue.push(func);
 }
 
-void SceneManager::ResetImGUIPopupFunc()
+void SceneManager::PopImGuiPopupFunc()
 {
 	if (nextScene)
-		nextScene->ImGUIPopupFunc = nullptr;
+		nextScene->ImGUIPopupQue.pop();
 	else if (currScene)
-		currScene->ImGUIPopupFunc = nullptr;
+		currScene->ImGUIPopupQue.pop();
 }
 
 GameObject* SceneManager::FindObject(const wchar_t* name)
