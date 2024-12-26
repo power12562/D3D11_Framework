@@ -67,6 +67,7 @@ void ImportFBXScene::Start()
 
 	auto initMesh = [](MeshRender* mesh)
 		{
+			mesh->isForward = true;
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
 			mesh->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_material);
 

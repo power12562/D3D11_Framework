@@ -37,6 +37,7 @@ public:
 		struct NodeAnimation
 		{
 			friend struct Clip;
+			friend class TransformAnimation;
 			struct PositionKey
 			{
 				float Time{};
@@ -60,8 +61,10 @@ public:
 			int lastPosIndex = 0;
 			int lastRotIndex = 0;
 			int lastScaleIndex = 0;
-		public:
+		private:
 			GameObject* objTarget = nullptr;
+		public:
+			std::wstring targetName;
 		};
 		std::vector<NodeAnimation> nodeAnimations;
 		float Duration{};
@@ -92,6 +95,7 @@ public:
 	void CopyClips(TransformAnimation* source);
 	size_t GetClipsCount() { return clips.size(); }
 
+	void AddTarget(const wchar_t* targetName, GameObject* object);
 public:
 	virtual void Start() 		 override;
 protected:						 
@@ -101,6 +105,7 @@ protected:
 
 private:
 	std::unordered_map<std::wstring, Clip> clips;
+	std::unordered_map<std::wstring, GameObject*> targets; //타겟으로 사용할 오브젝트들
 	
 	Clip* currClip = nullptr;
 	bool isPause = false;

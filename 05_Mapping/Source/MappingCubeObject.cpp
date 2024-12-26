@@ -140,6 +140,7 @@ void MappingCubeObject::Render()
     draw_desc.pVertexShader = pVertexShader;
     draw_desc.pPixelShader = pPixelShader;
     draw_desc.pTransform = &gameObject.transform;
+    draw_desc.isForward = true;
 
     d3dRenderer.DrawIndex(draw_desc);
 }

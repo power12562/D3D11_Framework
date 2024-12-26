@@ -24,6 +24,20 @@ bool TransformAnimation::PlayClip(const wchar_t* clipName, bool _isLoop)
 		currClip = &findIter->second;
 		isPause = false;
 		isLoop = _isLoop;
+		
+		//대상을 찾는다
+		for (auto& animation : currClip->nodeAnimations)
+		{
+			auto findTarget = targets.find(animation.targetName);
+			if (findTarget == targets.end())
+			{
+				Debug_printf("warning: TransformAnimation::PlayClip target not found\n");
+				currClip = nullptr;
+				return false;
+			}
+			auto& [name, target] = *findTarget;
+			animation.objTarget = target;
+		}
 
 		//첫프레임은 Matrix 바로 갱신
 		elapsedTime = currClip->TickTime * TimeSystem::Time.DeltaTime;
@@ -61,6 +75,11 @@ void TransformAnimation::AddClip(const wchar_t* name, Clip& clip)
 void TransformAnimation::CopyClips(TransformAnimation* source)
 {
 	this->clips = source->clips;
+}
+
+void TransformAnimation::AddTarget(const wchar_t* targetName, GameObject* object)
+{
+	targets[targetName] = object;
 }
 
 void TransformAnimation::Start()

@@ -234,13 +234,12 @@ namespace Utility
 		}
 	}
 
-	static void SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
+	static TransformAnimation* SetTransformAnimation(const aiScene* pScene, GameObject& _gameObject, std::unordered_map<std::wstring, GameObject*>& addObjMap)
 	{
 		using Clip = TransformAnimation::Clip;
 		using PositionKey = TransformAnimation::Clip::NodeAnimation::PositionKey;
 		using RotationKey = TransformAnimation::Clip::NodeAnimation::RotationKey;
 		using ScaleKey = TransformAnimation::Clip::NodeAnimation::ScaleKey;
-
 		TransformAnimation& anime = _gameObject.AddComponent<TransformAnimation>();
 		for (unsigned int i = 0; i < pScene->mNumAnimations; i++)
 		{
@@ -248,25 +247,28 @@ namespace Utility
 			Clip clip;
 			clip.Duration = (float)currAnimation->mDuration;
 			clip.TickTime = (float)currAnimation->mTicksPerSecond;
+			std::wstring clipName = utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str());
 			for (unsigned int j = 0; j < currAnimation->mNumChannels; j++)
-			{
+			{			
 				aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
 				using NodeAnime = Clip::NodeAnimation;
 				NodeAnime nodeAnime;
-				nodeAnime.objTarget = addObjMap[utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str()).c_str()];
+				std::wstring currNodeName = utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str());
+				nodeAnime.targetName = currNodeName;
 
+				std::wstring ResourceKey = clipName + currNodeName;
 				//make keyList
 				if (currNodeAnim->mNumPositionKeys > 0 && !nodeAnime.positionKeys)
 				{
-					nodeAnime.positionKeys = std::make_shared<std::vector<PositionKey>>();
+					nodeAnime.positionKeys = GetResourceManager<std::vector<PositionKey>>().GetResource(ResourceKey.c_str());
 				}
 				if (currNodeAnim->mNumRotationKeys > 0 && !nodeAnime.rotationKeys)
 				{
-					nodeAnime.rotationKeys = std::make_shared<std::vector<RotationKey>>();
+					nodeAnime.rotationKeys = GetResourceManager<std::vector<RotationKey>>().GetResource(ResourceKey.c_str());
 				}
 				if (currNodeAnim->mNumScalingKeys > 0 && !nodeAnime.scaleKeys)
 				{
-					nodeAnime.scaleKeys = std::make_shared<std::vector<ScaleKey>>();
+					nodeAnime.scaleKeys = GetResourceManager<std::vector<ScaleKey>>().GetResource(ResourceKey.c_str());
 				}
 
 				for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
@@ -300,8 +302,9 @@ namespace Utility
 				}
 				clip.nodeAnimations.push_back(nodeAnime);
 			}
-			anime.AddClip(utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str()).c_str(), clip);
+			anime.AddClip(clipName.c_str(), clip);
 		}
+		return &anime;
 	}
 
 	static GameObject* IsResource(const std::wstring& key)
@@ -358,7 +361,7 @@ namespace Utility
 		std::vector<BoneComponent*> boneList(128);
 		std::vector<TransformAnimation::Clip*> clipList;
 		std::unordered_map<std::wstring, GameObject*> destObjNameMap;
-
+		TransformAnimation* destAnime = nullptr;
 		while (!objSourceQue.empty())
 		{
 			currSourceObj = objSourceQue.front();
@@ -375,7 +378,7 @@ namespace Utility
 				//copy Animation
 				if (TransformAnimation* animation = currSourceObj->IsComponent<TransformAnimation>())
 				{
-					TransformAnimation* destAnime = &currDestObj->AddComponent<TransformAnimation>();
+					destAnime = &currDestObj->AddComponent<TransformAnimation>();
 					destAnime->CopyClips(animation);
 					clipList.reserve(destAnime->GetClipsCount());
 					for (auto& clip : destAnime->GetClips())
@@ -464,6 +467,11 @@ namespace Utility
 				GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
 				destChild->transform.SetParent(currDestObj->transform);
 				objDestQue.push(destChild);
+
+				if (destAnime)
+				{
+					destAnime->AddTarget(sourceChild->Name.c_str(), destChild);
+				}
 			}
 
 			destObjNameMap[currDestObj->Name] = currDestObj;
@@ -489,7 +497,7 @@ namespace Utility
 		{
 			for (auto& animation : clip->nodeAnimations)
 			{
-				animation.objTarget = destObjNameMap[animation.objTarget->Name];
+				animation.targetName = animation.targetName;
 			}
 		}
 	}
@@ -596,6 +604,12 @@ void Utility::LoadFBX(const wchar_t* path,
 	std::vector<SimpleBoneMeshRender*> meshList;
 	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
 	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
+	TransformAnimation* transformAnimation = nullptr;
+	//set animation
+	if (pScene->mAnimations)
+	{
+		transformAnimation = SetTransformAnimation(pScene, _gameObject, addObjMap);
+	}
 
 	while (!nodeQue.empty())
 	{
@@ -609,11 +623,12 @@ void Utility::LoadFBX(const wchar_t* path,
 
 		if (currNode)
 		{			
+			std::wstring currNodeName = utf8_to_wstring(currNode->mName.C_Str());
 			if (boneCount > 0)
-			{					
+			{			
 				SetNodeTransform(currNode, currObj);
-
-				auto findIndex = boneIndexMap.find(utf8_to_wstring(currNode->mName.C_Str()));
+				
+				auto findIndex = boneIndexMap.find(currNodeName);
 				if (findIndex != boneIndexMap.end())
 				{
 					int index = findIndex->second;
@@ -629,6 +644,8 @@ void Utility::LoadFBX(const wchar_t* path,
 						meshList.push_back(&meshComponent);
 
 						unsigned int meshIndex = currNode->mMeshes[i];
+						std::wstring OffsetMatricesKey = currNodeName + std::to_wstring(meshIndex);
+
 						aiMesh* pMesh = pScene->mMeshes[meshIndex];
 
 						//Load Texture
@@ -636,7 +653,7 @@ void Utility::LoadFBX(const wchar_t* path,
 						LoadTexture(ai_material, directory.c_str(), &meshComponent, surface);
 
 						//offsetMatrices
-						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
+						meshComponent.offsetMatrices = GetResourceManager<OffsetMatrices>().GetResource(OffsetMatricesKey.c_str());
 						meshComponent.offsetMatrices->data.resize(boneCount);
 
 						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
@@ -784,14 +801,19 @@ void Utility::LoadFBX(const wchar_t* path,
 				}
 			}
 			
+			//create childs
 			for (unsigned int i = 0; i < currNode->mNumChildren; i++)
 			{
 				nodeQue.push(currNode->mChildren[i]);
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
 				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
-
 				objQue.push(childObj);
+
+				if (transformAnimation)
+				{
+					transformAnimation->AddTarget(childName.c_str(), childObj);
+				}
 			}
 		}
 	}
@@ -799,11 +821,6 @@ void Utility::LoadFBX(const wchar_t* path,
 	for (auto& mesh : meshList)
 	{
 		mesh->boneList = boneList;
-	}
-
-	if (pScene->mAnimations)
-	{
-		SetTransformAnimation(pScene, _gameObject, addObjMap);
 	}
 
 	//리소스 등록
@@ -884,17 +901,16 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 		}
 	}
 	boneCount = boneIndexMap.size();
-	std::shared_ptr<MatrixPallete> rootMatrixPallete = nullptr;
-	std::shared_ptr<BoneWIT> rootBoneWIT = nullptr;
-	if (boneCount > 0)
-	{
-		rootMatrixPallete = std::make_shared<MatrixPallete>();
-		rootBoneWIT = std::make_shared<BoneWIT>();
-	}
 	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
 	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
 	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
+	TransformAnimation* transformAnimation = nullptr;
+
+	if (pScene->mAnimations)
+	{
+		transformAnimation = SetTransformAnimation(pScene, _gameObject, addObjMap);
+	}
 
 	while (!nodeQue.empty())
 	{
@@ -908,6 +924,7 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 
 		if (currNode)
 		{
+			std::wstring currNodeName = utf8_to_wstring(currNode->mName.C_Str());
 			if (boneCount > 0)
 			{
 				SetNodeTransform(currNode, currObj);
@@ -924,6 +941,7 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 				{
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
 					{
+						std::wstring OffsetMatricesKey = currNodeName + std::to_wstring(i);
 						SimpleBoneMeshRender& meshComponent = AddBoneMeshComponent(currObj, surface);
 						meshList.push_back(&meshComponent);
 
@@ -938,7 +956,7 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 						LoadTexture(ai_material, directory.c_str(), &meshComponent, SURFACE_TYPE::NONE);
 ;
 						//offsetMatrices
-						meshComponent.offsetMatrices = std::make_shared<OffsetMatrices>();
+						meshComponent.offsetMatrices = GetResourceManager<OffsetMatrices>().GetResource(OffsetMatricesKey.c_str());
 						meshComponent.offsetMatrices->data.resize(boneCount);
 
 						for (unsigned int i = 0; i < pMesh->mNumBones; i++)
@@ -1087,8 +1105,12 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
 				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
-
 				objQue.push(childObj);
+
+				if (transformAnimation)
+				{
+					transformAnimation->AddTarget(childName.c_str(), childObj);
+				}
 			}
 		}
 	}
@@ -1096,11 +1118,6 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 	for (auto& mesh : meshList)
 	{
 		mesh->boneList = boneList;
-	}
-
-	if (pScene->mAnimations)
-	{
-		SetTransformAnimation(pScene, _gameObject, addObjMap);
 	}
 
 	//Move ResouceObj
