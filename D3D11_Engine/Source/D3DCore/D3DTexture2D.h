@@ -11,8 +11,7 @@ namespace E_TEXTURE
 	//Texture2D opacityTexture : register(t4);
 	//Texture2D metalnessTexture : register(t5);
 	//Texture2D roughnessTexture : register(t6);
-	//Texture2D RMACTexture : register(t7);
-	//Texture2D ambientOcculusionTexture : register(t8);
+	//Texture2D ambientOcculusionTexture : register(t7);
 
 	//TextureCube Diffuse_IBL_Texture : register(t9);
 	//TextureCube Specular_IBL_Texture : register(t10);
@@ -28,7 +27,6 @@ namespace E_TEXTURE
 		Opacity,
 		Metalness,
 		Roughness,
-		RMACTexture,
 		AmbientOcculusion,
 		
 		//SkyBox °íÁ¤Çü.

@@ -125,7 +125,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	auto initMesh = [this](MeshRender* mesh)
 		{		
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
-			obj.Material.UseRMACMap = true;
 			std::string key = obj.GetNameToString();
 			if (pistolMaterials.find(key) == pistolMaterials.end())
 				pistolMaterials[key] = &obj.Material;
@@ -134,7 +133,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 				cb_PBRMaterial& material = *(pistolMaterials[key]);
 				mesh->constBuffer.BindUpdateEvent(material);
 			}
-			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
 			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);

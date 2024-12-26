@@ -12,7 +12,6 @@ D3DTexture2D::D3DTexture2D()
 	SetDefaultTexture(E_TEXTURE::Opacity, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::Metalness, E_TEXTURE_DEFAULT::ZERO);
 	SetDefaultTexture(E_TEXTURE::Roughness, E_TEXTURE_DEFAULT::ZERO);
-	SetDefaultTexture(E_TEXTURE::RMACTexture, E_TEXTURE_DEFAULT::ONE);
 	SetDefaultTexture(E_TEXTURE::AmbientOcculusion, E_TEXTURE_DEFAULT::ONE);
 }
 

@@ -29,9 +29,7 @@ void IBLTestScene::Start()
 	auto initMesh = [this](MeshRender* mesh)
 		{
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
-			obj.Material.UseRMACMap = true;
 			pistolMaterials[obj.GetNameToString()] = &obj.Material;
-			mesh->textures.SetTexture2D(E_TEXTURE::RMACTexture, L"Resource/pistol/Cerberus_RMAC.dds");
 			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);

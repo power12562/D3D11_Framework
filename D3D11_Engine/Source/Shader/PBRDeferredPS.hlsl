@@ -3,14 +3,14 @@ SamplerState linearSampler : register(s0);
 SamplerComparisonState ShadowMapSampler : register(s1);
 
 Texture2D AlbedoTexture : register(t0);     //Albedo rgb
-Texture2D SpecularTexture : register(t1);   //Metallic.r + Specular.g + Roughness.b + AO.a
+Texture2D SpecularTexture : register(t1);   //Specular.r + Metallic.g + Roughness.b + AO.a
 Texture2D NormalTexture : register(t2);     //Normal.rgb
 Texture2D EmissiveTexture : register(t3);   //Emissive.rgb
 Texture2D DepthTexture : register(t4);      //Depth.r
 
-TextureCube Diffuse_IBL_Texture : register(t9);
-TextureCube Specular_IBL_Texture : register(t10);
-Texture2D BRDF_LUT : register(t11);
+TextureCube Diffuse_IBL_Texture : register(t8);
+TextureCube Specular_IBL_Texture : register(t9);
+Texture2D BRDF_LUT : register(t10);
 
 Texture2D ShadowMapTextures[4] : register(t124);
 
@@ -69,14 +69,14 @@ float4 main(PS_Deferred input) : SV_Target
     float3 N = NormalTexture.Sample(linearSampler, input.Tex).rgb * 2.0f - 1.f;
     N = normalize(N);
    
-    float3 albedo = AlbedoTexture.Sample(linearSampler, input.Tex).rgb;
+    float3 albedo = GammaToLinearSpace(AlbedoTexture.Sample(linearSampler, input.Tex).rgb);
     float3 emissive = EmissiveTexture.Sample(linearSampler, input.Tex).rgb;
-    float4 MSRAO = SpecularTexture.Sample(linearSampler, input.Tex);
+    float4 SMRAO = SpecularTexture.Sample(linearSampler, input.Tex);
     
-    float metalness = MSRAO.r;
-    float specular  = MSRAO.g;
-    float roughness = MSRAO.b;
-    float ambientOcculusion = MSRAO.a;
+    float specular =  SMRAO.r;
+    float metalness = SMRAO.g;
+    float roughness = SMRAO.b;
+    float ambientOcculusion = SMRAO.a;
         
     float Depth = DepthTexture.Sample(linearSampler, input.Tex).r;
     clip(1.f - Epsilon - Depth);
@@ -199,8 +199,9 @@ float4 main(PS_Deferred input) : SV_Target
 
     //조명 계산
     float3 ambientLighting = (diffuseIBL + specularIBL) * ambientOcculusion;  
-    finalColor += ambientLighting + emissive;
+    finalColor += ambientLighting;
     
     finalColor = LinearToGammaSpaceExact(finalColor);
+    finalColor += emissive;
     return float4(finalColor, 1);
 }

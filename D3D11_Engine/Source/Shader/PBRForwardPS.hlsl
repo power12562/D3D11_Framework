@@ -10,12 +10,11 @@ Texture2D emissiveTexture : register(t3);
 Texture2D opacityTexture : register(t4);
 Texture2D metalnessTexture : register(t5);
 Texture2D roughnessTexture : register(t6);
-Texture2D RMACTexture : register(t7);
-Texture2D ambientOcculusionTexture : register(t8);
+Texture2D ambientOcculusionTexture : register(t7);
 
-TextureCube Diffuse_IBL_Texture : register(t9);
-TextureCube Specular_IBL_Texture : register(t10);
-Texture2D BRDF_LUT : register(t11);
+TextureCube Diffuse_IBL_Texture : register(t8);
+TextureCube Specular_IBL_Texture : register(t9);
+Texture2D BRDF_LUT : register(t10);
 
 Texture2D ShadowMapTextures[4] : register(t124);
 
@@ -61,8 +60,8 @@ float4 main(PS_INPUT input) : SV_Target
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
-    float4 RMACSample = RMACTexture.Sample(defaultSampler, input.Tex);
     float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
+    float4 specularSample = specularTexture.Sample(defaultSampler, input.Tex); //Specular Map
     
     float3 N; 
     if (Epsilon < length(normalSample))
@@ -77,24 +76,25 @@ float4 main(PS_INPUT input) : SV_Target
     float metalness = Metalness;
     float roughness = Roughness;
     float ambientOcculusion = ambientSample;
-
+    float specular = specularSample.r;
+        
     if (UseMetalnessMap)
         metalness = metalnessSample;
     else if (UseRMACMap)
-        metalness = RMACSample.g;
+        metalness = specularSample.g;
     
     if (UseRoughnessMap)
         roughness = roughnessSample;
     else if (UseRMACMap)
-        roughness = RMACSample.a;
+        roughness = specularSample.b;
           
     if (UseRMACMap)
-        ambientOcculusion = RMACSample.b;
+        ambientOcculusion = specularSample.a;
     
     float3 albedo = albedoSample.rgb * baseColor.rgb;
           
     float3 F0 = lerp(Fdielectric, albedo, metalness); //F0 구하기
-    F0 *= specularTexture.Sample(defaultSampler, input.Tex).rgb; //Specular Map
+    F0 *= specular;
     
     float3 V = normalize(MainCamPos - input.World); // 뷰 방향  
     float NoV = max(0.0, dot(N, V)); // N·V 계산
