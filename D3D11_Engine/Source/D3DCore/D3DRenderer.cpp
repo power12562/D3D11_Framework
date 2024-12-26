@@ -141,7 +141,7 @@ void D3DRenderer::Init()
         D3D11_RASTERIZER_DESC rasterDesc;
         ZeroMemory(&rasterDesc, sizeof(rasterDesc));
         rasterDesc.FillMode = D3D11_FILL_SOLID;
-        rasterDesc.CullMode = D3D11_CULL_NONE;  // 컬링 없음
+        rasterDesc.CullMode = D3D11_CULL_BACK;  // 뒷면 컬링
         rasterDesc.FrontCounterClockwise = false; // 기본값
         SetRRState(rasterDesc);
 
@@ -850,16 +850,13 @@ void D3DRenderer::RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc)
     pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
 
     //Set RSState
-	static bool isDefaultRRState = false;
 	if (drawDesc.pRRState)
 	{
 		pDeviceContext->RSSetState(drawDesc.pRRState);
-		isDefaultRRState = false;
 	}
-	else if (!isDefaultRRState)
+	else
 	{
 		pDeviceContext->RSSetState(pDefaultRRState);
-		isDefaultRRState = true;
 	}
 
 	//set sampler
@@ -917,16 +914,13 @@ void D3DRenderer::RenderSceneForward(RENDERER_DRAW_DESC& drawDesc)
         pDeviceContext->VSSetShader(drawDesc.pVertexShader, nullptr, 0);
         pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
 
-        static bool isDefaultRRState = false;
         if (drawDesc.pRRState)
         {
             pDeviceContext->RSSetState(drawDesc.pRRState);
-            isDefaultRRState = false;
         }
-        else if (!isDefaultRRState)
+        else
         {
             pDeviceContext->RSSetState(pDefaultRRState);
-            isDefaultRRState = true;
         }
 
         //set sampler
