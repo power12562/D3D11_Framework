@@ -122,8 +122,8 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
-	gameObjectFactory.Initialize();
 	DXTKinputSystem.Initialize(GetHWND());
+	gameObjectFactory.InitializeMemoryPool();
 
 	if (sceneManager.nextScene == nullptr)
 		sceneManager.LoadScene<Scene>(); //ºó ¾À ·Îµå

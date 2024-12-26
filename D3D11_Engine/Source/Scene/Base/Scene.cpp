@@ -158,35 +158,6 @@ void Scene::ImGuizmoDraw()
 				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
 				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
 
-				if (isNotRightClickHELD)
-				{
-					//Button Setting				
-					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
-					{
-						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
-					}
-					if (Input.IsKeyDown(Keyboard::Keys::Escape))
-					{
-						GuizmoSetting.SelectObject = nullptr;
-					}
-				}
-
 				//Draw Guizmo
 				{
 					const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
@@ -239,6 +210,35 @@ void Scene::ImGuizmoDraw()
 					ImGui::End();
 					ImGui::PopID();
 					ImGui::ResetGlobalID();
+				}
+
+				if (isNotRightClickHELD)
+				{
+					//Button Setting				
+					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
+					{
+						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
+					}
+					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
+					{
+						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
+					}
+					if (Input.IsKeyDown(Keyboard::Keys::Escape))
+					{
+						GuizmoSetting.SelectObject = nullptr;
+					}
 				}
 			}		
 		}

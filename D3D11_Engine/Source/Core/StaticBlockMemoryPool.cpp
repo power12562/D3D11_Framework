@@ -11,6 +11,7 @@ StaticBlockMemoryPool::StaticBlockMemoryPool()
 
 StaticBlockMemoryPool::~StaticBlockMemoryPool()
 {
+	Uninitialize();
 }
 
 bool StaticBlockMemoryPool::Initialize(size_t MemoryBlockSize, size_t MemoryPageSize)

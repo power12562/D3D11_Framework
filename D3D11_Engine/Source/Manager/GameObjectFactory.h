@@ -45,10 +45,13 @@ public:
 private:
 	GameObjectFactory() = default;
 	~GameObjectFactory() override;
-	void Initialize();
+	
 private:
 	StaticBlockMemoryPool gameObjectMemoryPool;
 public:
+	void InitializeMemoryPool();
+	void UninitializeMemoryPool();
+
 	void* GameObjectAlloc(size_t id);
 	std::function<GameObject*(const wchar_t* name)>& NewGameObjectToKey(const char* key);
 
