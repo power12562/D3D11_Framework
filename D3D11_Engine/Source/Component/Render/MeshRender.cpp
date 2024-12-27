@@ -135,9 +135,7 @@ RENDERER_DRAW_DESC MeshRender::GetRendererDesc()
 	desc.pTransform = &gameObject.transform;
 	desc.pVertexIndex = meshResource.get();
 	desc.pRRState = pRRState;
-	desc.isAlpha = this->isAlpha;
-	desc.isForward = this->isForward;
-	desc.isSkinning = this->isSkinning;
+	desc.flags = this->RenderFlags;
 	return desc;
 }
 

@@ -70,6 +70,7 @@ void IBLTestScene::ImGUIRender()
 		if (ImGui::Button("Recompile Shader"))
 		{
 			MeshRender::ReloadShaderAll();
+			d3dRenderer.CreateDeferredResource();
 		}
 
 		ImGui::Checkbox("Use Sky Box", &skyBox->Active);

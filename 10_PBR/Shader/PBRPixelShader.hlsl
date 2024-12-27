@@ -69,7 +69,7 @@ float4 main(PS_INPUT input) : SV_Target
         N = normalize(mul(normalSample * 2.0f - 1.0f, TBN));
     }
     else
-        N = input.Normal;
+        N = normalize(input.Normal);
     
     float3 V = normalize(MainCamPos - input.World); // ∫‰ πÊ«‚
     float NoV = max(0.0, dot(N, V)); // N°§V ∞ËªÍ

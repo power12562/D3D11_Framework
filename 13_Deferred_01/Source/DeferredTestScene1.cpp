@@ -68,9 +68,9 @@ void DeferredTestScene1::ImGUIRender()
 			{
 				for (auto& i : chrMeshs)
 				{
-					if (!i->isAlpha)
+					if (!(i->RenderFlags & RENDER_ALPHA))
 					{
-						i->isForward = false;
+						i->RenderFlags &= ~RENDER_FORWARD;
 						i->SetPixelShader(L"Resource/EngineShader/PBROpaquePS.hlsl");
 					}
 				}
@@ -79,9 +79,9 @@ void DeferredTestScene1::ImGUIRender()
 			{
 				for (auto& i : chrMeshs)
 				{
-					if (!i->isAlpha)
+					if (!(i->RenderFlags & RENDER_ALPHA))
 					{
-						i->isForward = true;
+						i->RenderFlags |= RENDER_FORWARD;
 						i->SetPixelShader(L"Resource/EngineShader/PBRForwardPS.hlsl");
 					}
 				}

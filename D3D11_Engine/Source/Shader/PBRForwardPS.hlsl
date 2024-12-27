@@ -63,6 +63,7 @@ float4 main(PS_INPUT input) : SV_Target
     float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
     float4 specularSample = specularTexture.Sample(defaultSampler, input.Tex); //Specular Map
     
+    input.Normal = normalize(input.Normal);
     float3 N; 
     if (Epsilon < length(normalSample))
     {
@@ -70,7 +71,7 @@ float4 main(PS_INPUT input) : SV_Target
         N = normalize(mul(normalSample * 2.0f - 1.0f, TBN));
     }
     else
-        N = normalize(input.Normal);
+        N = input.Normal;
     
     // 재질 특성
     float metalness = Metalness;

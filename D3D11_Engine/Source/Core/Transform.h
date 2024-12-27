@@ -9,13 +9,20 @@ class Transform
 	friend GameObject;
 	friend class SceneManager;
 	GameObject* _gameObject = nullptr;
+	inline static std::vector<Transform*> updateListVec;
+public:
+	static void reserveUpdateList(size_t capacity);
+	static void UpdateMatrix();
+	static void ClearUpdateList();
 public:
 	Transform();
 	~Transform();
 
 	Transform(const Transform& rhs);
-
 	Transform& operator=(const Transform& rhs);
+
+	/*이번 프레임 업데이트 대상으로 설정합니다. (Set 함수 사용시 자동 호출)*/
+	void PushUpdateList();
 public:
 	GameObject& GetGameObject() const;
 	__declspec(property(get = GetGameObject)) GameObject& gameObject;
@@ -60,9 +67,6 @@ public:
 	/*이번 프레임 WM 업데이트 여부*/
 	inline bool IsUpdateWM() const { return rootParent ? rootParent->isUpdateWM : isUpdateWM; }
 
-	/** isUpdateWM 플래그 초기화*/
-	inline void ResetFlagUpdateWM() { rootParent ? rootParent->isUpdateWM = false : isUpdateWM = false; }
-
 	/**Get world matrix*/
 	const Matrix& GetWM() const { return _WM; }
 
@@ -91,9 +95,11 @@ public:
 	Transform* GetRootParent() const { return rootParent; }
 	__declspec(property(get = GetRootParent)) Transform* RootParent;
 public:
-	/*Transform 정보로 메트릭스를 업데이트합니다.*/
-	void UpdateTransform();
+	/** isUpdateWM 플래그 초기화*/
+	inline void ResetFlagUpdateWM() { rootParent ? rootParent->isUpdateWM = false : isUpdateWM = false; }
 
+	/** 매트릭스 업데이트*/
+	void UpdateTransform();
 private:
 	void UpdateChildTransform();
 

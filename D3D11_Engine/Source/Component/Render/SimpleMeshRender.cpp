@@ -7,7 +7,7 @@
 
 SimpleMeshRender::SimpleMeshRender()
 {
-	isSkinning = false;
+	
 }
 
 void SimpleMeshRender::Start()

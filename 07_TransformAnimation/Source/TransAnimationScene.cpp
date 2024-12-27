@@ -32,7 +32,7 @@ void TransAnimationScene::Start()
 
 	auto meshInit = [this](MeshRender* mesh) 
 		{
-			mesh->isForward = true;
+			mesh->RenderFlags |= RENDER_FORWARD;
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
 			mesh->constBuffer.BindUpdateEvent(*material_01);
 

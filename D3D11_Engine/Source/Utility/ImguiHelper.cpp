@@ -23,28 +23,28 @@ void ImGui::Button(const char* label, bool* v, const ImVec2& size)
 	}
 }
 
-void ImGui::DragVector2(const char* label, const Vector2* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragVector2(const char* label, const Vector2* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
-	ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);
+	return ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);
 }
 
-void ImGui::DragVector3(const char* label, const Vector3* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragVector3(const char* label, const Vector3* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-	ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);
+	return ImGui::DragFloat3(label, (float*)pVector, v_speed, v_min, v_max, format, flags);
 }
 
-void ImGui::DragVector4(const char* label, const Vector4* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragVector4(const char* label, const Vector4* pVector, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-	ImGui::DragFloat3(label,  (float*)pVector, v_speed, v_min, v_max, format, flags);
+	return ImGui::DragFloat3(label,  (float*)pVector, v_speed, v_min, v_max, format, flags);
 }
 
-void ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
-	static std::unordered_map<int, Vector3> prevEuler;
-
+	static std::unordered_map<Quaternion*, Vector3> prevEuler;
+	bool isEdit = false;
 	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
 	Vector3 euler = qu->ToEuler() * Mathf::Rad2Deg;
-	Vector3 prev = prevEuler[g_id];
+	Vector3 prev = prevEuler[qu];
 	if (ImGui::DragFloat3(label, (float*)&euler, 1.f))
 	{
 		Quaternion deltaQuat = Quaternion::CreateFromYawPitchRoll(
@@ -56,16 +56,17 @@ void ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion
 		{
 			*qu = deltaQuat * (*qu);
 			euler = qu->ToEuler() * Mathf::Rad2Deg;
+			isEdit = true;
 		}
 	}
-    prevEuler[g_id] = euler;
-	++g_id;
+    prevEuler[qu] = euler;
+	return isEdit;
 }
 
-void ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {	
 	static std::unordered_map<Quaternion*, Vector3> prevEuler;
-
+	bool isEdit = false;
 	Quaternion* qu = const_cast<Quaternion*>(pQuaternion);
 	Vector3 euler = qu->ToEuler() * Mathf::Rad2Deg;
 	Vector3 prev = prevEuler[qu];
@@ -80,53 +81,58 @@ void ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion
 		{
 			*qu *= deltaQuat;
 			euler = qu->ToEuler() * Mathf::Rad2Deg;
+			isEdit = true;
 		}
 	}
 	prevEuler[qu] = euler;
+	return isEdit;
 }
 
-void ImGui::ColorEdit3(const char* label, const Vector3* pColor, ImGuiColorEditFlags flags)
+bool ImGui::ColorEdit3(const char* label, const Vector3* pColor, ImGuiColorEditFlags flags)
 {
-	ImGui::ColorEdit3(label, (float*)pColor, flags);
+	return ImGui::ColorEdit3(label, (float*)pColor, flags);
 }
 
-void ImGui::ColorEdit3(const char* label, const Color* pColor, ImGuiColorEditFlags flags)
+bool ImGui::ColorEdit3(const char* label, const Color* pColor, ImGuiColorEditFlags flags)
 {
-	ImGui::ColorEdit3(label, (float*)pColor, flags);
+	return ImGui::ColorEdit3(label, (float*)pColor, flags);
 }
 
-void ImGui::ColorEdit3(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags)
+bool ImGui::ColorEdit3(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags)
 {
-	ImGui::ColorEdit3(label, (float*)pColor, flags);
+	return ImGui::ColorEdit3(label, (float*)pColor, flags);
 }
 
-void ImGui::ColorEdit4(const char* label, const Color* pColor, ImGuiColorEditFlags flags)
+bool ImGui::ColorEdit4(const char* label, const Color* pColor, ImGuiColorEditFlags flags)
 {
-	ImGui::ColorEdit4(label, (float*)pColor, flags);
+	return ImGui::ColorEdit4(label, (float*)pColor, flags);
 }
 
-void ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags)
+bool ImGui::ColorEdit4(const char* label, const Vector4* pColor, ImGuiColorEditFlags flags)
 {
-	ImGui::ColorEdit4(label, (float*)pColor, flags);
+	return ImGui::ColorEdit4(label, (float*)pColor, flags);
 }
 
 void ImGui::EditTransformHierarchy(Transform* pTransform)
 {
 	auto ObjectEditUI = [](GameObject* object)
 		{
+			bool isEdit = false;
 			ImGui::Checkbox("Active", &object->Active);
 			if (object->transform.Parent)
 			{
-				ImGui::DragVector3("Position", &object->transform.localPosition, 0.1f);
-				ImGui::DragQuaternionLocal("Rotation", &object->transform.localRotation);
-				ImGui::DragVector3("Scale", &object->transform.localScale, 0.1f);
+				isEdit |= ImGui::DragVector3("Position", &object->transform.localPosition, 0.1f);
+				isEdit |= ImGui::DragQuaternionLocal("Rotation", &object->transform.localRotation);
+				isEdit |= ImGui::DragVector3("Scale", &object->transform.localScale, 0.1f);
 			}
 			else
 			{
-				ImGui::DragVector3("Position", &object->transform.position, 0.1f);
-				ImGui::DragQuaternionWorld("Rotation", &object->transform.rotation);
-				ImGui::DragVector3("Scale", &object->transform.scale, 0.1f);
+				isEdit |= ImGui::DragVector3("Position", &object->transform.position, 0.1f);
+				isEdit |= ImGui::DragQuaternionWorld("Rotation", &object->transform.rotation);
+				isEdit |= ImGui::DragVector3("Scale", &object->transform.scale, 0.1f);
 			}
+			if (isEdit)
+				object->transform.PushUpdateList();
 		};
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
 		{		
@@ -229,18 +235,21 @@ void ImGui::EditD3DRenderer()
 void ImGui::EditTransform(GameObject* gameObject)
 {
 	ImGui::PushID(g_id);
+	bool isEdit = false;
 	if (gameObject->transform.Parent)
-	{
-		ImGui::DragVector3("Position", &gameObject->transform.localPosition, 0.1f);
-		ImGui::DragQuaternionLocal("Rotation", &gameObject->transform.localRotation);
-		ImGui::DragVector3("Scale", &gameObject->transform.localScale, 0.1f);
+	{	
+		isEdit |= ImGui::DragVector3("Position", &gameObject->transform.localPosition, 0.1f);
+		isEdit |= ImGui::DragQuaternionLocal("Rotation", &gameObject->transform.localRotation);
+		isEdit |= ImGui::DragVector3("Scale", &gameObject->transform.localScale, 0.1f);
 	}
 	else
 	{
-		ImGui::DragVector3("Position", &gameObject->transform.position, 0.1f);
-		ImGui::DragQuaternionWorld("Rotation", &gameObject->transform.rotation);
-		ImGui::DragVector3("Scale", &gameObject->transform.scale, 0.1f);
+		isEdit |= ImGui::DragVector3("Position", &gameObject->transform.position, 0.1f);
+		isEdit |= ImGui::DragQuaternionWorld("Rotation", &gameObject->transform.rotation);
+		isEdit |= ImGui::DragVector3("Scale", &gameObject->transform.scale, 0.1f);
 	}
+	if (isEdit)
+		gameObject->transform.PushUpdateList();
 	ImGui::PopID();
 	g_id++;
 }

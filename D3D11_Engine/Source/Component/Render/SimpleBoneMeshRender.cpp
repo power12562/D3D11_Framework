@@ -8,7 +8,7 @@
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {
-	isSkinning = true;
+	RenderFlags |= RENDER_SKINNING;
 }
 
 void SimpleBoneMeshRender::Start()

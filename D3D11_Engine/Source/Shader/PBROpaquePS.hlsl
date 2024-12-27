@@ -32,7 +32,7 @@ struct GBuffer
 [earlydepthstencil]
 GBuffer main(PS_INPUT input)
 {
-    float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
+    float3 albedoSample = GammaToLinearSpace(albedoTexture.Sample(defaultSampler, input.Tex).rgb);
     float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb;
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
@@ -40,6 +40,7 @@ GBuffer main(PS_INPUT input)
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
     float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
     
+    input.Normal = normalize(input.Normal);
     float3 N;
     if (Epsilon < length(normalSample))
     {
@@ -47,11 +48,8 @@ GBuffer main(PS_INPUT input)
         N = normalize(mul(normalSample * 2.0f - 1.0f, TBN));
     }
     else
-        N = normalize(input.Normal);
-    
-    // G-Buffer에 저장하기 전에 0 ~ 1 범위로 변환
-    N = (N * 0.5f) + 0.5f;
-    
+        N = input.Normal;
+        
     // 재질 특성
     float specular = specularSample.r;
     float metalness = Metalness;

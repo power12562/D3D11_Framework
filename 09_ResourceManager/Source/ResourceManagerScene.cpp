@@ -127,7 +127,7 @@ void ResourceManagerScene::AddTestObject()
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
 			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
 
-			mesh->isForward = true;
+			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->textures.resize(E_TEXTURE::BlingPhongTextureCount);
 
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");

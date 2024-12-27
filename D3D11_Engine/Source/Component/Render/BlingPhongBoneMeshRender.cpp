@@ -5,7 +5,7 @@
 void BlingPhongBoneMeshRender::Start()
 {
 	SimpleBoneMeshRender::Start();
-	MeshRender::isForward = true;
+	RenderFlags |= RENDER_FORWARD;
 
 	BlingPhongMeshObject* meshObj = dynamic_cast<BlingPhongMeshObject*>(&gameObject);
 	if (meshObj)

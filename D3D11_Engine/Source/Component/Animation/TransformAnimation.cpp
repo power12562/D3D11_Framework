@@ -45,8 +45,7 @@ bool TransformAnimation::PlayClip(const wchar_t* clipName, bool _isLoop)
 		{
 			nodeAni.Evaluate(elapsedTime);
 		}
-		transform.UpdateTransform();
-		transform.ResetFlagUpdateWM();
+		transform.PushUpdateList();
 		return true;
 	}
 	else

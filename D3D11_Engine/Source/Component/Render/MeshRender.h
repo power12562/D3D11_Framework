@@ -41,11 +41,8 @@ public:
 	DirectX::SimpleMath::Color baseColor{1,1,1,1};
 
 public:
-	bool isAlpha = false;
-	bool isForward = false;
-
-protected:
-	bool isSkinning = false;
+	//RENDER_FLAG
+	int RenderFlags;
 
 public:
 	bool IsVSShader() { return pInputLayout && pVertexShader; }

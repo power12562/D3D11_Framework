@@ -25,6 +25,7 @@ Scene::Scene()
 	objectList.reserve(ReserveSize);
 	dontdestroyonloadList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
+	Transform::reserveUpdateList(ReserveSize);
 }
 
 Scene::~Scene()

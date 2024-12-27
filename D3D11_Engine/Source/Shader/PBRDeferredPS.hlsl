@@ -66,10 +66,10 @@ inline float4 ComputePositionShadow(float3 world, matrix shadowView, matrix shad
 
 float4 main(PS_Deferred input) : SV_Target
 {   
-    float3 N = NormalTexture.Sample(linearSampler, input.Tex).rgb * 2.0f - 1.f;
+    float3 N = NormalTexture.Sample(linearSampler, input.Tex).rgb;
     N = normalize(N);
    
-    float3 albedo = GammaToLinearSpace(AlbedoTexture.Sample(linearSampler, input.Tex).rgb);
+    float3 albedo = AlbedoTexture.Sample(linearSampler, input.Tex).rgb;
     float3 emissive = EmissiveTexture.Sample(linearSampler, input.Tex).rgb;
     float4 SMRAO = SpecularTexture.Sample(linearSampler, input.Tex);
     

@@ -92,9 +92,6 @@ public:
 	void EndDraw();
 	void Present();
 
-private:
-	void CheckUpdateTransform(const Transform* pTransform);
-	std::vector<Transform*> transformUpdateList;
 public:
 	// ViewPorts
 	std::vector<D3D11_VIEWPORT> ViewPortsVec;			
@@ -241,8 +238,17 @@ struct SYSTEM_MEMORY_INFO
 	SIZE_T PagefileUsage;
 };
 
+enum RENDER_FALG
+{
+	RENDER_SKINNING = 1 << 0,
+	RENDER_ALPHA    = 1 << 1,
+	RENDER_FORWARD  = 1 << 2,
+};
+
 struct RENDERER_DRAW_DESC 
 {
+	using RenderFlags = int;
+
 	DRAW_INDEX_DATA* pVertexIndex;
 	D3DConstBuffer*  pConstBuffer;
 	D3DTexture2D*	 pD3DTexture2D;
@@ -252,9 +258,7 @@ struct RENDERER_DRAW_DESC
 	ID3D11VertexShader* pVertexShader;
 	ID3D11PixelShader* pPixelShader;
 	ID3D11RasterizerState* pRRState = nullptr;
-	bool isSkinning;
-	bool isForward;
-	bool isAlpha;
+	RenderFlags flags;
 };
 
 

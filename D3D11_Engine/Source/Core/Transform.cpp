@@ -3,10 +3,36 @@
 #include <GameObject/Base/GameObject.h>	
 #include <D3DCore/D3DRenderer.h>
 				
+void Transform::reserveUpdateList(size_t capacity)
+{
+	updateListVec.reserve(capacity);
+}
+
+void Transform::UpdateMatrix()
+{
+	for (auto& item : updateListVec)
+	{
+		if (!item->IsUpdateWM())
+		{
+			item->UpdateTransform();
+		}
+	}
+}
+
+void Transform::ClearUpdateList()
+{
+	for (auto& item : updateListVec)
+	{
+		item->ResetFlagUpdateWM();
+	}
+	updateListVec.clear();
+}
+
 Transform::Transform()
 {
 	_WM = DirectX::XMMatrixIdentity();
 	_LM = DirectX::XMMatrixIdentity();
+	PushUpdateList();
 }
 
 Transform::~Transform()
@@ -52,6 +78,11 @@ Transform& Transform::operator=(const Transform& rhs)
 	return *this;
 }
 
+void Transform::PushUpdateList()
+{
+	updateListVec.emplace_back(this);
+}
+
 GameObject& Transform::GetGameObject() const
 {
 	return *_gameObject;
@@ -63,6 +94,7 @@ const Vector3& Transform::SetPosition(const Vector3& value)
 	if (parent)
 		_localPosition = _position - parent->_position;
 
+	PushUpdateList();
 	return _position;
 }
 
@@ -86,6 +118,8 @@ const Vector3& Transform::SetLocalPosition(const Vector3& value)
 		_localPosition = value;
 		position = parent->_position + _localPosition;
 	}
+
+	PushUpdateList();
 	return _localPosition;
 }
 
@@ -98,6 +132,8 @@ const Quaternion& Transform::SetRotation(const Quaternion& value)
 		parent->_rotation.Inverse(IProtation);
 		_localRotation = _rotation * IProtation;
 	}
+
+	PushUpdateList();
 	return _rotation;
 }
 
@@ -124,6 +160,8 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 		_localRotation = value;
 		_rotation = parent->_rotation * _localRotation;
 	}
+
+	PushUpdateList();
 	return _localRotation;
 }
 
@@ -139,6 +177,7 @@ const Vector3& Transform::SetScale(const Vector3& value)
 	if (parent)
 		_localScale = _scale / parent->scale;
 
+	PushUpdateList();
 	return _scale;
 }
 
@@ -164,6 +203,8 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 		_localScale = value;
 		_scale = parent->scale * _localScale;
 	}
+
+	PushUpdateList();
 	return _localScale;
 }
 

@@ -148,7 +148,7 @@ namespace Utility
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
 					meshRender->textures.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
-					meshRender->isAlpha = true;
+					meshRender->RenderFlags |= RENDER_ALPHA;
 					
 					if(meshRender->IsPSShader())
 					{
@@ -415,7 +415,7 @@ namespace Utility
 						{
 							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
 						}
-						destMesh.isAlpha = sourceMesh->isAlpha;
+						destMesh.RenderFlags = sourceMesh->RenderFlags;
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 
@@ -445,7 +445,7 @@ namespace Utility
 						{
 							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
 						}
-						destMesh.isAlpha = sourceMesh->isAlpha;
+						destMesh.RenderFlags = sourceMesh->RenderFlags;
 						destMesh.textures = sourceMesh->textures;
 						destMesh.samplerState = sourceMesh->samplerState;
 

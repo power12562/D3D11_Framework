@@ -39,6 +39,6 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
     }
     else if (Input.IsKeyDown(Keyboard::F6))
     {
-        textureManager.CompressTexture();
+       
     }
 }

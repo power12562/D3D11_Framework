@@ -10,6 +10,7 @@
 #include <Manager/ResourceManager.h>
 #include <Utility/utfConvert.h>
 #include <GameObject/Mesh/SphereObject.h>
+#include <Component/Render/PBRMeshRender.h>
 
 struct alignas(16) cb_bool
 {
@@ -45,7 +46,7 @@ void PBRTestScene::Start()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);
 
-			mesh->isForward = true;
+			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 
@@ -63,7 +64,7 @@ void PBRTestScene::Start()
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
 			mesh->constBuffer.BindUpdateEvent(testBool);
 
-			mesh->isForward = true;
+			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
 			mesh->SetPixelShader(L"Shader/PBRPixelShader.hlsl");
 
@@ -78,6 +79,9 @@ void PBRTestScene::Start()
 	SphereObject* Sphere = (SphereObject*)gameObjectFactory.NewGameObjectToKey(typeid(SphereObject).name())(L"Sphere");
 	Sphere->transform.position += Vector3::Up * 15.f;
 	{
+		Sphere->SphereMeshRender->RenderFlags |= RENDER_FORWARD;
+		Sphere->SphereMeshRender->SetPixelShader(L"Resource/EngineShader/PBRForwardPS.hlsl");
+
 		sphereMaterial = &Sphere->Material;
 		sphereMaterial->Albedo = { 1.f, 1.f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;

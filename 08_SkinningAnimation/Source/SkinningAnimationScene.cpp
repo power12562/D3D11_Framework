@@ -39,7 +39,7 @@ void SkinningAnimationScene::Start()
 
 	auto testInit = [this](MeshRender* mesh)->void
 		{
-			mesh->isForward = true;
+			mesh->RenderFlags |= RENDER_FORWARD;
 			MaterialList.emplace_back();
 			cb_BlingPhongMaterial& material = MaterialList.back();
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();

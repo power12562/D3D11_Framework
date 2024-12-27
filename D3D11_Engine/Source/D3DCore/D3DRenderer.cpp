@@ -271,7 +271,6 @@ void D3DRenderer::reserveRenderQueue(size_t size)
     opaquerenderOueue.reserve(size);
     forwardrenderOueue.reserve(size);
     alphaRenderQueue.reserve(size);
-    transformUpdateList.reserve(size);
 }
 
 void D3DRenderer::SetDefaultOMState()
@@ -349,7 +348,7 @@ void D3DRenderer::BegineDraw()
 {   
     //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
-    mainCam->transform.UpdateTransform();
+    mainCam->transform.PushUpdateList();
     if (!DebugLockCameraFrustum)
     {
         cullingIVM  = mainCam->GetIVM();
@@ -403,6 +402,9 @@ void D3DRenderer::BegineDraw()
         constexpr float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
         pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], clearColor);  // 화면 초기화 
     }
+
+    //update transform
+    Transform::UpdateMatrix();
 }
 
 void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
@@ -413,12 +415,11 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
     {      
         GameObject* obj = &darwDesc.pTransform->gameObject;
         obj->isCulling = CheckFrustumCulling(obj);
-        obj->transform.ResetFlagUpdateWM();
         if (obj->isCulling)
         {
-            if (darwDesc.isAlpha)
+            if (darwDesc.flags & RENDER_FALG::RENDER_ALPHA)
                 alphaRenderQueue.emplace_back(darwDesc);
-            else if(darwDesc.isForward)
+            else if(darwDesc.flags & RENDER_FALG::RENDER_FORWARD)
                 forwardrenderOueue.emplace_back(darwDesc);
             else
                 opaquerenderOueue.emplace_back(darwDesc);
@@ -429,14 +430,21 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
-    //Texture sort
+    //sort
     auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {            
             uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[0]);
             uintptr_t textureB = reinterpret_cast<uintptr_t>((*b.pD3DTexture2D)[0]);
             return textureA < textureB;    
     };
-    std::sort(opaquerenderOueue.begin(), opaquerenderOueue.end(), textureSort);
-    std::sort(alphaRenderQueue.begin(), alphaRenderQueue.end(), textureSort);
+    auto MeshSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b)
+        {
+            uintptr_t meshA = reinterpret_cast<uintptr_t>(a.pVertexIndex);
+            uintptr_t meshB = reinterpret_cast<uintptr_t>(b.pVertexIndex);
+            return  meshA < meshB;
+        };
+    std::sort(opaquerenderOueue.begin(), opaquerenderOueue.end(), MeshSort);
+    std::sort(forwardrenderOueue.begin(), forwardrenderOueue.end(), MeshSort);
+    std::sort(alphaRenderQueue.begin(), alphaRenderQueue.end(), MeshSort);
 
     //Shadow Map Pass
     {
@@ -461,20 +469,17 @@ void D3DRenderer::EndDraw()
             cbuffer::ShadowMap.ShadowProjections[0] = XMMatrixTranspose(shadowProjections[i]);
             D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
 
-            pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i] ); //렌더타겟 설정
+            pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i]); 
             for (auto& item : opaquerenderOueue)
             {
-                CheckUpdateTransform(item.pTransform);
                 RenderShadowMap(item);
             }
             for (auto& item : forwardrenderOueue)
-            {
-                CheckUpdateTransform(item.pTransform);
+            {          
                 RenderShadowMap(item);
             }
             for (auto& item : alphaRenderQueue)
             {
-                CheckUpdateTransform(item.pTransform);
                 RenderShadowMap(item);
             }
         }
@@ -572,27 +577,14 @@ void D3DRenderer::EndDraw()
     opaquerenderOueue.clear();
     forwardrenderOueue.clear();
     alphaRenderQueue.clear();
+
+    //clear Update List
+    Transform::ClearUpdateList();
 }
 
 void D3DRenderer::Present()
-{
-    //flag reset
-    for (auto& item : transformUpdateList)
-    {
-        item->ResetFlagUpdateWM();
-    }
-    transformUpdateList.clear();
+{   
 	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
-}
-
-void D3DRenderer::CheckUpdateTransform(const Transform* pTransform)
-{
-    if (!pTransform->IsUpdateWM())
-    {
-        Transform* transform = const_cast<Transform*>(pTransform);
-        transform->UpdateTransform();
-        transformUpdateList.push_back(transform->RootParent ? transform->RootParent : transform);
-    }
 }
 
 D3D11_VIEWPORT D3DRenderer::GetClientSizeViewport()
@@ -808,7 +800,7 @@ void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
     drawDesc.pConstBuffer->SetConstBuffer();
 
 	//Shadow Map Pass
-	if (drawDesc.isSkinning)
+	if (drawDesc.flags & RENDER_FALG::RENDER_SKINNING)
 	{
 		pDeviceContext->IASetInputLayout(pShadowSkinningInputLayout);
 		pDeviceContext->VSSetShader(pShadowSkinningVertexShader, nullptr, 0);
@@ -850,14 +842,14 @@ void D3DRenderer::RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc)
     pDeviceContext->PSSetShader(drawDesc.pPixelShader, nullptr, 0);
 
     //Set RSState
-	if (drawDesc.pRRState)
-	{
-		pDeviceContext->RSSetState(drawDesc.pRRState);
-	}
-	else
-	{
-		pDeviceContext->RSSetState(pDefaultRRState);
-	}
+    if (drawDesc.pRRState)
+    {
+        pDeviceContext->RSSetState(drawDesc.pRRState);
+    }
+    else
+    {
+        pDeviceContext->RSSetState(pDefaultRRState);
+    }
 
 	//set sampler
 	pDeviceContext->PSSetSamplers(0, drawDesc.pSamperState->size(), drawDesc.pSamperState->data());
@@ -1056,7 +1048,7 @@ void D3DRenderer::CreateGbufferRTV()
     D3D11_TEXTURE2D_DESC textureDesc = {};
     textureDesc.Width = desc.Width;
     textureDesc.Height = desc.Height;
-    textureDesc.Format = desc.Format;
+    textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
     textureDesc.SampleDesc.Count = 1;
