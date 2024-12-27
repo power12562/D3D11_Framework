@@ -106,11 +106,11 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 {
 	using namespace Binary;
 	const char* typeName = typeid(*object).name();
-	Write::string(ofs, typeName); 		
+	Write::string(ofs, typeName);
 	const wchar_t* objName = object->Name.c_str();
-	Write::wstring(ofs, objName); 		
-	Write::data(ofs, object->Active);	   
-	Write::BoundingBox(ofs, object->Bounds); 
+	Write::wstring(ofs, objName);
+	Write::data(ofs, object->Active);
+	Write::BoundingBox(ofs, object->Bounds);
 	object->Serialized(ofs);
 	//Components
 	for (auto& component : object->componentList)
@@ -121,7 +121,7 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 	Write::Vector3(ofs, object->transform.position);
 	Write::Quaternion(ofs, object->transform.rotation);
 	Write::Vector3(ofs, object->transform.scale);
-	Write::data<size_t>(ofs, level); 
+	Write::data<size_t>(ofs, level);
 	//childs
 	for (size_t i = 0; i < object->transform.GetChildCount(); i++)
 	{
@@ -133,35 +133,36 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 {
 	static std::map<size_t, Transform*> objectTreeMap;
 	using namespace Binary;
-	std::string typeName = Read::string(ifs);
-	if (ifs.eof())
+	while (true)
 	{
-		objectTreeMap.clear();
-		return;
+		std::string typeName = Read::string(ifs);
+		if (ifs.eof())
+		{
+			objectTreeMap.clear();
+			return;
+		}
+		std::wstring objName = Read::wstring(ifs);
+		GameObject* object = NewGameObjectToKey(typeName.c_str())(objName.c_str());
+		object->Active = Read::data<bool>(ifs);
+		object->Bounds = Read::BoundingBox(ifs);
+		object->Deserialized(ifs);
+		//Components
+		for (auto& component : object->componentList)
+		{
+			component->Deserialized(ifs);
+		}
+		//Transform
+		object->transform.position = Read::Vector3(ifs);
+		object->transform.rotation = Read::Quaternion(ifs);
+		object->transform.scale = Read::Vector3(ifs);
+		size_t myLevel = Read::data<size_t>(ifs);
+		objectTreeMap[myLevel] = &object->transform;
+		if (myLevel > 0)
+		{
+			auto find = objectTreeMap.find(myLevel - 1); //마지막으로 생성된 내 상위 객체를 찾는다
+			if (find != objectTreeMap.end())
+				object->transform.SetParent(find->second); //찾으면 부모로 설정
+		}
 	}
-	std::wstring objName = Read::wstring(ifs);
-	GameObject* object = NewGameObjectToKey(typeName.c_str())(objName.c_str());
-	object->Active = Read::data<bool>(ifs);
-	object->Bounds = Read::BoundingBox(ifs);
-	object->Deserialized(ifs);
-	//Components
-	for (auto& component : object->componentList)
-	{
-		component->Deserialized(ifs);
-	}
-	//Transform
-	object->transform.position = Read::Vector3(ifs);
-	object->transform.rotation = Read::Quaternion(ifs);
-	object->transform.scale = Read::Vector3(ifs);
-	size_t myLevel = Read::data<size_t>(ifs);
-	objectTreeMap[myLevel] = &object->transform;
-	if (myLevel > 0)
-	{
-		auto find = objectTreeMap.find(myLevel - 1); //마지막으로 생성된 내 상위 객체를 찾는다
-		if (find != objectTreeMap.end())
-			object->transform.SetParent(find->second); //찾으면 부모로 설정
-	}
-	//Childs
-	Deserialized(ifs);
 }
  
