@@ -125,7 +125,11 @@ void Scene::ImGuizmoDraw()
 				{								
 					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);			
 					ObjectList list = sceneManager.GetObjectList();
-					std::sort(list.begin(), list.end(), [mainCamera](GameObject* a, GameObject* b)
+					std::erase_if(list, [](GameObject* object)
+						{
+							return !object->IsCameraCulling();
+						});
+					std::sort(list.begin(), list.end(), [&mainCamera](GameObject* a, GameObject* b)
 						{
 							auto fastDistance = [](const Vector3& p1, const Vector3& p2) {
 								Vector3 diff = p1 - p2;
@@ -141,7 +145,7 @@ void Scene::ImGuizmoDraw()
 						if (typeid(CameraObject) == typeid(*obj))
 							continue;
 
-						if (obj->Active && obj->isCulling && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
+						if (obj->Active && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
 						{
 							if (obj->transform.RootParent)
 								GuizmoSetting.SelectObject = Input.IsKey(KeyboardKeys::LeftControl) ? obj : &obj->transform.RootParent->gameObject;
