@@ -62,7 +62,9 @@ public:
 
 	size_t GetObjectsCount();
 	ObjectList GetObjectList();
-
+	
+	/*현재 씬 Imgui 사용 여부 반환*/
+	bool IsImGuiActive();
 	void PushImGuiPopupFunc(const std::function<void()>& func);
 	void PopImGuiPopupFunc();
 

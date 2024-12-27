@@ -148,6 +148,14 @@ ObjectList SceneManager::GetObjectList()
 	else return std::vector<GameObject*>();
 }
 
+bool SceneManager::IsImGuiActive()
+{
+	if (currScene)
+		return currScene->UseImGUI;
+	else
+		return false;
+}
+
 void SceneManager::PushImGuiPopupFunc(const std::function<void()>& func)
 {
 	if (nextScene)

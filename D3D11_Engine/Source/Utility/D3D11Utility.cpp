@@ -246,7 +246,7 @@ namespace Utility
 		std::filesystem::path filePath = szFileName;
 		DX_TEXTURE_EXTENSION extension = GetTexureExtension(filePath.extension().wstring());
 		DirectX::TexMetadata metaData;
-		std::unique_ptr<DirectX::ScratchImage> scratchImage;
+		std::unique_ptr<DirectX::ScratchImage> scratchImage = std::make_unique<DirectX::ScratchImage>();
 		switch (extension)
 		{
 		case Utility::DX_TEXTURE_EXTENSION::tga:

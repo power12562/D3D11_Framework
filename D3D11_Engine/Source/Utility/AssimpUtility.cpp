@@ -14,6 +14,8 @@
 #include <Component/Animation/TransformAnimation.h>
 #include <Manager\ResourceManager.h>
 #include <Manager/HLSLManager.h>
+#include <Manager/TextureManager.h>
+#include <Utility/ImguiHelper.h>
 
 #include <Component/Render/PBRMeshRender.h>
 #include <Component/Render/PBRBoneMeshRender.h>
@@ -85,6 +87,11 @@ namespace Utility
 
 	static void LoadTexture(aiMaterial* ai_material, const wchar_t* directory, MeshRender* meshRender, SURFACE_TYPE surface)
 	{
+		auto compressPopup = [=](const wchar_t* path, E_TEXTURE::TYPE type)
+			{
+				return ImGui::ShowCompressPopup(path, &meshRender->textures.data()[type]);
+			};
+
 		aiString path;
 		std::wstring basePath;
 		{
@@ -96,7 +103,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Albedo))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Albedo, basePath.c_str());
 				}
 			}
 			else if (aiColor4D baseColor; ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, baseColor) == AI_SUCCESS)
@@ -117,7 +125,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Normal))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Normal, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SPECULAR, 0, &path))
@@ -127,7 +136,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Specular))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Specular, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_EMISSIVE, 0, &path))
@@ -137,7 +147,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Emissive))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Emissive, basePath.c_str());
 				}
 			}
 			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_OPACITY, 0, &path))
@@ -147,9 +158,10 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
-					meshRender->RenderFlags |= RENDER_ALPHA;
-					
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Opacity))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Opacity, basePath.c_str());
+
+					meshRender->RenderFlags |= RENDER_ALPHA;			
 					if(meshRender->IsPSShader())
 					{
 						std::wstring path = HLSLManager::EngineShaderPath;
@@ -178,7 +190,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Metalness))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Metalness, basePath.c_str());
 
 					if (surface == SURFACE_TYPE::PBR)
 					{
@@ -202,7 +215,8 @@ namespace Utility
 					basePath = directory;
 					basePath += L"\\";
 					basePath += utfConvert::utf8_to_wstring(path.C_Str());
-					meshRender->textures.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
+					if (!compressPopup(basePath.c_str(), E_TEXTURE::Roughness))
+						meshRender->textures.SetTexture2D(E_TEXTURE::Roughness, basePath.c_str());
 
 					if (surface == SURFACE_TYPE::PBR)
 					{

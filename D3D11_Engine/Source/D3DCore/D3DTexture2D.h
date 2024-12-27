@@ -58,7 +58,8 @@ public:
 	~D3DTexture2D();	
 
 	void resize(size_t newsize);
-	constexpr size_t size() { return SRVList.size(); }
+	inline constexpr size_t size() { return SRVList.size(); }
+	inline ID3D11ShaderResourceView** data() { return SRVList.data(); }
 
 	void SetCubeMapTexture(int index, const wchar_t* path);
 	void SetTexture2D(int index, const wchar_t* path);

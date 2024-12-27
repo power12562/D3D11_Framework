@@ -3,6 +3,7 @@
 #include <Math/Mathf.h>
 #include <Utility/ImguiHelper.h>
 #include <Manager/SceneManager.h>
+#include <Utility/Console.h>
 
 TextureManager& textureManager = TextureManager::GetInstance();
 
@@ -89,6 +90,20 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 	}
 }
 
+bool TextureManager::IsTextureLoaded(const wchar_t* path)
+{
+	return resourceMap.find(path) != resourceMap.end();
+}
+
+void TextureManager::InsertTexture(const wchar_t* key, ID3D11ShaderResourceView* pSRV)
+{
+	if (IsTextureLoaded(key))
+	{
+		__debugbreak(); //이미 존재하는 텍스쳐
+		return;
+	}
+	resourceMap[key] = pSRV;
+}
 
 ID3D11ShaderResourceView* TextureManager::GetDefaultTexture(E_TEXTURE_DEFAULT::DEFAULT_TEXTURE texture)
 {

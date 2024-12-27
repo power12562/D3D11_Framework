@@ -44,5 +44,5 @@ namespace ImGui
 
 	void EditLight(cb_PBRDirectionalLight* Light);
 
-	void ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView);
+	bool ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOutput);
 };

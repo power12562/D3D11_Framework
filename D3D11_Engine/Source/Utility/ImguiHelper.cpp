@@ -317,27 +317,110 @@ void ImGui::EditLight(cb_PBRDirectionalLight* Light)
 	}
 }
 
-void ImGui::ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOut_ResourceView)
+bool ImGui::ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOutput)
 {
+	/*추천 포멧!!
+	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요.
+	Normal		BC5/BC7		 2채널(RG) 데이터는 BC5, 3채널은 BC7 사용.
+	Specular	BC1/BC7		 단순 데이터면 BC1, 고품질 필요 시 BC7.
+	Emissive	BC1/BC3		 불투명은 BC1, 알파 필요 시 BC3.
+	Opacity		BC4/BC3		 단일 채널은 BC4, RGBA 필요 시 BC3.
+	Metalness	BC4			 단일 채널 데이터로 효율적인 압축.
+	Roughness	BC4			 단일 채널 데이터로 미세 디테일 유지.
+	AO			BC4			 단일 채널 데이터로 충분한 품질 유지.
+	*/
+	constexpr const char* compressTypeStr[Utility::E_COMPRESS::MAX] =
+	{
+		"None",
+		"BC1 ",
+		"BC3 ",
+		"BC4",
+		"BC5",
+		"BC6",
+		"BC7"
+	};
+	constexpr const char* textureTypeStr[E_TEXTURE::PBRTextureCount] =
+	{
+		"Albedo",
+		"Normal",
+		"Specular",
+		"Emissive",
+		"Opacity",
+		"Metalness",
+		"Roughness",
+		"Ambient Occulusion"
+	};
+
+	static std::queue<std::wstring> str_queue;
+	static std::queue<std::string>  wstr_queue;
+	str_queue.push(path);
+	wstr_queue.push(utfConvert::wstring_to_utf8(path));
 	auto popupFunc = [=]()
 		{
+			std::wstring& wstr_path = str_queue.front();
+			std::string& str_path = wstr_queue.front();
+
 			// 팝업을 열기 위해 반드시 OpenPopup 호출
 			ImGui::OpenPopup("Compress Texture");
 
 			// 모달 팝업 시작
 			if (ImGui::BeginPopupModal("Compress Texture"))
 			{
-
-
+				static int textureType;
+				static Utility::E_COMPRESS::TYPE compressType = Utility::E_COMPRESS::None;
+				static bool showAdvancedSettings = false;
+				ImGui::Text(str_path.c_str());
+				ImGui::Checkbox("Use Advanced", &showAdvancedSettings);
+				if (showAdvancedSettings)
+				{
+					ImGui::Combo("Compress Type", (int*)&compressType, compressTypeStr, Utility::E_COMPRESS::MAX);
+				}
+				else
+				{
+					ImGui::Combo("Texture Type", &textureType, textureTypeStr, E_TEXTURE::PBRTextureCount);
+					{
+						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
+						switch (type)
+						{
+						case E_TEXTURE::Normal:
+							compressType = Utility::E_COMPRESS::BC7;
+							break;
+						case E_TEXTURE::Specular:
+						case E_TEXTURE::Albedo:
+						case E_TEXTURE::Emissive:
+						case E_TEXTURE::Opacity:
+							compressType = Utility::E_COMPRESS::BC3;
+							break;
+						case E_TEXTURE::Metalness:
+						case E_TEXTURE::Roughness:
+						case E_TEXTURE::AmbientOcculusion:
+							compressType = Utility::E_COMPRESS::BC4;
+							break;
+						default:
+							compressType = Utility::E_COMPRESS::None;
+							break;
+						}
+					}
+				}
 				// 확인 버튼
 				if (ImGui::Button("OK"))
 				{
-					textureManager.CreateSharingCompressTexture(path, ppOut_ResourceView, Utility::E_COMPRESS::BC7);
+					textureManager.CreateSharingCompressTexture(wstr_path.c_str(), ppOutput, Utility::E_COMPRESS::TYPE(compressType));
+					wstr_queue.pop();
+					str_queue.pop();
 					ImGui::CloseCurrentPopup();
 					sceneManager.PopImGuiPopupFunc();
 				}
 				ImGui::EndPopup();
 			}
 		};
-	sceneManager.PushImGuiPopupFunc(popupFunc);
+
+	bool ActiveImgui = sceneManager.IsImGuiActive();
+	if (ActiveImgui)
+	{
+		sceneManager.PushImGuiPopupFunc(popupFunc);
+		return true;
+	}	
+	else
+		return false;
 }
