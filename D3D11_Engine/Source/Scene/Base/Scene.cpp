@@ -127,6 +127,10 @@ void Scene::ImGuizmoDraw()
 					ObjectList list = sceneManager.GetObjectList();
 					std::erase_if(list, [](GameObject* object)
 						{
+							return typeid(CameraObject) == typeid(*object);
+						});
+					std::erase_if(list, [](GameObject* object)
+						{
 							return !object->IsCameraCulling();
 						});
 					std::sort(list.begin(), list.end(), [&mainCamera](GameObject* a, GameObject* b)
@@ -142,9 +146,6 @@ void Scene::ImGuizmoDraw()
 					float Dist = 0;
 					for (auto& obj : list)
 					{
-						if (typeid(CameraObject) == typeid(*obj))
-							continue;
-
 						if (obj->Active && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
 						{
 							if (obj->transform.RootParent)
