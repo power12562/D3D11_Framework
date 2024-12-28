@@ -86,6 +86,15 @@ DirectX::BoundingOrientedBox GameObject::GetOBBToWorld() const
 	BoundingOrientedBox boundingBoxOut;
 	boundingBoxOut.CreateFromBoundingBox(boundingBoxOut, Bounds);
 	boundingBoxOut.Transform(boundingBoxOut, transform.GetWM());
+
+	return boundingBoxOut;
+}
+
+DirectX::BoundingBox GameObject::GetBBToWorld() const
+{
+	//BB
+	BoundingBox boundingBoxOut = Bounds;
+	boundingBoxOut.Transform(boundingBoxOut, transform.GetWM());
 	return boundingBoxOut;
 }
 

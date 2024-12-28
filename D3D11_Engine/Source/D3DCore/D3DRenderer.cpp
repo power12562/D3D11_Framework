@@ -344,6 +344,17 @@ SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
     return info;
 }
 
+void D3DRenderer::ClearRTV()
+{
+    //clear RTV
+    pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[0], backgroundColor);
+    for (UINT i = 1; i < 1 + GbufferCount; i++)
+    {
+        constexpr float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], clearColor);  // 화면 초기화 
+    }
+}
+
 void D3DRenderer::BegineDraw()
 {   
     //Set camera cb
@@ -393,14 +404,6 @@ void D3DRenderer::BegineDraw()
             CalculateBoundsFrustumCorners(cullingView, cullingProjection, cameraCorners);
             shadowProjections[i] = CreateOrthographicProjection(CalculateBoundsLightSpace(shadowViews[i], cameraCorners), lightNear, lightFar);
         }
-    }
-
-    //clear RTV
-    pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[0], backgroundColor);
-    for (UINT i = 1; i < 1 + GbufferCount; i++)
-    {
-        constexpr float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-        pDeviceContext->ClearRenderTargetView(pRenderTargetViewArray[i], clearColor);  // 화면 초기화 
     }
 
     //update transform
@@ -694,12 +697,17 @@ void D3DRenderer::DrawDebug()
     {
         for (auto& desc : opaquerenderOueue)
         {            
-            DirectX::BoundingOrientedBox bounds = desc.pTransform->gameObject.GetOBBToWorld();
+            DirectX::BoundingBox bounds = desc.pTransform->gameObject.GetBBToWorld();
+            DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
+        }
+        for (auto& desc : forwardrenderOueue)
+        {
+            DirectX::BoundingBox bounds = desc.pTransform->gameObject.GetBBToWorld();
             DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
         }
         for (auto& desc : alphaRenderQueue)
         {
-            DirectX::BoundingOrientedBox bounds = desc.pTransform->gameObject.GetOBBToWorld();
+            DirectX::BoundingBox bounds = desc.pTransform->gameObject.GetBBToWorld();
             DebugDraw::Draw(pPrimitiveBatch.get(), bounds);
         }
     }
@@ -732,12 +740,12 @@ void D3DRenderer::PopDebugFrustum()
 
 bool D3DRenderer::CheckFrustumCulling(GameObject* obj) const
 {
-    BoundingOrientedBox OB;
-    OB = obj->GetOBBToWorld();
+    BoundingBox BB;
+    BB = obj->GetBBToWorld();
     BoundingFrustum cameraFrustum(cullingProjection);
     cameraFrustum.Transform(cameraFrustum, cullingIVM);
 
-    return cameraFrustum.Intersects(OB);
+    return cameraFrustum.Intersects(BB);
 }
 
 void D3DRenderer::RenderSkyBox(SkyBoxRender* skyBox)

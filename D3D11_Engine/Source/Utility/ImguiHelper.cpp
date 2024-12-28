@@ -327,7 +327,7 @@ namespace CompressPopupField
 	static std::vector<std::thread>  compressThreads;
 	static std::vector<ID3D11ShaderResourceView*> tempSRVvec;
 	static std::unordered_set<D3DTexture2D*> textures;	//압축 후 다시 로드할 텍스쳐들
-	static std::mutex textures_mutex;
+	//static std::mutex textures_mutex;
 }
 
 bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType)
@@ -380,6 +380,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 			if (ImGui::BeginPopupModal("Compress Texture", nullptr, ImGuiWindowFlags_NoResize))
 			{
 				static bool initialized = false;
+				static bool UseAutoCompress = false;
 				static int textureType = 0;
 				static Utility::E_COMPRESS::TYPE compressType = Utility::E_COMPRESS::None;
 				static bool showAdvancedSettings = false;
@@ -402,10 +403,10 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
 						switch (type)
 						{
-						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Normal:
 							compressType = Utility::E_COMPRESS::None;
 							break;
+						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Specular:
 						case E_TEXTURE::Emissive:
 						case E_TEXTURE::Opacity:
@@ -422,7 +423,8 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						}
 					}
 				}
-				if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
+				ImGui::Button("Auto Compress", &UseAutoCompress);
+				if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter) || UseAutoCompress)
 				{								
 						auto compressThreadFunc = [path = wstr_path, compType = compressType]()
 							{
@@ -449,16 +451,15 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 					initialized = false;
 					if (popupCount == 0)
 					{
+						UseAutoCompress = false;
 						for (auto& threads : compressThreads)
 						{
 							threads.join();
 						}
-						textures_mutex.lock();
 						for (auto& texture : textures)
 						{
 							texture->ReloadTexture();
 						}
-						textures_mutex.unlock();
 						for (auto& tempSRV : tempSRVvec)
 						{
 							tempSRV->Release();
@@ -490,10 +491,8 @@ bool ImGui::ReloadTextureCompressEnd(const wchar_t* path, D3DTexture2D* texture2
 	using namespace CompressPopupField;
 	if (popupCount > 0)
 	{
-		textures_mutex.lock();
 		texture2D->GetPath(texType) = path;
 		textures.insert(texture2D);
-		textures_mutex.unlock();
 		return true;
 	}
 	return false;

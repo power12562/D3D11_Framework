@@ -70,23 +70,30 @@ void Scene::LateUpdate()
 
 void Scene::Render()
 {
-	d3dRenderer.BegineDraw();	
-	for (auto& obj : objectList)
+	d3dRenderer.ClearRTV();
+	ImGUIBegineDraw();
+	if (ImGuiLodingFunc)
 	{
-		if (obj && obj->Active)
-			obj->Render();
+		ImGuiLodingFunc();
 	}
-	d3dRenderer.EndDraw();
-
+	else
+	{
+		d3dRenderer.BegineDraw();
+		for (auto& obj : objectList)
+		{
+			if (obj && obj->Active)
+				obj->Render();
+		}
+		d3dRenderer.EndDraw();
+	}
 	if (UseImGUI)
 	{
-		ImGUIBegineDraw();
 		ImGuizmoDraw();
 		ImGUIRender();
 		if (!ImGUIPopupQue.empty())
-			ImGUIPopupQue.front()();
-		ImGUIEndDraw();
+			ImGUIPopupQue.front()();		
 	}
+	ImGUIEndDraw();
 	d3dRenderer.Present();
 }
 

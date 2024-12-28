@@ -24,6 +24,7 @@ protected:
 	virtual void ImGUIRender() {}
 
 private:
+	std::function<void()> ImGuiLodingFunc;
 	void ImGUIBegineDraw();
 	void ImGuizmoDraw();
 	std::queue<std::function<void()>> ImGUIPopupQue;
