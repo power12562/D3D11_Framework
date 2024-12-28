@@ -23,9 +23,7 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
     if (Input.IsKeyDown(Keyboard::F4))
     {
-        GameObject* object = sceneManager.FindObject(L"char");
-        gameObjectFactory.SerializedObject(object, L"Test/");
-        gameObjectFactory.DeserializedObject(L"Test/char.GameObject");
+        gameObjectFactory.DeserializedObject(L"Resource/char/char.GameObject");
     }
 
     if (Input.IsKeyDown(Keyboard::F5))

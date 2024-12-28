@@ -93,6 +93,11 @@ namespace Utility
 	void ConvertLHtoRHViewAndProj(const DirectX::XMMATRIX& viewLH, const DirectX::XMMATRIX& projLH, float* viewRH_m16, float* projRH_m16);
 
 	DX_TEXTURE_EXTENSION GetTexureExtension(const std::wstring& flieString);
+
+	/*버텍스 버퍼 정보 읽기*/
+	void RetrieveVertexBufferData(ID3D11DeviceContext* context, ID3D11Device* device, ID3D11Buffer* vertexBuffer, void* outputData, size_t bufferSize);
+	/*인덱스 버퍼 정보 읽기*/
+	void RetrieveIndexBufferData(ID3D11DeviceContext* context, ID3D11Device* device, ID3D11Buffer* indexBuffer, void* outputData, size_t bufferSize);
 }
 
 struct DRAW_INDEX_DATA

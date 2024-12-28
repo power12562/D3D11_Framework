@@ -438,7 +438,7 @@ namespace Utility
 						destMesh.offsetMatrices = sourceMesh->offsetMatrices;
 
 						destMesh.CopyShader(*sourceMesh);
-						destMesh.SetMeshResource(key);
+						destMesh.SetMeshResource(currDestObj->Name.c_str());
 
 						meshList.push_back(&destMesh);
 
@@ -465,7 +465,7 @@ namespace Utility
 						destMesh.samplerState = sourceMesh->samplerState;
 
 						destMesh.MeshID = sourceMesh->MeshID;
-						destMesh.SetMeshResource(key);
+						destMesh.SetMeshResource(currDestObj->Name.c_str());
 						destMesh.CopyShader(*sourceMesh);
 
 						initMesh(&destMesh);
@@ -746,7 +746,7 @@ void Utility::LoadFBX(const wchar_t* path,
 						}
 			
 						meshComponent.MeshID = meshIndex;
-						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.SetMeshResource(currObj->Name.c_str());
 						meshComponent.CreateMesh();
 
 						initMesh(&meshComponent);
@@ -808,7 +808,7 @@ void Utility::LoadFBX(const wchar_t* path,
 						}
 
 						meshComponent.MeshID = meshIndex;
-						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.SetMeshResource(currObj->Name.c_str());
 						meshComponent.CreateMesh();
 
 						initMesh(&meshComponent);
@@ -1048,7 +1048,7 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 						}
 
 						meshComponent.MeshID = meshIndex;
-						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.SetMeshResource(currObj->Name.c_str());
 						meshComponent.CreateMesh();
 					}
 				}
@@ -1108,7 +1108,7 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 						}
 
 						meshComponent.MeshID = meshIndex;
-						meshComponent.SetMeshResource(wstr_path.c_str());
+						meshComponent.SetMeshResource(currObj->Name.c_str());
 						meshComponent.CreateMesh();
 					}
 				}

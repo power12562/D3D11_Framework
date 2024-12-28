@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <DirectXCollision.h>
 #include <directxtk/SimpleMath.h>
+#include <Material/PBRMaterial.h>
 
 namespace Binary
 {
@@ -23,9 +24,13 @@ namespace Binary
 		void wstring(std::ofstream& ofs, const std::wstring& data);
 		void floatArray(std::ofstream& ofs, const float* data, size_t size);
 
+		void Vector2(std::ofstream& ofs, const DirectX::SimpleMath::Vector2& data);
 		void Vector3(std::ofstream& ofs, const DirectX::SimpleMath::Vector3& data);
+		void Vector4(std::ofstream& ofs, const DirectX::SimpleMath::Vector4& data);
+		void Color(std::ofstream& ofs, const DirectX::SimpleMath::Color& data);
 		void Quaternion(std::ofstream& ofs, const DirectX::SimpleMath::Quaternion& data);
 		void BoundingBox(std::ofstream& ofs, const DirectX::BoundingBox& data);
+		void PBRMaterial(std::ofstream& ofs, const cb_PBRMaterial& data);
 	}
 	namespace Read 
 	{
@@ -44,9 +49,13 @@ namespace Binary
 		std::wstring wstring(std::ifstream& ifs);
 		void floatArray(std::ifstream& ifs, float* out, size_t size);
 
+		DirectX::SimpleMath::Vector2 Vector2(std::ifstream& ifs);
 		DirectX::SimpleMath::Vector3 Vector3(std::ifstream& ifs);
+		DirectX::SimpleMath::Vector4 Vector4(std::ifstream& ifs);
+		DirectX::SimpleMath::Color Color(std::ifstream& ifs);
 		DirectX::SimpleMath::Quaternion Quaternion(std::ifstream& ifs);
 		DirectX::BoundingBox BoundingBox(std::ifstream& ifs);
+		cb_PBRMaterial PBRMaterial(std::ifstream& ifs);
 
 	}
 }

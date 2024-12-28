@@ -20,6 +20,7 @@ void MeshRender::ReloadShaderAll()
 
 MeshRender::MeshRender()
 {
+	RenderFlags = 0;
 	instanceList.push_back(this);
 	myIter = --(instanceList.end());
 

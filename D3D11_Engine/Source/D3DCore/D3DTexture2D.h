@@ -74,6 +74,9 @@ public:
 	void ReloadTexture();
 	/**현재 설정된 Path*/
 	inline std::wstring& GetPath(int index) { return pathList[index]; }
+
+	virtual void Serialized(std::ofstream& ofs);
+	virtual void Deserialized(std::ifstream& ifs);
 public:
 	D3DTexture2D(const D3DTexture2D& rhs);
 	D3DTexture2D& operator=(const D3DTexture2D& rhs);

@@ -30,16 +30,6 @@ void TestMainScene::Start()
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
-    chara = NewGameObject(L"char");
-    auto initMeshChar = [this](MeshRender* mesh)
-        {
-            PBRMeshObject* pbrObj = static_cast<PBRMeshObject*>(&mesh->gameObject);
-            charObjectList[pbrObj->GetNameToString()] = pbrObj;
-        };
-
-    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, initMeshChar, false, SURFACE_TYPE::PBR);
-    chara->transform.position = Vector3(100.0f, 0.f, 0.f);
-
     auto Manager = NewGameObject<TestAppManagerObject>(L"TestAppManager");
     GameObject::DontDestroyOnLoad(Manager);
 }

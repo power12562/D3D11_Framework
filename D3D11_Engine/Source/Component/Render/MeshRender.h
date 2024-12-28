@@ -56,6 +56,9 @@ public:
 public:
 	void ResetVertexShader();
 	void ResetPixelShader();
+
+	inline const std::wstring& GetVertexShaderPath() { return vertexShaderPath; }
+	inline const std::wstring& GetPixelShaderPath() { return pixelShaderPath; }
 private:
 	std::wstring vertexShaderPath;
 	ID3D11InputLayout* pInputLayout = nullptr;

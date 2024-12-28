@@ -8,6 +8,8 @@ class PBRMeshObject : public GameObject
 public:
 	PBRMeshObject() = default;
 	virtual ~PBRMeshObject() override = default;
+	virtual void Serialized(std::ofstream& ofs);
+	virtual void Deserialized(std::ifstream& ifs);
 
 	cb_PBRMaterial Material;
 };

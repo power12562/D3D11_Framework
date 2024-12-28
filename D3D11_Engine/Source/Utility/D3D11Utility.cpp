@@ -553,6 +553,63 @@ namespace Utility
 			return DX_TEXTURE_EXTENSION::null;
 	}
 
+	void RetrieveVertexBufferData(ID3D11DeviceContext* context, ID3D11Device* device, ID3D11Buffer* vertexBuffer, void* outputData, size_t bufferSize)
+	{
+		//desc
+		D3D11_BUFFER_DESC bufferDesc;
+		vertexBuffer->GetDesc(&bufferDesc);
+
+		// Staging Buffer 생성
+		D3D11_BUFFER_DESC stagingDesc = bufferDesc;
+		stagingDesc.Usage = D3D11_USAGE_STAGING; // Staging 용도로 설정
+		stagingDesc.BindFlags = 0;               // Bind Flags는 0이어야 함
+		stagingDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+		ID3D11Buffer* stagingBuffer = nullptr;
+		CheckHRESULT(device->CreateBuffer(&stagingDesc, nullptr, &stagingBuffer));
+
+		if (stagingBuffer)
+		{
+			// GPU 데이터를 Staging Buffer로 복사
+			context->CopyResource(stagingBuffer, vertexBuffer);
+
+			// Staging Buffer에서 데이터를 CPU로 복사
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			CheckHRESULT(context->Map(stagingBuffer, 0, D3D11_MAP_READ, 0, &mappedResource));
+			memcpy(outputData, mappedResource.pData, bufferSize);
+			context->Unmap(stagingBuffer, 0);
+			stagingBuffer->Release();
+		}
+	}
+
+	void RetrieveIndexBufferData(ID3D11DeviceContext* context, ID3D11Device* device, ID3D11Buffer* indexBuffer, void* outputData, size_t bufferSize)
+	{
+		//desc
+		D3D11_BUFFER_DESC bufferDesc;
+		indexBuffer->GetDesc(&bufferDesc);
+
+		// Staging Buffer 생성
+		D3D11_BUFFER_DESC stagingDesc = bufferDesc;
+		stagingDesc.Usage = D3D11_USAGE_STAGING;
+		stagingDesc.BindFlags = 0;
+		stagingDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+		ID3D11Buffer* stagingBuffer = nullptr;
+		CheckHRESULT(device->CreateBuffer(&stagingDesc, nullptr, &stagingBuffer));
+
+		if (stagingBuffer)
+		{
+			// GPU 데이터를 Staging Buffer로 복사
+			context->CopyResource(stagingBuffer, indexBuffer);
+
+			// Staging Buffer에서 데이터를 CPU로 복사
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			CheckHRESULT(context->Map(stagingBuffer, 0, D3D11_MAP_READ, 0, &mappedResource));
+			memcpy(outputData, mappedResource.pData, bufferSize);
+			context->Unmap(stagingBuffer, 0);
+			stagingBuffer->Release();
+		}
+	}
 }
 
 namespace DebugDraw

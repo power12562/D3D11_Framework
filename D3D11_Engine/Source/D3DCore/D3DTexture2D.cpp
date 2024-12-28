@@ -2,6 +2,7 @@
 #include <Utility/AssimpUtility.h>
 #include <Manager/TextureManager.h>
 #include <Utility/ImguiHelper.h>
+#include <Utility/SerializedUtility.h>
 
 D3DTexture2D::D3DTexture2D()
 {
@@ -77,6 +78,29 @@ void D3DTexture2D::ResetTexture2D(int index)
 		SRVList[index] = nullptr;
 		pathList[index].clear();
 	}
+}
+
+void D3DTexture2D::Serialized(std::ofstream& ofs)
+{
+	using namespace Binary;
+	Write::data(ofs, pathList.size());
+	for (size_t i = 0; i < pathList.size(); i++)
+	{
+		Write::wstring(ofs, pathList[i]);
+	}
+}
+
+void D3DTexture2D::Deserialized(std::ifstream& ifs)
+{
+	using namespace Binary;
+	size_t size = Read::data<size_t>(ifs);
+	pathList.resize(size);
+	SRVList.resize(size);
+	for (size_t i = 0; i < size; i++)
+	{
+		pathList[i] = Read::wstring(ifs);
+	}
+	ReloadTexture();
 }
 
 D3DTexture2D::D3DTexture2D(const D3DTexture2D& rhs)

@@ -257,6 +257,14 @@ void Scene::ImGuizmoDraw()
 					{
 						GuizmoSetting.SelectObject = nullptr;
 					}
+					else if (Input.IsKeyDown(Keyboard::Keys::Delete))
+					{
+						if (GuizmoSetting.SelectObject != static_cast<GameObject*>(&mainCamera->gameObject))
+						{
+							GameObject::Destroy(GuizmoSetting.SelectObject);
+							GuizmoSetting.SelectObject = nullptr;
+						}
+					}
 				}
 			}		
 		}
