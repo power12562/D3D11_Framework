@@ -87,6 +87,7 @@ private:
 	std::vector<std::vector<IDXGIOutput1*>> DXGIOutputs;
 
 public:
+	void SetRTVdefault();
 	void ClearRTV();
 	void BegineDraw();
 	void DrawIndex(RENDERER_DRAW_DESC& darwDesc);

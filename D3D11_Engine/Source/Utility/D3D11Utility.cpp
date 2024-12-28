@@ -1,7 +1,6 @@
 #include "D3D11Utility.h"
 #include <comdef.h>
 #include <d3dcompiler.h>
-#include <DirectXTex.h>
 #include <Directxtk/DDSTextureLoader.h>
 #include <Directxtk/WICTextureLoader.h>
 #include <iostream>
@@ -235,7 +234,7 @@ namespace Utility
 		}
 	}
 
-	HRESULT CreateCompressTexture(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView, E_COMPRESS::TYPE type)
+	std::shared_ptr<DirectX::ScratchImage> CreateCompressTexture(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView, E_COMPRESS::TYPE type)
 	{
 		HRESULT hr = S_OK;
 		auto ShowErrorMessageBox = [&]()
@@ -255,7 +254,7 @@ namespace Utility
 			if (FAILED(hr))
 			{
 				ShowErrorMessageBox();
-				return hr;
+				CheckHRESULT(hr);
 			}
 			break;
 		}
@@ -265,7 +264,7 @@ namespace Utility
 			if (FAILED(hr))
 			{
 				ShowErrorMessageBox();
-				return hr;
+				CheckHRESULT(hr);
 			}
 			break;
 		}
@@ -275,7 +274,7 @@ namespace Utility
 			if (FAILED(hr))
 			{
 				ShowErrorMessageBox();
-				return hr;
+				CheckHRESULT(hr);
 			}
 			break;
 		}
@@ -336,7 +335,22 @@ namespace Utility
 
 		hr = d3dDevice->CreateShaderResourceView(tempTexture.Get(), nullptr, textureView);
 		CheckHRESULT(hr);
-		return S_OK;
+		return std::move(scratchImage);
+	}
+
+	HRESULT SaveTextureForDDS(const wchar_t* szFileName, const std::shared_ptr<DirectX::ScratchImage>& image)
+	{
+		std::filesystem::path originPath = szFileName;
+		originPath.replace_extension(L".dds");
+		if (!std::filesystem::exists(originPath.parent_path())) 
+		{
+			std::filesystem::create_directories(originPath.parent_path());
+		}
+		return SaveToDDSFile(
+			*image->GetImages(),      // 텍스처 이미지 데이터
+			DDS_FLAGS_NONE,          // DDS 플래그
+			originPath.c_str()
+		);
 	}
 
 	UINT GetMipmapLevels(UINT width, UINT height)

@@ -344,6 +344,11 @@ SYSTEM_MEMORY_INFO D3DRenderer::GetSystemMemoryInfo()
     return info;
 }
 
+void D3DRenderer::SetRTVdefault()
+{
+    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
+}
+
 void D3DRenderer::ClearRTV()
 {
     //clear RTV

@@ -9,6 +9,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 static int g_id = 0;
 
@@ -327,7 +328,7 @@ namespace CompressPopupField
 	static std::vector<std::thread>  compressThreads;
 	static std::vector<ID3D11ShaderResourceView*> tempSRVvec;
 	static std::unordered_set<D3DTexture2D*> textures;	//압축 후 다시 로드할 텍스쳐들
-	//static std::mutex textures_mutex;
+	static std::atomic_int threadsCounter;
 }
 
 bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType)
@@ -370,7 +371,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 		"Ambient Occulusion"
 	};
 
-	auto popupFunc = [=]()
+	auto popupFunc = [texType, compressTypeStr, textureTypeStr]()
 		{
 			std::wstring& wstr_path = wstr_queue.front();
 			std::string& str_path = str_queue.front();
@@ -403,10 +404,10 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
 						switch (type)
 						{
+						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Normal:
 							compressType = Utility::E_COMPRESS::None;
 							break;
-						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Specular:
 						case E_TEXTURE::Emissive:
 						case E_TEXTURE::Opacity:
@@ -429,17 +430,27 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						auto compressThreadFunc = [path = wstr_path, compType = compressType]()
 							{
 								static std::mutex mt;
+								std::shared_ptr<DirectX::ScratchImage> image;
 								mt.lock();
 								Utility::CheckHRESULT(CoInitializeEx(nullptr, COINIT_MULTITHREADED)); //작업 스레드의 Com 객체 사용 활성화
 								if (!textureManager.IsTextureLoaded(path.c_str()))
 								{							
 									ID3D11ShaderResourceView* tempSRV;
-									Utility::CheckHRESULT(Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType));
+									image = Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType);
 									textureManager.InsertTexture(path.c_str(), tempSRV);
 									tempSRVvec.push_back(tempSRV);
-									CoUninitialize();
+									CoUninitialize();					
 								}
 								mt.unlock();
+								if (image)
+								{
+									std::filesystem::path originPath = path;
+									originPath.replace_extension(L".dds");
+									constexpr wchar_t textuers[] = L"textuers";
+									std::filesystem::path savePath = originPath.parent_path() / textuers / originPath.filename();
+									Utility::SaveTextureForDDS(savePath.c_str(), image);
+								}
+								
 							};
 						compressThreads.emplace_back(compressThreadFunc); //스레드 처리
 						
@@ -452,24 +463,61 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 					if (popupCount == 0)
 					{
 						UseAutoCompress = false;
-						for (auto& threads : compressThreads)
-						{
-							threads.join();
-						}
-						for (auto& texture : textures)
-						{
-							texture->ReloadTexture();
-						}
-						for (auto& tempSRV : tempSRVvec)
-						{
-							tempSRV->Release();
-						}
-						compressThreads.clear();
-						compressThreads.shrink_to_fit();
-						textures.clear();
-						textures.rehash(0);
-						tempSRVvec.clear();
-						tempSRVvec.shrink_to_fit();
+
+						threadsCounter = compressThreads.size();
+						auto lodingWaitThreadsFunc = []()
+							{
+								++threadsCounter;
+								for (auto& threads : compressThreads)
+								{
+									threads.join();
+									--threadsCounter;
+								}
+								for (auto& texture : textures)
+								{
+									texture->ReloadTexture();
+								}
+								for (auto& tempSRV : tempSRVvec)
+								{
+									tempSRV->Release();
+								}
+								compressThreads.clear();
+								compressThreads.shrink_to_fit();
+								textures.clear();
+								textures.rehash(0);
+								tempSRVvec.clear();
+								tempSRVvec.shrink_to_fit();
+								--threadsCounter;
+								return;
+							};
+						std::thread lodingWaitThread(lodingWaitThreadsFunc);
+						lodingWaitThread.detach();
+
+						sceneManager.SetLodingImguiFunc([]() 
+							{
+								static std::string text;
+								text = std::format("Compress : {}", threadsCounter.load());
+								ImGuiIO& io = ImGui::GetIO();
+								ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+								ImVec2 screen_size = io.DisplaySize;
+								draw_list->AddRectFilled(ImVec2(0, 0), screen_size, IM_COL32(255, 255, 255, 255));
+								ImVec2 text_size = ImGui::CalcTextSize(text.c_str());
+								ImVec2 text_pos = ImVec2(
+									(screen_size.x - text_size.x) * 0.5f, 
+									(screen_size.y - text_size.y) * 0.5f
+								);
+								draw_list->AddText(
+									NULL, 50.0f,
+									text_pos,
+									IM_COL32(0, 0, 0, 255),
+									text.c_str()
+								);
+
+								if (threadsCounter == 0)
+								{
+									sceneManager.EndLodingImguiFunc();
+								}
+							});
 					}
 				}
 				ImGui::EndPopup();

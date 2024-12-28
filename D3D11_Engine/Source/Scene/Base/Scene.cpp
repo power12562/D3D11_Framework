@@ -70,11 +70,13 @@ void Scene::LateUpdate()
 
 void Scene::Render()
 {
-	d3dRenderer.ClearRTV();
-	ImGUIBegineDraw();
+	d3dRenderer.ClearRTV();	
 	if (ImGuiLodingFunc)
 	{
+		ImGUIBegineDraw();
+		d3dRenderer.SetRTVdefault();
 		ImGuiLodingFunc();
+		ImGUIEndDraw();
 	}
 	else
 	{
@@ -85,15 +87,16 @@ void Scene::Render()
 				obj->Render();
 		}
 		d3dRenderer.EndDraw();
+		if (UseImGUI)
+		{
+			ImGUIBegineDraw();
+			ImGuizmoDraw();
+			ImGUIRender();
+			if (!ImGUIPopupQue.empty())
+				ImGUIPopupQue.front()();
+			ImGUIEndDraw();
+		}
 	}
-	if (UseImGUI)
-	{
-		ImGuizmoDraw();
-		ImGUIRender();
-		if (!ImGUIPopupQue.empty())
-			ImGUIPopupQue.front()();		
-	}
-	ImGUIEndDraw();
 	d3dRenderer.Present();
 }
 

@@ -172,6 +172,22 @@ void SceneManager::PopImGuiPopupFunc()
 		currScene->ImGUIPopupQue.pop();
 }
 
+void SceneManager::SetLodingImguiFunc(const std::function<void()>& func)
+{
+	if (currScene)
+	{
+		currScene->ImGuiLodingFunc = func;
+	}
+}
+
+void SceneManager::EndLodingImguiFunc()
+{
+	if (currScene)
+	{
+		currScene->ImGuiLodingFunc = nullptr;
+	}
+}
+
 GameObject* SceneManager::FindObject(const wchar_t* name)
 {
 	GameObject* obj = nullptr;

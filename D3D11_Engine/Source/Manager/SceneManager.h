@@ -65,8 +65,14 @@ public:
 	
 	/*현재 씬 Imgui 사용 여부 반환*/
 	bool IsImGuiActive();
+
+	/*ImGui 팝업 함수 등록 *반드시 함수 내에서 PopImGuiPopupFunc()로 팝업 종료해야함.*/
 	void PushImGuiPopupFunc(const std::function<void()>& func);
 	void PopImGuiPopupFunc();
+
+	/**Loding 화면 함수 등록.*/
+	void SetLodingImguiFunc(const std::function<void()>& func);
+	void EndLodingImguiFunc();
 
 	bool EndGame = false;
 private:

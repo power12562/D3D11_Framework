@@ -14,6 +14,7 @@
 #include <directxtk/VertexTypes.h>
 #include <directxtk/Effects.h>
 #include <directxtk/DirectXHelpers.h>
+#include <DirectXTex.h>
 using namespace Microsoft::WRL;
 
 namespace Utility
@@ -74,7 +75,8 @@ namespace Utility
 	HRESULT LoadShadeFormFile(const WCHAR* szFileName, ID3DBlob** ppBlobOut);
 	HRESULT CreateTextureFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView);
 	HRESULT CreateCubeMapFromFile(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView);
-	HRESULT CreateCompressTexture(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView, E_COMPRESS::TYPE type);
+	std::shared_ptr<DirectX::ScratchImage> CreateCompressTexture(ID3D11Device* d3dDevice, const wchar_t* szFileName, ID3D11Resource** texture, ID3D11ShaderResourceView** textureView, E_COMPRESS::TYPE type);
+	HRESULT SaveTextureForDDS(const wchar_t* szFileName, const std::shared_ptr<DirectX::ScratchImage>& image);
 	UINT GetMipmapLevels(UINT width, UINT height);
 	DXGI_FORMAT GetDXGIFormat(D3D_REGISTER_COMPONENT_TYPE componentType, UINT mask);
 

@@ -174,7 +174,6 @@
     <ClInclude Include="Source\Manager\GameObjectFactory.h" />
     <ClInclude Include="Source\Manager\ResourceManager.h" />
     <ClInclude Include="Source\Manager\TextureManager.h" />
-    <ClInclude Include="Source\Core\ThreadPool.h" />
     <ClInclude Include="Source\GameObject\Mesh\BlingPhongMeshObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\CubeObject.h" />
     <ClInclude Include="Source\GameObject\Mesh\SkyBoxObject.h" />
@@ -239,7 +238,6 @@
     <ClCompile Include="Source\Manager\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Manager\TextureManager.cpp" />
     <ClCompile Include="Source\Manager\ResourceManager.cpp" />
-    <ClCompile Include="Source\Core\ThreadPool.cpp" />
     <ClCompile Include="Source\Component\Base\RenderComponent.cpp" />
     <ClCompile Include="Source\Component\Camera\Camera.cpp" />
     <ClCompile Include="Source\Component\Base\Component.cpp" />

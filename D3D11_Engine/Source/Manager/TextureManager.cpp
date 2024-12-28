@@ -46,7 +46,7 @@ ULONG TextureManager::CreateSharingCompressTexture(const wchar_t* path, ID3D11Sh
 	else
 	{
 		ID3D11ShaderResourceView* newResource;
-		CheckHRESULT(CreateCompressTexture(d3dRenderer.GetDevice(), path, nullptr, &newResource, type));
+		CreateCompressTexture(d3dRenderer.GetDevice(), path, nullptr, &newResource, type);
 		resourceMap[path] = newResource;
 		*ppOut_ResourceView = newResource;
 		return 1;
