@@ -72,6 +72,8 @@ public:
 
 	/*현재 설정된 path로 다시 로드*/
 	void ReloadTexture();
+	/**현재 설정된 Path*/
+	inline std::wstring& GetPath(int index) { return pathList[index]; }
 public:
 	D3DTexture2D(const D3DTexture2D& rhs);
 	D3DTexture2D& operator=(const D3DTexture2D& rhs);
@@ -79,6 +81,5 @@ public:
 private:
 	std::vector<ID3D11ShaderResourceView*> SRVList{};
 	std::vector<std::wstring> pathList{};
-
 };
 

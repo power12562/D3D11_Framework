@@ -89,6 +89,7 @@ namespace Utility
 	{
 		auto compressPopup = [=](const wchar_t* path, E_TEXTURE::TYPE type)
 			{
+				//return false;  //Å×½ºÆ®
 				return ImGui::ShowCompressPopup(path, &meshRender->textures, type);
 			};
 

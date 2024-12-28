@@ -85,7 +85,8 @@ ULONG TextureManager::ReleaseSharingTexture(const wchar_t* path)
 	}
 	else
 	{
-		__debugbreak(); //키값 x
+		//키값 x
+		__debugbreak();
 		return -1;
 	}
 }

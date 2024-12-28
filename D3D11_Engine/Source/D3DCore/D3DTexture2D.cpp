@@ -1,6 +1,7 @@
 #include "D3DTexture2D.h"
 #include <Utility/AssimpUtility.h>
 #include <Manager/TextureManager.h>
+#include <Utility/ImguiHelper.h>
 
 D3DTexture2D::D3DTexture2D()
 {
@@ -106,14 +107,20 @@ D3DTexture2D& D3DTexture2D::operator=(const D3DTexture2D& rhs)
 	if (this == &rhs)
 		return *this;
 	
+	for (int i = 0; i < rhs.pathList.size(); ++i)
+	{
+		ResetTexture2D(i);
+	}
 	SRVList = rhs.SRVList;
 	pathList = rhs.pathList;
 	for (int i = 0; i < rhs.pathList.size(); ++i)
 	{
 		if (pathList[i] != L"")
-			textureManager.CreateSharingTexture(pathList[i].c_str(), &SRVList[i]);
+		{
+			if(!ImGui::ReloadTextureCompressEnd(pathList[i].c_str(), this, i)) //압축중인지 확인.
+				textureManager.CreateSharingTexture(pathList[i].c_str(), &SRVList[i]); //바로 로드
+		}	
 	}
-
 	return *this;
 }
 
@@ -122,7 +129,9 @@ void D3DTexture2D::ReloadTexture()
 	for (int i = 0; i < pathList.size(); ++i)
 	{
 		if (pathList[i] != L"")
+		{
 			textureManager.CreateSharingTexture(pathList[i].c_str(), &SRVList[i]);
+		}	
 	}
 }
 

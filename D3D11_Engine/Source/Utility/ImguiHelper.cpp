@@ -325,8 +325,9 @@ namespace CompressPopupField
 	static std::queue<std::string>   str_queue;
 	static std::queue<std::wstring>  wstr_queue;
 	static std::vector<std::thread>  compressThreads;
-	static std::vector<std::tuple<D3DTexture2D*, std::wstring, E_TEXTURE::TYPE>> textures;	//압축 후 다시 로드할 텍스쳐들
 	static std::vector<ID3D11ShaderResourceView*> tempSRVvec;
+	static std::unordered_set<D3DTexture2D*> textures;	//압축 후 다시 로드할 텍스쳐들
+	static std::mutex textures_mutex;
 }
 
 bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType)
@@ -335,11 +336,11 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 	popupCount++;
 	str_queue.push(utfConvert::wstring_to_utf8(path));
 	wstr_queue.push(path);
-	textures.emplace_back(texture2D, path, E_TEXTURE::TYPE(texType));
+	ReloadTextureCompressEnd(path, texture2D, texType);
 	
 	/*추천 포멧!!
-	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요.
-	Normal		BC5/BC7		 2채널(RG) 데이터는 BC5, 3채널은 BC7 사용.
+	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요시 BC7
+	Normal		BC5/BC7	     보통 BC7, 2채널 사용하는 노말은 BC5. (BC7 개느림..)
 	Specular	BC1/BC7		 단순 데이터면 BC1, 고품질 필요 시 BC7.
 	Emissive	BC1/BC3		 불투명은 BC1, 알파 필요 시 BC3.
 	Opacity		BC4/BC3		 단일 채널은 BC4, RGBA 필요 시 BC3.
@@ -374,15 +375,20 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 			std::wstring& wstr_path = wstr_queue.front();
 			std::string& str_path = str_queue.front();
 
-			// 팝업을 열기 위해 반드시 OpenPopup 호출
 			ImGui::OpenPopup("Compress Texture");
-
-			// 모달 팝업 시작
-			if (ImGui::BeginPopupModal("Compress Texture"))
+			ImGui::SetNextWindowSize(ImVec2(750, 480));
+			if (ImGui::BeginPopupModal("Compress Texture", nullptr, ImGuiWindowFlags_NoResize))
 			{
-				static int textureType;
+				static bool initialized = false;
+				static int textureType = 0;
 				static Utility::E_COMPRESS::TYPE compressType = Utility::E_COMPRESS::None;
 				static bool showAdvancedSettings = false;
+				if (!initialized)
+				{
+					textureType = texType;
+					initialized = true;
+				}
+
 				ImGui::Text(str_path.c_str());
 				ImGui::Checkbox("Use Advanced", &showAdvancedSettings);
 				if (showAdvancedSettings)
@@ -396,11 +402,11 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
 						switch (type)
 						{
+						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Normal:
-							compressType = Utility::E_COMPRESS::BC7;
+							compressType = Utility::E_COMPRESS::None;
 							break;
 						case E_TEXTURE::Specular:
-						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Emissive:
 						case E_TEXTURE::Opacity:
 							compressType = Utility::E_COMPRESS::BC3;
@@ -416,14 +422,13 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						}
 					}
 				}
-				// 확인 버튼
 				if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter))
 				{								
 						auto compressThreadFunc = [path = wstr_path, compType = compressType]()
 							{
 								static std::mutex mt;
 								mt.lock();
-								Utility::CheckHRESULT(CoInitializeEx(nullptr, COINIT_MULTITHREADED)); //서브 스레드의 Com 객체 사용 활성화
+								Utility::CheckHRESULT(CoInitializeEx(nullptr, COINIT_MULTITHREADED)); //작업 스레드의 Com 객체 사용 활성화
 								if (!textureManager.IsTextureLoaded(path.c_str()))
 								{							
 									ID3D11ShaderResourceView* tempSRV;
@@ -434,24 +439,26 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 								}
 								mt.unlock();
 							};
-						compressThreads.emplace_back(compressThreadFunc);
-						//compressThreadFunc(); //싱글로
+						compressThreads.emplace_back(compressThreadFunc); //스레드 처리
 						
 					str_queue.pop();
 					wstr_queue.pop();
 					ImGui::CloseCurrentPopup();
 					sceneManager.PopImGuiPopupFunc();
 					popupCount--;
+					initialized = false;
 					if (popupCount == 0)
 					{
 						for (auto& threads : compressThreads)
 						{
 							threads.join();
 						}
-						for (auto& [texture, path, type] : textures)
+						textures_mutex.lock();
+						for (auto& texture : textures)
 						{
-							texture->SetTexture2D(type, path.c_str());
+							texture->ReloadTexture();
 						}
+						textures_mutex.unlock();
 						for (auto& tempSRV : tempSRVvec)
 						{
 							tempSRV->Release();
@@ -459,7 +466,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						compressThreads.clear();
 						compressThreads.shrink_to_fit();
 						textures.clear();
-						textures.shrink_to_fit();
+						textures.rehash(0);
 						tempSRVvec.clear();
 						tempSRVvec.shrink_to_fit();
 					}
@@ -476,4 +483,18 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 	}	
 	else
 		return false;
+}
+
+bool ImGui::ReloadTextureCompressEnd(const wchar_t* path, D3DTexture2D* texture2D, int texType)
+{
+	using namespace CompressPopupField;
+	if (popupCount > 0)
+	{
+		textures_mutex.lock();
+		texture2D->GetPath(texType) = path;
+		textures.insert(texture2D);
+		textures_mutex.unlock();
+		return true;
+	}
+	return false;
 }

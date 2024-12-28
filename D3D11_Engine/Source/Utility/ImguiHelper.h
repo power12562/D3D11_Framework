@@ -45,5 +45,9 @@ namespace ImGui
 
 	void EditLight(cb_PBRDirectionalLight* Light);
 
+	/*압축 팝업 활성화*/
 	bool ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType);
+
+	/*압축중인 텍스쳐 존재하면 압축 끝나면 다시 로드하도록 설정*/
+	bool ReloadTextureCompressEnd(const wchar_t* path, D3DTexture2D* texture2D, int texType);
 };
