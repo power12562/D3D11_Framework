@@ -260,7 +260,7 @@ void D3DRenderer::Uninit()
 #endif // _DEBUG
 
     ULONG refcount = SafeRelease(pDevice);
-    if (refcount != 0)
+    if (refcount > 0)
     {
         __debugbreak(); //Device refcounter err.
     }

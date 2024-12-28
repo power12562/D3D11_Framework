@@ -1,6 +1,7 @@
 #pragma once
 #include <Utility/D3D11Utility.h>
 #include <string>
+#include <atomic>
 
 namespace E_TEXTURE
 {
@@ -68,6 +69,9 @@ public:
 
 	/*SRV를 반환합니다. 없으면 nullptr 반환.*/
 	ID3D11ShaderResourceView* operator[](int index);
+
+	/*현재 설정된 path로 다시 로드*/
+	void ReloadTexture();
 public:
 	D3DTexture2D(const D3DTexture2D& rhs);
 	D3DTexture2D& operator=(const D3DTexture2D& rhs);
@@ -75,5 +79,6 @@ public:
 private:
 	std::vector<ID3D11ShaderResourceView*> SRVList{};
 	std::vector<std::wstring> pathList{};
+
 };
 

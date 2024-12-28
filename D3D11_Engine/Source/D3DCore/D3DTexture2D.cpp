@@ -116,3 +116,13 @@ D3DTexture2D& D3DTexture2D::operator=(const D3DTexture2D& rhs)
 
 	return *this;
 }
+
+void D3DTexture2D::ReloadTexture()
+{
+	for (int i = 0; i < pathList.size(); ++i)
+	{
+		if (pathList[i] != L"")
+			textureManager.CreateSharingTexture(pathList[i].c_str(), &SRVList[i]);
+	}
+}
+

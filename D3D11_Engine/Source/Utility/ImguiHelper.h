@@ -7,6 +7,7 @@
 class GameObject;
 class CameraMoveHelper;
 class Camera;
+class D3DTexture2D;
 struct cb_PBRMaterial;
 struct PBRDirectionalLight;
 struct cb_PBRDirectionalLight;
@@ -44,5 +45,5 @@ namespace ImGui
 
 	void EditLight(cb_PBRDirectionalLight* Light);
 
-	bool ShowCompressPopup(const wchar_t* path, ID3D11ShaderResourceView** ppOutput);
+	bool ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType);
 };
