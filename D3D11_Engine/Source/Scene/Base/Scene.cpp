@@ -222,6 +222,7 @@ void Scene::ImGuizmoDraw()
 					ImGui::PushID("Inspector");
 					ImGui::Begin(windowName.c_str());
 					{
+						ImGui::Checkbox("Active", &GuizmoSetting.SelectObject->Active);
 						ImGui::EditTransform(GuizmoSetting.SelectObject);
 					}
 					ImGui::End();
