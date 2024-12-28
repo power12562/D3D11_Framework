@@ -325,6 +325,7 @@ namespace CompressPopupField
 	static int popupCount = 0;
 	static std::queue<std::string>   str_queue;
 	static std::queue<std::wstring>  wstr_queue;
+	static std::queue<std::wstring>  savePath_Queue;
 	static std::vector<std::thread>  compressThreads;
 	static std::vector<ID3D11ShaderResourceView*> tempSRVvec;
 	static std::unordered_set<D3DTexture2D*> textures;	//압축 후 다시 로드할 텍스쳐들
@@ -335,12 +336,18 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 {
 	using namespace CompressPopupField;
 	popupCount++;
+	std::filesystem::path originPath = path;
+	originPath.replace_extension(L".dds");
+	constexpr wchar_t textuers[] = L"Textuers";
+	std::filesystem::path savePath = originPath.parent_path() / textuers / originPath.filename();
+	bool isExists = std::filesystem::exists(savePath);
 	str_queue.push(utfConvert::wstring_to_utf8(path));
 	wstr_queue.push(path);
-	ReloadTextureCompressEnd(path, texture2D, texType);
+	savePath_Queue.push(savePath.c_str());
+	ReloadTextureCompressEnd(savePath.c_str(), texture2D, texType);
 	
 	/*추천 포멧!!
-	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요시 BC7
+	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요시 BC7 //생각보다 압축티 많이남..
 	Normal		BC5/BC7	     보통 BC7, 2채널 사용하는 노말은 BC5. (BC7 개느림..)
 	Specular	BC1/BC7		 단순 데이터면 BC1, 고품질 필요 시 BC7.
 	Emissive	BC1/BC3		 불투명은 BC1, 알파 필요 시 BC3.
@@ -371,10 +378,11 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 		"Ambient Occulusion"
 	};
 
-	auto popupFunc = [texType, compressTypeStr, textureTypeStr]()
+	auto popupFunc = [texType, compressTypeStr, textureTypeStr, isExists]()
 		{
 			std::wstring& wstr_path = wstr_queue.front();
 			std::string& str_path = str_queue.front();
+			std::wstring& save_path = savePath_Queue.front();
 
 			ImGui::OpenPopup("Compress Texture");
 			ImGui::SetNextWindowSize(ImVec2(750, 480));
@@ -405,6 +413,8 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						switch (type)
 						{
 						case E_TEXTURE::Albedo:
+							//compressType = Utility::E_COMPRESS::BC7;
+							//break;
 						case E_TEXTURE::Normal:
 							compressType = Utility::E_COMPRESS::None;
 							break;
@@ -427,7 +437,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 				ImGui::Button("Auto Compress", &UseAutoCompress);
 				if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter) || UseAutoCompress)
 				{								
-						auto compressThreadFunc = [path = wstr_path, compType = compressType]()
+						auto compressThreadFunc = [save_path, path = wstr_path, compType = compressType, isExists]()
 							{
 								static std::mutex mt;
 								std::shared_ptr<DirectX::ScratchImage> image;
@@ -436,7 +446,11 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 								if (!textureManager.IsTextureLoaded(path.c_str()))
 								{							
 									ID3D11ShaderResourceView* tempSRV;
-									image = Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType);
+									std::filesystem::path filePath = path;
+									if (isExists)
+										Utility::CheckHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), save_path.c_str(), nullptr, &tempSRV));
+									else
+										image = Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType);
 									textureManager.InsertTexture(path.c_str(), tempSRV);
 									tempSRVvec.push_back(tempSRV);
 									CoUninitialize();					
@@ -444,18 +458,15 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 								mt.unlock();
 								if (image)
 								{
-									std::filesystem::path originPath = path;
-									originPath.replace_extension(L".dds");
-									constexpr wchar_t textuers[] = L"textuers";
-									std::filesystem::path savePath = originPath.parent_path() / textuers / originPath.filename();
-									Utility::SaveTextureForDDS(savePath.c_str(), image);
-								}
-								
+									Utility::SaveTextureForDDS(save_path.c_str(), image);
+								}	
+								return;
 							};
 						compressThreads.emplace_back(compressThreadFunc); //스레드 처리
 						
 					str_queue.pop();
 					wstr_queue.pop();
+					savePath_Queue.pop();
 					ImGui::CloseCurrentPopup();
 					sceneManager.PopImGuiPopupFunc();
 					popupCount--;
