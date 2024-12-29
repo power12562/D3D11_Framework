@@ -33,6 +33,8 @@ public:
 public:
 	SimpleBoneMeshRender();
 	virtual ~SimpleBoneMeshRender() override = default;
+	virtual void Serialized(std::ofstream& ofs);
+	virtual void Deserialized(std::ifstream& ifs);
 
 public:
 	virtual void Start() 		 override;

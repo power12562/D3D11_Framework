@@ -16,6 +16,8 @@ public:
 public:
 	SimpleMeshRender();
 	virtual ~SimpleMeshRender() override = default;
+	virtual void Serialized(std::ofstream& ofs);
+	virtual void Deserialized(std::ifstream& ifs);
 
 public:
 	virtual void Start() 		 override;
