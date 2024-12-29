@@ -29,7 +29,7 @@ void IBLTestScene::Start()
 	auto initMesh = [this](MeshRender* mesh)
 		{
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
-			pistolMaterials[obj.GetNameToString()] = &obj.Material;
+			pistolMaterials[obj.GetNameToString()] = obj.Material.get();
 			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
 	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);
@@ -39,7 +39,7 @@ void IBLTestScene::Start()
 
 	Sphere = NewGameObject<SphereObject>(L"Sphere");
 	{
-		sphereMaterial = &Sphere->Material;
+		sphereMaterial = Sphere->Material.get();
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
@@ -87,7 +87,7 @@ void IBLTestScene::ImGUIRender()
 
 	Begin("Lights");
 	{
-		ImGui::EditLight(&DirectionalLight::DirectionalLights);
+		ImGui::EditLight(DirectionalLight::DirectionalLights.get());
 	}
 	End();
 
@@ -125,7 +125,7 @@ void IBLTestScene::ImGUIRender()
 			for (auto& [key, obj] : charMaterials)
 			{
 				Checkbox(key.c_str(), &obj->Active);
-				EditMaterial(key.c_str(), &obj->Material);
+				EditMaterial(key.c_str(), obj->Material.get());
 			}
 		}
 		End();

@@ -29,12 +29,13 @@ struct cbuffer_bool
 
 class LightManager : public Component
 {
+    inline static constexpr char lightKey[] = "LightManager";
 public:
     inline static D3DConstBuffer cbuffer{};
 
 public:
-    inline static cb_DirectionalLight cb_light{};
-    inline static cbuffer_bool cb_bool{};
+    inline static std::shared_ptr<cb_DirectionalLight> cb_light{};
+    inline static std::shared_ptr<cbuffer_bool> cb_bool{};
 public:
     LightManager();
     virtual ~LightManager() override;

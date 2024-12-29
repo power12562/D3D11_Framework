@@ -82,11 +82,13 @@ void SimpleBoneMeshRender::Start()
 {
 	using namespace Utility;
 
-	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>();
-	constBuffer.BindUpdateEvent(matrixPallete);
+	std::string key = GetMatrixPalleteKey();
+	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
+	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
 
-	index = constBuffer.CreateVSConstantBuffers<BoneWIT>();
-	constBuffer.BindUpdateEvent(boneWIT);
+	key = GetBoneWITKey();
+	boneWIT = D3DConstBuffer::GetData<BoneWIT>(key.c_str());
+	index = constBuffer.CreateVSConstantBuffers<BoneWIT>(key.c_str());
 
 	// Create Liner Sampler
 	samplerState.resize(2);
@@ -139,11 +141,11 @@ void SimpleBoneMeshRender::Render()
 			for (int i = 0; i < boneList.size(); i++)
 			{
 				temp = offsetMatrices->data[i] * boneList[i]->GetBoneMatrix();
-				matrixPallete.MatrixPalleteArray[i] = XMMatrixTranspose(temp);
+				matrixPallete->MatrixPalleteArray[i] = XMMatrixTranspose(temp);
 
 				temp = XMMatrixInverse(nullptr, temp);
 				temp = Utility::XMMatrixIsNaN(temp) ? Matrix() : temp;
-				boneWIT.BoneWIT[i] = temp;
+				boneWIT->BoneWIT[i] = temp;
 			}
 		}
 	}
@@ -214,3 +216,5 @@ void SimpleBoneMeshRender::CreateMesh()
 	vertices.shrink_to_fit();
 	indices.shrink_to_fit();
 }
+
+

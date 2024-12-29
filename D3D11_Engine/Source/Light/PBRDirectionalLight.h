@@ -20,6 +20,7 @@ struct alignas(16) cb_PBRDirectionalLight
 
 namespace DirectionalLight
 {
-    extern cb_PBRDirectionalLight DirectionalLights;
+    constexpr char DirectionalLights_key[] = "DirectionalLights";
+    extern std::shared_ptr<cb_PBRDirectionalLight> DirectionalLights;
 };
 

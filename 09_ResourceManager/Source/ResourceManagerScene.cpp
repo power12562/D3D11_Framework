@@ -18,11 +18,12 @@
 void ResourceManagerScene::Start()
 {
 	UseImGUI = true;
+	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("Shared Material");
 
 	//리소스 미리 로드
 	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);
 
-	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
+	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
 
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
@@ -32,8 +33,6 @@ void ResourceManagerScene::Start()
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 	
-	material = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
-
 	for (size_t i = 0; i < 100; i++) { AddTestObject(); }
 }
 
@@ -44,7 +43,7 @@ ResourceManagerScene::~ResourceManagerScene()
 void ResourceManagerScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
+	cb_DirectionalLight& cb_light = *SimpleDirectionalLight::cb_light;
 
 	ImGui::Begin("Debug");
 	{
@@ -121,11 +120,9 @@ void ResourceManagerScene::AddTestObject()
 
 	auto testInit = [this](MeshRender* mesh)->void
 		{
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(*material);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("Shared Material");
 
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 
 			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->textures.resize(E_TEXTURE::BlingPhongTextureCount);

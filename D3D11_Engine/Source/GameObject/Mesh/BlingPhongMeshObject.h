@@ -8,6 +8,7 @@ class BlingPhongMeshObject : public GameObject
 public:
 	BlingPhongMeshObject() = default;
 	virtual ~BlingPhongMeshObject() override = default;
+	virtual void Start() override;
 
-	cb_BlingPhongMaterial Material;
+	std::shared_ptr<cb_BlingPhongMaterial> Material;
 };

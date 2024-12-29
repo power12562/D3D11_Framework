@@ -15,7 +15,7 @@
 #pragma warning(disable : 4305)
 void SkinningAnimationScene::Start()
 {
-	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
+	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
@@ -40,14 +40,11 @@ void SkinningAnimationScene::Start()
 	auto testInit = [this](MeshRender* mesh)->void
 		{
 			mesh->RenderFlags |= RENDER_FORWARD;
-			MaterialList.emplace_back();
-			cb_BlingPhongMaterial& material = MaterialList.back();
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(material);
-			material.MaterialDiffuse = mesh->baseColor;
+			std::shared_ptr<cb_BlingPhongMaterial> material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>(mesh->gameObject.GetNameToString().c_str());
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>(mesh->gameObject.GetNameToString().c_str());
+			material->MaterialDiffuse = mesh->baseColor;
 				
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");					
 			mesh->SetPixelShader(L"PixelShader.hlsl");	
@@ -69,7 +66,7 @@ SkinningAnimationScene::~SkinningAnimationScene()
 void SkinningAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
+	cb_DirectionalLight& cb_light = *SimpleDirectionalLight::cb_light;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

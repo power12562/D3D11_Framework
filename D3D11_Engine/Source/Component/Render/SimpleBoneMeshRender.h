@@ -1,5 +1,6 @@
 #pragma once
 #include <Component/Render/MeshRender.h>
+#include <format>
 
 struct MatrixPallete
 {
@@ -52,8 +53,22 @@ public:
 	std::vector<UINT>   indices;
 
 public:
-	MatrixPallete matrixPallete = {};
-	BoneWIT boneWIT = {};
+	inline std::string GetMatrixPalleteKey();
+	std::shared_ptr<MatrixPallete> matrixPallete = {};
+	inline std::string GetBoneWITKey();
+	std::shared_ptr<BoneWIT> boneWIT = {};
+
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
 	std::vector<BoneComponent*> boneList;
 };
+
+inline std::string SimpleBoneMeshRender::GetMatrixPalleteKey()
+{
+	return std::format("{}_{}_{}", gameObject.GetNameToString(), gameObject.GetInstanceID(), typeid(MatrixPallete).name()).c_str();
+}
+
+inline std::string SimpleBoneMeshRender::GetBoneWITKey()
+{
+	return std::format("{}_{}_{}", gameObject.GetNameToString(), gameObject.GetInstanceID(), typeid(BoneWIT).name()).c_str();
+}
+

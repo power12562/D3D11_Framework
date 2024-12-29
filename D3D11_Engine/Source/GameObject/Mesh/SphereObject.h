@@ -6,9 +6,10 @@ class SphereObject : public GameObject
 {
 	SERIALIZED_OBJECT(SphereObject)
 public:
-	SphereObject();
+	SphereObject() = default;
+	virtual void Start() override;
 	virtual ~SphereObject() override = default;
 
-	cb_PBRMaterial Material;
+	std::shared_ptr<cb_PBRMaterial> Material;
 	PBRMeshRender* SphereMeshRender = nullptr;
 };

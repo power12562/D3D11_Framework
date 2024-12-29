@@ -52,7 +52,7 @@ void DeferredTestScene1::ImGUIRender()
 	{
 		if (Sphere)
 		{
-			ImGui::EditMaterial("Sphere Material", &Sphere->Material);
+			ImGui::EditMaterial("Sphere Material", Sphere->Material.get());
 		}		
 	}
 	ImGui::End();
@@ -95,7 +95,7 @@ void DeferredTestScene1::ImGUIRender()
 	ImGui::Begin("Light");
 	{
 		ImGui::Checkbox("Active Sky Box", &pSkyBox->Active);
-		ImGui::EditLight(&DirectionalLight::DirectionalLights);
+		ImGui::EditLight(DirectionalLight::DirectionalLights.get());
 	}
 	ImGui::End();
 

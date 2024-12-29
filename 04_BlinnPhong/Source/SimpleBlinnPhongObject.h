@@ -68,5 +68,6 @@ public:
 	int m_nIndices = 0;										// 인덱스 개수.
 	ID3D11ShaderResourceView* m_pTextureRV = nullptr;	// 텍스처 리소스 뷰.
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;		// 샘플러 상태.
+	D3D11_VIEWPORT viewPort{};
 };
 

@@ -390,10 +390,10 @@ void D3DRenderer::BegineDraw()
         constexpr float lightNear = 1.f;
         float lightFar = mainCam->Far * 1.35f;
         float camHalfFar = mainCam->Far * 0.5f;
-        for (int i = 0; i < DirectionalLights.LightsCount; i++)
+        for (int i = 0; i < DirectionalLights->LightsCount; i++)
         {
             Vector3 lightDir; 
-            DirectionalLights.Lights[i].LightDir.Normalize(lightDir);
+            DirectionalLights->Lights[i].LightDir.Normalize(lightDir);
  
             //Light View »ý¼º
             XMVECTOR lightPos = XMVectorSubtract(XMLoadFloat3(&frustumCenter), XMLoadFloat3(&lightDir) * camHalfFar);
@@ -457,20 +457,20 @@ void D3DRenderer::EndDraw()
     //Shadow Map Pass
     {
         prevTransform = nullptr;
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
         {
             pDeviceContext->ClearDepthStencilView(pShadowMapDSV[i], D3D11_CLEAR_DEPTH, 1.0f, 0);
         }
 
         ID3D11ShaderResourceView* nullSRV = nullptr;
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
         {
             pDeviceContext->PSSetShaderResources(SHADOW_SRV0 + i, 1, &nullSRV); //SRV ¹ÙÀÎµù ÇØÁ¦
         }   
         pDeviceContext->RSSetViewports(1, &shadowViewPort);            //ºäÆ÷Æ® ¼³Á¤
         pDeviceContext->PSSetShader(nullptr, nullptr, 0);              //ÇÈ¼¿ ¼ÎÀÌ´õ ÇØÁ¦
 
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
         {
             //set constbuffer
             cbuffer::ShadowMap.ShadowViews[0] = XMMatrixTranspose(shadowViews[i]);
@@ -531,7 +531,7 @@ void D3DRenderer::EndDraw()
         pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, pGbufferSRV);
         pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //¼¨µµ¿ì¸Ê
         pDeviceContext->PSSetSamplers(0, deferredSamplers->size(), deferredSamplers->data()); //»ùÇÃ·¯
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; i++)
+        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
         {
             cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
             cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
@@ -684,7 +684,7 @@ void D3DRenderer::DrawDebug()
 
     if (DebugDrawLightFrustum)
     {
-        for (int i = 0; i < DirectionalLight::DirectionalLights.LightsCount; ++i)
+        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; ++i)
         {
             Matrix shadowWorld = DirectX::XMMatrixInverse(nullptr, shadowViews[i]);
             DirectX::BoundingFrustum shadowFrustum(shadowProjections[i]);
@@ -809,7 +809,6 @@ void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
-    drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
 
 	//Shadow Map Pass
@@ -846,7 +845,6 @@ void D3DRenderer::RenderSceneGbuffer(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
-    drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
     
     //set Shader
@@ -910,7 +908,6 @@ void D3DRenderer::RenderSceneForward(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
-    drawDesc.pConstBuffer->UpdateEvent();
     drawDesc.pConstBuffer->SetConstBuffer();
 
     //Render pass

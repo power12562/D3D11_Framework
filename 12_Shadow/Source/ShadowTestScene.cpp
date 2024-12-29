@@ -79,7 +79,7 @@ void ShadowTestScene::ImGUIRender()
 
 	ImGui::Begin("Light");
 	{
-		ImGui::EditLight(&DirectionalLight::DirectionalLights);
+		ImGui::EditLight(DirectionalLight::DirectionalLights.get());
 	}
 	ImGui::End();
 
@@ -111,7 +111,7 @@ void ShadowTestScene::ImGUIRender()
 			for (auto& [key, obj] : charMaterials)
 			{
 				ImGui::Checkbox(key.c_str(), &obj->Active);
-				ImGui::EditMaterial(key.c_str(), &obj->Material);
+				ImGui::EditMaterial(key.c_str(), obj->Material.get());
 			}
 		}
 		ImGui::End();
@@ -127,11 +127,10 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			std::string key = obj.GetNameToString();
 			if (pistolMaterials.find(key) == pistolMaterials.end())
-				pistolMaterials[key] = &obj.Material;
+				pistolMaterials[key] = obj.Material.get();
 			else
 			{
 				cb_PBRMaterial& material = *(pistolMaterials[key]);
-				mesh->constBuffer.BindUpdateEvent(material);
 			}
 			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
@@ -150,11 +149,11 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	{
 		sphere->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 		if(sphereMaterial == nullptr)
-			sphereMaterial = &sphere->Material;
+			sphereMaterial = sphere->Material.get();
+
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
-		sphere->SphereMeshRender->constBuffer.BindUpdateEvent(*sphereMaterial);	
 	}
 	positionCountX++;
 	if (positionZcount == positionCountX)
@@ -170,11 +169,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 			std::string key = obj->GetNameToString();
 			if (charMaterials.find(key) == charMaterials.end())
 				charMaterials[key] = obj;
-			else
-			{
-				cb_PBRMaterial& material = charMaterials[key]->Material;
-				mesh->constBuffer.BindUpdateEvent(material);
-			}			
 		};
 	Utility::LoadFBX(L"Resource/char/char.fbx", *cha, charInit, false, SURFACE_TYPE::PBR);
 	cha->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);

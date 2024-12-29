@@ -13,7 +13,8 @@ struct alignas(16) cb_DirectionalLight
 
 namespace SimpleDirectionalLight 
 {
-    extern cb_DirectionalLight cb_light;
+    constexpr char cb_light_key[] = "SimpleDirectionalLight";
+    extern std::shared_ptr<cb_DirectionalLight> cb_light;
 };
 
 

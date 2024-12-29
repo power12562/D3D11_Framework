@@ -12,8 +12,11 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    cbuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-    cbuffer.CreatePSConstantBuffers<cbuffer_bool>();
+    cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(lightKey);
+    int index = cbuffer.CreatePSConstantBuffers<cb_DirectionalLight>(lightKey);
+
+    cb_bool = D3DConstBuffer::GetData<cbuffer_bool>(lightKey);
+    index = cbuffer.CreatePSConstantBuffers<cbuffer_bool>(lightKey);
 }
 
 void LightManager::FixedUpdate()
@@ -22,9 +25,7 @@ void LightManager::FixedUpdate()
 
 void LightManager::Update()
 {
-    cb_light.CamPos = { Camera::GetMainCamera()->transform.position };
-    cbuffer.UpdateConstBuffer(cb_light);
-    cbuffer.UpdateConstBuffer(cb_bool);
+    cb_light->CamPos = { Camera::GetMainCamera()->transform.position };
 }
 
 void LightManager::LateUpdate()

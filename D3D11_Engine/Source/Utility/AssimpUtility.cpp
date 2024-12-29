@@ -75,10 +75,10 @@ namespace Utility
 		switch (surface)
 		{
 		case SURFACE_TYPE::BlingPhong:
-			static_cast<BlingPhongMeshObject&>(obj).Material.MaterialDiffuse = baseColor;
+			static_cast<BlingPhongMeshObject&>(obj).Material->MaterialDiffuse = baseColor;
 			return;
 		case SURFACE_TYPE::PBR:
-			static_cast<PBRMeshObject&>(obj).Material.Albedo = baseColor;
+			static_cast<PBRMeshObject&>(obj).Material->Albedo = baseColor;
 			return;
 		default:
 			return;
@@ -196,7 +196,7 @@ namespace Utility
 
 					if (surface == SURFACE_TYPE::PBR)
 					{
-						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseMetalnessMap = true;
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material->UseMetalnessMap = true;
 					}
 				}
 			}
@@ -204,7 +204,7 @@ namespace Utility
 			{
 				if (surface == SURFACE_TYPE::PBR)
 				{
-					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material->Roughness = scala;
 				}
 			}
 
@@ -221,7 +221,7 @@ namespace Utility
 
 					if (surface == SURFACE_TYPE::PBR)
 					{
-						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseRoughnessMap = true;
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material->UseRoughnessMap = true;
 					}
 				}
 			}
@@ -229,7 +229,7 @@ namespace Utility
 			{
 				if (surface == SURFACE_TYPE::PBR)
 				{
-					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material->Roughness = scala;
 				}
 			}
 		}
@@ -271,19 +271,18 @@ namespace Utility
 				std::wstring currNodeName = utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str());
 				nodeAnime.targetName = currNodeName;
 
-				std::wstring ResourceKey = clipName + currNodeName;
 				//make keyList
 				if (currNodeAnim->mNumPositionKeys > 0 && !nodeAnime.positionKeys)
 				{
-					nodeAnime.positionKeys = GetResourceManager<std::vector<PositionKey>>().GetResource(ResourceKey.c_str());
+					nodeAnime.positionKeys = std::make_shared<std::vector<PositionKey>>();
 				}
 				if (currNodeAnim->mNumRotationKeys > 0 && !nodeAnime.rotationKeys)
 				{
-					nodeAnime.rotationKeys = GetResourceManager<std::vector<RotationKey>>().GetResource(ResourceKey.c_str());
+					nodeAnime.rotationKeys = std::make_shared<std::vector<RotationKey>>();
 				}
 				if (currNodeAnim->mNumScalingKeys > 0 && !nodeAnime.scaleKeys)
 				{
-					nodeAnime.scaleKeys = GetResourceManager<std::vector<ScaleKey>>().GetResource(ResourceKey.c_str());
+					nodeAnime.scaleKeys = std::make_shared<std::vector<ScaleKey>>();
 				}
 
 				for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)

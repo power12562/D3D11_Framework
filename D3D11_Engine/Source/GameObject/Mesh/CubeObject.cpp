@@ -1,7 +1,8 @@
 #include "CubeObject.h"
 #include <framework.h>
 
-CubeObject::CubeObject()
+void CubeObject::Start()
 {
+	PBRMeshObject::Start();
 	AddComponent<CubeMeshRender>();
 }

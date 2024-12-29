@@ -17,6 +17,8 @@ class GameObject
 	friend class D3DRenderer;
 public:
 	GameObject();
+	/*이름, 인스턴스 아이디 부여 후 호출되는 함수.*/
+	virtual void Start() {};
 	virtual ~GameObject();
 
 	/** 추가적으로 직렬화할 데이터 필요시 오버라이딩*/
@@ -177,15 +179,15 @@ inline ObjectType* GameObject::NewGameObject(const wchar_t* name)
 	void* pointer = gameObjectFactory.GameObjectAlloc(id);
 	if (pointer)
 	{
-		//이미 할당된 메모리에서 생성자 호출 (placement new)
-		ObjectType* pObject = new(pointer)ObjectType();
-
+		ObjectType* pObject = reinterpret_cast<ObjectType*>(pointer);
 		std::shared_ptr<ObjectType> newObject(pObject, GameObjectFactory::GameObjectDeleter);
 		std::shared_ptr<GameObject> baseObject = std::static_pointer_cast<GameObject>(newObject);
 
+		new(pObject)ObjectType();
 		baseObject->Name = name;
 		baseObject->instanceID = id;
 		baseObject->myptr = baseObject;
+		baseObject->Start();
 
 		sceneManager.AddGameObject(baseObject);
 		return newObject.get();

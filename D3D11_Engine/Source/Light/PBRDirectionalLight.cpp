@@ -1,8 +1,9 @@
 #include "PBRDirectionalLight.h"
+#include <D3DCore/D3DConstBuffer.h>
 
 namespace DirectionalLight
 {
-    cb_PBRDirectionalLight DirectionalLights;
+    std::shared_ptr<cb_PBRDirectionalLight> DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLights_key);
 };
 
 void cb_PBRDirectionalLight::PushLight()

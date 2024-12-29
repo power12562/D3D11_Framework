@@ -34,8 +34,11 @@ struct cb_localBool
 
 namespace Global_Cbuffer
 {
-    extern cbuffer_bool cb_bool;
-    extern cb_BlingPhongMaterial cb_material;
+    constexpr char cb_bool_key[] = "cb_bool_key";
+    extern std::shared_ptr<cbuffer_bool> cb_bool;
+
+    constexpr char cb_material_key[] = "cb_material_key";
+    extern std::shared_ptr<cb_BlingPhongMaterial> cb_material;
 };
 
 

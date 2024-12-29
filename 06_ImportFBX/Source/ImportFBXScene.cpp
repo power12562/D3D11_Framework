@@ -32,24 +32,10 @@ void AddUpdateCbufferAllChild(GameObject* root)
 			if (SimpleMeshRender* meshRender = curr->GetComponentAtIndex<SimpleMeshRender>(i))
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
-
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
-
-				meshRender->constBuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
-				meshRender->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
 			}
 			else if(SimpleBoneMeshRender* meshRender = curr->GetComponentAtIndex<SimpleBoneMeshRender>(i))
 			{
 				curr->AddComponent<SimpleUpdateCbuffer>().meshRender = meshRender;
-
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-				meshRender->constBuffer.CreatePSConstantBuffers<cbuffer_bool>();
-				meshRender->constBuffer.CreatePSConstantBuffers<cb_localBool>();
-
-				meshRender->constBuffer.BindUpdateEvent(curr->GetComponent<SimpleUpdateCbuffer>().cb_localbool);
-				meshRender->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_bool);
 			}
 		}
 
@@ -68,11 +54,10 @@ void ImportFBXScene::Start()
 	auto initMesh = [](MeshRender* mesh)
 		{
 			mesh->RenderFlags |= RENDER_FORWARD;
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(Global_Cbuffer::cb_material);
-
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>(Global_Cbuffer::cb_material_key);
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
+			mesh->constBuffer.CreatePSConstantBuffers<cbuffer_bool>(Global_Cbuffer::cb_bool_key);
+			mesh->constBuffer.CreatePSConstantBuffers<cb_localBool>(mesh->gameObject.GetNameToString().c_str());
 
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
@@ -134,9 +119,9 @@ ImportFBXScene::~ImportFBXScene()
 void ImportFBXScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
-	cbuffer_bool& cb_bool = Global_Cbuffer::cb_bool;
-	cb_BlingPhongMaterial& cb_material = Global_Cbuffer::cb_material;
+	cb_DirectionalLight& cb_light = *SimpleDirectionalLight::cb_light;
+	cbuffer_bool& cb_bool = *Global_Cbuffer::cb_bool;
+	cb_BlingPhongMaterial& cb_material = *Global_Cbuffer::cb_material;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

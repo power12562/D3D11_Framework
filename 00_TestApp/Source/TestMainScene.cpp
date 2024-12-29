@@ -88,7 +88,7 @@ void TestMainScene::ImGUIRender()
 
     ImGui::Begin("Lights");
     {
-        ImGui::EditLight(&DirectionalLight::DirectionalLights);
+        ImGui::EditLight(DirectionalLight::DirectionalLights.get());
     }
     ImGui::End();
 

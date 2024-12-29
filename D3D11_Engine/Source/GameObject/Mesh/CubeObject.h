@@ -5,6 +5,7 @@ class CubeObject : public PBRMeshObject
 {
 	SERIALIZED_OBJECT(CubeObject)
 public:
-	CubeObject();
+	CubeObject() = default;
 	virtual ~CubeObject() override = default;
+	virtual void Start();
 };

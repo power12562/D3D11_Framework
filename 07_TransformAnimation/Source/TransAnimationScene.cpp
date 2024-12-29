@@ -14,12 +14,12 @@
 #pragma warning(disable : 4305)
 void TransAnimationScene::Start()
 {
-	SimpleDirectionalLight::cb_light.LightDir = { 0.5, 0, 1, 0 };
+	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
-	material_01 = GetResourceManager<cb_BlingPhongMaterial>().GetResource(L"BlingPhong");
+	material_01 = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("material_01");
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -33,11 +33,8 @@ void TransAnimationScene::Start()
 	auto meshInit = [this](MeshRender* mesh) 
 		{
 			mesh->RenderFlags |= RENDER_FORWARD;
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>();
-			mesh->constBuffer.BindUpdateEvent(*material_01);
-
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>();
-			mesh->constBuffer.BindUpdateEvent(SimpleDirectionalLight::cb_light);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("material_01");
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
@@ -55,7 +52,7 @@ TransAnimationScene::~TransAnimationScene()
 void TransAnimationScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_DirectionalLight& cb_light = SimpleDirectionalLight::cb_light;
+	cb_DirectionalLight& cb_light = *SimpleDirectionalLight::cb_light;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

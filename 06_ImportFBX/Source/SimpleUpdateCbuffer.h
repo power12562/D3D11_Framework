@@ -14,7 +14,7 @@ public:
 
 public:
 	MeshRender* meshRender = nullptr;
-	cb_localBool cb_localbool;
+	std::shared_ptr<cb_localBool> cb_localbool;
 
 public:
 	virtual void Start();

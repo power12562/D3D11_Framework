@@ -17,7 +17,7 @@ struct alignas(16) cb_bool
 	CBbool useMetalness = true;
 	CBbool useRoughness = true;
 };
-cb_bool testBool;
+std::shared_ptr<cb_bool> testBool = D3DConstBuffer::GetData<cb_bool>("testBool");
 
 #pragma warning(disable : 4305)
 void PBRTestScene::Start()
@@ -33,7 +33,7 @@ void PBRTestScene::Start()
 
 	d3dRenderer.backgroundColor = Color(0.3f, 0.3f, 0.3f, 1);
 
-	DirectionalLight::DirectionalLights.Lights[0].LightDir = {0.f,0.f,1.f,0.f};
+	DirectionalLight::DirectionalLights->Lights[0].LightDir = {0.f,0.f,1.f,0.f};
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();
@@ -43,8 +43,7 @@ void PBRTestScene::Start()
 	auto initCerberusShader = [this](MeshRender* mesh)
 		{ 
 			std::string key = mesh->gameObject.GetNameToString();
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
-			mesh->constBuffer.BindUpdateEvent(testBool);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>("testBool");
 
 			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
@@ -61,8 +60,7 @@ void PBRTestScene::Start()
 	auto initCharShader = [this](MeshRender* mesh)
 		{
 			std::string key = mesh->gameObject.GetNameToString();	
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>();
-			mesh->constBuffer.BindUpdateEvent(testBool);
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_bool>("testBool");
 
 			mesh->RenderFlags |= RENDER_FORWARD;
 			mesh->SetVertexShader(L"Shader/PBRVertexShader.hlsl");
@@ -82,7 +80,7 @@ void PBRTestScene::Start()
 		Sphere->SphereMeshRender->RenderFlags |= RENDER_FORWARD;
 		Sphere->SphereMeshRender->SetPixelShader(L"Resource/EngineShader/PBRForwardPS.hlsl");
 
-		sphereMaterial = &Sphere->Material;
+		sphereMaterial = Sphere->Material.get();
 		sphereMaterial->Albedo = { 1.f, 1.f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;
@@ -120,8 +118,8 @@ void PBRTestScene::ImGUIRender()
 			showSphereEditBox = !showSphereEditBox;
 
 		ImGui::Text("");
-		ImGui::Checkbox("Use Metalness Map", &testBool.useMetalness);
-		ImGui::Checkbox("Use Roughness Map", &testBool.useRoughness);
+		ImGui::Checkbox("Use Metalness Map", &testBool->useMetalness);
+		ImGui::Checkbox("Use Roughness Map", &testBool->useRoughness);
 		ImGui::Text("");
 
 		ImGui::Text("Background");
@@ -132,7 +130,7 @@ void PBRTestScene::ImGUIRender()
 
 	ImGui::Begin("Lights");
 	{
-		ImGui::EditLight(&DirectionalLight::DirectionalLights);
+		ImGui::EditLight(DirectionalLight::DirectionalLights.get());
 	}
 	ImGui::End();
 
@@ -146,9 +144,9 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
-			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
-			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
+			ImGui::ColorEdit4("BaseColor", &obj->Material->Albedo);
+			ImGui::SliderFloat("Metalness", &obj->Material->Metalness, 0.f, 1.f);
+			ImGui::SliderFloat("Roughness", &obj->Material->Roughness, 0.f, 1.f);
 			ImGui::Text("");
 			ImGui::PopID();
 			id++;
@@ -164,9 +162,9 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
-			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
-			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
+			ImGui::ColorEdit4("BaseColor", &obj->Material->Albedo);
+			ImGui::SliderFloat("Metalness", &obj->Material->Metalness, 0.f, 1.f);
+			ImGui::SliderFloat("Roughness", &obj->Material->Roughness, 0.f, 1.f);
 			ImGui::Text("");
 			ImGui::PopID();
 			id++;

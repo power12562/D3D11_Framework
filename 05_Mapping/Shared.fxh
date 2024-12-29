@@ -20,7 +20,13 @@ cbuffer cb_Camera : register(b1)
     Matrix IPM;
 };
 
-cbuffer cbuffer_Light : register(b2)
+cbuffer cb_ShadowMap : register(b2)
+{
+    Matrix ShadowProjection;
+    Matrix ShadowView;
+};
+
+cbuffer cbuffer_Light : register(b3)
 {
     float3 CamPos;
     float CamPosPad;
@@ -37,7 +43,7 @@ cbuffer cbuffer_Light : register(b2)
     float3 MaterialSpecularPad;
 }
 
-cbuffer cbuffer_bool : register(b3)
+cbuffer cbuffer_bool : register(b4)
 {
     bool UseNormalMap;
     bool UseSpecularMap;

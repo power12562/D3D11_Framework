@@ -31,8 +31,8 @@ MappingTestScene::~MappingTestScene()
 void MappingTestScene::ImGUIRender()
 {
 	Camera* mainCam = Camera::GetMainCamera();
-	cb_DirectionalLight& cb_light = LightManager::cb_light;
-	cbuffer_bool& cb_bool = LightManager::cb_bool;
+	cb_DirectionalLight& cb_light = *LightManager::cb_light;
+	cbuffer_bool& cb_bool = *LightManager::cb_bool;
 
 	ImGui::Begin("Debug");
 	ImGui::Text("Camera");

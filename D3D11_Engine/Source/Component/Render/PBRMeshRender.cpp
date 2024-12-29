@@ -34,12 +34,9 @@ void PBRMeshRender::Start()
     PBRMeshObject* meshObj = dynamic_cast<PBRMeshObject*>(&gameObject);
     if (meshObj)
     {
-        int index = constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>();
-        constBuffer.BindUpdateEvent(DirectionalLight::DirectionalLights);
-
-        index = constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>();
-        constBuffer.BindUpdateEvent(meshObj->Material);
-
+        int index = constBuffer.CreatePSConstantBuffers<cb_PBRDirectionalLight>(DirectionalLight::DirectionalLights_key);
+        std::string MaterialKey = gameObject.GetNameToString();
+        index = constBuffer.CreatePSConstantBuffers<cb_PBRMaterial>(MaterialKey.c_str());
         {
             using namespace std::string_literals;
             std::wstring vertexPath(HLSLManager::EngineShaderPath + L"VertexShader.hlsl"s);
