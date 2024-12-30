@@ -82,14 +82,6 @@ void SimpleBoneMeshRender::Start()
 {
 	using namespace Utility;
 
-	std::string key = GetMatrixPalleteKey();
-	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
-	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
-
-	key = GetBoneWITKey();
-	boneWIT = D3DConstBuffer::GetData<BoneWIT>(key.c_str());
-	index = constBuffer.CreateVSConstantBuffers<BoneWIT>(key.c_str());
-
 	// Create Liner Sampler
 	samplerState.resize(2);
 	D3D11_SAMPLER_DESC SamplerDesc = {};
@@ -109,6 +101,14 @@ void SimpleBoneMeshRender::Start()
 	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerState.SetSamplerState(1, SamplerDesc);
+
+	std::string key = GetMatrixPalleteKey();
+	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
+	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
+
+	key = GetBoneWITKey();
+	boneWIT = D3DConstBuffer::GetData<BoneWIT>(key.c_str());
+	index = constBuffer.CreateVSConstantBuffers<BoneWIT>(key.c_str());
 }
 
 void SimpleBoneMeshRender::FixedUpdate()
@@ -127,7 +127,7 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
-	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer)
+	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer && matrixPallete && boneWIT)
 	{
 		if (IsVSShader() && IsPSShader())
 		{

@@ -33,7 +33,7 @@ void ResourceManagerScene::Start()
 	cam->transform.rotation = Vector3(-15, 0, 0);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 	
-	for (size_t i = 0; i < 100; i++) { AddTestObject(); }
+	for (size_t i = 0; i < 1; i++) { AddTestObject(); }
 }
 
 ResourceManagerScene::~ResourceManagerScene()
@@ -121,7 +121,6 @@ void ResourceManagerScene::AddTestObject()
 	auto testInit = [this](MeshRender* mesh)->void
 		{
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("Shared Material");
-
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 
 			mesh->RenderFlags |= RENDER_FORWARD;

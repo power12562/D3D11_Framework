@@ -51,14 +51,14 @@ private:
 	void Uninit();	   
 	
 public:
-	ID3D11Device*				GetDevice() { return pDevice; }
-	ID3D11DeviceContext*		GetDeviceContext() { return pDeviceContext; }
-	IDXGISwapChain1*			GetSwapChain() { return pSwapChain; }
-	ID3D11RenderTargetView*		GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
-	ID3D11RenderTargetView*		GetRTV(int index) { return pRenderTargetViewArray[index]; }
-	ID3D11ShaderResourceView*	GetGbufferSRV(int index) { return pGbufferSRV[index]; }
-	ID3D11DepthStencilView*		GetDepthStencilView() { return pDepthStencilView; }
-	ID3D11ShaderResourceView*	GetShadowMapSRV(int index) { return pShadowMapSRV[index]; }
+	inline ID3D11Device*				GetDevice() { return pDevice; }
+	inline ID3D11DeviceContext*			GetDeviceContext() { return pDeviceContext; }
+	inline IDXGISwapChain1*				GetSwapChain() { return pSwapChain; }
+	inline ID3D11RenderTargetView*		GetBackBufferRTV() { return pRenderTargetViewArray[0]; }
+	inline ID3D11RenderTargetView*		GetRTV(int index) { return pRenderTargetViewArray[index]; }
+	inline ID3D11ShaderResourceView*	GetGbufferSRV(int index) { return pGbufferSRV[index]; }
+	inline ID3D11DepthStencilView*		GetDepthStencilView() { return pDepthStencilView; }
+	inline ID3D11ShaderResourceView*	GetShadowMapSRV(int index) { return pShadowMapSRV[index]; }
 
 	/** Vram 사용량 확인용.*/
 	USAGE_VRAM_INFO GetLocalVramUsage();

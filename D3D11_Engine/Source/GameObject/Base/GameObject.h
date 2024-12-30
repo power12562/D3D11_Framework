@@ -63,6 +63,9 @@ public:
 	template <typename T>
 	T* IsComponent();
 
+	/*컴포넌트 주소로 인덱스 확인하기. 없으면 -1 반환*/
+	int GetComponentIndex(Component* findComponent);
+
 	/*인덱스로 컴포넌트 가져오기. 파라미터로 캐스팅할 컴포넌트 타입을 전달.*/
 	template <typename T>
 	T* GetComponentAtIndex(int index);
@@ -107,8 +110,8 @@ inline T& GameObject::AddComponent()
 
 	T* nComponent = new T;
 	nComponent->SetOwner(this);
-	nComponent->Start();
 	nComponent->index = componentList.size();
+	nComponent->Start();
 	componentList.emplace_back(nComponent);	
 	if constexpr (std::is_base_of_v<RenderComponent, T>)
 	{

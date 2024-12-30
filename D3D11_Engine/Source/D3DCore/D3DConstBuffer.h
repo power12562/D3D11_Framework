@@ -75,6 +75,7 @@ class D3DConstBuffer
 {
 	friend D3DRenderer;
 public:
+	static constexpr bool UPDATE_MODE_MAP = true;
 	static void CreateStaticCbuffer();
 	static void ReleaseStaticCbuffer();
 	static void SetStaticCbuffer();
@@ -104,7 +105,7 @@ private:
 	inline static ID3D11Buffer* cBufferShadowMap = nullptr;
 
 private:
-	inline static std::unordered_map<std::string, ID3D11Buffer*> cbufferMap;
+	inline static std::unordered_map<size_t, ID3D11Buffer*> cbufferMap;
 	inline static std::unordered_map<std::string, std::weak_ptr<char[]>> dataMap;
 	inline static std::unordered_set<std::string> initFlagSet;
 
@@ -176,43 +177,61 @@ inline std::string D3DConstBuffer::make_key(size_t size_of, const char* key)
 template<>
 inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Transform& data)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferTransform, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-	// 상수 버퍼에 데이터를 쓴다.
-	cb_Transform* dataPtr = (cb_Transform*)mappedResource.pData;
-	*dataPtr = data;
-
-	// 맵핑 해제
-	d3dRenderer.GetDeviceContext()->Unmap(cBufferTransform, 0);
+	ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext();
+	if constexpr (UPDATE_MODE_MAP)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		Utility::CheckHRESULT(pDeviceContext->Map(cBufferTransform, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		// 상수 버퍼에 데이터를 쓴다.
+		cb_Transform* dataPtr = (cb_Transform*)mappedResource.pData;
+		*dataPtr = data;
+		// 맵핑 해제
+		pDeviceContext->Unmap(cBufferTransform, 0);
+	}
+	else
+	{
+		pDeviceContext->UpdateSubresource(cBufferTransform, 0, NULL, &data, 0, 0);
+	}
 }
 
 template<>
 inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_Camera& data)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferCamera, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-	// 상수 버퍼에 데이터를 쓴다.
-	cb_Camera* dataPtr = (cb_Camera*)mappedResource.pData;
-	*dataPtr = data;
-
-	// 맵핑 해제
-	d3dRenderer.GetDeviceContext()->Unmap(cBufferCamera, 0);
+	ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext();
+	if constexpr (UPDATE_MODE_MAP)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		Utility::CheckHRESULT(pDeviceContext->Map(cBufferCamera, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		// 상수 버퍼에 데이터를 쓴다.
+		cb_Camera* dataPtr = (cb_Camera*)mappedResource.pData;
+		*dataPtr = data;
+		// 맵핑 해제
+		pDeviceContext->Unmap(cBufferCamera, 0);
+	}
+	else
+	{
+		pDeviceContext->UpdateSubresource(cBufferCamera, 0, NULL, &data, 0, 0);
+	}
 }
 
 template<>
 inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_ShadowMap& data)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferShadowMap, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-	// 상수 버퍼에 데이터를 쓴다.
-	cb_ShadowMap* dataPtr = (cb_ShadowMap*)mappedResource.pData;
-	*dataPtr = data;
-
-	// 맵핑 해제
-	d3dRenderer.GetDeviceContext()->Unmap(cBufferShadowMap, 0);
+	ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext();
+	if constexpr (UPDATE_MODE_MAP)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(cBufferShadowMap, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		// 상수 버퍼에 데이터를 쓴다.
+		cb_ShadowMap* dataPtr = (cb_ShadowMap*)mappedResource.pData;
+		*dataPtr = data;
+		// 맵핑 해제
+		d3dRenderer.GetDeviceContext()->Unmap(cBufferShadowMap, 0);
+	}
+	else
+	{
+		pDeviceContext->UpdateSubresource(cBufferShadowMap, 0, NULL, &data, 0, 0);
+	}
 }
 
 template<typename T>
@@ -251,49 +270,69 @@ inline int D3DConstBuffer::CreatePSConstantBuffers(const char* key)
 
 inline void D3DConstBuffer::UpdateVSconstBuffer(int index)
 {
-	auto& [size, data] = vs_dataList[index];
-	const char* key = vs_keyList[index].c_str();
-
-	auto findIter = cbufferMap.find(key);
-	if (findIter != cbufferMap.end())
+	if (ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext())
 	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		auto& [size, data] = vs_dataList[index];
+		auto findIter = cbufferMap.find(size);
+		if (findIter != cbufferMap.end())
+		{
+			if constexpr (UPDATE_MODE_MAP)
+			{
+				D3D11_MAPPED_SUBRESOURCE mappedResource;
+				Utility::CheckHRESULT(pDeviceContext->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-		// 상수 버퍼에 데이터를 쓴다.
-		memcpy(mappedResource.pData, data.get(), size);
+				// 상수 버퍼에 데이터를 쓴다.
+				memcpy(mappedResource.pData, data.get(), size);
 
-		// 맵핑 해제
-		d3dRenderer.GetDeviceContext()->Unmap(findIter->second, 0);
-	}
-	else
-	{
-		__debugbreak(); //존재하지 않는 키.
-		return;
+				// 맵핑 해제
+				pDeviceContext->Unmap(findIter->second, 0);
+			}
+			else
+			{
+				pDeviceContext->UpdateSubresource(cbufferMap[size], 0, NULL, data.get(), 0, 0);
+			}
+			//리소스 바인딩
+			pDeviceContext->VSSetConstantBuffers(index + StaticCbufferCount, 1, &cbufferMap[size]);
+		}
+		else
+		{
+			__debugbreak(); //존재하지 않는 키.
+			return;
+		}
 	}
 }
 
 inline void D3DConstBuffer::UpdatePSconstBuffer(int index)
 {
-	auto& [size, data] = ps_dataList[index];
-	const char* key = ps_keyList[index].c_str();
-
-	auto findIter = cbufferMap.find(key);
-	if (findIter != cbufferMap.end())
+	if (ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext()) 
 	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		Utility::CheckHRESULT(d3dRenderer.GetDeviceContext()->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		auto& [size, data] = ps_dataList[index];
+		auto findIter = cbufferMap.find(size);
+		if (findIter != cbufferMap.end())
+		{
+			if constexpr (UPDATE_MODE_MAP)
+			{
+				D3D11_MAPPED_SUBRESOURCE mappedResource;
+				Utility::CheckHRESULT(pDeviceContext->Map(findIter->second, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-		// 상수 버퍼에 데이터를 쓴다.
-		memcpy(mappedResource.pData, data.get(), size);
+				// 상수 버퍼에 데이터를 쓴다.
+				memcpy(mappedResource.pData, data.get(), size);
 
-		// 맵핑 해제
-		d3dRenderer.GetDeviceContext()->Unmap(findIter->second, 0);
-	}
-	else
-	{
-		__debugbreak(); //존재하지 않는 키.
-		return;
+				// 맵핑 해제
+				pDeviceContext->Unmap(findIter->second, 0);
+			}
+			else
+			{
+				pDeviceContext->UpdateSubresource(cbufferMap[size], 0, NULL, data.get(), 0, 0);
+			}
+			//리소스 바인딩
+			pDeviceContext->PSSetConstantBuffers(index + StaticCbufferCount, 1, &cbufferMap[size]);
+		}
+		else
+		{
+			__debugbreak(); //존재하지 않는 키.
+			return;
+		}
 	}
 }
 

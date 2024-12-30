@@ -48,6 +48,18 @@ GameObject::~GameObject()
 	sceneManager.EraseObjectFindMap(this);
 }
 
+int GameObject::GetComponentIndex(Component* findComponent)
+{
+	for (size_t i = 0; i < componentList.size(); i++)
+	{
+		if (componentList[i].get() == findComponent)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 void GameObject::DestroyComponent(Component& component)
 {
 	DestroyComponent(&component);

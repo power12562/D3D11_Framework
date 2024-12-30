@@ -64,11 +64,11 @@ public:
 
 inline std::string SimpleBoneMeshRender::GetMatrixPalleteKey()
 {
-	return std::format("{}_{}_{}", gameObject.GetNameToString(), gameObject.GetInstanceID(), typeid(MatrixPallete).name()).c_str();
+	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), typeid(MatrixPallete).name());
 }
 
 inline std::string SimpleBoneMeshRender::GetBoneWITKey()
 {
-	return std::format("{}_{}_{}", gameObject.GetNameToString(), gameObject.GetInstanceID(), typeid(BoneWIT).name()).c_str();
+	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), typeid(BoneWIT).name());
 }
 

@@ -3,12 +3,20 @@
 
 void D3DConstBuffer::CreateStaticCbuffer()
 {
-	D3D11_BUFFER_DESC bufferDesc;
-	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-	bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-	bufferDesc.ByteWidth = sizeof(cb_Transform);  // 상수 버퍼 크기
-	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	D3D11_BUFFER_DESC bufferDesc{};
+	if constexpr (UPDATE_MODE_MAP)
+	{
+		bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+		bufferDesc.ByteWidth = sizeof(cb_Transform); 
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	}
+	else
+	{
+		bufferDesc.Usage = D3D11_USAGE_DEFAULT; 
+		bufferDesc.ByteWidth = sizeof(cb_Transform); 
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	}
 	Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTransform));
 
 	bufferDesc.ByteWidth = sizeof(cb_Camera); 
@@ -68,7 +76,7 @@ D3DConstBuffer::D3DConstBuffer()
 
 D3DConstBuffer::~D3DConstBuffer()
 {
-	for (auto& key : vs_keyList)
+	for (auto& [key, data] : vs_dataList)
 	{
 		ULONG ref = cbufferMap[key]->Release();
 		if (ref == 0)
@@ -76,7 +84,7 @@ D3DConstBuffer::~D3DConstBuffer()
 			cbufferMap.erase(key);
 		}
 	}
-	for (auto& key : ps_keyList)
+	for (auto& [key, data] : ps_dataList)
 	{
 		ULONG ref = cbufferMap[key]->Release();
 		if (ref == 0)
@@ -88,17 +96,14 @@ D3DConstBuffer::~D3DConstBuffer()
 
 void D3DConstBuffer::SetConstBuffer()
 {
-	auto pDeviceContext = d3dRenderer.GetDeviceContext();
 	for (int i = 0; i < vs_keyList.size(); i++)
 	{
 		UpdateVSconstBuffer(i);
-		pDeviceContext->VSSetConstantBuffers(i + StaticCbufferCount, 1, &cbufferMap[vs_keyList[i]]);
 	}
 
 	for (int i = 0; i < ps_keyList.size(); i++)
 	{
 		UpdatePSconstBuffer(i);
-		pDeviceContext->PSSetConstantBuffers(i + StaticCbufferCount, 1, &cbufferMap[ps_keyList[i]]);
 	}		
 }
 
@@ -111,17 +116,28 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 	}
 	std::string unique_key = make_key(size_of, key);
 	int regIndex = GetVSCbufferCount();
-	if (cbufferMap.find(unique_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
+	if (cbufferMap.find(size_of) == cbufferMap.end()) //키값 못찾을때 리소스 생성
 	{
 		D3D11_BUFFER_DESC bufferDesc{};
-		bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-		bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
-		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		if constexpr (UPDATE_MODE_MAP)
+		{
+			bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+			bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		}
+		else  //test
+		{
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+			bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bufferDesc.CPUAccessFlags = 0;
+		}
 
 		ID3D11Buffer* cBufferTemp{};
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-		cbufferMap[unique_key] = cBufferTemp;
+		cbufferMap[size_of] = cBufferTemp;
 	}
 	else
 	{
@@ -130,7 +146,7 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 			if (vs_keyList[i] == unique_key)
 				return i;
 		}
-		cbufferMap[unique_key]->AddRef();
+		cbufferMap[size_of]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	vs_dataList.emplace_back(size_of, data);
@@ -148,17 +164,27 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 	}
 	std::string unique_key = make_key(size_of, key);
 	int regIndex = GetPSCbufferCount();
-	if (cbufferMap.find(unique_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
+	if (cbufferMap.find(size_of) == cbufferMap.end()) //키값 못찾을때 리소스 생성
 	{
 		D3D11_BUFFER_DESC bufferDesc{};
-		bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
-		bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
-		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		if constexpr (UPDATE_MODE_MAP)
+		{
+			bufferDesc.Usage = D3D11_USAGE_DYNAMIC; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+			bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		}
+		else //test
+		{
+			bufferDesc.Usage = D3D11_USAGE_DEFAULT; // 상수 버퍼는 dynamic으로 생성하고 쓰기 전용.
+			bufferDesc.ByteWidth = (UINT)size_of;  // 상수 버퍼 크기
+			bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bufferDesc.CPUAccessFlags = 0;
+		}
 
 		ID3D11Buffer* cBufferTemp{};
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-		cbufferMap[unique_key] = cBufferTemp;
+		cbufferMap[size_of] = cBufferTemp;
 	}
 	else
 	{
@@ -167,7 +193,7 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 			if (ps_keyList[i] == unique_key)
 				return i;
 		}
-		cbufferMap[unique_key]->AddRef();
+		cbufferMap[size_of]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	ps_dataList.emplace_back(size_of, data);
