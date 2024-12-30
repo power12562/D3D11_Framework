@@ -19,7 +19,7 @@ SimpleUpdateCbuffer::~SimpleUpdateCbuffer()
 
 void SimpleUpdateCbuffer::Start()
 {
-	cb_localbool = D3DConstBuffer::GetData<cb_localBool>(gameObject.GetNameToString().c_str());
+	cb_localbool = D3DConstBuffer::InitData<cb_localBool>(gameObject.GetNameToString().c_str());
 }
 
 void SimpleUpdateCbuffer::Update()

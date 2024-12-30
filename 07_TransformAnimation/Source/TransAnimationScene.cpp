@@ -19,7 +19,7 @@ void TransAnimationScene::Start()
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
-	material_01 = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("material_01");
+	material_01 = D3DConstBuffer::InitData<cb_BlingPhongMaterial>("material_01");
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");
 	cam->SetMainCamera();

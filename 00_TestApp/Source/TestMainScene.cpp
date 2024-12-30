@@ -51,7 +51,7 @@ void TestMainScene::ImGUIRender()
         if (ImGui::Button("Char Editer"))
             showCharEdit = !showCharEdit;
 
-        ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light.LightDir, 0.01f, -1.0f, 1.0f);
+        ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light->LightDir, 0.01f, -1.0f, 1.0f);
 
         ImGui::ColorEdit4("Bg Color", &d3dRenderer.backgroundColor);
 
