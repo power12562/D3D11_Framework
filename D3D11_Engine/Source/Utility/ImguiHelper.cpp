@@ -410,9 +410,6 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 					ImGui::Combo("Texture Type", &textureType, textureTypeStr, E_TEXTURE::PBRTextureCount);
 					{
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
-#ifdef _DEBUG
-						compressType = Utility::E_COMPRESS::None;
-#else //Release
 						switch (type)
 						{
 						case E_TEXTURE::Normal:
@@ -432,7 +429,6 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						default :
 							compressType = Utility::E_COMPRESS::None;
 						}
-#endif
 					}
 				}
 				ImGui::Button("Auto Compress", &UseAutoCompress);
@@ -536,6 +532,10 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 			}
 		};
 
+#ifdef _DEBUG
+		if(!isExists)
+			return false;
+#endif //Release
 	bool ActiveImgui = sceneManager.IsImGuiActive();
 	if (ActiveImgui)
 	{
