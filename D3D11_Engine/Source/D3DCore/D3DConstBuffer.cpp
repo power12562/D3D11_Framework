@@ -57,7 +57,14 @@ D3DConstBuffer::D3DConstBuffer()
 
 D3DConstBuffer::~D3DConstBuffer()
 {
-
+	for (auto& key : ps_keyList)
+	{
+		ULONG ref = cbufferMap[key]->Release();
+		if (ref == 0)
+		{
+			cbufferMap.erase(key);
+		}
+	}
 }
 
 void D3DConstBuffer::SetConstBuffer()
@@ -111,6 +118,7 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 			if (vs_keyList[i] == unique_key)
 				return i;
 		}
+		cbufferMap[unique_key]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	vs_dataList.emplace_back(size_of, data);
@@ -147,6 +155,7 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 			if (ps_keyList[i] == unique_key)
 				return i;
 		}
+		cbufferMap[unique_key]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	ps_dataList.emplace_back(size_of, data);
