@@ -105,10 +105,6 @@ void SimpleBoneMeshRender::Start()
 	std::string key = GetMatrixPalleteKey();
 	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
 	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
-
-	key = GetBoneWITKey();
-	boneWIT = D3DConstBuffer::GetData<BoneWIT>(key.c_str());
-	index = constBuffer.CreateVSConstantBuffers<BoneWIT>(key.c_str());
 }
 
 void SimpleBoneMeshRender::FixedUpdate()
@@ -127,7 +123,7 @@ void SimpleBoneMeshRender::LateUpdate()
 
 void SimpleBoneMeshRender::Render()
 {
-	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer && matrixPallete && boneWIT)
+	if (meshResource->pVertexBuffer && meshResource->pIndexBuffer && matrixPallete)
 	{
 		if (IsVSShader() && IsPSShader())
 		{
@@ -145,7 +141,7 @@ void SimpleBoneMeshRender::Render()
 
 				temp = XMMatrixInverse(nullptr, temp);
 				temp = Utility::XMMatrixIsNaN(temp) ? Matrix() : temp;
-				boneWIT->BoneWIT[i] = temp;
+				matrixPallete->BoneWIT[i] = temp;
 			}
 		}
 	}

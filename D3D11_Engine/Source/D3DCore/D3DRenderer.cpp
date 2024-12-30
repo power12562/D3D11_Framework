@@ -818,6 +818,7 @@ void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
+    drawDesc.pConstBuffer->SetConstBuffer();
 
 	//Shadow Map Pass
 	if (drawDesc.flags & RENDER_FALG::RENDER_SKINNING)

@@ -91,6 +91,13 @@ void ResourceManagerScene::ImGUIRender()
 		ImGui::ColorEdit3("LightSpecular", &cb_light.LightSpecular);
 		ImGui::Text("");
 
+		ImGui::Text("material");
+		ImGui::ColorEdit4("MaterialDiffuse", &material->MaterialDiffuse);
+		ImGui::ColorEdit4("MaterialAmbient", &material->MaterialAmbient);
+		ImGui::ColorEdit4("MaterialSpecular", &material->MaterialSpecular);
+		ImGui::DragFloat3("MaterialSpecular", &material->MaterialSpecularPower);
+		ImGui::Text("");
+
 		ImGui::Text("Background");
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	}

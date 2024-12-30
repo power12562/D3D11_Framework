@@ -4,11 +4,7 @@
 
 struct MatrixPallete
 {
-	Matrix MatrixPalleteArray[128];
-};
-
-struct BoneWIT
-{
+	Matrix MatrixPalleteArray[128]; 
 	Matrix BoneWIT[128];
 };
 
@@ -56,7 +52,6 @@ public:
 	inline std::string GetMatrixPalleteKey();
 	std::shared_ptr<MatrixPallete> matrixPallete = {};
 	inline std::string GetBoneWITKey();
-	std::shared_ptr<BoneWIT> boneWIT = {};
 
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
 	std::vector<BoneComponent*> boneList;
@@ -64,11 +59,11 @@ public:
 
 inline std::string SimpleBoneMeshRender::GetMatrixPalleteKey()
 {
-	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), typeid(MatrixPallete).name());
+	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), "MatrixPallete");
 }
 
 inline std::string SimpleBoneMeshRender::GetBoneWITKey()
 {
-	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), typeid(BoneWIT).name());
+	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), "BoneWIT");
 }
 

@@ -4,10 +4,6 @@
 cbuffer MatrixPallete : register(b3)
 {
     matrix MatrixPalleteArray[128];
-}
-
-cbuffer BoneWIT : register(b4)
-{
     matrix boneWIT[128];
 }
 #endif

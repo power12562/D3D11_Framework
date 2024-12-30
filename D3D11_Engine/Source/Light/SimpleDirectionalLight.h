@@ -4,6 +4,7 @@
 #pragma warning(disable : 4305)
 struct alignas(16) cb_DirectionalLight
 {
+    DirectX::SimpleMath::Vector4 LightPad{};
     DirectX::SimpleMath::Vector4 LightColor{ 1, 1, 1, 1 };
     DirectX::SimpleMath::Vector4 LightAmbient{ 0.02f, 0.02f, 0.02f, 0.f };
     DirectX::SimpleMath::Vector4 LightSpecular{ 1, 1, 1, 1 };
