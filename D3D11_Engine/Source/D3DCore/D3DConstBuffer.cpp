@@ -50,12 +50,6 @@ std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* key)
 	return newData;
 }
 
-std::string D3DConstBuffer::make_key(size_t size_of, const char* key)
-{
-	std::string unique_key = std::to_string(size_of) + "_" + key;
-	return unique_key;
-}
-
 D3DConstBuffer::D3DConstBuffer()
 {
    

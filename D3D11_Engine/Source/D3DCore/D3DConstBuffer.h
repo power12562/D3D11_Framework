@@ -1,6 +1,7 @@
 #pragma once
 #include <D3DCore/D3DRenderer.h> 
 #include <memory>
+#include <unordered_set>
 
 /* b0 레지스터는 Transform 버퍼*/
 struct cb_Transform
@@ -76,6 +77,8 @@ class D3DConstBuffer
 public:
 	static void CreateStaticCbuffer();
 	static void ReleaseStaticCbuffer();
+	/*상수버퍼 초기화 여부 리셋. Scene 소멸자에서 호출됩니다.*/
+	inline static void ClearInitFlag() { initFlagSet.clear(); }
 
 	template<typename T>
 	static void UpdateStaticCbuffer(const T& data);
@@ -102,6 +105,7 @@ private:
 private:
 	inline static std::unordered_map<std::string, ID3D11Buffer*> cbufferMap;
 	inline static std::unordered_map<std::string, std::weak_ptr<char[]>> dataMap;
+	inline static std::unordered_set<std::string> initFlagSet;
 
 public:
 	void SetConstBuffer(); //상수 버퍼 바인딩
@@ -112,13 +116,15 @@ public:
 	*/
 	template<typename T>
 	int CreateVSConstantBuffers(const char* key);
-	int CreateVSConstantBuffers(size_t size_of, const char* key);
 	/*
 	PS 상수 버퍼 생성.
 	return : register index
 	*/
 	template<typename T>
 	int CreatePSConstantBuffers(const char* key);
+
+private:
+	int CreateVSConstantBuffers(size_t size_of, const char* key);
 	int CreatePSConstantBuffers(size_t size_of, const char* key);
 
 private:
@@ -151,12 +157,19 @@ inline std::shared_ptr<T> D3DConstBuffer::GetData(const char* key)
 	std::shared_ptr<char[]> data = GetData(sizeof(T), key);
 
 	// If this is the first reference, create a T object using placement new
-	if (data.use_count() == 1)
+	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	if (result)
 		new(data.get()) T;
 
 	std::shared_ptr<T> ptr = std::reinterpret_pointer_cast<T>(data);
 	
 	return ptr;
+}
+
+inline std::string D3DConstBuffer::make_key(size_t size_of, const char* key)
+{
+	std::string unique_key = std::to_string(size_of) + "_" + key;
+	return unique_key;
 }
 
 template<>
@@ -204,15 +217,35 @@ inline void D3DConstBuffer::UpdateStaticCbuffer(const cb_ShadowMap& data)
 template<typename T>
 inline int D3DConstBuffer::CreateVSConstantBuffers(const char* key)
 {
-	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
-	return CreateVSConstantBuffers(sizeof(T), key);
+	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16-byte aligned. Ensure that the size of the structure is a multiple of 16 bytes.");
+	static_assert(!std::is_polymorphic_v<T>, "Constant Buffer cannot have virtual functions. The type must be a plain old data (POD) structure.");
+	static_assert(std::is_trivially_destructible_v<T>, "Constant Buffer cannot have a destructor. The type must not be destructible.");
+
+	int regindex = CreateVSConstantBuffers(sizeof(T), key);
+
+	// If this is the first reference, create a T object using placement new
+	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	if (result)
+		new(vs_dataList[regindex - StaticCbufferCount].second.get())T;
+
+	return regindex;
 }
 
 template<typename T>
 inline int D3DConstBuffer::CreatePSConstantBuffers(const char* key)
 {
-	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16 - byte aligned");
-	return CreatePSConstantBuffers(sizeof(T), key);
+	static_assert((sizeof(T) % 16) == 0, "Constant Buffer size must be 16-byte aligned. Ensure that the size of the structure is a multiple of 16 bytes.");
+	static_assert(!std::is_polymorphic_v<T>, "Constant Buffer cannot have virtual functions. The type must be a plain old data (POD) structure.");
+	static_assert(std::is_trivially_destructible_v<T>, "Constant Buffer cannot have a destructor. The type must not be destructible.");
+
+	int regindex = CreatePSConstantBuffers(sizeof(T), key);
+
+	// If this is the first reference, create a T object using placement new
+	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	if (result)
+		new(ps_dataList[regindex - StaticCbufferCount].second.get())T;
+
+	return regindex;
 }
 
 inline void D3DConstBuffer::UpdateVSconstBuffer(int index)
@@ -262,3 +295,4 @@ inline void D3DConstBuffer::UpdatePSconstBuffer(int index)
 		return;
 	}
 }
+

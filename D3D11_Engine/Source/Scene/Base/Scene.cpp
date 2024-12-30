@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <ImGuizmo/ImGuizmo.h>
 #include <imgui_internal.h>
+#include <D3DCore/D3DConstBuffer.h>
 
 Scene::Scene()
 {
@@ -32,6 +33,7 @@ Scene::~Scene()
 {
 	hlslManager.ClearSharingShader();
 	Resource::ClearResourceManagers();
+	D3DConstBuffer::ClearInitFlag();
 }
 
 void Scene::FixedUpdate()
