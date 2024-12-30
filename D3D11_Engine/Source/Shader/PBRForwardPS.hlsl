@@ -57,7 +57,6 @@ float4 main(PS_INPUT input) : SV_Target
     albedoSample.rgb = GammaToLinearSpaceExact(albedoSample.rgb);
     float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb;
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
-    emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float metalnessSample = metalnessTexture.Sample(defaultSampler, input.Tex).r;
     float roughnessSample = roughnessTexture.Sample(defaultSampler, input.Tex).r;
     float ambientSample = ambientOcculusionTexture.Sample(defaultSampler, input.Tex).r;
@@ -200,8 +199,8 @@ float4 main(PS_INPUT input) : SV_Target
 
     //조명 계산
     float3 ambientLighting = (diffuseIBL + specularIBL) * ambientOcculusion;  
-    finalColor += ambientLighting + emissiveSample.rgb;
-    
+    finalColor += ambientLighting;
     finalColor = LinearToGammaSpaceExact(finalColor);
+    finalColor += emissiveSample.rgb;
     return float4(finalColor, opacitySample);
 }
