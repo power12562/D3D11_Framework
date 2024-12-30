@@ -176,7 +176,7 @@ private:
 public:
 	void CreateDeferredResource();
 private:
-	ID3D11PixelShader*		pDeferredPixelShader  = nullptr;
+	ID3D11PixelShader*		pPBRDirectionalLightPS  = nullptr;
 	ID3D11VertexShader*		pDeferredVertexShader  = nullptr;
 	ID3D11InputLayout*		pDeferredInputLayout  = nullptr;
 	DRAW_INDEX_DATA			deferredDrawData{};

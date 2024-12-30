@@ -213,7 +213,7 @@ void D3DRenderer::Uninit()
      
     //dxd11 °³Ã¼
     D3DConstBuffer::ReleaseStaticCbuffer();
-	SafeRelease(pDeferredPixelShader);
+	SafeRelease(pPBRDirectionalLightPS);
     SafeRelease(pDeferredVertexShader);
     SafeRelease(pDeferredInputLayout);
     SafeRelease(deferredDrawData.pIndexBuffer);
@@ -250,8 +250,7 @@ void D3DRenderer::Uninit()
     textureManager.ReleaseDefaultTexture();
 
 #ifdef _DEBUG
-    constexpr bool ShowLiveDeviceObjects = false;
-    if constexpr (ShowLiveDeviceObjects)
+    if constexpr (false)
     {
         ID3D11Debug* debug = nullptr;
         pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
@@ -893,7 +892,7 @@ void D3DRenderer::RenderSceneLight()
 
     //set shader
     pDeviceContext->VSSetShader(pDeferredVertexShader, nullptr, 0);
-    pDeviceContext->PSSetShader(pDeferredPixelShader, nullptr, 0);
+    pDeviceContext->PSSetShader(pPBRDirectionalLightPS, nullptr, 0);
     pDeviceContext->DrawIndexed(deferredDrawData.indicesCount, 0, 0);
 }
 
@@ -952,7 +951,7 @@ void D3DRenderer::RenderSceneForward(RENDERER_DRAW_DESC& drawDesc)
 
 void D3DRenderer::CreateDeferredResource()
 {
-	SafeRelease(pDeferredPixelShader);
+	SafeRelease(pPBRDirectionalLightPS);
 	SafeRelease(pDeferredVertexShader);
     SafeRelease(pDeferredInputLayout);
     SafeRelease(deferredDrawData.pIndexBuffer);
@@ -983,8 +982,8 @@ void D3DRenderer::CreateDeferredResource()
         using namespace std::string_literals;
         std::wstring path = HLSLManager::EngineShaderPath + L"DeferredVS.hlsl"s;
         hlslManager.MakeShader(path.c_str(), &pDeferredVertexShader, &pDeferredInputLayout);
-        path = HLSLManager::EngineShaderPath + L"PBRDeferredPS.hlsl"s;
-        hlslManager.MakeShader(path.c_str(), &pDeferredPixelShader);
+        path = HLSLManager::EngineShaderPath + L"PBRDirectionalLightPS.hlsl"s;
+        hlslManager.MakeShader(path.c_str(), &pPBRDirectionalLightPS);
     }
 
     struct Vertex {
