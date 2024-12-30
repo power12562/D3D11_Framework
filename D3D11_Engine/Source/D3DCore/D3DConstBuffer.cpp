@@ -31,6 +31,17 @@ void D3DConstBuffer::ReleaseStaticCbuffer()
 	}
 }
 
+void D3DConstBuffer::SetStaticCbuffer()
+{
+	auto pDeviceContext = d3dRenderer.GetDeviceContext();
+	pDeviceContext->VSSetConstantBuffers(0, 1, &cBufferTransform);
+	pDeviceContext->VSSetConstantBuffers(1, 1, &cBufferCamera);
+	pDeviceContext->VSSetConstantBuffers(2, 1, &cBufferShadowMap);
+	pDeviceContext->PSSetConstantBuffers(0, 1, &cBufferTransform);
+	pDeviceContext->PSSetConstantBuffers(1, 1, &cBufferCamera);
+	pDeviceContext->PSSetConstantBuffers(2, 1, &cBufferShadowMap);
+}
+
 std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* key)
 {
 	std::string unique_key = make_key(size_of, key);
@@ -57,6 +68,14 @@ D3DConstBuffer::D3DConstBuffer()
 
 D3DConstBuffer::~D3DConstBuffer()
 {
+	for (auto& key : vs_keyList)
+	{
+		ULONG ref = cbufferMap[key]->Release();
+		if (ref == 0)
+		{
+			cbufferMap.erase(key);
+		}
+	}
 	for (auto& key : ps_keyList)
 	{
 		ULONG ref = cbufferMap[key]->Release();
@@ -70,19 +89,12 @@ D3DConstBuffer::~D3DConstBuffer()
 void D3DConstBuffer::SetConstBuffer()
 {
 	auto pDeviceContext = d3dRenderer.GetDeviceContext();
-
-	pDeviceContext->VSSetConstantBuffers(0, 1, &cBufferTransform);
-	pDeviceContext->VSSetConstantBuffers(1, 1, &cBufferCamera);
-	pDeviceContext->VSSetConstantBuffers(2, 1, &cBufferShadowMap);
 	for (int i = 0; i < vs_keyList.size(); i++)
 	{
 		UpdateVSconstBuffer(i);
 		pDeviceContext->VSSetConstantBuffers(i + StaticCbufferCount, 1, &cbufferMap[vs_keyList[i]]);
 	}
-		
-	pDeviceContext->PSSetConstantBuffers(0, 1, &cBufferTransform);
-	pDeviceContext->PSSetConstantBuffers(1, 1, &cBufferCamera);
-	pDeviceContext->PSSetConstantBuffers(2, 1, &cBufferShadowMap);
+
 	for (int i = 0; i < ps_keyList.size(); i++)
 	{
 		UpdatePSconstBuffer(i);

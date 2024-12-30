@@ -250,13 +250,17 @@ void D3DRenderer::Uninit()
     textureManager.ReleaseDefaultTexture();
 
 #ifdef _DEBUG
-   //ID3D11Debug* debug = nullptr;
-   //pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
-   //if (debug)
-   //{
-   //    debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
-   //    debug->Release();
-   //}
+    constexpr bool ShowLiveDeviceObjects = false;
+    if constexpr (ShowLiveDeviceObjects)
+    {
+        ID3D11Debug* debug = nullptr;
+        pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
+        if (debug)
+        {
+            debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL); // 상세 정보 출력
+            debug->Release();
+        }
+    }
 #endif // _DEBUG
 
     ULONG refcount = SafeRelease(pDevice);
@@ -438,6 +442,8 @@ void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
 static const Transform* prevTransform = nullptr; //마지막으로 참조한 Trnasform
 void D3DRenderer::EndDraw()
 {
+    D3DConstBuffer::SetStaticCbuffer();
+
     //sort
     auto textureSort = [](RENDERER_DRAW_DESC a, RENDERER_DRAW_DESC b) {            
             uintptr_t textureA = reinterpret_cast<uintptr_t>((*a.pD3DTexture2D)[0]);
@@ -475,7 +481,7 @@ void D3DRenderer::EndDraw()
             //set constbuffer
             cbuffer::ShadowMap.ShadowViews[0] = XMMatrixTranspose(shadowViews[i]);
             cbuffer::ShadowMap.ShadowProjections[0] = XMMatrixTranspose(shadowProjections[i]);
-            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);           
 
             pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i]); 
             for (auto& item : opaquerenderOueue)
@@ -493,51 +499,55 @@ void D3DRenderer::EndDraw()
         }
     }
 
-    //Gbuffer Pass (Deferred 1)
+    //Deferred stage
+    pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    pDeviceContext->OMSetRenderTargets(GbufferCount, &pRenderTargetViewArray[1], pGbufferDSV);
+    pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+    if(!opaquerenderOueue.empty())
     {
-    	prevTransform = nullptr;      
-        pDeviceContext->ClearDepthStencilView(pGbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);    
-    	pDeviceContext->OMSetRenderTargets(GbufferCount, &pRenderTargetViewArray[1], pGbufferDSV);
-        pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
-    	for (auto& item : opaquerenderOueue)
-    	{
-    		RenderSceneGbuffer(item);
-    	}
-    }
-    //Lights Pass (Deferred 2)
-    {
-        //viewPort Transform
-        D3D11_VIEWPORT& viewPort = ViewPortsVec.front();
-        SIZE size = D3D11_GameApp::GetClientSize();
-        float screenWidth = (float)size.cx;
-        float screenHeight = (float)size.cy;
-        float scaleX = screenWidth / viewPort.Width;
-        float scaleY = screenHeight / viewPort.Height;
-        float offsetX = -viewPort.TopLeftX / screenWidth;
-        float offsetY = -viewPort.TopLeftY / screenHeight;
-        cbuffer::transform.World._11 = scaleX;
-        cbuffer::transform.World._12 = scaleY;
-        cbuffer::transform.World._13 = offsetX;
-        cbuffer::transform.World._14 = offsetY;
-        D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
-
-        prevTransform = nullptr;
-        ID3D11RenderTargetView* nullRTV[GbufferCount]{ nullptr, };
-        pDeviceContext->OMSetRenderTargets(GbufferCount, nullRTV, nullptr);
-        pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-        pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, nullptr);
-        const D3D11_VIEWPORT& ViewPort = GetClientSizeViewport();
-        pDeviceContext->RSSetViewports(1, &ViewPort);
-        pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, pGbufferSRV);
-        pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
-        pDeviceContext->PSSetSamplers(0, deferredSamplers->size(), deferredSamplers->data()); //샘플러
-        for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
+        //Gbuffer Pass (Deferred 1)
         {
-            cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
-            cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
-            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+			prevTransform = nullptr;
+			for (auto& item : opaquerenderOueue)
+			{
+				RenderSceneGbuffer(item);
+			}
         }
-		RenderSceneLight();
+        //Lights Pass (Deferred 2)       
+        {
+            //viewPort Transform
+            D3D11_VIEWPORT& viewPort = ViewPortsVec.front();
+            SIZE size = D3D11_GameApp::GetClientSize();
+            float screenWidth = (float)size.cx;
+            float screenHeight = (float)size.cy;
+            float scaleX = screenWidth / viewPort.Width;
+            float scaleY = screenHeight / viewPort.Height;
+            float offsetX = -viewPort.TopLeftX / screenWidth;
+            float offsetY = -viewPort.TopLeftY / screenHeight;
+            cbuffer::transform.World._11 = scaleX;
+            cbuffer::transform.World._12 = scaleY;
+            cbuffer::transform.World._13 = offsetX;
+            cbuffer::transform.World._14 = offsetY;
+            D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
+
+            prevTransform = nullptr;
+            ID3D11RenderTargetView* nullRTV[GbufferCount]{ nullptr, };
+            pDeviceContext->OMSetRenderTargets(GbufferCount, nullRTV, nullptr);
+            pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+            pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, nullptr);
+            const D3D11_VIEWPORT& ViewPort = GetClientSizeViewport();
+            pDeviceContext->RSSetViewports(1, &ViewPort);
+            pDeviceContext->PSSetShaderResources(0, GbufferCount + 1, pGbufferSRV);
+            pDeviceContext->PSSetShaderResources(SHADOW_SRV0, cb_PBRDirectionalLight::MAX_LIGHT_COUNT, pShadowMapSRV); //섀도우맵
+            pDeviceContext->PSSetSamplers(0, deferredSamplers->size(), deferredSamplers->data()); //샘플러
+            for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
+            {
+                cbuffer::ShadowMap.ShadowViews[i] = XMMatrixTranspose(shadowViews[i]);
+                cbuffer::ShadowMap.ShadowProjections[i] = XMMatrixTranspose(shadowProjections[i]);
+                D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);
+            }
+            RenderSceneLight();
+        }        
     }
 
     //sky box draw
@@ -809,7 +819,6 @@ void D3DRenderer::RenderShadowMap(RENDERER_DRAW_DESC& drawDesc)
         D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
         prevTransform = drawDesc.pTransform;
     }
-    drawDesc.pConstBuffer->SetConstBuffer();
 
 	//Shadow Map Pass
 	if (drawDesc.flags & RENDER_FALG::RENDER_SKINNING)

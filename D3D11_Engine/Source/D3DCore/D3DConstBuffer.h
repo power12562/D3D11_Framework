@@ -77,6 +77,7 @@ class D3DConstBuffer
 public:
 	static void CreateStaticCbuffer();
 	static void ReleaseStaticCbuffer();
+	static void SetStaticCbuffer();
 	/*상수버퍼 초기화 여부 리셋. Scene 소멸자에서 호출됩니다.*/
 	inline static void ClearInitFlag() { initFlagSet.clear(); }
 

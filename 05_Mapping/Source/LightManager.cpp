@@ -12,10 +12,10 @@ LightManager::~LightManager()
 
 void LightManager::Start()
 {
-    cb_light = D3DConstBuffer::InitData<cb_DirectionalLight>(lightKey);
+    cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(lightKey);
     int index = cbuffer.CreatePSConstantBuffers<cb_DirectionalLight>(lightKey);
 
-    cb_bool = D3DConstBuffer::InitData<cbuffer_bool>(lightKey);
+    cb_bool = D3DConstBuffer::GetData<cbuffer_bool>(lightKey);
     index = cbuffer.CreatePSConstantBuffers<cbuffer_bool>(lightKey);
 }
 

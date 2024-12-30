@@ -18,7 +18,7 @@
 void ResourceManagerScene::Start()
 {
 	UseImGUI = true;
-	material = D3DConstBuffer::InitData<cb_BlingPhongMaterial>("Shared Material");
+	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("Shared Material");
 
 	//리소스 미리 로드
 	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);

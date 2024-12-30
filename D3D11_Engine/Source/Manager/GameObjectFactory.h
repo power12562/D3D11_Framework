@@ -19,7 +19,7 @@ class GameObjectFactory : public TSingleton<GameObjectFactory>
 {
 	friend class TSingleton;
 	friend class D3D11_GameApp;
-    inline static std::map<std::string, std::function<GameObject*(const wchar_t* name)>> newGameObjectFuncMap;
+	inline static std::unique_ptr<std::map<std::string, std::function<GameObject* (const wchar_t* name)>>> newGameObjectFuncMap;
 	inline static size_t MaxGameObjectClassSize = 0;
 	inline static std::string MaxSizeGameObjectClassName;
 public:
@@ -33,7 +33,14 @@ public:
 		std::string key = typeid(T).name();
 
 		auto func = [](const wchar_t* name) { return NewGameObject<T>(name); };
-		newGameObjectFuncMap[key] = func;
+
+		if (!newGameObjectFuncMap)
+		{
+			newGameObjectFuncMap.reset(new std::map<std::string, std::function<GameObject* (const wchar_t* name)>>);
+		}
+		static std::map<std::string, std::function<GameObject* (const wchar_t* name)>>& objectFuncMap = *newGameObjectFuncMap;
+		objectFuncMap[key] = func;
+
 		if (MaxGameObjectClassSize < sizeof(T))
 		{
 			MaxGameObjectClassSize = sizeof(T);

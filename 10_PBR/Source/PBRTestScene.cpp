@@ -17,7 +17,7 @@ struct alignas(16) cb_bool
 	CBbool useMetalness = true;
 	CBbool useRoughness = true;
 };
-std::shared_ptr<cb_bool> testBool = D3DConstBuffer::InitData<cb_bool>("testBool");
+std::shared_ptr<cb_bool> testBool = D3DConstBuffer::GetData<cb_bool>("testBool");
 
 #pragma warning(disable : 4305)
 void PBRTestScene::Start()

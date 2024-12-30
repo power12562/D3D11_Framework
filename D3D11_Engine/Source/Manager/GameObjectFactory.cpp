@@ -34,8 +34,8 @@ void* GameObjectFactory::GameObjectAlloc(size_t id)
 
 std::function<GameObject*(const wchar_t* name)>& GameObjectFactory::NewGameObjectToKey(const char* key)
 {
-	auto findIter = newGameObjectFuncMap.find(key);
-	if (findIter != newGameObjectFuncMap.end())
+	auto findIter = newGameObjectFuncMap->find(key);
+	if (findIter != newGameObjectFuncMap->end())
 	{
 		return findIter->second;
 	}
@@ -45,7 +45,7 @@ std::function<GameObject*(const wchar_t* name)>& GameObjectFactory::NewGameObjec
 
 void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* WritePath)
 {
-	if (newGameObjectFuncMap.find(typeid(*object).name()) == newGameObjectFuncMap.end())
+	if (newGameObjectFuncMap->find(typeid(*object).name()) == newGameObjectFuncMap->end())
 	{
 		MessageBox(NULL, L"Is not Serialized Object", object->Name.c_str(), MB_OK);
 		return;
