@@ -348,9 +348,9 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 	
 	/*추천 포멧!!
 	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요시 BC7 //생각보다 압축티 많이남..
-	Normal		BC5/BC7	     보통 BC7, 2채널 사용하는 노말은 BC5. (BC7 개느림..)
+	Normal		BC5	         2채널 사용하는 노말은 BC5. (그냥 압축 하지마세요..)
 	Specular	BC1/BC7		 단순 데이터면 BC1, 고품질 필요 시 BC7.
-	Emissive	BC1/BC3		 불투명은 BC1, 알파 필요 시 BC3.
+	Emissive	BC1/BC3/BC7  불투명은 BC1, 알파 필요 시 BC3. 고품질 필요시 BC7
 	Opacity		BC4/BC3		 단일 채널은 BC4, RGBA 필요 시 BC3.
 	Metalness	BC4			 단일 채널 데이터로 효율적인 압축.
 	Roughness	BC4			 단일 채널 데이터로 미세 디테일 유지.
@@ -412,16 +412,14 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
 						switch (type)
 						{
-						case E_TEXTURE::Albedo:
-							//compressType = Utility::E_COMPRESS::BC7;
-							//break;
 						case E_TEXTURE::Normal:
 							compressType = Utility::E_COMPRESS::None;
 							break;
 						case E_TEXTURE::Specular:
 						case E_TEXTURE::Emissive:
 						case E_TEXTURE::Opacity:
-							compressType = Utility::E_COMPRESS::BC3;
+						case E_TEXTURE::Albedo:
+							compressType = Utility::E_COMPRESS::BC7;
 							break;
 						case E_TEXTURE::Metalness:
 						case E_TEXTURE::Roughness:
