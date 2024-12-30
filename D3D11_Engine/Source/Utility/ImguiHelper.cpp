@@ -410,19 +410,29 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 					ImGui::Combo("Texture Type", &textureType, textureTypeStr, E_TEXTURE::PBRTextureCount);
 					{
 						E_TEXTURE::TYPE type = (E_TEXTURE::TYPE)textureType;
+#ifdef _DEBUG
+						compressType = Utility::E_COMPRESS::None;
+#else //Release
 						switch (type)
 						{
 						case E_TEXTURE::Normal:
+							compressType = Utility::E_COMPRESS::None;
+							break;
+						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Specular:
 						case E_TEXTURE::Emissive:
 						case E_TEXTURE::Opacity:
-						case E_TEXTURE::Albedo:
+							compressType = Utility::E_COMPRESS::BC7;
+							break;
 						case E_TEXTURE::Metalness:
 						case E_TEXTURE::Roughness:
 						case E_TEXTURE::AmbientOcculusion:
-							compressType = Utility::E_COMPRESS::None;
+							compressType = Utility::E_COMPRESS::BC4;
 							break;
+						default :
+							compressType = Utility::E_COMPRESS::None;
 						}
+#endif
 					}
 				}
 				ImGui::Button("Auto Compress", &UseAutoCompress);
