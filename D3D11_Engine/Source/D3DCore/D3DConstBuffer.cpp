@@ -1,5 +1,6 @@
 #include "D3DConstBuffer.h"
 #include <D3DCore/D3DRenderer.h>
+#include <Utility/SerializedUtility.h>
 
 void D3DConstBuffer::CreateStaticCbuffer()
 {
@@ -50,10 +51,9 @@ void D3DConstBuffer::SetStaticCbuffer()
 	pDeviceContext->PSSetConstantBuffers(2, 1, &cBufferShadowMap);
 }
 
-std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* key)
+std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* data_key)
 {
-	std::string unique_key = make_key_data(size_of, key);
-	auto find = dataMap.find(unique_key);
+	auto find = dataMap.find(data_key);
 	if (find != dataMap.end())
 	{
 		auto& [key, wptr] = *find;
@@ -65,7 +65,7 @@ std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* key)
 
 	//리소스 생성
 	std::shared_ptr<char[]> newData(new char[size_of]);
-	dataMap[unique_key] = newData;
+	dataMap[data_key] = newData;
 	return newData;
 }
 
@@ -94,6 +94,42 @@ D3DConstBuffer::~D3DConstBuffer()
 	}
 }
 
+void D3DConstBuffer::Serialized(std::ofstream& ofs)
+{
+	using namespace Binary;
+	size_t size =  vs_keyList.size();
+	Write::data(ofs, size);
+	for (int i = 0; i < size; i++)
+	{
+		size_t data_size = vs_dataList[i].first;
+		Write::data(ofs, data_size);
+		auto& [data_key, cbuffer_key] = vs_keyList[i];
+		Write::string(ofs, data_key);
+		Write::string(ofs, cbuffer_key);
+	}
+
+	size = ps_keyList.size();
+	Write::data(ofs, size);
+	for (int i = 0; i < size; i++)
+	{
+
+	}
+}
+
+void D3DConstBuffer::Deserialized(std::ifstream& ifs)
+{
+	using namespace Binary;
+	size_t size = Read::data<size_t>(ifs);
+	for (int i = 0; i < size; i++)
+	{
+		size_t data_size = Read::data<size_t>(ifs);
+		std::string data_key = Read::string(ifs);
+		std::string cbuffer_key = Read::string(ifs);
+		
+	}
+
+}
+
 void D3DConstBuffer::SetConstBuffer()
 {
 	for (int i = 0; i < vs_keyList.size(); i++)
@@ -107,14 +143,13 @@ void D3DConstBuffer::SetConstBuffer()
 	}		
 }
 
-int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
+int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* data_key)
 {
 	if (GetVSCbufferCount() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 	{
 		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
-	std::string data_key = make_key_data(size_of, key);
 	std::string cbuffer_key = make_key_cbuffer(size_of);
 	int regIndex = GetVSCbufferCount();
 	if (cbufferMap.find(cbuffer_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
@@ -149,21 +184,20 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 		}
 		cbufferMap[cbuffer_key]->AddRef();
 	}
-	std::shared_ptr<char[]> data = GetData(size_of, key);
+	std::shared_ptr<char[]> data = GetData(size_of, data_key);
 	vs_dataList.emplace_back(size_of, data);
 	vs_keyList.emplace_back(data_key, cbuffer_key);
 
 	return regIndex;
 }
 
-int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
+int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* data_key)
 {
 	if (GetPSCbufferCount() == D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 	{
 		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
-	std::string data_key = make_key_data(size_of, key);
 	std::string cbuffer_key = make_key_cbuffer(size_of);
 	int regIndex = GetPSCbufferCount();
 	if (cbufferMap.find(cbuffer_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
@@ -197,7 +231,7 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 		}
 		cbufferMap[cbuffer_key]->AddRef();
 	}
-	std::shared_ptr<char[]> data = GetData(size_of, key);
+	std::shared_ptr<char[]> data = GetData(size_of, data_key);
 	ps_dataList.emplace_back(size_of, data);
 	ps_keyList.emplace_back(data_key, cbuffer_key);
 	

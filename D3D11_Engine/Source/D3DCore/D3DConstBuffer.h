@@ -90,7 +90,7 @@ public:
 	template<typename T>
 	inline static std::shared_ptr<T> GetData(const char* key);
 private:
-	static std::shared_ptr<char[]> GetData(size_t size_of, const char* key);
+	static std::shared_ptr<char[]> GetData(size_t size_of, const char* data_key);
 	inline static std::string make_key_data(size_t size_of, const char* key);
 
 private:
@@ -107,6 +107,10 @@ private:
 public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
+
+private:
+	void Serialized(std::ofstream& ofs);
+	void Deserialized(std::ifstream& ifs);
 
 public:
 	D3DConstBuffer(const D3DConstBuffer& rhs) = delete;
@@ -133,8 +137,8 @@ public:
 	int CreatePSConstantBuffers(const char* key);
 
 private:
-	int CreateVSConstantBuffers(size_t size_of, const char* key);
-	int CreatePSConstantBuffers(size_t size_of, const char* key);
+	int CreateVSConstantBuffers(size_t size_of, const char* data_key);
+	int CreatePSConstantBuffers(size_t size_of, const char* data_key);
 
 private:
 	std::vector<std::pair<std::string, std::string>> vs_keyList{};
@@ -163,10 +167,11 @@ inline std::shared_ptr<T> D3DConstBuffer::GetData(const char* key)
 	static_assert(!std::is_polymorphic_v<T>, "Constant Buffer cannot have virtual functions. The type must be a plain old data (POD) structure.");
 	static_assert(std::is_trivially_destructible_v<T>, "Constant Buffer cannot have a destructor. The type must not be destructible.");
 
-	std::shared_ptr<char[]> data = GetData(sizeof(T), key);
+	std::string data_key = make_key_data(sizeof(T), key);
+	std::shared_ptr<char[]> data = GetData(sizeof(T), data_key.c_str());
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(data_key);
 	if (result)
 		new(data.get()) T;
 
@@ -247,10 +252,11 @@ inline int D3DConstBuffer::CreateVSConstantBuffers(const char* key)
 	static_assert(!std::is_polymorphic_v<T>, "Constant Buffer cannot have virtual functions. The type must be a plain old data (POD) structure.");
 	static_assert(std::is_trivially_destructible_v<T>, "Constant Buffer cannot have a destructor. The type must not be destructible.");
 
-	int regindex = CreateVSConstantBuffers(sizeof(T), key);
+	std::string data_key = make_key_data(sizeof(T), key);
+	int regindex = CreateVSConstantBuffers(sizeof(T), data_key.c_str());
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(data_key);
 	if (result)
 		new(vs_dataList[regindex - StaticCbufferCount].second.get())T;
 
@@ -264,10 +270,11 @@ inline int D3DConstBuffer::CreatePSConstantBuffers(const char* key)
 	static_assert(!std::is_polymorphic_v<T>, "Constant Buffer cannot have virtual functions. The type must be a plain old data (POD) structure.");
 	static_assert(std::is_trivially_destructible_v<T>, "Constant Buffer cannot have a destructor. The type must not be destructible.");
 
-	int regindex = CreatePSConstantBuffers(sizeof(T), key);
+	std::string data_key = make_key_data(sizeof(T), key);
+	int regindex = CreatePSConstantBuffers(sizeof(T), data_key.c_str());
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(data_key);
 	if (result)
 		new(ps_dataList[regindex - StaticCbufferCount].second.get())T;
 
