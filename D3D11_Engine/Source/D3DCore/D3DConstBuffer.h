@@ -136,10 +136,18 @@ public:
 	template<typename T>
 	int CreatePSConstantBuffers(const char* key);
 
+	/*바인딩된 데이터 가져오기*/
+	template<typename T>
+	inline std::shared_ptr<T> GetVSData(int index);
+
+	/*바인딩된 데이터 가져오기*/
+	template<typename T>
+	inline std::shared_ptr<T> GetPSData(int index);
 private:
 	int CreateVSConstantBuffers(size_t size_of, const char* data_key);
 	int CreatePSConstantBuffers(size_t size_of, const char* data_key);
-
+	std::shared_ptr<char[]> GetVSData(size_t size_of, int index);
+	std::shared_ptr<char[]> GetPSData(size_t size_of, int index);
 private:
 	std::vector<std::pair<std::string, std::string>> vs_keyList{};
 	std::vector<std::pair<size_t, std::shared_ptr<char[]>>> vs_dataList{};
@@ -279,6 +287,22 @@ inline int D3DConstBuffer::CreatePSConstantBuffers(const char* key)
 		new(ps_dataList[regindex - StaticCbufferCount].second.get())T;
 
 	return regindex;
+}
+
+template<typename T>
+inline std::shared_ptr<T> D3DConstBuffer::GetVSData(int index)
+{
+	std::shared_ptr<char[]> dataPtr = GetVSData(sizeof(T), index);
+	std::shared_ptr<T> Tptr = std::reinterpret_pointer_cast<T>(dataPtr);
+	return Tptr;
+}
+
+template<typename T>
+inline std::shared_ptr<T> D3DConstBuffer::GetPSData(int index)
+{
+	std::shared_ptr<char[]> dataPtr = GetPSData(sizeof(T), index);
+	std::shared_ptr<T> Tptr = std::reinterpret_pointer_cast<T>(dataPtr);
+	return Tptr;
 }
 
 inline void D3DConstBuffer::UpdateVSconstBuffer(int index)

@@ -250,3 +250,25 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* data_key
 	
 	return regIndex;
 }
+
+std::shared_ptr<char[]> D3DConstBuffer::GetVSData(size_t size_of, int index)
+{
+	auto& [size, data] = vs_dataList[index];
+	if (size_of != size)
+	{
+		__debugbreak(); //사이즈가 다릅니다.
+		return nullptr;
+	}	
+	return data;
+}
+
+std::shared_ptr<char[]> D3DConstBuffer::GetPSData(size_t size_of, int index)
+{
+	auto& [size, data] = ps_dataList[index];
+	if (size_of != size)
+	{
+		__debugbreak(); //사이즈가 다릅니다.
+		return nullptr;
+	}
+	return data;
+}
