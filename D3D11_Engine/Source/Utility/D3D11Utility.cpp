@@ -288,7 +288,7 @@ namespace Utility
 			std::swap(scratchImage, tempimage);
 		}
 
-		if (E_COMPRESS::None != type && !IsCompressed(scratchImage->GetMetadata().format))
+		if (!IsCompressed(scratchImage->GetMetadata().format))
 		{
 			std::unique_ptr<ScratchImage> compressedImage(new (std::nothrow) ScratchImage);
 			DXGI_FORMAT compressFormat;

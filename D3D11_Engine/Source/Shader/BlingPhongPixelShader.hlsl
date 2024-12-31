@@ -46,14 +46,17 @@ float4 main(PS_INPUT input) : SV_Target
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
     txColor.rgb = GammaToLinearSpace(txColor.rgb);
     
-    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb;
+    float3 mapNormal;
+    mapNormal.rg = normalMap.Sample(samLinear, input.Tex).rg;
+    mapNormal.b = sqrt(1.0f - (mapNormal.r * mapNormal.r + mapNormal.g * mapNormal.g));
+    
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
     mapEmissive.rgb = GammaToLinearSpace(mapEmissive.rgb);
        
     float3x3 WorldNormalTransform = float3x3(input.Tangent, input.BiTangent, input.Normal);
     if (0.f < length(mapNormal))
-        input.Normal = normalize(mul(mapNormal * 2.0f - 1.0f, WorldNormalTransform));
+        input.Normal = normalize(mul(mapNormal, WorldNormalTransform));
     
     float4 diffuse[4] = { 
         float4(0, 0, 0, 0),

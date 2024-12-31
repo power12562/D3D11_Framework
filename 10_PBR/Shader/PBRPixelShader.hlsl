@@ -46,7 +46,9 @@ float4 main(PS_INPUT input) : SV_Target
 {   
     float4 albedoSample = albedoTexture.Sample(defaultSampler, input.Tex);
     albedoSample.rgb = GammaToLinearSpaceExact(albedoSample.rgb);
-    float3 normalSample = normalTexture.Sample(defaultSampler, input.Tex).rgb;
+    float3 normalSample;
+    normalSample.rg = normalTexture.Sample(defaultSampler, input.Tex).rg;
+    normalSample.b = sqrt(1.0f - (normalSample.r * normalSample.r + normalSample.g * normalSample.g));
     float4 emissiveSample = emissiveTexture.Sample(defaultSampler, input.Tex);
     emissiveSample.rgb = GammaToLinearSpaceExact(emissiveSample.rgb);
     float opacitySample = opacityTexture.Sample(defaultSampler, input.Tex).a;
@@ -66,7 +68,7 @@ float4 main(PS_INPUT input) : SV_Target
     if (Epsilon < length(normalSample))
     {
         float3x3 TBN = float3x3(input.Tangent, input.BiTangent, input.Normal);
-        N = normalize(mul(normalSample * 2.0f - 1.0f, TBN));
+        N = normalize(mul(normalSample, TBN));
     }
     else
         N = normalize(input.Normal);

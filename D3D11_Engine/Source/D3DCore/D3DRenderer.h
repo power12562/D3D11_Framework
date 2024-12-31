@@ -32,10 +32,10 @@ struct RENDERER_SETTING
 struct RENDERER_SETTING_DEBUG
 {
 	bool UseFrustumCulling				= true;
-	bool DebugDrawLightFrustum			= false;
-	bool DebugDrawObjectCullingBox		= false;
-	bool DebugDrawCameraFrustum			= false;
-	bool DebugLockCameraFrustum			= false;
+	bool DrawLightFrustum			= false;
+	bool DrawObjectCullingBox		= false;
+	bool DrawCameraFrustum			= false;
+	bool LockCameraFrustum			= false;
 	DirectX::XMVECTORF32 DebugDrawColor = DirectX::Colors::LightGreen;
 };
 

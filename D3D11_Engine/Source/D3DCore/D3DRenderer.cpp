@@ -368,7 +368,7 @@ void D3DRenderer::BegineDraw()
     Camera* mainCam = Camera::GetMainCamera();
     mainCam->transform.PushUpdateList();
     Transform::UpdateMatrix();
-    if (!DebugSetting.DebugLockCameraFrustum)
+    if (!DebugSetting.LockCameraFrustum)
     {
         cullingIVM  = mainCam->GetIVM();
         cullingView   = mainCam->GetVM();
@@ -692,7 +692,7 @@ void D3DRenderer::DrawDebug()
     pBasicEffect->SetColorAndAlpha(DebugSetting.DebugDrawColor);
     pBasicEffect->Apply(pDeviceContext);
 
-    if (DebugSetting.DebugDrawLightFrustum)
+    if (DebugSetting.DrawLightFrustum)
     {
         for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; ++i)
         {
@@ -702,13 +702,13 @@ void D3DRenderer::DrawDebug()
             DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
         }
     }
-    if (DebugSetting.DebugDrawCameraFrustum)
+    if (DebugSetting.DrawCameraFrustum)
     {      
         DirectX::BoundingFrustum cameraFrustum(cullingProjection);
         cameraFrustum.Transform(cameraFrustum, cullingIVM);
         DebugDraw::Draw(pPrimitiveBatch.get(), cameraFrustum);
     }
-    if(DebugSetting.DebugDrawObjectCullingBox)
+    if(DebugSetting.DrawObjectCullingBox)
     {
         for (auto& desc : opaquerenderOueue)
         {            

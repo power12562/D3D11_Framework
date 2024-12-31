@@ -23,7 +23,6 @@ namespace Utility
 	{
 		enum TYPE
 		{
-			None = 0,
 			DXT1,
 			DXT5,
 			BC1 = DXT1,

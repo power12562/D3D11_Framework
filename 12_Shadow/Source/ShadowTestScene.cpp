@@ -10,7 +10,7 @@ void ShadowTestScene::Start()
 
 	Scene::UseImGUI = true;
 	GuizmoSetting.UseImGuizmo = true;
-	d3dRenderer.DebugDrawObjectCullingBox = true;
+	d3dRenderer.DebugSetting.DrawObjectCullingBox = true;
 
 	auto mainCam = NewGameObject<CameraObject>(L"mainCam");
 	mainCam->transform.position += Vector3(0.f, 0.f, -20.f);
@@ -67,8 +67,8 @@ void ShadowTestScene::ImGUIRender()
 		ImGui::Button("Show Sphere Edit", &ShowSphereEdit);
 		ImGui::Button("Show Pistol Edit", &ShowPistolEdit);
 		ImGui::Button("Show Char Edit", &ShowCharEdit);
-		ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
-		ImGui::Checkbox("Draw Object Bounds", &d3dRenderer.DebugDrawObjectCullingBox);
+		ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugSetting.DrawLightFrustum);
+		ImGui::Checkbox("Draw Object Bounds", &d3dRenderer.DebugSetting.DrawObjectCullingBox);
 		ImGui::EditCamera("Main Camera", pCamera, pCameraMoveHelper);
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(0), ImVec2(256, 256));
 		ImGui::Image((void*)d3dRenderer.GetShadowMapSRV(1), ImVec2(256, 256));

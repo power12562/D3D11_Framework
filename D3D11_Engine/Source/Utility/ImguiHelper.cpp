@@ -208,10 +208,10 @@ void ImGui::EditD3DRenderer()
 	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
 	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.DebugSetting.DebugDrawColor);
 	ImGui::Checkbox("Frustum Culling On / Off", &d3dRenderer.DebugSetting.UseFrustumCulling);
-	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugSetting.DebugLockCameraFrustum);
-	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugSetting.DebugDrawCameraFrustum);
-	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugSetting.DebugDrawLightFrustum);
-	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugSetting.DebugDrawObjectCullingBox);
+	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugSetting.LockCameraFrustum);
+	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugSetting.DrawCameraFrustum);
+	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugSetting.DrawLightFrustum);
+	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugSetting.DrawObjectCullingBox);
 	ImGui::Checkbox("VSync", &d3dRenderer.Setting.UseVSync);
 	ImGui::Text("Viewport");
 	{
@@ -263,8 +263,8 @@ void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCa
 	ImGui::Text(label);
 	EditTransform(&pCamera->gameObject);
 	ImGui::PushID(g_id);
-	ImGui::Checkbox("Draw Frustum", &d3dRenderer.DebugSetting.DebugDrawCameraFrustum);
-	ImGui::Checkbox("Lock Frustum", &d3dRenderer.DebugSetting.DebugLockCameraFrustum);
+	ImGui::Checkbox("Draw Frustum", &d3dRenderer.DebugSetting.DrawCameraFrustum);
+	ImGui::Checkbox("Lock Frustum", &d3dRenderer.DebugSetting.LockCameraFrustum);
 	ImGui::SliderFloat("FOV", &pCamera->FOV, 10, 120);
 	ImGui::SliderFloat("Near", &pCamera->Near, 0.05f, 10.f);
 	ImGui::SliderFloat("Far", &pCamera->Far, 15.f, 10000.f);
@@ -337,7 +337,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 {
 	std::filesystem::path originPath = path;
 	originPath.replace_extension(L".dds");
-	constexpr wchar_t textuers[] = L"Textuers";
+	constexpr wchar_t textuers[] = L"Textures";
 	std::filesystem::path savePath = originPath.parent_path() / textuers / originPath.filename();
 	bool isExists = std::filesystem::exists(savePath);
 #ifdef _DEBUG
@@ -353,7 +353,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 	
 	/*추천 포멧!!
 	Albedo		BC1/BC3/BC7	 알파 채널 유무에 따라 선택. 색상 데이터의 높은 품질 유지 필요시 BC7 //생각보다 압축티 많이남..
-	Normal		BC5	         2채널 사용하는 노말은 BC5. (그냥 압축 하지마세요..)
+	Normal		BC5	         2채널 사용하는 노말은 BC5. 
 	Specular	BC1/BC7		 단순 데이터면 BC1, 고품질 필요 시 BC7.
 	Emissive	BC1/BC3/BC7  불투명은 BC1, 알파 필요 시 BC3. 고품질 필요시 BC7
 	Opacity		BC4/BC3		 단일 채널은 BC4, RGBA 필요 시 BC3.
@@ -363,9 +363,8 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 	*/
 	constexpr const char* compressTypeStr[Utility::E_COMPRESS::MAX] =
 	{
-		"None",
-		"BC1 ",
-		"BC3 ",
+		"BC1",
+		"BC3",
 		"BC4",
 		"BC5",
 		"BC6",
@@ -396,7 +395,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 				static bool initialized = false;
 				static bool UseAutoCompress = false;
 				static int textureType = 0;
-				static Utility::E_COMPRESS::TYPE compressType = Utility::E_COMPRESS::None;
+				static Utility::E_COMPRESS::TYPE compressType = Utility::E_COMPRESS::MAX;
 				static bool showAdvancedSettings = false;
 				if (!initialized)
 				{
@@ -418,7 +417,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 						switch (type)
 						{
 						case E_TEXTURE::Normal:
-							compressType = Utility::E_COMPRESS::None;
+							compressType = Utility::E_COMPRESS::BC5;
 							break;
 						case E_TEXTURE::Albedo:
 						case E_TEXTURE::Specular:
@@ -432,7 +431,7 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 							compressType = Utility::E_COMPRESS::BC4;
 							break;
 						default :
-							compressType = Utility::E_COMPRESS::None;
+							compressType = Utility::E_COMPRESS::BC7;
 						}
 					}
 				}

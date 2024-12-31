@@ -29,7 +29,9 @@ cbuffer cbuffer_Light : register(b4)
 float4 main(PS_INPUT input) : SV_Target
 {   
     float4 txColor = txDiffuse.Sample(samLinear, input.Tex);
-    float3 mapNormal = normalMap.Sample(samLinear, input.Tex).rgb * 2.0f - 1.0f;
+    float3 normalSample;
+    normalSample.rg = normalMap.Sample(samLinear, input.Tex).rg;
+    normalSample.b = sqrt(1.0f - (normalSample.r * normalSample.r + normalSample.g * normalSample.g));
     float4 mapSpecular = specularMap.Sample(samLinear, input.Tex);
     float4 mapEmissive = emissiveMap.Sample(samLinear, input.Tex);
     float4 mapOpacity = opacityMap.Sample(samLinear, input.Tex);
