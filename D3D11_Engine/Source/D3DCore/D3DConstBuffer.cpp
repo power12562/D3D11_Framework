@@ -99,20 +99,17 @@ void D3DConstBuffer::Serialized(std::ofstream& ofs)
 	using namespace Binary;
 	size_t size =  vs_keyList.size();
 	Write::data(ofs, size);
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		size_t data_size = vs_dataList[i].first;
-		Write::data(ofs, data_size);
-		auto& [data_key, cbuffer_key] = vs_keyList[i];
-		Write::string(ofs, data_key);
-		Write::string(ofs, cbuffer_key);
+		Write::data(ofs, vs_dataList[i].first);
+		Write::string(ofs, vs_keyList[i].first);
 	}
-
 	size = ps_keyList.size();
 	Write::data(ofs, size);
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-
+		Write::data(ofs, ps_dataList[i].first);
+		Write::string(ofs, ps_keyList[i].first);
 	}
 }
 
@@ -120,14 +117,19 @@ void D3DConstBuffer::Deserialized(std::ifstream& ifs)
 {
 	using namespace Binary;
 	size_t size = Read::data<size_t>(ifs);
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
 		size_t data_size = Read::data<size_t>(ifs);
 		std::string data_key = Read::string(ifs);
-		std::string cbuffer_key = Read::string(ifs);
-		
+		CreateVSConstantBuffers(data_size, data_key.c_str());
 	}
-
+	size = Read::data<size_t>(ifs);
+	for (size_t i = 0; i < size; i++)
+	{
+		size_t data_size = Read::data<size_t>(ifs);
+		std::string data_key = Read::string(ifs);
+		CreatePSConstantBuffers(data_size, data_key.c_str());
+	}
 }
 
 void D3DConstBuffer::SetConstBuffer()
