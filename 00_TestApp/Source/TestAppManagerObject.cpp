@@ -21,16 +21,7 @@ TestAppManagerObject::~TestAppManagerObject()
 
 void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 {
-    if (Input.IsKeyDown(Keyboard::F4))
-    {
-        gameObjectFactory.SerializedObject(GameObject::Find(L"char"), L"Resource/char/char.GameObject");
-    }
-    else if (Input.IsKeyDown(Keyboard::F5))
-    {
-        gameObjectFactory.DeserializedObject(L"Resource/char/char.GameObject");
-    }
-
-    if (Input.IsKeyDown(Keyboard::F6))
+    if (Input.IsKeyDown(Keyboard::F5))
     {
         if (mainScene)
             sceneManager.LoadScene<DeferredTestScene1>();
@@ -38,9 +29,5 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
             sceneManager.LoadScene<TestMainScene>();
 
         mainScene = !mainScene;
-    }
-    else if (Input.IsKeyDown(Keyboard::F7))
-    {
-       
     }
 }

@@ -558,3 +558,130 @@ bool ImGui::ReloadTextureCompressEnd(const wchar_t* path, D3DTexture2D* texture2
 	}
 	return false;
 }
+
+bool ImGui::ShowOpenGameObjectPopup()
+{
+	constexpr float sizeX = 1280;
+	constexpr float halfX = 1280 * 0.5f;
+	constexpr float sizeY = 720;
+	constexpr float halfY = 720 * 0.5f;
+	auto popupFunc = []()
+		{
+			SIZE size = D3D11_GameApp::GetClientSize();
+			static bool first = true;
+			ImGui::OpenPopup("Open GameObject");
+			ImGui::SetNextWindowSize({ sizeX, sizeY });
+			ImGui::SetNextWindowPos({ size.cx * 0.5f - halfX, size.cy * 0.5f - halfY });
+			if (ImGui::BeginPopupModal("Open GameObject", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
+			{
+				if (first)
+				{
+					ImGuiFileDialog::Instance()->OpenDialog(
+						"Open Path Dlg",
+						"Choose Path",
+						".GameObject"
+						);
+					first = false;
+				}		
+				ImGui::SetNextWindowSize({ sizeX, sizeY });
+				ImGui::SetNextWindowPos({ size.cx * 0.5f - halfX, size.cy * 0.5f - halfY});
+				if (ImGuiFileDialog::Instance()->Display("Open Path Dlg"))
+				{
+					if (ImGuiFileDialog::Instance()->IsOk())
+					{
+						std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
+						if (!filePath.empty())
+						{
+							gameObjectFactory.DeserializedObject(utfConvert::utf8_to_wstring(filePath).c_str());
+						}
+						sceneManager.PopImGuiPopupFunc();
+						ImGui::CloseCurrentPopup();
+						ImGuiFileDialog::Instance()->Close();
+						first = true;
+					}
+					else
+					{
+						sceneManager.PopImGuiPopupFunc();
+						ImGui::CloseCurrentPopup();
+						ImGuiFileDialog::Instance()->Close();
+						first = true;
+					}
+				}
+				ImGui::EndPopup();
+			}
+		};
+
+	bool ActiveImgui = sceneManager.IsImGuiActive();
+	if (ActiveImgui)
+	{
+		sceneManager.PushImGuiPopupFunc(popupFunc);
+		return true;
+	}
+	else
+		return false;
+}
+
+bool ImGui::ShowSaveAsGameObjectPopup(GameObject* object)
+{
+	constexpr float sizeX = 1280;
+	constexpr float halfX = 1280 * 0.5f;
+	constexpr float sizeY = 720;
+	constexpr float halfY = 720 * 0.5f;
+	auto popupFunc = [object]()
+		{
+			SIZE size = D3D11_GameApp::GetClientSize();
+			static bool first = true;
+			ImGui::OpenPopup("Save As GameObject");
+			ImGui::SetNextWindowSize({ sizeX, sizeY });
+			ImGui::SetNextWindowPos({ size.cx * 0.5f - halfX, size.cy * 0.5f - halfY });
+			if (ImGui::BeginPopupModal("Save As GameObject", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove))
+			{
+				static IGFD::FileDialogConfig config{};
+				GameObject* selectObject = Scene::GuizmoSetting.SelectObject;
+				if (first)
+				{
+					config.fileName = selectObject->GetNameToString();
+					ImGuiFileDialog::Instance()->OpenDialog(
+						"Save Path Dlg",
+						"Choose Path",
+						".GameObject",
+						config);
+					first = false;
+				}
+				ImGui::SetNextWindowSize({ sizeX, sizeY });
+				ImGui::SetNextWindowPos({ size.cx * 0.5f - halfX, size.cy * 0.5f - halfY });
+				if (ImGuiFileDialog::Instance()->Display("Save Path Dlg")) 
+				{
+					if (ImGuiFileDialog::Instance()->IsOk()) 
+					{
+						std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
+						if (!filePath.empty())
+						{
+							gameObjectFactory.SerializedObject(selectObject, utfConvert::utf8_to_wstring(filePath).c_str());
+						}
+						sceneManager.PopImGuiPopupFunc();
+						ImGui::CloseCurrentPopup();
+						ImGuiFileDialog::Instance()->Close();
+						first = true;
+					}				
+					else
+					{
+						sceneManager.PopImGuiPopupFunc();
+						ImGui::CloseCurrentPopup();
+						ImGuiFileDialog::Instance()->Close();
+						first = true;
+					}
+				}
+				ImGui::EndPopup();
+			}
+		};
+
+	bool ActiveImgui = sceneManager.IsImGuiActive();
+	if (ActiveImgui)
+	{
+		sceneManager.PushImGuiPopupFunc(popupFunc);
+		return true;
+	}
+	else
+		return false;
+}

@@ -165,6 +165,8 @@
     <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\D3DCore\D3DSamplerState.h" />
     <ClInclude Include="Source\D3DCore\D3DTexture2D.h" />
+    <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="Source\ImGuizmo\GraphEditor.h" />
     <ClInclude Include="Source\ImGuizmo\ImCurveEdit.h" />
     <ClInclude Include="Source\ImGuizmo\ImGradient.h" />
@@ -232,6 +234,7 @@
     <ClCompile Include="Source\D3DCore\D3DTexture2D.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\BlingPhongMeshObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\PBRMeshObject.cpp" />
+    <ClCompile Include="Source\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="Source\ImGuizmo\GraphEditor.cpp" />
     <ClCompile Include="Source\ImGuizmo\ImCurveEdit.cpp" />
     <ClCompile Include="Source\ImGuizmo\ImGradient.cpp" />

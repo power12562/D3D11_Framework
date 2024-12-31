@@ -265,9 +265,38 @@ void Scene::ImGuizmoDraw()
 					}
 					ImGui::End();
 					ImGui::PopID();
-					ImGui::ResetGlobalID();
 				}
-			}		
+			}	
+			
+			//Editer
+			if (ImGui::BeginMainMenuBar())
+			{
+				if (ImGui::BeginMenu("Open"))
+				{
+					{
+						if (ImGui::MenuItem("Open GameObject"))
+						{
+							ImGui::ShowOpenGameObjectPopup();
+						}
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Save")) 
+				{
+					{
+						if (ImGui::MenuItem("Save As GameObject"))
+						{
+							if (GuizmoSetting.SelectObject)
+							{
+								ImGui::ShowSaveAsGameObjectPopup(GuizmoSetting.SelectObject);
+							}						
+						}
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMainMenuBar();
+			}
+			ImGui::ResetGlobalID();
 		}
 	}
 }
