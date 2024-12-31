@@ -12,5 +12,3 @@ struct alignas(16) cb_BlingPhongMaterial
 	DirectX::SimpleMath::Vector3 MaterialSpecularPad;
 };
 #pragma warning( default : 4305 )
-
-using sptrBlingPhongMaterial = std::shared_ptr<cb_BlingPhongMaterial>;

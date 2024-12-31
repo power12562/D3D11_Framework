@@ -24,10 +24,19 @@ struct USAGE_VRAM_INFO;
 struct SYSTEM_VRAM_INFO;
 struct SYSTEM_MEMORY_INFO;
 struct RENDERER_DRAW_DESC;
-struct RENDERER_SETTING_DESC
+struct RENDERER_SETTING
 {
 	//수직 동기화 사용 여부
 	bool UseVSync = false;
+};
+struct RENDERER_SETTING_DEBUG
+{
+	bool UseFrustumCulling				= true;
+	bool DebugDrawLightFrustum			= false;
+	bool DebugDrawObjectCullingBox		= false;
+	bool DebugDrawCameraFrustum			= false;
+	bool DebugLockCameraFrustum			= false;
+	DirectX::XMVECTORF32 DebugDrawColor = DirectX::Colors::LightGreen;
 };
 
 class D3DRenderer : public TSingleton<D3DRenderer>
@@ -103,7 +112,8 @@ public:
 	DirectX::SimpleMath::Color backgroundColor;
 
 	//Setting
-	RENDERER_SETTING_DESC setting;
+	RENDERER_SETTING Setting;
+	RENDERER_SETTING_DEBUG DebugSetting;
 private:
 	ID3D11Device*				pDevice;					// 디바이스	
 	ID3D11DeviceContext*		pDeviceContext;				// 디바이스 컨텍스트
@@ -143,14 +153,6 @@ private:
 	DirectX::SimpleMath::Matrix cullingProjection; //카메라 투영
 
 public:
-	//Gizmo Color
-	DirectX::XMVECTORF32 debugDrawColor;
-
-	bool DebugDrawLightFrustum = false;
-	bool DebugDrawObjectCullingBox = false;
-	bool DebugDrawCameraFrustum = false;
-	bool DebugLockCameraFrustum = false;
-
 	void PushDebugFrustum(const DirectX::SimpleMath::Matrix* frustum, const DirectX::SimpleMath::Matrix* WM);
 	void PopDebugFrustum();
 	bool CheckFrustumCulling(GameObject* obj) const;

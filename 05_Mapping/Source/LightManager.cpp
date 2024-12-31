@@ -4,23 +4,32 @@
 
 LightManager::LightManager()
 {
+    if (!cbuffer)
+    {
+        cbuffer = std::make_unique<D3DConstBuffer>();
+    }
 }
 
 LightManager::~LightManager()
 {
+    if (cbuffer)
+    {
+        cbuffer.reset();
+    }
 }
 
 void LightManager::Start()
 {
     cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(lightKey);
-    int index = cbuffer.CreatePSConstantBuffers<cb_DirectionalLight>(lightKey);
+    int index = cbuffer->CreatePSConstantBuffers<cb_DirectionalLight>(lightKey);
 
     cb_bool = D3DConstBuffer::GetData<cbuffer_bool>(lightKey);
-    index = cbuffer.CreatePSConstantBuffers<cbuffer_bool>(lightKey);
+    index = cbuffer->CreatePSConstantBuffers<cbuffer_bool>(lightKey);
 }
 
 void LightManager::FixedUpdate()
 {
+
 }
 
 void LightManager::Update()
@@ -30,4 +39,5 @@ void LightManager::Update()
 
 void LightManager::LateUpdate()
 {
+
 }

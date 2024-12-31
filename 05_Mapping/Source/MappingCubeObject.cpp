@@ -121,6 +121,7 @@ void MappingCubeObject::FixedUpdate()
 
 void MappingCubeObject::Update()
 {
+    gameObject.transform.PushUpdateList();
 }
 
 void MappingCubeObject::LateUpdate()
@@ -133,7 +134,7 @@ void MappingCubeObject::Render()
 
     RENDERER_DRAW_DESC draw_desc{};
     draw_desc.pVertexIndex = &dd;
-    draw_desc.pConstBuffer = &LightManager::cbuffer;
+    draw_desc.pConstBuffer = LightManager::cbuffer.get();
     draw_desc.pD3DTexture2D = &textures;
     draw_desc.pSamperState = &sampler;
     draw_desc.pInputLayout = pInputLayout;

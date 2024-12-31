@@ -31,7 +31,7 @@ class LightManager : public Component
 {
     inline static constexpr char lightKey[] = "LightManager";
 public:
-    inline static D3DConstBuffer cbuffer{};
+    inline static std::unique_ptr<D3DConstBuffer> cbuffer{};
 
 public:
     inline static std::shared_ptr<cb_DirectionalLight> cb_light{};

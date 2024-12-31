@@ -3,7 +3,7 @@
 
 namespace DirectionalLight
 {
-    std::shared_ptr<cb_PBRDirectionalLight> DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLights_key);
+    std::shared_ptr<cb_PBRDirectionalLight> DirectionalLights;
 };
 
 void cb_PBRDirectionalLight::PushLight()

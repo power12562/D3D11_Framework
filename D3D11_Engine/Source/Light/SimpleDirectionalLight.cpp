@@ -3,5 +3,5 @@
 
 namespace SimpleDirectionalLight
 {
-    std::shared_ptr<cb_DirectionalLight> cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(cb_light_key);
+    std::shared_ptr<cb_DirectionalLight> cb_light;
 };

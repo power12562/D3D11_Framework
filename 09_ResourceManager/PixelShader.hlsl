@@ -17,7 +17,6 @@ cbuffer cb_Material : register(b3)
 
 cbuffer cbuffer_Light : register(b4)
 {
-    float4 LightPad;
     float4 LightDiffuse;
     float4 LightAmbient;
     float4 LightSpecular;

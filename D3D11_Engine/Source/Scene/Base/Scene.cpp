@@ -18,6 +18,8 @@
 #include <ImGuizmo/ImGuizmo.h>
 #include <imgui_internal.h>
 #include <D3DCore/D3DConstBuffer.h>
+#include <Light/PBRDirectionalLight.h>
+#include <Light/SimpleDirectionalLight.h>
 
 Scene::Scene()
 {
@@ -27,6 +29,9 @@ Scene::Scene()
 	dontdestroyonloadList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
 	Transform::reserveUpdateList(ReserveSize);
+
+	SimpleDirectionalLight::cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
+	DirectionalLight::DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLight::DirectionalLights_key);
 }
 
 Scene::~Scene()
@@ -34,6 +39,9 @@ Scene::~Scene()
 	hlslManager.ClearSharingShader();
 	Resource::ClearResourceManagers();
 	D3DConstBuffer::ClearInitFlag();
+
+	SimpleDirectionalLight::cb_light.reset();
+	DirectionalLight::DirectionalLights.reset();
 }
 
 void Scene::FixedUpdate()

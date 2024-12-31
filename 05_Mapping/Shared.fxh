@@ -20,10 +20,11 @@ cbuffer cb_Camera : register(b1)
     Matrix IPM;
 };
 
+#define MAX_LIGHT_COUNT 4
 cbuffer cb_ShadowMap : register(b2)
 {
-    Matrix ShadowProjection;
-    Matrix ShadowView;
+    Matrix ShadowProjections[MAX_LIGHT_COUNT];
+    Matrix ShadowViews[MAX_LIGHT_COUNT];
 };
 
 cbuffer cbuffer_Light : register(b3)

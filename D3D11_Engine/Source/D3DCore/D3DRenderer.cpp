@@ -22,7 +22,6 @@ namespace cbuffer
 D3DRenderer::D3DRenderer()
 {
     backgroundColor = { 0, 0, 0, 1 };
-    debugDrawColor = DirectX::Colors::LightGreen;
 
     pDevice = nullptr;
     pDeviceContext = nullptr;
@@ -368,7 +367,8 @@ void D3DRenderer::BegineDraw()
     //Set camera cb
     Camera* mainCam = Camera::GetMainCamera();
     mainCam->transform.PushUpdateList();
-    if (!DebugLockCameraFrustum)
+    Transform::UpdateMatrix();
+    if (!DebugSetting.DebugLockCameraFrustum)
     {
         cullingIVM  = mainCam->GetIVM();
         cullingView   = mainCam->GetVM();
@@ -413,9 +413,6 @@ void D3DRenderer::BegineDraw()
             shadowProjections[i] = CreateOrthographicProjection(CalculateBoundsLightSpace(shadowViews[i], cameraCorners), lightNear, lightFar);
         }
     }
-
-    //update transform
-    Transform::UpdateMatrix();
 }
 
 void D3DRenderer::DrawIndex(RENDERER_DRAW_DESC& darwDesc)
@@ -461,7 +458,6 @@ void D3DRenderer::EndDraw()
 
     //Shadow Map Pass
     {
-        prevTransform = nullptr;
         for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; i++)
         {
             pDeviceContext->ClearDepthStencilView(pShadowMapDSV[i], D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -483,14 +479,17 @@ void D3DRenderer::EndDraw()
             D3DConstBuffer::UpdateStaticCbuffer(cbuffer::ShadowMap);           
 
             pDeviceContext->OMSetRenderTargets(0, nullptr, pShadowMapDSV[i]); 
+            prevTransform = nullptr;
             for (auto& item : opaquerenderOueue)
             {
                 RenderShadowMap(item);
             }
+            prevTransform = nullptr;
             for (auto& item : forwardrenderOueue)
             {          
                 RenderShadowMap(item);
             }
+            prevTransform = nullptr;
             for (auto& item : alphaRenderQueue)
             {
                 RenderShadowMap(item);
@@ -528,8 +527,7 @@ void D3DRenderer::EndDraw()
             cbuffer::transform.World._13 = offsetX;
             cbuffer::transform.World._14 = offsetY;
             D3DConstBuffer::UpdateStaticCbuffer(cbuffer::transform);
-
-            prevTransform = nullptr;
+          
             ID3D11RenderTargetView* nullRTV[GbufferCount]{ nullptr, };
             pDeviceContext->OMSetRenderTargets(GbufferCount, nullRTV, nullptr);
             pDeviceContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -573,6 +571,7 @@ void D3DRenderer::EndDraw()
     //opaque pass (Forward)
     {
         pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
+        prevTransform = nullptr;
         for (auto& item : forwardrenderOueue)
         {
             RenderSceneForward(item);
@@ -580,6 +579,7 @@ void D3DRenderer::EndDraw()
     }
     //alpha pass (Forward)
 	{           
+        prevTransform = nullptr;
 		for (auto& item : alphaRenderQueue)
 		{
 			RenderSceneForward(item);
@@ -601,7 +601,7 @@ void D3DRenderer::EndDraw()
 
 void D3DRenderer::Present()
 {   
-	pSwapChain->Present(setting.UseVSync ? 1 : 0, 0);
+	pSwapChain->Present(Setting.UseVSync ? 1 : 0, 0);
 }
 
 D3D11_VIEWPORT D3DRenderer::GetClientSizeViewport()
@@ -679,19 +679,20 @@ void D3DRenderer::CreateShadowMapResource()
 
 void D3DRenderer::DrawDebug()
 {
-    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pDepthStencilView);
+    pDeviceContext->OMSetRenderTargets(1, pRenderTargetViewArray, pGbufferDSV);
     pDeviceContext->RSSetViewports((UINT)ViewPortsVec.size(), ViewPortsVec.data());
     pPrimitiveBatch->Begin();  // PrimitiveBatch ½ÃÀÛ
+
     Camera* mainCamera = Camera::GetMainCamera();
     pBasicEffect->SetView(mainCamera->GetVM());
     pBasicEffect->SetProjection(mainCamera->GetPM());
     ComPtr<ID3D11InputLayout> inputLayout;
     CheckHRESULT(DirectX::CreateInputLayoutFromEffect<VertexPositionColor>(pDevice, pBasicEffect.get(), inputLayout.ReleaseAndGetAddressOf()));
     pDeviceContext->IASetInputLayout(inputLayout.Get());
-    pBasicEffect->SetColorAndAlpha(debugDrawColor);
+    pBasicEffect->SetColorAndAlpha(DebugSetting.DebugDrawColor);
     pBasicEffect->Apply(pDeviceContext);
 
-    if (DebugDrawLightFrustum)
+    if (DebugSetting.DebugDrawLightFrustum)
     {
         for (int i = 0; i < DirectionalLight::DirectionalLights->LightsCount; ++i)
         {
@@ -701,13 +702,13 @@ void D3DRenderer::DrawDebug()
             DebugDraw::Draw(pPrimitiveBatch.get(), shadowFrustum);
         }
     }
-    if (DebugDrawCameraFrustum)
+    if (DebugSetting.DebugDrawCameraFrustum)
     {      
         DirectX::BoundingFrustum cameraFrustum(cullingProjection);
         cameraFrustum.Transform(cameraFrustum, cullingIVM);
         DebugDraw::Draw(pPrimitiveBatch.get(), cameraFrustum);
     }
-    if(DebugDrawObjectCullingBox)
+    if(DebugSetting.DebugDrawObjectCullingBox)
     {
         for (auto& desc : opaquerenderOueue)
         {            
@@ -754,12 +755,18 @@ void D3DRenderer::PopDebugFrustum()
 
 bool D3DRenderer::CheckFrustumCulling(GameObject* obj) const
 {
-    BoundingBox BB;
-    BB = obj->GetBBToWorld();
-    BoundingFrustum cameraFrustum(cullingProjection);
-    cameraFrustum.Transform(cameraFrustum, cullingIVM);
-
-    return cameraFrustum.Intersects(BB);
+    if (DebugSetting.UseFrustumCulling)
+    {
+        BoundingBox BB;
+        BB = obj->GetBBToWorld();
+        BoundingFrustum cameraFrustum(cullingProjection);
+        cameraFrustum.Transform(cameraFrustum, cullingIVM);
+        return cameraFrustum.Intersects(BB);
+    }
+    else
+    {
+        return true;
+    }
 }
 
 void D3DRenderer::RenderSkyBox(SkyBoxRender* skyBox)

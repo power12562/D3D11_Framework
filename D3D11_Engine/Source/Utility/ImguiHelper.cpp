@@ -206,12 +206,13 @@ void ImGui::EditD3DRenderer()
 	if (ImGui::Button("Toggle Fullscreen"))
 		d3dRenderer.ToggleFullscreenMode();
 	ImGui::ColorEdit3("Clear Color", &d3dRenderer.backgroundColor);
-	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.debugDrawColor);
-	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugLockCameraFrustum);
-	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugDrawCameraFrustum);
-	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugDrawLightFrustum);
-	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugDrawObjectCullingBox);
-	ImGui::Checkbox("VSync", &d3dRenderer.setting.UseVSync);
+	ImGui::ColorEdit4("Debug Draw Color", (float*)&d3dRenderer.DebugSetting.DebugDrawColor);
+	ImGui::Checkbox("Frustum Culling On / Off", &d3dRenderer.DebugSetting.UseFrustumCulling);
+	ImGui::Checkbox("Lock Camera Frustum", &d3dRenderer.DebugSetting.DebugLockCameraFrustum);
+	ImGui::Checkbox("Draw Camera Frustum", &d3dRenderer.DebugSetting.DebugDrawCameraFrustum);
+	ImGui::Checkbox("Draw Light Frustum", &d3dRenderer.DebugSetting.DebugDrawLightFrustum);
+	ImGui::Checkbox("Draw Object Culling Box", &d3dRenderer.DebugSetting.DebugDrawObjectCullingBox);
+	ImGui::Checkbox("VSync", &d3dRenderer.Setting.UseVSync);
 	ImGui::Text("Viewport");
 	{
 		SIZE size = D3D11_GameApp::GetClientSize();
@@ -262,8 +263,8 @@ void ImGui::EditCamera(const char* label, Camera* pCamera, CameraMoveHelper* pCa
 	ImGui::Text(label);
 	EditTransform(&pCamera->gameObject);
 	ImGui::PushID(g_id);
-	ImGui::Checkbox("Draw Frustum", &d3dRenderer.DebugDrawCameraFrustum);
-	ImGui::Checkbox("Lock Frustum", &d3dRenderer.DebugLockCameraFrustum);
+	ImGui::Checkbox("Draw Frustum", &d3dRenderer.DebugSetting.DebugDrawCameraFrustum);
+	ImGui::Checkbox("Lock Frustum", &d3dRenderer.DebugSetting.DebugLockCameraFrustum);
 	ImGui::SliderFloat("FOV", &pCamera->FOV, 10, 120);
 	ImGui::SliderFloat("Near", &pCamera->Near, 0.05f, 10.f);
 	ImGui::SliderFloat("Far", &pCamera->Far, 15.f, 10000.f);
@@ -334,13 +335,17 @@ namespace CompressPopupField
 
 bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int texType)
 {
-	using namespace CompressPopupField;
-	popupCount++;
 	std::filesystem::path originPath = path;
 	originPath.replace_extension(L".dds");
 	constexpr wchar_t textuers[] = L"Textuers";
 	std::filesystem::path savePath = originPath.parent_path() / textuers / originPath.filename();
 	bool isExists = std::filesystem::exists(savePath);
+#ifdef _DEBUG
+	if (!isExists)
+		return false;
+#endif 
+	using namespace CompressPopupField;
+	popupCount++;
 	str_queue.push(utfConvert::wstring_to_utf8(path));
 	wstr_queue.push(path);
 	savePath_Queue.push(savePath.c_str());
@@ -532,10 +537,6 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 			}
 		};
 
-#ifdef _DEBUG
-		if(!isExists)
-			return false;
-#endif //Release
 	bool ActiveImgui = sceneManager.IsImGuiActive();
 	if (ActiveImgui)
 	{

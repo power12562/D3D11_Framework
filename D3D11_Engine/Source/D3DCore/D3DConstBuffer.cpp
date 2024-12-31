@@ -52,7 +52,7 @@ void D3DConstBuffer::SetStaticCbuffer()
 
 std::shared_ptr<char[]> D3DConstBuffer::GetData(size_t size_of, const char* key)
 {
-	std::string unique_key = make_key(size_of, key);
+	std::string unique_key = make_key_data(size_of, key);
 	auto find = dataMap.find(unique_key);
 	if (find != dataMap.end())
 	{
@@ -76,20 +76,20 @@ D3DConstBuffer::D3DConstBuffer()
 
 D3DConstBuffer::~D3DConstBuffer()
 {
-	for (auto& [key, data] : vs_dataList)
+	for (auto& [data, cbuffer] : vs_keyList)
 	{
-		ULONG ref = cbufferMap[key]->Release();
-		if (ref == 0)
+		ULONG ref = cbufferMap[cbuffer]->Release();
+		if (ref <= 0)
 		{
-			cbufferMap.erase(key);
+			cbufferMap.erase(cbuffer);
 		}
 	}
-	for (auto& [key, data] : ps_dataList)
+	for (auto& [data, cbuffer] : ps_keyList)
 	{
-		ULONG ref = cbufferMap[key]->Release();
-		if (ref == 0)
+		ULONG ref = cbufferMap[cbuffer]->Release();
+		if (ref <= 0)
 		{
-			cbufferMap.erase(key);
+			cbufferMap.erase(cbuffer);
 		}
 	}
 }
@@ -114,9 +114,10 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
-	std::string unique_key = make_key(size_of, key);
+	std::string data_key = make_key_data(size_of, key);
+	std::string cbuffer_key = make_key_cbuffer(size_of);
 	int regIndex = GetVSCbufferCount();
-	if (cbufferMap.find(size_of) == cbufferMap.end()) //키값 못찾을때 리소스 생성
+	if (cbufferMap.find(cbuffer_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
 	{
 		D3D11_BUFFER_DESC bufferDesc{};
 
@@ -137,20 +138,20 @@ int D3DConstBuffer::CreateVSConstantBuffers(size_t size_of, const char* key)
 
 		ID3D11Buffer* cBufferTemp{};
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-		cbufferMap[size_of] = cBufferTemp;
+		cbufferMap[cbuffer_key] = cBufferTemp;
 	}
 	else
 	{
 		for (int i = 0; i < vs_keyList.size(); i++)
 		{
-			if (vs_keyList[i] == unique_key)
+			if (vs_keyList[i].first == data_key)
 				return i;
 		}
-		cbufferMap[size_of]->AddRef();
+		cbufferMap[cbuffer_key]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	vs_dataList.emplace_back(size_of, data);
-	vs_keyList.emplace_back(unique_key);
+	vs_keyList.emplace_back(data_key, cbuffer_key);
 
 	return regIndex;
 }
@@ -162,9 +163,10 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 		__debugbreak(); //상수 버퍼 최대 개수 도달.
 		return -1;
 	}
-	std::string unique_key = make_key(size_of, key);
+	std::string data_key = make_key_data(size_of, key);
+	std::string cbuffer_key = make_key_cbuffer(size_of);
 	int regIndex = GetPSCbufferCount();
-	if (cbufferMap.find(size_of) == cbufferMap.end()) //키값 못찾을때 리소스 생성
+	if (cbufferMap.find(cbuffer_key) == cbufferMap.end()) //키값 못찾을때 리소스 생성
 	{
 		D3D11_BUFFER_DESC bufferDesc{};
 		if constexpr (UPDATE_MODE_MAP)
@@ -184,20 +186,20 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* key)
 
 		ID3D11Buffer* cBufferTemp{};
 		Utility::CheckHRESULT(d3dRenderer.GetDevice()->CreateBuffer(&bufferDesc, nullptr, &cBufferTemp));
-		cbufferMap[size_of] = cBufferTemp;
+		cbufferMap[cbuffer_key] = cBufferTemp;
 	}
 	else
 	{
 		for (int i = 0; i < ps_keyList.size(); i++)
 		{
-			if (ps_keyList[i] == unique_key)
+			if (ps_keyList[i].first == data_key)
 				return i;
 		}
-		cbufferMap[size_of]->AddRef();
+		cbufferMap[cbuffer_key]->AddRef();
 	}
 	std::shared_ptr<char[]> data = GetData(size_of, key);
 	ps_dataList.emplace_back(size_of, data);
-	ps_keyList.emplace_back(unique_key);
+	ps_keyList.emplace_back(data_key, cbuffer_key);
 	
 	return regIndex;
 }

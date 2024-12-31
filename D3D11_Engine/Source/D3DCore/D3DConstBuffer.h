@@ -2,6 +2,7 @@
 #include <D3DCore/D3DRenderer.h> 
 #include <memory>
 #include <unordered_set>
+#include <format>
 
 /* b0 레지스터는 Transform 버퍼*/
 struct cb_Transform
@@ -79,6 +80,7 @@ public:
 	static void CreateStaticCbuffer();
 	static void ReleaseStaticCbuffer();
 	static void SetStaticCbuffer();
+
 	/*상수버퍼 초기화 여부 리셋. Scene 소멸자에서 호출됩니다.*/
 	inline static void ClearInitFlag() { initFlagSet.clear(); }
 
@@ -89,7 +91,19 @@ public:
 	inline static std::shared_ptr<T> GetData(const char* key);
 private:
 	static std::shared_ptr<char[]> GetData(size_t size_of, const char* key);
-	inline static std::string make_key(size_t size_of, const char* key);
+	inline static std::string make_key_data(size_t size_of, const char* key);
+
+private:
+	inline static constexpr int StaticCbufferCount = 3;
+	inline static ID3D11Buffer* cBufferTransform = nullptr;
+	inline static ID3D11Buffer* cBufferCamera = nullptr;
+	inline static ID3D11Buffer* cBufferShadowMap = nullptr;
+
+private:
+	inline static std::unordered_map<std::string, ID3D11Buffer*> cbufferMap;
+	inline static std::unordered_map<std::string, std::weak_ptr<char[]>> dataMap;
+	inline static std::unordered_set<std::string> initFlagSet;
+
 public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
@@ -99,15 +113,8 @@ public:
 	D3DConstBuffer& operator=(const D3DConstBuffer& rhs) = delete;
 
 private:
-	inline static constexpr int StaticCbufferCount = 3;
-	inline static ID3D11Buffer* cBufferTransform = nullptr;
-	inline static ID3D11Buffer* cBufferCamera = nullptr;
-	inline static ID3D11Buffer* cBufferShadowMap = nullptr;
-
-private:
-	inline static std::unordered_map<size_t, ID3D11Buffer*> cbufferMap;
-	inline static std::unordered_map<std::string, std::weak_ptr<char[]>> dataMap;
-	inline static std::unordered_set<std::string> initFlagSet;
+	std::unordered_map<size_t, int> sizeCounterMap;
+	inline std::string make_key_cbuffer(size_t size_of);
 
 public:
 	void SetConstBuffer(); //상수 버퍼 바인딩
@@ -130,9 +137,9 @@ private:
 	int CreatePSConstantBuffers(size_t size_of, const char* key);
 
 private:
-	std::vector<std::string> vs_keyList{};
+	std::vector<std::pair<std::string, std::string>> vs_keyList{};
 	std::vector<std::pair<size_t, std::shared_ptr<char[]>>> vs_dataList{};
-	std::vector<std::string> ps_keyList{};
+	std::vector<std::pair<std::string, std::string>> ps_keyList{};
 	std::vector<std::pair<size_t, std::shared_ptr<char[]>>> ps_dataList{};
 
 	inline void UpdateVSconstBuffer(int index);
@@ -159,7 +166,7 @@ inline std::shared_ptr<T> D3DConstBuffer::GetData(const char* key)
 	std::shared_ptr<char[]> data = GetData(sizeof(T), key);
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
 	if (result)
 		new(data.get()) T;
 
@@ -168,10 +175,9 @@ inline std::shared_ptr<T> D3DConstBuffer::GetData(const char* key)
 	return ptr;
 }
 
-inline std::string D3DConstBuffer::make_key(size_t size_of, const char* key)
+inline std::string D3DConstBuffer::make_key_data(size_t size_of, const char* key)
 {
-	std::string unique_key = std::to_string(size_of) + "_" + key;
-	return unique_key;
+	return std::format("{}_{}", size_of, key);
 }
 
 template<>
@@ -244,7 +250,7 @@ inline int D3DConstBuffer::CreateVSConstantBuffers(const char* key)
 	int regindex = CreateVSConstantBuffers(sizeof(T), key);
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
 	if (result)
 		new(vs_dataList[regindex - StaticCbufferCount].second.get())T;
 
@@ -261,7 +267,7 @@ inline int D3DConstBuffer::CreatePSConstantBuffers(const char* key)
 	int regindex = CreatePSConstantBuffers(sizeof(T), key);
 
 	// If this is the first reference, create a T object using placement new
-	auto [iter, result] = initFlagSet.insert(make_key(sizeof(T), key));
+	auto [iter, result] = initFlagSet.insert(make_key_data(sizeof(T), key));
 	if (result)
 		new(ps_dataList[regindex - StaticCbufferCount].second.get())T;
 
@@ -273,7 +279,8 @@ inline void D3DConstBuffer::UpdateVSconstBuffer(int index)
 	if (ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext())
 	{
 		auto& [size, data] = vs_dataList[index];
-		auto findIter = cbufferMap.find(size);
+		auto& [data_key, cbuffer_key] = vs_keyList[index];
+		auto findIter = cbufferMap.find(cbuffer_key);
 		if (findIter != cbufferMap.end())
 		{
 			if constexpr (UPDATE_MODE_MAP)
@@ -289,10 +296,10 @@ inline void D3DConstBuffer::UpdateVSconstBuffer(int index)
 			}
 			else
 			{
-				pDeviceContext->UpdateSubresource(cbufferMap[size], 0, NULL, data.get(), 0, 0);
+				pDeviceContext->UpdateSubresource(cbufferMap[cbuffer_key], 0, NULL, data.get(), 0, 0);
 			}
 			//리소스 바인딩
-			pDeviceContext->VSSetConstantBuffers(index + StaticCbufferCount, 1, &cbufferMap[size]);
+			pDeviceContext->VSSetConstantBuffers(index + StaticCbufferCount, 1, &findIter->second);
 		}
 		else
 		{
@@ -307,7 +314,8 @@ inline void D3DConstBuffer::UpdatePSconstBuffer(int index)
 	if (ID3D11DeviceContext* pDeviceContext = d3dRenderer.GetDeviceContext()) 
 	{
 		auto& [size, data] = ps_dataList[index];
-		auto findIter = cbufferMap.find(size);
+		auto& [data_key, cbuffer_key] = ps_keyList[index];
+		auto findIter = cbufferMap.find(cbuffer_key);
 		if (findIter != cbufferMap.end())
 		{
 			if constexpr (UPDATE_MODE_MAP)
@@ -323,10 +331,10 @@ inline void D3DConstBuffer::UpdatePSconstBuffer(int index)
 			}
 			else
 			{
-				pDeviceContext->UpdateSubresource(cbufferMap[size], 0, NULL, data.get(), 0, 0);
+				pDeviceContext->UpdateSubresource(cbufferMap[cbuffer_key], 0, NULL, data.get(), 0, 0);
 			}
 			//리소스 바인딩
-			pDeviceContext->PSSetConstantBuffers(index + StaticCbufferCount, 1, &cbufferMap[size]);
+			pDeviceContext->PSSetConstantBuffers(index + StaticCbufferCount, 1, &findIter->second);
 		}
 		else
 		{
@@ -336,3 +344,18 @@ inline void D3DConstBuffer::UpdatePSconstBuffer(int index)
 	}
 }
 
+inline std::string D3DConstBuffer::make_key_cbuffer(size_t size_of)
+{
+	auto find = sizeCounterMap.find(size_of);
+	if (find == sizeCounterMap.end())
+	{
+		sizeCounterMap[size_of] = 0;
+		return std::format("{}_{}", size_of, 0);
+	}
+	else
+	{
+		int& counter = sizeCounterMap[size_of];
+		++counter;
+		return std::format("{}_{}", size_of, counter);
+	}
+}
