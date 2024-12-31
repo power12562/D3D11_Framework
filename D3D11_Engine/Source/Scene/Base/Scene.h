@@ -24,11 +24,10 @@ protected:
 	virtual void ImGUIRender() {}
 
 private:
-	std::function<void()> ImGuiLodingFunc;
-	void ImGUIBegineDraw();
+	static void ImGUIBegineDraw();
 	void ImGuizmoDraw();
 	std::queue<std::function<void()>> ImGUIPopupQue;
-	void ImGUIEndDraw();
+	static void ImGUIEndDraw();
 
 public:
 	bool UseImGUI = false;

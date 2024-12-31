@@ -45,24 +45,34 @@ std::function<GameObject*(const wchar_t* name)>& GameObjectFactory::NewGameObjec
 
 void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* WritePath)
 {
+	if (object == nullptr)
+	{
+		__debugbreak(); //존재하지 않는 오브젝트
+		return;
+	}
+
 	if (newGameObjectFuncMap->find(typeid(*object).name()) == newGameObjectFuncMap->end())
 	{
 		MessageBox(NULL, L"Is not Serialized Object", object->Name.c_str(), MB_OK);
 		return;
 	}
 	std::filesystem::path path(WritePath);
-	if (!Utility::IsPathDirectory(path))
+	if (path.extension() != L".GameObject")
 	{
-		path += L"/";
+		if (!Utility::IsPathDirectory(path))
+		{
+			path += L"/";
+		}
+		path += object->GetName();
+		path += L".GameObject";
 	}
-	path += object->GetName();
-	path += L".GameObject";
+
 	if (!std::filesystem::exists(path))
 	{
 		if (!std::filesystem::exists(path.parent_path()))
 		{
 			std::filesystem::create_directories(path.parent_path());
-		}	
+		}
 	}
 	else
 	{
@@ -118,10 +128,20 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 		component->Serialized(ofs);
 	}
 	//Transform
-	Write::Vector3(ofs, object->transform.position);
-	Write::Quaternion(ofs, object->transform.rotation);
-	Write::Vector3(ofs, object->transform.scale);
 	Write::data<size_t>(ofs, level);
+	bool isParent = level > 0;
+	if (!isParent)
+	{
+		Write::Vector3(ofs, object->transform.position);
+		Write::Quaternion(ofs, object->transform.rotation);
+		Write::Vector3(ofs, object->transform.scale);
+	}
+	else
+	{
+		Write::Vector3(ofs, object->transform.localPosition);
+		Write::Quaternion(ofs, object->transform.localRotation);
+		Write::Vector3(ofs, object->transform.localScale);
+	}	
 	//childs
 	for (size_t i = 0; i < object->transform.GetChildCount(); i++)
 	{
@@ -152,16 +172,26 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 			component->Deserialized(ifs);
 		}
 		//Transform
-		object->transform.position = Read::Vector3(ifs);
-		object->transform.rotation = Read::Quaternion(ifs);
-		object->transform.scale = Read::Vector3(ifs);
 		size_t myLevel = Read::data<size_t>(ifs);
 		objectTreeMap[myLevel] = &object->transform;
-		if (myLevel > 0)
+		bool isParent = myLevel > 0;
+		if (isParent)
 		{
 			auto find = objectTreeMap.find(myLevel - 1); //마지막으로 생성된 내 상위 객체를 찾는다
 			if (find != objectTreeMap.end())
 				object->transform.SetParent(find->second); //찾으면 부모로 설정
+		}
+		if (!isParent)
+		{
+			object->transform.position = Read::Vector3(ifs);
+			object->transform.rotation = Read::Quaternion(ifs);
+			object->transform.scale	   = Read::Vector3(ifs);
+		}
+		else
+		{
+			object->transform.localPosition = Read::Vector3(ifs);
+			object->transform.localRotation = Read::Quaternion(ifs);
+			object->transform.localScale	= Read::Vector3(ifs);
 		}
 	}
 }

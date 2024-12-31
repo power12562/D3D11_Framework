@@ -76,6 +76,12 @@ D3DConstBuffer::D3DConstBuffer()
 
 D3DConstBuffer::~D3DConstBuffer()
 {
+	clear();
+}
+
+void D3DConstBuffer::clear()
+{
+	sizeCounterMap.clear();
 	for (auto& [data, cbuffer] : vs_keyList)
 	{
 		ULONG ref = cbufferMap[cbuffer]->Release();
@@ -84,6 +90,8 @@ D3DConstBuffer::~D3DConstBuffer()
 			cbufferMap.erase(cbuffer);
 		}
 	}
+	vs_keyList.clear();
+	vs_dataList.clear();
 	for (auto& [data, cbuffer] : ps_keyList)
 	{
 		ULONG ref = cbufferMap[cbuffer]->Release();
@@ -92,6 +100,8 @@ D3DConstBuffer::~D3DConstBuffer()
 			cbufferMap.erase(cbuffer);
 		}
 	}
+	ps_keyList.clear();
+	ps_dataList.clear();
 }
 
 void D3DConstBuffer::Serialized(std::ofstream& ofs)
@@ -115,6 +125,7 @@ void D3DConstBuffer::Serialized(std::ofstream& ofs)
 
 void D3DConstBuffer::Deserialized(std::ifstream& ifs)
 {
+	this->clear(); //府家胶 沥府 饶 角青
 	using namespace Binary;
 	size_t size = Read::data<size_t>(ifs);
 	for (size_t i = 0; i < size; i++)

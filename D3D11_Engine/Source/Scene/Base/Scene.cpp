@@ -18,8 +18,7 @@
 #include <ImGuizmo/ImGuizmo.h>
 #include <imgui_internal.h>
 #include <D3DCore/D3DConstBuffer.h>
-#include <Light/PBRDirectionalLight.h>
-#include <Light/SimpleDirectionalLight.h>
+
 
 Scene::Scene()
 {
@@ -29,9 +28,6 @@ Scene::Scene()
 	dontdestroyonloadList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
 	Transform::reserveUpdateList(ReserveSize);
-
-	SimpleDirectionalLight::cb_light = D3DConstBuffer::GetData<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
-	DirectionalLight::DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLight::DirectionalLights_key);
 }
 
 Scene::~Scene()
@@ -39,9 +35,6 @@ Scene::~Scene()
 	hlslManager.ClearSharingShader();
 	Resource::ClearResourceManagers();
 	D3DConstBuffer::ClearInitFlag();
-
-	SimpleDirectionalLight::cb_light.reset();
-	DirectionalLight::DirectionalLights.reset();
 }
 
 void Scene::FixedUpdate()
@@ -80,32 +73,21 @@ void Scene::LateUpdate()
 
 void Scene::Render()
 {
-	d3dRenderer.ClearRTV();	
-	if (ImGuiLodingFunc)
+	d3dRenderer.BegineDraw();
+	for (auto& obj : objectList)
+	{
+		if (obj && obj->Active)
+			obj->Render();
+	}
+	d3dRenderer.EndDraw();
+	if (UseImGUI)
 	{
 		ImGUIBegineDraw();
-		d3dRenderer.SetRTVdefault();
-		ImGuiLodingFunc();
+		ImGuizmoDraw();
+		ImGUIRender();
+		if (!ImGUIPopupQue.empty())
+			ImGUIPopupQue.front()();
 		ImGUIEndDraw();
-	}
-	else
-	{
-		d3dRenderer.BegineDraw();
-		for (auto& obj : objectList)
-		{
-			if (obj && obj->Active)
-				obj->Render();
-		}
-		d3dRenderer.EndDraw();
-		if (UseImGUI)
-		{
-			ImGUIBegineDraw();
-			ImGuizmoDraw();
-			ImGUIRender();
-			if (!ImGUIPopupQue.empty())
-				ImGUIPopupQue.front()();
-			ImGUIEndDraw();
-		}
 	}
 	d3dRenderer.Present();
 }
@@ -129,6 +111,10 @@ void Scene::ImGuizmoDraw()
 	{
 		if (Camera* mainCamera = Camera::GetMainCamera())
 		{
+			ImGuizmo::BeginFrame();
+			D3D11_VIEWPORT& frontView = d3dRenderer.ViewPortsVec.front();
+			ImGuizmo::SetRect(frontView.TopLeftX, frontView.TopLeftY, frontView.Width, frontView.Height);
+
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuiContext& imGuiContext = *ImGui::GetCurrentContext();
 			SIZE clientSize = D3D11_GameApp::GetClientSize();
@@ -138,54 +124,96 @@ void Scene::ImGuizmoDraw()
 			DXTKInputSystem::InputSystem& Input = DXTKinputSystem.Input;
 			bool isNotRightClickHELD = !Input.IsKey(MouseKeys::rightButton);
 			bool isHoveredWindow = imGuiContext.HoveredWindow != nullptr;
-			if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD && !isHoveredWindow)
-			{		
-				const Mouse::State& state = Input.GetMouseState();
-				if (Input.IsKeyDown(MouseKeys::leftButton) && state.positionMode == Mouse::Mode::MODE_ABSOLUTE)
-				{								
-					Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);			
-					ObjectList list = sceneManager.GetObjectList();
-					std::erase_if(list, [](GameObject* object)
-						{
-							return typeid(CameraObject) == typeid(*object);
-						});
-					std::erase_if(list, [](GameObject* object)
-						{
-							return !object->IsCameraCulling();
-						});
-					std::sort(list.begin(), list.end(), [&mainCamera](GameObject* a, GameObject* b)
-						{
-							auto fastDistance = [](const Vector3& p1, const Vector3& p2) {
-								Vector3 diff = p1 - p2;
-								return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
-								};
-							float disA = fastDistance(mainCamera->transform.position, a->transform.position);
-							float disB = fastDistance(mainCamera->transform.position, b->transform.position);
-							return disA < disB;
-						});
-					float Dist = 0;
-					for (auto& obj : list)
+			if (Input.IsKeyDown(MouseKeys::leftButton))
+				if (!ImGuizmo::IsOver() && !ImGuizmo::IsUsing() && isNotRightClickHELD && !isHoveredWindow)
+				{
+					const Mouse::State& state = Input.GetMouseState();
+					if (state.positionMode == Mouse::Mode::MODE_ABSOLUTE)
 					{
-						if (obj->Active && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
+						Ray ray = mainCamera->ScreenPointToRay(state.x, state.y);
+						ObjectList list = sceneManager.GetObjectList();
+						std::erase_if(list, [](GameObject* object)
+							{
+								return typeid(CameraObject) == typeid(*object);
+							});
+						std::erase_if(list, [](GameObject* object)
+							{
+								return !object->IsCameraCulling();
+							});
+						std::sort(list.begin(), list.end(), [&mainCamera](GameObject* a, GameObject* b)
+							{
+								auto fastDistance = [](const Vector3& p1, const Vector3& p2) {
+									Vector3 diff = p1 - p2;
+									return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+									};
+								float disA = fastDistance(mainCamera->transform.position, a->transform.position);
+								float disB = fastDistance(mainCamera->transform.position, b->transform.position);
+								return disA < disB;
+							});
+						float Dist = 0;
+						for (auto& obj : list)
 						{
-							if (obj->transform.RootParent)
-								GuizmoSetting.SelectObject = Input.IsKey(KeyboardKeys::LeftControl) ? obj : &obj->transform.RootParent->gameObject;
-							else
-								GuizmoSetting.SelectObject = obj;
-							break;
+							if (obj->Active && obj->GetOBBToWorld().Intersects(ray.position, ray.direction, Dist))
+							{
+								if (obj->transform.RootParent)
+									GuizmoSetting.SelectObject = Input.IsKey(KeyboardKeys::LeftControl) ? obj : &obj->transform.RootParent->gameObject;
+								else
+									GuizmoSetting.SelectObject = obj;
+								break;
+							}
 						}
+					}
+				}
+
+			if (isNotRightClickHELD)
+			{
+				//Button Setting				
+				if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
+				{
+					GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
+				}
+				else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
+				{
+					GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
+				}
+				else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
+				{
+					GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
+				}
+				else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
+				{
+					GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
+				}
+				else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
+				{
+					GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
+				}
+				
+				static float dummyMatrix[16]{};
+				if (Input.IsKeyDown(Keyboard::Keys::Escape))
+				{
+					ImGuizmo::Enable(false);
+					ImGuizmo::Enable(true);
+					ImGuizmo::Manipulate(dummyMatrix, dummyMatrix, ImGuizmo::OPERATION(0), ImGuizmo::WORLD, dummyMatrix);
+					GuizmoSetting.SelectObject = nullptr;
+				}
+				else if (GuizmoSetting.SelectObject && Input.IsKeyDown(Keyboard::Keys::Delete))
+				{
+					if (GuizmoSetting.SelectObject != static_cast<GameObject*>(&mainCamera->gameObject))
+					{
+						ImGuizmo::Enable(false);
+						ImGuizmo::Enable(true);
+						ImGuizmo::Manipulate(dummyMatrix, dummyMatrix, ImGuizmo::OPERATION(0), ImGuizmo::WORLD, dummyMatrix);
+						GameObject::Destroy(GuizmoSetting.SelectObject);
+						GuizmoSetting.SelectObject = nullptr;
 					}
 				}
 			}
 
 			if (GuizmoSetting.SelectObject)
 			{
-				ImGuizmo::BeginFrame();
-				D3D11_VIEWPORT& frontView = d3dRenderer.ViewPortsVec.front();
-				ImGuizmo::SetRect(frontView.TopLeftX, frontView.TopLeftY, frontView.Width, frontView.Height);
 				ImGuizmo::OPERATION operation = (ImGuizmo::OPERATION)GuizmoSetting.operation;
 				ImGuizmo::MODE mode = (ImGuizmo::MODE)GuizmoSetting.mode;
-
 				//Draw Guizmo
 				{
 					const float* cameraView = reinterpret_cast<const float*>(&cameraVM);
@@ -224,7 +252,7 @@ void Scene::ImGuizmoDraw()
 					constexpr float damp = 15.f;
 					static std::string windowName;
 					static ImVec2 windowSize(300, 200);
-					static ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
+					ImVec2 windowPos(io.DisplaySize.x - windowSize.x - damp, damp);
 					ImGui::SetNextWindowSize(windowSize, ImGuiCond_Appearing); // 창 크기 설정
 					ImGui::SetNextWindowPos(windowPos, ImGuiCond_Appearing);   // 위치 설정
 					windowName = GuizmoSetting.SelectObject->GetNameToString();
@@ -238,43 +266,6 @@ void Scene::ImGuizmoDraw()
 					ImGui::End();
 					ImGui::PopID();
 					ImGui::ResetGlobalID();
-				}
-
-				if (isNotRightClickHELD)
-				{
-					//Button Setting				
-					if (Input.IsKeyDown(GuizmoSetting.KeySetting.TRANSLATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::TRANSLATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.ROTATE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::ROTATE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.SCALE))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::SCALE;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.UNIVERSAL))
-					{
-						GuizmoSetting.operation = ImGuizmo::OPERATION::UNIVERSAL;
-					}
-					else if (Input.IsKeyDown(GuizmoSetting.KeySetting.MODE))
-					{
-						GuizmoSetting.mode = (GuizmoSetting.mode != ImGuizmo::MODE::WORLD) ? ImGuizmo::MODE::WORLD : ImGuizmo::MODE::LOCAL;
-					}
-					if (Input.IsKeyDown(Keyboard::Keys::Escape))
-					{
-						GuizmoSetting.SelectObject = nullptr;
-					}
-					else if (Input.IsKeyDown(Keyboard::Keys::Delete))
-					{
-						if (GuizmoSetting.SelectObject != static_cast<GameObject*>(&mainCamera->gameObject))
-						{
-							GameObject::Destroy(GuizmoSetting.SelectObject);
-							GuizmoSetting.SelectObject = nullptr;
-						}
-					}
 				}
 			}		
 		}

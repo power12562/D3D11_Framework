@@ -40,6 +40,10 @@ void SimpleMeshRender::Serialized(std::ofstream& ofs)
 	Write::data(ofs, meshResource->vertexBufferStride);
 
 	textures.Serialized(ofs);
+	constBuffer.Serialized(ofs);
+
+	vertices.shrink_to_fit();
+	indices.shrink_to_fit();
 }
 
 void SimpleMeshRender::Deserialized(std::ifstream& ifs)
@@ -69,6 +73,10 @@ void SimpleMeshRender::Deserialized(std::ifstream& ifs)
 		CreateMesh();
 
 	textures.Deserialized(ifs);
+	constBuffer.Deserialized(ifs);
+
+	vertices.shrink_to_fit();
+	indices.shrink_to_fit();
 }
 
 void SimpleMeshRender::Start()

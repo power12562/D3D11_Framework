@@ -44,6 +44,10 @@ GameObject::GameObject()
 GameObject::~GameObject()
 {
 	//Debug_printf("%s, destroy\n", Name);
+	if (Scene::GuizmoSetting.SelectObject == this)
+	{
+		Scene::GuizmoSetting.SelectObject = nullptr;
+	}
 	instanceIDManager.returnID(instanceID);
 	sceneManager.EraseObjectFindMap(this);
 }

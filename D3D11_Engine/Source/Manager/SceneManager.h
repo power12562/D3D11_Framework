@@ -93,13 +93,19 @@ private:
 	void ChangeObjectName(unsigned int instanceID, const std::wstring& _pervName, const std::wstring& _newName);
 	void EraseObject(unsigned int id);
 	unsigned int EraseObjectFindMap(GameObject* obj);
+
+	std::function<void()> ImGuiLodingFunc;
 };
 
 template<typename T>
 inline void SceneManager::LoadScene()
 {
 	static_assert(std::is_base_of_v<Scene, T>, "T is not Scene");
+	if (currScene && !currScene->ImGUIPopupQue.empty())
+	{
 
+		return;
+	}
 	nextScene.reset(new T);
 	nextScene->sceneName = utfConvert::utf8_to_wstring(typeid(T).name());
 	for (auto& pair : resourceObjectList)

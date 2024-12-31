@@ -6,6 +6,9 @@
 #include <Core/DXTKInputSystem.h>
 #include <Utility/ImguiHelper.h>
 #include <Manager/ResourceManager.h>
+#include <Light/PBRDirectionalLight.h>
+#include <Light/SimpleDirectionalLight.h>
+#include <D3DCore/D3DConstBuffer.h>
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -120,6 +123,9 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
+	SimpleDirectionalLight::cb_light =    D3DConstBuffer::GetData<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
+	DirectionalLight::DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLight::DirectionalLights_key);
+
 	DXTKinputSystem.Initialize(GetHWND());
 	gameObjectFactory.InitializeMemoryPool();
 

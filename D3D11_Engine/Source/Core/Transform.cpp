@@ -90,10 +90,10 @@ GameObject& Transform::GetGameObject() const
 
 const Vector3& Transform::SetPosition(const Vector3& value)
 {
-	_position = value;
-	if (parent)
-		_localPosition = _position - parent->_position;
-
+	if(!parent)
+	{
+		_position = value;
+	}
 	PushUpdateList();
 	return _position;
 }
@@ -102,7 +102,7 @@ const Vector3& Transform::GetPosition() const
 {
 	if (parent) 
 	{
-		_position = parent->_position + 
+		_position = parent->GetPosition() +
 			(parent->Right * _localPosition.x * parent->_scale.x) +
 			(parent->Up    * _localPosition.y * parent->_scale.y) +
 			(parent->Forward * _localPosition.z * parent->_scale.z);
@@ -116,23 +116,17 @@ const Vector3& Transform::SetLocalPosition(const Vector3& value)
 	if (parent)
 	{
 		_localPosition = value;
-		position = parent->_position + _localPosition;
 	}
-
 	PushUpdateList();
 	return _localPosition;
 }
 
 const Quaternion& Transform::SetRotation(const Quaternion& value)
 {
-	_rotation = value;
-	if (parent)
+	if (!parent)
 	{
-		Quaternion IProtation;
-		parent->_rotation.Inverse(IProtation);
-		_localRotation = _rotation * IProtation;
+		_rotation = value;
 	}
-
 	PushUpdateList();
 	return _rotation;
 }
@@ -147,7 +141,7 @@ const Quaternion& Transform::GetRotation() const
 {
 	if (parent)
 	{
-		_rotation = parent->_rotation * _localRotation;
+		_rotation = parent->GetRotation() * _localRotation; 
 		return _rotation;
 	}
 	return _rotation;
@@ -158,9 +152,7 @@ const Quaternion& Transform::SetLocalRotation(const Quaternion& value)
 	if (parent)
 	{
 		_localRotation = value;
-		_rotation = parent->_rotation * _localRotation;
 	}
-
 	PushUpdateList();
 	return _localRotation;
 }
@@ -173,10 +165,10 @@ const Quaternion& Transform::SetLocalRotation(const Vector3& value)
 
 const Vector3& Transform::SetScale(const Vector3& value)
 {
-	_scale = value;
-	if (parent)
-		_localScale = _scale / parent->scale;
-
+	if (!parent)
+	{
+		_scale = value;
+	}
 	PushUpdateList();
 	return _scale;
 }
@@ -190,7 +182,7 @@ const Vector3& Transform::GetScale() const
 {
 	if (parent)
 	{
-		_scale = parent->_scale * _localScale;
+		_scale = parent->GetScale() * _localScale;
 		return _scale;
 	}
 	return _scale;
@@ -201,9 +193,7 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 	if (parent)
 	{
 		_localScale = value;
-		_scale = parent->scale * _localScale;
 	}
-
 	PushUpdateList();
 	return _localScale;
 }

@@ -166,26 +166,18 @@ void SceneManager::PushImGuiPopupFunc(const std::function<void()>& func)
 
 void SceneManager::PopImGuiPopupFunc()
 {
-	if (nextScene)
-		nextScene->ImGUIPopupQue.pop();
-	else if (currScene)
+	if (currScene)
 		currScene->ImGUIPopupQue.pop();
 }
 
 void SceneManager::SetLodingImguiFunc(const std::function<void()>& func)
 {
-	if (currScene)
-	{
-		currScene->ImGuiLodingFunc = func;
-	}
+	ImGuiLodingFunc = func;
 }
 
 void SceneManager::EndLodingImguiFunc()
 {
-	if (currScene)
-	{
-		currScene->ImGuiLodingFunc = nullptr;
-	}
+	ImGuiLodingFunc = nullptr;
 }
 
 GameObject* SceneManager::FindObject(const wchar_t* name)
@@ -242,7 +234,16 @@ void SceneManager::LateUpdateScene()
 
 void SceneManager::RenderScene()
 {
-	if(Camera::GetMainCamera())
+	d3dRenderer.ClearRTV();
+	if (ImGuiLodingFunc)
+	{
+		d3dRenderer.SetRTVdefault();
+		Scene::ImGUIBegineDraw();
+		ImGuiLodingFunc();
+		Scene::ImGUIEndDraw();
+		d3dRenderer.Present();
+	}
+	else if(Camera::GetMainCamera())
 		currScene->Render();
 }
 
@@ -278,7 +279,7 @@ void SceneManager::EraseObjects()
 
 void SceneManager::ChangeScene()
 {
-	if (nextScene)
+	if (nextScene && !ImGuiLodingFunc)
 	{
 		while (!nextAddQueue.empty())
 		{

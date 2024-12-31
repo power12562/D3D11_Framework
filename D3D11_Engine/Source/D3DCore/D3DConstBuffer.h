@@ -107,8 +107,8 @@ private:
 public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
+	void clear();
 
-private:
 	void Serialized(std::ofstream& ofs);
 	void Deserialized(std::ifstream& ifs);
 
