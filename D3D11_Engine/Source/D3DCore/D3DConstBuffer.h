@@ -92,6 +92,7 @@ public:
 private:
 	static std::shared_ptr<char[]> GetData(size_t size_of, const char* data_key);
 	inline static std::string make_key_data(size_t size_of, const char* key);
+	static bool IsSerializedData(const char* data_key);
 
 private:
 	inline static constexpr size_t StaticCbufferCount = 3;

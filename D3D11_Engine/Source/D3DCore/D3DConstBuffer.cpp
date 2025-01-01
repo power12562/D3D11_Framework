@@ -1,6 +1,8 @@
 #include "D3DConstBuffer.h"
 #include <D3DCore/D3DRenderer.h>
 #include <Utility/SerializedUtility.h>
+#include <Light/PBRDirectionalLight.h>
+#include <Light/SimpleDirectionalLight.h>
 
 void D3DConstBuffer::CreateStaticCbuffer()
 {
@@ -104,6 +106,21 @@ void D3DConstBuffer::clear()
 	ps_dataList.clear();
 }
 
+bool D3DConstBuffer::IsSerializedData(const char* data_key)
+{
+	static const std::string noSerializedKeys[] =
+	{
+		make_key_data(sizeof(cb_PBRDirectionalLight), DirectionalLight::DirectionalLights_key),
+		make_key_data(sizeof(cb_DirectionalLight), SimpleDirectionalLight::cb_light_key)
+	};
+	for (auto& key : noSerializedKeys)
+	{
+		if (key == data_key)
+			return false;
+	}
+	return true;
+}
+
 void D3DConstBuffer::Serialized(std::ofstream& ofs)
 {
 	using namespace Binary;
@@ -114,7 +131,10 @@ void D3DConstBuffer::Serialized(std::ofstream& ofs)
 		auto& [size, data] = vs_dataList[i];
 		Write::data(ofs, size);
 		Write::string(ofs, vs_keyList[i].first);
-		ofs.write(reinterpret_cast<char*>(data.get()), size);
+		bool isSerialized = IsSerializedData(vs_keyList[i].first.c_str());
+		Write::data(ofs, isSerialized);
+		if(isSerialized)
+			ofs.write(reinterpret_cast<char*>(data.get()), size);
 	}
 	size = ps_keyList.size();
 	Write::data(ofs, size);
@@ -123,7 +143,10 @@ void D3DConstBuffer::Serialized(std::ofstream& ofs)
 		auto& [size, data] = ps_dataList[i];
 		Write::data(ofs, size);
 		Write::string(ofs, ps_keyList[i].first);
-		ofs.write(reinterpret_cast<char*>(data.get()), size);
+		bool isSerialized = IsSerializedData(ps_keyList[i].first.c_str());
+		Write::data(ofs, isSerialized);
+		if (isSerialized)
+			ofs.write(reinterpret_cast<char*>(data.get()), size);
 	}
 }
 
@@ -136,8 +159,9 @@ void D3DConstBuffer::Deserialized(std::ifstream& ifs)
 	{
 		size_t data_size = Read::data<size_t>(ifs);
 		std::string data_key = Read::string(ifs);
-		std::shared_ptr<char[]> data = GetVSData(data_size, CreateVSConstantBuffers(data_size, data_key.c_str()));
-		ifs.read(data.get(), data_size);
+		std::shared_ptr<char[]> data = GetVSData(data_size, CreateVSConstantBuffers(data_size, data_key.c_str()));	
+		if (bool isSerialized = Read::data<bool>(ifs))
+			ifs.read(data.get(), data_size);
 	}
 	size = Read::data<size_t>(ifs);
 	for (size_t i = 0; i < size; i++)
@@ -145,7 +169,8 @@ void D3DConstBuffer::Deserialized(std::ifstream& ifs)
 		size_t data_size = Read::data<size_t>(ifs);
 		std::string data_key = Read::string(ifs);
 		std::shared_ptr<char[]> data =  GetPSData(data_size, CreatePSConstantBuffers(data_size, data_key.c_str()));
-		ifs.read(data.get(), data_size);
+		if (bool isSerialized = Read::data<bool>(ifs))
+			ifs.read(data.get(), data_size);
 	}
 }
 
