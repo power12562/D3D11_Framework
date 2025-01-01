@@ -236,14 +236,16 @@ void Scene::ImGuizmoDraw()
 					if (rootParent)
 					{
 						GuizmoSetting.SelectObject->transform.localPosition = postion;
-						GuizmoSetting.SelectObject->transform.localRotation = rotation;
 						GuizmoSetting.SelectObject->transform.localScale = scale;
+						if(Mathf::GetAngleDifference(rotation, GuizmoSetting.SelectObject->transform.localRotation) > Mathf::AngleEpsilon)
+							GuizmoSetting.SelectObject->transform.localRotation = rotation;
 					}
 					else
 					{
 						GuizmoSetting.SelectObject->transform.position = postion;
-						GuizmoSetting.SelectObject->transform.rotation = rotation;
-						GuizmoSetting.SelectObject->transform.scale = scale;
+						GuizmoSetting.SelectObject->transform.scale	   = scale;
+						if (Mathf::GetAngleDifference(rotation, GuizmoSetting.SelectObject->transform.rotation) > Mathf::AngleEpsilon)
+							GuizmoSetting.SelectObject->transform.rotation = rotation;			
 					}
 				}
 

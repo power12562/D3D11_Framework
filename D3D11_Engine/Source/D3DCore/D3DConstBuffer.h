@@ -94,7 +94,7 @@ private:
 	inline static std::string make_key_data(size_t size_of, const char* key);
 
 private:
-	inline static constexpr int StaticCbufferCount = 3;
+	inline static constexpr size_t StaticCbufferCount = 3;
 	inline static ID3D11Buffer* cBufferTransform = nullptr;
 	inline static ID3D11Buffer* cBufferCamera = nullptr;
 	inline static ID3D11Buffer* cBufferShadowMap = nullptr;

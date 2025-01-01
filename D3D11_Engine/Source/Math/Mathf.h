@@ -1,21 +1,27 @@
 #pragma once
-#undef min
-#undef max
-
+#include <directxtk/SimpleMath.h>
 #include <iostream>
 #include <algorithm>
 #include <type_traits>
+#undef min
+#undef max
 
 namespace Mathf
 {
-	constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
-	constexpr float FLOAT_MIN = std::numeric_limits<float>::min();
+	constexpr float FLOAT_MAX = FLT_MAX;
+	constexpr float FLOAT_MIN = FLT_MIN;
 	constexpr float PI = 3.14159265f;
 	constexpr float Deg2Rad = 0.01745329f;
 	constexpr float Rad2Deg = 57.29578f;
 	constexpr float Epsilon = std::numeric_limits<float>::epsilon();
+	/*radian angle 기준 Epsilon*/
+	constexpr float AngleEpsilon = 0.001f;
 
-	float Lerp(float startfloat, float endfloat, float t); //선형 보간
+	//선형 보간
+	float Lerp(float startfloat, float endfloat, float t);
+
+	//두개의 쿼터니언 각도 차이를 반환해줍니다. 단위 : radian
+	float GetAngleDifference(const DirectX::SimpleMath::Quaternion& q1, const DirectX::SimpleMath::Quaternion& q2);
 	
 	/* 전달받은 배열중 가장 작은 값을 찾습니다.*/
 	template<typename T, std::size_t N>

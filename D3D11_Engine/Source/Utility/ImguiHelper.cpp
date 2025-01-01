@@ -55,7 +55,7 @@ bool ImGui::DragQuaternionWorld(const char* label, const Quaternion* pQuaternion
 			(euler.x - prev.x) * Mathf::Deg2Rad,
 			(euler.z - prev.z) * Mathf::Deg2Rad
 		);
-		if (deltaQuat.Length() > Mathf::Epsilon)
+		if (deltaQuat.Length() > Mathf::AngleEpsilon)
 		{
 			*qu = deltaQuat * (*qu);
 			euler = qu->ToEuler() * Mathf::Rad2Deg;
@@ -80,7 +80,7 @@ bool ImGui::DragQuaternionLocal(const char* label, const Quaternion* pQuaternion
 			(euler.x - prev.x) * Mathf::Deg2Rad,
 			(euler.z - prev.z) * Mathf::Deg2Rad
 		);
-		if (deltaQuat.Length() > Mathf::Epsilon)
+		if (deltaQuat.Length() > Mathf::AngleEpsilon)
 		{
 			*qu *= deltaQuat;
 			euler = qu->ToEuler() * Mathf::Rad2Deg;

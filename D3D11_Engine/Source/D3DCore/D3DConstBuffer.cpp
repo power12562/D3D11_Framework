@@ -111,15 +111,19 @@ void D3DConstBuffer::Serialized(std::ofstream& ofs)
 	Write::data(ofs, size);
 	for (size_t i = 0; i < size; i++)
 	{
-		Write::data(ofs, vs_dataList[i].first);
+		auto& [size, data] = vs_dataList[i];
+		Write::data(ofs, size);
 		Write::string(ofs, vs_keyList[i].first);
+		ofs.write(reinterpret_cast<char*>(data.get()), size);
 	}
 	size = ps_keyList.size();
 	Write::data(ofs, size);
 	for (size_t i = 0; i < size; i++)
 	{
-		Write::data(ofs, ps_dataList[i].first);
+		auto& [size, data] = ps_dataList[i];
+		Write::data(ofs, size);
 		Write::string(ofs, ps_keyList[i].first);
+		ofs.write(reinterpret_cast<char*>(data.get()), size);
 	}
 }
 
@@ -132,14 +136,16 @@ void D3DConstBuffer::Deserialized(std::ifstream& ifs)
 	{
 		size_t data_size = Read::data<size_t>(ifs);
 		std::string data_key = Read::string(ifs);
-		CreateVSConstantBuffers(data_size, data_key.c_str());
+		std::shared_ptr<char[]> data = GetVSData(data_size, CreateVSConstantBuffers(data_size, data_key.c_str()));
+		ifs.read(data.get(), data_size);
 	}
 	size = Read::data<size_t>(ifs);
 	for (size_t i = 0; i < size; i++)
 	{
 		size_t data_size = Read::data<size_t>(ifs);
 		std::string data_key = Read::string(ifs);
-		CreatePSConstantBuffers(data_size, data_key.c_str());
+		std::shared_ptr<char[]> data =  GetPSData(data_size, CreatePSConstantBuffers(data_size, data_key.c_str()));
+		ifs.read(data.get(), data_size);
 	}
 }
 
@@ -253,7 +259,7 @@ int D3DConstBuffer::CreatePSConstantBuffers(size_t size_of, const char* data_key
 
 std::shared_ptr<char[]> D3DConstBuffer::GetVSData(size_t size_of, int index)
 {
-	auto& [size, data] = vs_dataList[index];
+	auto& [size, data] = vs_dataList[index - StaticCbufferCount];
 	if (size_of != size)
 	{
 		__debugbreak(); //사이즈가 다릅니다.
@@ -264,7 +270,7 @@ std::shared_ptr<char[]> D3DConstBuffer::GetVSData(size_t size_of, int index)
 
 std::shared_ptr<char[]> D3DConstBuffer::GetPSData(size_t size_of, int index)
 {
-	auto& [size, data] = ps_dataList[index];
+	auto& [size, data] = ps_dataList[index - StaticCbufferCount];
 	if (size_of != size)
 	{
 		__debugbreak(); //사이즈가 다릅니다.
