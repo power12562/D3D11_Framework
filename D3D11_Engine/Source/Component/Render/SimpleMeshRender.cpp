@@ -13,6 +13,9 @@ SimpleMeshRender::SimpleMeshRender()
 
 void SimpleMeshRender::Serialized(std::ofstream& ofs)
 {
+	if (typeid(gameObject) == typeid(GameObject))
+		return;
+
 	using namespace Binary;
 	Write::data(ofs, Enable);
 	Write::Color(ofs, baseColor);
@@ -48,6 +51,9 @@ void SimpleMeshRender::Serialized(std::ofstream& ofs)
 
 void SimpleMeshRender::Deserialized(std::ifstream& ifs)
 {
+	if (typeid(gameObject) == typeid(GameObject))
+		return;
+
 	using namespace Binary;
 	Enable = Read::data<bool>(ifs);
 	baseColor = Read::Color(ifs);
@@ -57,15 +63,23 @@ void SimpleMeshRender::Deserialized(std::ifstream& ifs)
 	SetPixelShader(Read::wstring(ifs).c_str());
 
 	size_t indicesSize = Read::data<size_t>(ifs);
-	indices.resize(indicesSize);
-	ifs.read(reinterpret_cast<char*>(indices.data()), sizeof(decltype(indices[0])) * indicesSize);
-	if (meshResource->pIndexBuffer != nullptr) indices.clear();
+	if (meshResource->pIndexBuffer == nullptr)
+	{
+		indices.resize(indicesSize);
+		ifs.read(reinterpret_cast<char*>(indices.data()), sizeof(decltype(indices[0])) * indicesSize);
+	}
+	else
+		ifs.seekg(sizeof(decltype(indices[0])) * indicesSize, std::ios::cur);
 	meshResource->indicesCount = Read::data<int>(ifs);
 
 	size_t verticesSize = Read::data<size_t>(ifs);
-	vertices.resize(verticesSize);
-	ifs.read(reinterpret_cast<char*>(vertices.data()), sizeof(Vertex) * verticesSize);
-	if (meshResource->pVertexBuffer != nullptr) vertices.clear();
+	if (meshResource->pVertexBuffer == nullptr)
+	{
+		vertices.resize(verticesSize);
+		ifs.read(reinterpret_cast<char*>(vertices.data()), sizeof(Vertex) * verticesSize);
+	}
+	else
+		ifs.seekg(sizeof(Vertex) * verticesSize, std::ios::cur);
 	meshResource->vertexBufferOffset = Read::data<decltype(meshResource->vertexBufferOffset)>(ifs);
 	meshResource->vertexBufferStride = Read::data<decltype(meshResource->vertexBufferStride)>(ifs);
 

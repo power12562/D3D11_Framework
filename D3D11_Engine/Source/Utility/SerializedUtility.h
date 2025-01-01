@@ -19,11 +19,12 @@ namespace Binary
 				"Type must be a basic type (int, char, bool, size_t, unsigned long, etc.)");
 			ofs.write(reinterpret_cast<const char*>(&data), sizeof(T));
 		}
-
+		void data(std::ofstream& ofs, const void* data, size_t size);
 		void string(std::ofstream& ofs, const std::string& data);
 		void wstring(std::ofstream& ofs, const std::wstring& data);
 		void floatArray(std::ofstream& ofs, const float* data, size_t size);
 
+		void Matrix(std::ofstream& ofs, const DirectX::SimpleMath::Matrix& data);
 		void Vector2(std::ofstream& ofs, const DirectX::SimpleMath::Vector2& data);
 		void Vector3(std::ofstream& ofs, const DirectX::SimpleMath::Vector3& data);
 		void Vector4(std::ofstream& ofs, const DirectX::SimpleMath::Vector4& data);
@@ -44,11 +45,13 @@ namespace Binary
 			ifs.read(reinterpret_cast<char*>(&data), sizeof(T));
 			return data;
 		}
+		void data(std::ifstream& ifs, void* out, size_t size);
 
 		std::string string(std::ifstream& ifs);
 		std::wstring wstring(std::ifstream& ifs);
 		void floatArray(std::ifstream& ifs, float* out, size_t size);
 
+		DirectX::SimpleMath::Matrix Matrix(std::ifstream& ifs);
 		DirectX::SimpleMath::Vector2 Vector2(std::ifstream& ifs);
 		DirectX::SimpleMath::Vector3 Vector3(std::ifstream& ifs);
 		DirectX::SimpleMath::Vector4 Vector4(std::ifstream& ifs);

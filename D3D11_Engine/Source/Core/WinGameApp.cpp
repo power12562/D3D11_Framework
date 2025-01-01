@@ -68,7 +68,7 @@ void WinGameApp::Run()
 		const char* what = ex.what();
 		Debug_printf("%s", what);
 		__debugbreak(); //예외 발생
-
+	
 		sceneManager.currScene.reset();
 		sceneManager.nextScene.reset();
 	}

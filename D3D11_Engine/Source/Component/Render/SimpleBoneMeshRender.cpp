@@ -10,10 +10,21 @@
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {
 	RenderFlags |= RENDER_SKINNING;
+	std::string key = MakeMatrixPalleteKey();
+	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
+	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
+}
+
+SimpleBoneMeshRender::~SimpleBoneMeshRender()
+{
+	SimpleBoneMeshRender::RealseCounterQueue.push(this->MyMatrixPalletCounter);
 }
 
 void SimpleBoneMeshRender::Serialized(std::ofstream& ofs)
 {
+	if (typeid(gameObject) == typeid(GameObject))
+		return;
+
 	using namespace Binary;
 	Write::data(ofs, Enable);
 	Write::Color(ofs, baseColor);
@@ -21,6 +32,13 @@ void SimpleBoneMeshRender::Serialized(std::ofstream& ofs)
 	Write::data(ofs, MeshID);
 	Write::wstring(ofs, GetVertexShaderPath());
 	Write::wstring(ofs, GetPixelShaderPath());
+
+	//offsetMatrix
+	std::wstring offsetMatrixKey = gameObject.Name + std::to_wstring(MeshID);
+	Write::wstring(ofs, offsetMatrixKey);
+	size_t offsetMatrixCount = offsetMatrices->data.size();
+	Write::data(ofs, offsetMatrixCount);
+	Write::data(ofs, offsetMatrices->data.data(), sizeof(Matrix) * offsetMatrixCount);
 
 	D3D11_BUFFER_DESC bd{};
 	meshResource->pIndexBuffer->GetDesc(&bd);
@@ -49,6 +67,9 @@ void SimpleBoneMeshRender::Serialized(std::ofstream& ofs)
 
 void SimpleBoneMeshRender::Deserialized(std::ifstream& ifs)
 {
+	if (typeid(gameObject) == typeid(GameObject))
+		return;
+
 	using namespace Binary;
 	Enable = Read::data<bool>(ifs);
 	baseColor = Read::Color(ifs);
@@ -57,16 +78,39 @@ void SimpleBoneMeshRender::Deserialized(std::ifstream& ifs)
 	SetVertexShader(Read::wstring(ifs).c_str());
 	SetPixelShader(Read::wstring(ifs).c_str());
 
+	//offsetMatrix
+	std::wstring offsetMatrixKey = Read::wstring(ifs);
+	offsetMatrices = GetResourceManager<OffsetMatrices>().GetResource(offsetMatrixKey.c_str());
+	size_t offsetMatrixCount = Read::data<size_t>(ifs);
+	if (offsetMatrices.use_count() == 1)
+	{
+		offsetMatrices->data.resize(offsetMatrixCount);
+		Read::data(ifs, offsetMatrices->data.data(), sizeof(Matrix) * offsetMatrixCount);
+	}
+	else
+	{
+		ifs.seekg(sizeof(Matrix) * offsetMatrixCount, std::ios::cur);
+	}
+		
+
 	size_t indicesSize = Read::data<size_t>(ifs);
-	indices.resize(indicesSize);
-	ifs.read(reinterpret_cast<char*>(indices.data()), sizeof(decltype(indices[0])) * indicesSize);
-	if (meshResource->pIndexBuffer != nullptr) indices.clear();
+	if (meshResource->pIndexBuffer == nullptr)
+	{
+		indices.resize(indicesSize);
+		ifs.read(reinterpret_cast<char*>(indices.data()), sizeof(decltype(indices[0])) * indicesSize);
+	}
+	else
+		ifs.seekg(sizeof(decltype(indices[0])) * indicesSize, std::ios::cur);
 	meshResource->indicesCount = Read::data<int>(ifs);
 
 	size_t verticesSize = Read::data<size_t>(ifs);
-	vertices.resize(verticesSize);
-	ifs.read(reinterpret_cast<char*>(vertices.data()), sizeof(Vertex) * verticesSize);
-	if (meshResource->pVertexBuffer != nullptr) vertices.clear();
+	if (meshResource->pVertexBuffer == nullptr)
+	{
+		vertices.resize(verticesSize);
+		ifs.read(reinterpret_cast<char*>(vertices.data()), sizeof(Vertex) * verticesSize);
+	}
+	else
+		ifs.seekg(sizeof(Vertex) * verticesSize, std::ios::cur);
 	meshResource->vertexBufferOffset = Read::data<decltype(meshResource->vertexBufferOffset)>(ifs);
 	meshResource->vertexBufferStride = Read::data<decltype(meshResource->vertexBufferStride)>(ifs);
 
@@ -103,10 +147,6 @@ void SimpleBoneMeshRender::Start()
 	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerState.SetSamplerState(1, SamplerDesc);
-
-	std::string key = GetMatrixPalleteKey();
-	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
-	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
 }
 
 void SimpleBoneMeshRender::FixedUpdate()

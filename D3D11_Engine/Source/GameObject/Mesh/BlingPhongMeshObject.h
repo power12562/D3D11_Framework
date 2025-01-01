@@ -9,7 +9,8 @@ public:
 	BlingPhongMeshObject() = default;
 	virtual ~BlingPhongMeshObject() override = default;
 	virtual void Start() override;
-
+	virtual void Serialized(std::ofstream& ofs) override;
+	virtual void Deserialized(std::ifstream& ifs) override;
 public:
 	void SetMaterial(const char* name);
 	inline cb_BlingPhongMaterial& GetMaterial() { return *material; }

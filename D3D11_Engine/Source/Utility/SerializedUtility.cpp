@@ -1,5 +1,15 @@
 #include "SerializedUtility.h"
 
+void Binary::Write::data(std::ofstream& ofs, const void* data, size_t size)
+{
+	ofs.write(reinterpret_cast<const char*>(data), size);
+}
+
+void Binary::Read::data(std::ifstream& ifs, void* out, size_t size)
+{
+	ifs.read(reinterpret_cast<char*>(out), size);
+}
+
 void Binary::Write::string(std::ofstream& ofs, const std::string& data)
 {
 	size_t len = data.length();
@@ -38,19 +48,26 @@ std::wstring Binary::Read::wstring(std::ifstream& ifs)
 
 void Binary::Write::floatArray(std::ofstream& ofs, const float* data, size_t size)
 {
-	for (size_t i = 0; i < size; i++)
-	{
-		Write::data(ofs, data[i]);
-	}
+	ofs.write(reinterpret_cast<const char*>(data), sizeof(float) * size);
 }
 
 void Binary::Read::floatArray(std::ifstream& ifs, float* out, size_t size)
 {
-	for (size_t i = 0; i < size; i++)
-	{
-		out[i] = Read::data<float>(ifs);		
-	}
+	ifs.read(reinterpret_cast<char*>(out), sizeof(float) * size);
 }
+
+void Binary::Write::Matrix(std::ofstream& ofs, const DirectX::SimpleMath::Matrix& data)
+{
+	ofs.write(reinterpret_cast<const char*>(&data), sizeof(DirectX::SimpleMath::Matrix));
+}
+
+DirectX::SimpleMath::Matrix Binary::Read::Matrix(std::ifstream& ifs)
+{
+	DirectX::SimpleMath::Matrix matrix;
+	ifs.read(reinterpret_cast<char*>(&matrix), sizeof(DirectX::SimpleMath::Matrix));
+	return DirectX::SimpleMath::Matrix();
+}
+
 
 void Binary::Write::Vector2(std::ofstream& ofs, const DirectX::SimpleMath::Vector2& data)
 {

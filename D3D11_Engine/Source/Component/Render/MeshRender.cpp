@@ -54,7 +54,7 @@ void MeshRender::SetMeshResource(const wchar_t* path)
 	using namespace utfConvert;
 	if (meshResource == nullptr)
 	{
-		//고유의 fbx 경로 + index
+		//고유의 경로 + index
 		meshResource = GetResourceManager<DRAW_INDEX_DATA>().GetResource(path, MeshID);
 	}
 }

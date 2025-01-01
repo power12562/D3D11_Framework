@@ -144,9 +144,9 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material->Albedo);
-			ImGui::SliderFloat("Metalness", &obj->Material->Metalness, 0.f, 1.f);
-			ImGui::SliderFloat("Roughness", &obj->Material->Roughness, 0.f, 1.f);
+			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
+			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
+			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
 			ImGui::Text("");
 			ImGui::PopID();
 			id++;
@@ -162,9 +162,9 @@ void PBRTestScene::ImGUIRender()
 			ImGui::PushID(id);
 			ImGui::Text(name.c_str());
 			ImGui::Checkbox("Active", &obj->Active);
-			ImGui::ColorEdit4("BaseColor", &obj->Material->Albedo);
-			ImGui::SliderFloat("Metalness", &obj->Material->Metalness, 0.f, 1.f);
-			ImGui::SliderFloat("Roughness", &obj->Material->Roughness, 0.f, 1.f);
+			ImGui::ColorEdit4("BaseColor", &obj->Material.Albedo);
+			ImGui::SliderFloat("Metalness", &obj->Material.Metalness, 0.f, 1.f);
+			ImGui::SliderFloat("Roughness", &obj->Material.Roughness, 0.f, 1.f);
 			ImGui::Text("");
 			ImGui::PopID();
 			id++;

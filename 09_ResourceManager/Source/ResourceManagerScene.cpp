@@ -17,6 +17,8 @@
 #pragma warning(disable : 4305)
 void ResourceManagerScene::Start()
 {
+	Scene::GuizmoSetting.UseImGuizmo = true;
+
 	UseImGUI = true;
 	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("Shared Material");
 
@@ -102,6 +104,10 @@ void ResourceManagerScene::ImGUIRender()
 		ImGui::ColorEdit3("BgColor", &d3dRenderer.backgroundColor);
 	}
 	ImGui::End();
+
+	ImGui::Begin("h");
+	ImGui::EditHierarchyView();
+	ImGui::End();
 }
 void ResourceManagerScene::AddTestObject()
 {
@@ -127,6 +133,7 @@ void ResourceManagerScene::AddTestObject()
 
 	auto testInit = [this](MeshRender* mesh)->void
 		{
+			mesh->constBuffer.clear_ps();
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("Shared Material");
 			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 
@@ -136,7 +143,7 @@ void ResourceManagerScene::AddTestObject()
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::NONE);
+	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::BlingPhong);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);

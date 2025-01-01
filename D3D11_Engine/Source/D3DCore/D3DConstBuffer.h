@@ -109,6 +109,8 @@ public:
 	D3DConstBuffer();
 	~D3DConstBuffer();
 	void clear();
+	void clear_vs();
+	void clear_ps();
 
 	void Serialized(std::ofstream& ofs);
 	void Deserialized(std::ifstream& ifs);
@@ -381,13 +383,12 @@ inline std::string D3DConstBuffer::make_key_cbuffer(size_t size_of)
 	auto find = sizeCounterMap.find(size_of);
 	if (find == sizeCounterMap.end())
 	{
-		sizeCounterMap[size_of] = 0;
+		sizeCounterMap[size_of] = 1;
 		return std::format("{}_{}", size_of, 0);
 	}
 	else
 	{
 		int& counter = sizeCounterMap[size_of];
-		++counter;
-		return std::format("{}_{}", size_of, counter);
+		return std::format("{}_{}", size_of, counter++);
 	}
 }

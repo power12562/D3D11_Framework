@@ -29,7 +29,7 @@ public:
 	};
 public:
 	SimpleBoneMeshRender();
-	virtual ~SimpleBoneMeshRender() override = default;
+	virtual ~SimpleBoneMeshRender() override;
 	virtual void Serialized(std::ofstream& ofs);
 	virtual void Deserialized(std::ifstream& ifs);
 
@@ -47,23 +47,28 @@ public:
 public:
 	std::vector<Vertex> vertices;
 	std::vector<UINT>   indices;
-
-public:
-	inline std::string GetMatrixPalleteKey();
-	std::shared_ptr<MatrixPallete> matrixPallete = {};
-	inline std::string GetBoneWITKey();
-
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
 	std::vector<BoneComponent*> boneList;
+
+private:
+	inline static size_t MatrixPalletCounter = 0;
+	inline static std::queue<size_t> RealseCounterQueue;
+	inline std::string MakeMatrixPalleteKey();
+	std::shared_ptr<MatrixPallete> matrixPallete = {};
+	size_t MyMatrixPalletCounter = 0;
 };
 
-inline std::string SimpleBoneMeshRender::GetMatrixPalleteKey()
+inline std::string SimpleBoneMeshRender::MakeMatrixPalleteKey()
 {
-	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), "MatrixPallete");
-}
-
-inline std::string SimpleBoneMeshRender::GetBoneWITKey()
-{
-	return std::format("{}_[{}]_{{{}}}_({})", gameObject.GetNameToString(), gameObject.GetInstanceID(), GetComponentIndex(), "BoneWIT");
+	if (!RealseCounterQueue.empty())
+	{
+		MyMatrixPalletCounter = RealseCounterQueue.front();
+		RealseCounterQueue.pop();
+	}
+	else
+	{
+		MyMatrixPalletCounter = MatrixPalletCounter++;
+	}
+	return std::format("MatrixPallete ({})", MyMatrixPalletCounter);
 }
 

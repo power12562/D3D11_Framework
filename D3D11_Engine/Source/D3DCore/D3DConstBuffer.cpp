@@ -83,7 +83,12 @@ D3DConstBuffer::~D3DConstBuffer()
 
 void D3DConstBuffer::clear()
 {
-	sizeCounterMap.clear();
+	clear_vs();
+	clear_ps();
+}
+
+void D3DConstBuffer::clear_vs()
+{
 	for (auto& [data, cbuffer] : vs_keyList)
 	{
 		ULONG ref = cbufferMap[cbuffer]->Release();
@@ -93,7 +98,15 @@ void D3DConstBuffer::clear()
 		}
 	}
 	vs_keyList.clear();
+	for (auto& [size, data] : vs_dataList)
+	{
+		sizeCounterMap[size]--;
+	}
 	vs_dataList.clear();
+}
+
+void D3DConstBuffer::clear_ps()
+{
 	for (auto& [data, cbuffer] : ps_keyList)
 	{
 		ULONG ref = cbufferMap[cbuffer]->Release();
@@ -103,6 +116,10 @@ void D3DConstBuffer::clear()
 		}
 	}
 	ps_keyList.clear();
+	for (auto& [size, data] : ps_dataList)
+	{
+		sizeCounterMap[size]--;	
+	}
 	ps_dataList.clear();
 }
 
