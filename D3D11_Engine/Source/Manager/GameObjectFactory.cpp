@@ -145,7 +145,8 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 	//childs
 	for (size_t i = 0; i < object->transform.GetChildCount(); i++)
 	{
-		Serialized(&object->transform.GetChild(i)->gameObject, ofs, level + 1);
+		if(GameObject* chidObject = sceneManager.GetObjectToID(object->transform.GetChild(i)->gameObject.GetInstanceID())) //존재하는지 검증
+			Serialized(chidObject, ofs, level + 1);
 	}
 }
 

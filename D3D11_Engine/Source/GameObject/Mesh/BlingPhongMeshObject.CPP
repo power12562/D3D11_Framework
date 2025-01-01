@@ -3,5 +3,11 @@
 
 void BlingPhongMeshObject::Start()
 {
-	Material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>(GetNameToString().c_str());
+	SetMaterial(GetNameToString().c_str());
+}
+
+void BlingPhongMeshObject::SetMaterial(const char* name)
+{
+	materialName = name;
+	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>(name);
 }

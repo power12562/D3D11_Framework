@@ -60,6 +60,6 @@ void CubeMeshRender::Start()
 
     if (PBRMeshObject* object = dynamic_cast<PBRMeshObject*>(&gameObject))
     {
-        object->Material->Albedo = { 0.39f, 0.39f, 0.39f, 1.f };
+        object->Material.Albedo = { 0.39f, 0.39f, 0.39f, 1.f };
     }
 }

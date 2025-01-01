@@ -75,10 +75,10 @@ namespace Utility
 		switch (surface)
 		{
 		case SURFACE_TYPE::BlingPhong:
-			static_cast<BlingPhongMeshObject&>(obj).Material->MaterialDiffuse = baseColor;
+			static_cast<BlingPhongMeshObject&>(obj).Material.MaterialDiffuse = baseColor;
 			return;
 		case SURFACE_TYPE::PBR:
-			static_cast<PBRMeshObject&>(obj).Material->Albedo = baseColor;
+			static_cast<PBRMeshObject&>(obj).Material.Albedo = baseColor;
 			return;
 		default:
 			return;
@@ -196,7 +196,7 @@ namespace Utility
 
 					if (surface == SURFACE_TYPE::PBR)
 					{
-						static_cast<PBRMeshObject&>(meshRender->gameObject).Material->UseMetalnessMap = true;
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseMetalnessMap = true;
 					}
 				}
 			}
@@ -204,12 +204,12 @@ namespace Utility
 			{
 				if (surface == SURFACE_TYPE::PBR)
 				{
-					static_cast<PBRMeshObject&>(meshRender->gameObject).Material->Roughness = scala;
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
 				}
 			}
 
 			//블랜더 기준 러프니스 맵
-			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path)) 
+			if (AI_SUCCESS == ai_material->GetTexture(aiTextureType_SHININESS, 0, &path))
 			{
 				if (Utility::ParseFileName(path))
 				{
@@ -221,7 +221,7 @@ namespace Utility
 
 					if (surface == SURFACE_TYPE::PBR)
 					{
-						static_cast<PBRMeshObject&>(meshRender->gameObject).Material->UseRoughnessMap = true;
+						static_cast<PBRMeshObject&>(meshRender->gameObject).Material.UseRoughnessMap = true;
 					}
 				}
 			}
@@ -229,7 +229,7 @@ namespace Utility
 			{
 				if (surface == SURFACE_TYPE::PBR)
 				{
-					static_cast<PBRMeshObject&>(meshRender->gameObject).Material->Roughness = scala;
+					static_cast<PBRMeshObject&>(meshRender->gameObject).Material.Roughness = scala;
 				}
 			}
 		}
@@ -427,7 +427,7 @@ namespace Utility
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
 						if (surface == SURFACE_TYPE::PBR && typeid(PBRMeshObject) == typeid(sourceMesh->gameObject))
 						{
-							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
+							static_cast<PBRMeshObject&>(destMesh.gameObject).SetMaterial(static_cast<PBRMeshObject&>(sourceMesh->gameObject).GetMaterialName());
 						}
 						destMesh.RenderFlags = sourceMesh->RenderFlags;
 						destMesh.textures = sourceMesh->textures;
@@ -457,7 +457,7 @@ namespace Utility
 						SetBaseColor(destMesh.gameObject, destMesh.baseColor, surface);
 						if (surface == SURFACE_TYPE::PBR && typeid(PBRMeshObject) == typeid(sourceMesh->gameObject))
 						{
-							static_cast<PBRMeshObject&>(destMesh.gameObject).Material = static_cast<PBRMeshObject&>(sourceMesh->gameObject).Material;
+							static_cast<PBRMeshObject&>(destMesh.gameObject).SetMaterial(static_cast<PBRMeshObject&>(sourceMesh->gameObject).GetMaterialName());
 						}
 						destMesh.RenderFlags = sourceMesh->RenderFlags;
 						destMesh.textures = sourceMesh->textures;

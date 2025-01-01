@@ -10,5 +10,11 @@ public:
 	virtual ~BlingPhongMeshObject() override = default;
 	virtual void Start() override;
 
-	std::shared_ptr<cb_BlingPhongMaterial> Material;
+public:
+	void SetMaterial(const char* name);
+	inline cb_BlingPhongMaterial& GetMaterial() { return *material; }
+	_declspec (property(get = GetMaterial)) cb_BlingPhongMaterial& Material;
+private:
+	std::shared_ptr<cb_BlingPhongMaterial> material;
+	std::string materialName;
 };

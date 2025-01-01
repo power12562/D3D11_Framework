@@ -37,14 +37,7 @@ Transform::Transform()
 
 Transform::~Transform()
 {			
-	if (!childList.empty())
-	{
-		for (auto child : childList)
-		{
-			child->parent = nullptr;
-		}
-	}
-	ClearParent();
+	ClearChilds();
 }
 
 Transform::Transform(const Transform& rhs)
@@ -299,6 +292,18 @@ void Transform::UpdateChildTransform()
 			child->_WM = child->_LM *_WM;
 			child->_IWM = DirectX::XMMatrixInverse(nullptr, child->_WM);
 			child->UpdateChildTransform();
+		}
+	}
+}
+
+void Transform::ClearChilds()
+{
+	if (!childList.empty())
+	{
+		for (auto child : childList)
+		{
+			child->ClearParent();
+			child->ClearChilds();
 		}
 	}
 }

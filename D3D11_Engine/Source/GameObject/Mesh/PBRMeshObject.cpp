@@ -4,13 +4,20 @@
 
 void PBRMeshObject::Start()
 {
-	Material = D3DConstBuffer::GetData<cb_PBRMaterial>(GetNameToString().c_str());
+	SetMaterial(GetNameToString().c_str());
+}
+
+void PBRMeshObject::SetMaterial(const char* name)
+{
+	materialName = name;
+	material = D3DConstBuffer::GetData<cb_PBRMaterial>(name);
 }
 
 void PBRMeshObject::Serialized(std::ofstream& ofs)
 {
 	using namespace Binary;
-	Write::PBRMaterial(ofs, *Material);
+	Write::string(ofs, materialName);
+	Write::PBRMaterial(ofs, *material);
 	size_t MeshCount = 0;
 	for (size_t i = 0; i < GetComponentCount(); i++)
 	{
@@ -49,7 +56,8 @@ void PBRMeshObject::Serialized(std::ofstream& ofs)
 void PBRMeshObject::Deserialized(std::ifstream& ifs)
 {
 	using namespace Binary;
-	*Material = Read::PBRMaterial(ifs);
+	SetMaterial(Read::string(ifs).c_str());
+	*material = Read::PBRMaterial(ifs);
 	size_t meshCount = Read::data<size_t>(ifs);
 	if (meshCount > 0)
 	{
@@ -70,3 +78,4 @@ void PBRMeshObject::Deserialized(std::ifstream& ifs)
 		}
 	}
 }
+

@@ -104,6 +104,7 @@ private:
 	void UpdateChildTransform();
 
 private:
+	void ClearChilds();
 	void ClearParent();
 	void SetChildsRootParent(Transform* _rootParent);
 

@@ -40,7 +40,6 @@ void TestMainScene::Start()
 
 void TestMainScene::ImGUIRender()
 {
-    static bool showCharEdit = false;
     ImGui::Begin("Debug Window");
     {
         ImGui::Text("FPS : %d", TimeSystem::Time.GetFrameRate());
@@ -50,9 +49,6 @@ void TestMainScene::ImGUIRender()
         ImGui::SliderFloat("Camera Near", &camera->Near, 0.001f, 10.f);
         ImGui::SliderFloat("Camera Far", &camera->Far, 100.f, 10000.f);
         ImGui::SliderFloat("CamSpeed", pCamSpeed, 1, 1000);
-
-        if (ImGui::Button("Char Editer"))
-            showCharEdit = !showCharEdit;
 
         ImGui::DragFloat3("Light Dir", (float*)&SimpleDirectionalLight::cb_light->LightDir, 0.01f, -1.0f, 1.0f);
 
@@ -100,42 +96,4 @@ void TestMainScene::ImGUIRender()
         ImGui::EditHierarchyView();
     }
     ImGui::End();
-
-    if (showCharEdit)
-    {
-        ImGui::Begin("Char Edit", &showCharEdit);
-        int id = 0;
-        for (auto& [key, object] : charObjectList)
-        {
-            ImGui::PushID(id);
-            ImGui::Text(key.c_str());
-            ImGui::Checkbox("Active", &object->Active);
-            if (ImGui::Button("Wire Draw"))
-            {
-                for (int i = 0; i < object->GetComponentCount(); i++)
-                {
-                    MeshRender* mesh = object->GetComponentAtIndex<MeshRender>(i);
-                    if (mesh)
-                    {
-                        mesh->SetFillMode(D3D11_FILL_WIREFRAME);
-                    }
-                }
-            }
-            if (ImGui::Button("Solid Draw"))
-            {
-                for (int i = 0; i < object->GetComponentCount(); i++)
-                {
-                    MeshRender* mesh = object->GetComponentAtIndex<MeshRender>(i);
-                    if (mesh)
-                    {
-                        mesh->SetFillMode(D3D11_FILL_SOLID);
-                    }
-                }
-            }
-            ImGui::Text("\n");
-            ImGui::PopID();
-            id++;
-        }
-        ImGui::End();
-    }
 }

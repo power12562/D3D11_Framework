@@ -139,6 +139,11 @@ void ImGui::EditTransformHierarchy(Transform* pTransform)
 		};
 	std::function<void(Transform* transform)> TransformBFS = [&](Transform* transform)
 		{		
+			if (!sceneManager.GetObjectToID(transform->gameObject.GetInstanceID()))
+			{
+				return;
+			}
+
 			static std::string nodeName;			
 			nodeName = transform->gameObject.GetNameToString();
 			nodeName += "##";
@@ -180,7 +185,7 @@ void ImGui::EditTransformHierarchy(Transform* pTransform)
 
 void ImGui::EditHierarchyView()
 {
-	const ObjectList& objects = sceneManager.GetObjectList();
+	ObjectList objects = sceneManager.GetObjectList();
 	PushID("EditHierarchyView");
 	for (auto& object : objects)
 	{

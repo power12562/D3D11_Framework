@@ -121,7 +121,7 @@ size_t SceneManager::GetObjectsCount()
 		size_t count = 0;
 		for (auto& item : currScene->objectList)
 		{
-			if (item)
+			if (item.get())
 				++count;
 		}
 		return count;
@@ -133,14 +133,13 @@ ObjectList SceneManager::GetObjectList()
 {
 	if (currScene)
 	{
-		std::vector<GameObject*> objList(GetObjectsCount());
-		int i = 0;
-		for (auto& item : currScene->objectList)
+		std::vector<GameObject*> objList;
+		objList.reserve((GetObjectsCount()));
+		for (int i = 0; i < currScene->objectList.size(); i++)
 		{
-			if (item)
+			if (GameObject* obj = currScene->objectList[i].get())
 			{
-				objList[i] = item.get();
-				++i;
+				objList.push_back(obj);
 			}
 		}
 		return objList;
