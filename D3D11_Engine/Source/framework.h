@@ -17,6 +17,7 @@
 
 //gameObjects
 #include <GameObject/Base/CameraObject.h>
+#include <GameObject/Bone/BoneObject.h>
 #include <GameObject/Mesh/BlingPhongMeshObject.h>
 #include <GameObject/Mesh/PBRMeshObject.h>
 #include <GameObject/Mesh/SphereObject.h>
@@ -26,7 +27,6 @@
 //Components
 #include <Component/Camera/Camera.h>
 #include <Component/Camera/CameraMoveHelper.h>
-#include <Component/Bone/BoneComponent.h>
 #include <Component/Animation/TransformAnimation.h>
 
 #include <Component/Render/BlingPhongBoneMeshRender.h>

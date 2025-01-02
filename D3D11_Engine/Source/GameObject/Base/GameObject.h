@@ -57,7 +57,7 @@ public:
 	template <typename T>
 	T& AddComponent();
 
-	/*TransformAnimation은 최상위 부모에 하나만 존재 가능.*/
+	/*TransformAnimation은 하나만 존재 가능.*/
 	template <>
 	TransformAnimation& AddComponent();
 

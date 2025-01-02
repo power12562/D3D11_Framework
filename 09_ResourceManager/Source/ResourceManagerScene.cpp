@@ -23,7 +23,7 @@ void ResourceManagerScene::Start()
 	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("Shared Material");
 
 	//리소스 미리 로드
-	Utility::LoadFBXResource(L"Resource/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);
+	Utility::LoadFBXResource(L"Resource/Kachujin/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);
 
 	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
 
@@ -109,6 +109,33 @@ void ResourceManagerScene::ImGUIRender()
 	ImGui::EditHierarchyView();
 	ImGui::End();
 }
+
+void ResourceManagerScene::OnInputProcess(DXTKInputSystem::InputSystem& input)
+{
+	if (input.IsKeyDown(KeyboardKeys::Space))
+	{
+		for (auto& item : testList)
+		{
+			item->GetComponent<TransformAnimation>().TogglePause();
+		}
+	}
+	else if (input.IsKeyDown(KeyboardKeys::Enter))
+	{
+		for (auto& item : testList)
+		{
+			item->GetComponent<TransformAnimation>().StopClip();
+		}
+	}
+
+	if (Scene::GuizmoSetting.SelectObject && input.IsKeyDown(KeyboardKeys::F5))
+	{
+		if(TransformAnimation* animation = Scene::GuizmoSetting.SelectObject->IsComponent<TransformAnimation>())
+		{
+			animation->PlayClip(L"mixamo.com");
+		}
+	}
+}
+
 void ResourceManagerScene::AddTestObject()
 {
 	auto obj = NewGameObject<GameObject>(L"test");
@@ -143,7 +170,7 @@ void ResourceManagerScene::AddTestObject()
 			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::BlingPhong);
+	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::BlingPhong);
 	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);

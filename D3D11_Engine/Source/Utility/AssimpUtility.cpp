@@ -4,7 +4,7 @@
 #include <GameObject\Base\GameObject.h>
 #include <Component\Render\SimpleMeshRender.h>
 #include <Component/Render/SimpleBoneMeshRender.h>
-#include <Component/Bone/BoneComponent.h>
+#include <GameObject/Bone/BoneObject.h>
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
@@ -256,16 +256,16 @@ namespace Utility
 		using RotationKey = TransformAnimation::Clip::NodeAnimation::RotationKey;
 		using ScaleKey = TransformAnimation::Clip::NodeAnimation::ScaleKey;
 		TransformAnimation& anime = _gameObject.AddComponent<TransformAnimation>();
-		for (unsigned int i = 0; i < pScene->mNumAnimations; i++)
+		for (unsigned int clipNum = 0; clipNum < pScene->mNumAnimations; clipNum++)
 		{
-			aiAnimation* currAnimation = pScene->mAnimations[i];
+			aiAnimation* currAnimation = pScene->mAnimations[clipNum];
 			Clip clip;
 			clip.Duration = (float)currAnimation->mDuration;
 			clip.TickTime = (float)currAnimation->mTicksPerSecond;
-			std::wstring clipName = utfConvert::utf8_to_wstring(pScene->mAnimations[i]->mName.C_Str());
-			for (unsigned int j = 0; j < currAnimation->mNumChannels; j++)
+			std::wstring clipName = utfConvert::utf8_to_wstring(pScene->mAnimations[clipNum]->mName.C_Str());
+			for (unsigned int nodeIndex = 0; nodeIndex < currAnimation->mNumChannels; nodeIndex++)
 			{			
-				aiNodeAnim* currNodeAnim = currAnimation->mChannels[j];
+				aiNodeAnim* currNodeAnim = currAnimation->mChannels[nodeIndex];
 				using NodeAnime = Clip::NodeAnimation;
 				NodeAnime nodeAnime;
 				std::wstring currNodeName = utfConvert::utf8_to_wstring(currNodeAnim->mNodeName.C_Str());
@@ -274,15 +274,15 @@ namespace Utility
 				//make keyList
 				if (currNodeAnim->mNumPositionKeys > 0 && !nodeAnime.positionKeys)
 				{
-					nodeAnime.positionKeys = std::make_shared<std::vector<PositionKey>>();
+					nodeAnime.positionKeys = anime.get_position_key(clipName.c_str(), nodeIndex);
 				}
 				if (currNodeAnim->mNumRotationKeys > 0 && !nodeAnime.rotationKeys)
 				{
-					nodeAnime.rotationKeys = std::make_shared<std::vector<RotationKey>>();
+					nodeAnime.rotationKeys = anime.get_rotation_key(clipName.c_str(), nodeIndex);
 				}
 				if (currNodeAnim->mNumScalingKeys > 0 && !nodeAnime.scaleKeys)
 				{
-					nodeAnime.scaleKeys = std::make_shared<std::vector<ScaleKey>>();
+					nodeAnime.scaleKeys = anime.get_scale_key(clipName.c_str(), nodeIndex);
 				}
 
 				for (unsigned int k = 0; k < currNodeAnim->mNumPositionKeys; k++)
@@ -336,7 +336,7 @@ namespace Utility
 		{
 			currObj = objQue.front();
 			objQue.pop();
-			if (BoneComponent* bone = currObj->IsComponent<BoneComponent>())
+			if (typeid(BoneObject) == typeid(*currObj))
 			{
 				return true;
 			}
@@ -372,7 +372,6 @@ namespace Utility
 		bool isRoot = true;
 
 		std::vector<SimpleBoneMeshRender*> meshList;
-		std::vector<BoneComponent*> boneList(128);
 		std::vector<TransformAnimation::Clip*> clipList;
 		std::unordered_map<std::wstring, GameObject*> destObjNameMap;
 		TransformAnimation* destAnime = nullptr;
@@ -410,11 +409,10 @@ namespace Utility
 			if (isBone)
 			{
 				//copy bone
-				if (BoneComponent* sourceBone = currSourceObj->IsComponent<BoneComponent>())
+				if (BoneObject* sourceBone = dynamic_cast<BoneObject*>(currSourceObj))
 				{
-					BoneComponent& destBone = currDestObj->AddComponent<BoneComponent>();
-					destBone.myIndex = sourceBone->myIndex;
-					boneList[destBone.myIndex] = &destBone;
+					BoneObject* destBone = static_cast<BoneObject*>(currDestObj);
+					destBone->myIndex = sourceBone->myIndex;
 				}
 
 				//copy mesh
@@ -478,27 +476,26 @@ namespace Utility
 				GameObject* sourceChild = &currSourceObj->transform.GetChild(i)->gameObject;
 				objSourceQue.push(sourceChild);
 
-				GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
+				GameObject* destChild = nullptr;
+				if (typeid(BoneObject) == typeid(*sourceChild))
+				{
+					destChild = NewGameObject<BoneObject>(sourceChild->Name.c_str());
+				}
+				else
+				{
+					destChild = NewMeshObject(surface, sourceChild->Name.c_str());
+				}
 				destChild->transform.SetParent(currDestObj->transform);
 				objDestQue.push(destChild);
 			}
-
 			destObjNameMap[currDestObj->Name] = currDestObj;
 			isRoot = false;
 		}
 
 		//set boneList
-		for (int i = 0; i < boneList.size(); i++)
-		{
-			if (boneList[i] == nullptr)
-			{
-				boneList.resize(i);
-				break;
-			}
-		}
 		for (auto& mesh : meshList)
 		{
-			mesh->boneList = boneList;
+			mesh->AddBonesFromRoot();
 		}
 
 		//set Target
@@ -618,7 +615,6 @@ void Utility::LoadFBX(const wchar_t* path,
 	}
 	boneCount = boneIndexMap.size();
 
-	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
 	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
 	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
@@ -646,14 +642,6 @@ void Utility::LoadFBX(const wchar_t* path,
 			{			
 				SetNodeTransform(currNode, currObj);
 				
-				auto findIndex = boneIndexMap.find(currNodeName);
-				if (findIndex != boneIndexMap.end())
-				{
-					int index = findIndex->second;
-					boneList[index] = &currObj->AddComponent<BoneComponent>();
-					boneList[index]->myIndex = index;
-				}
-
 				if (currNode->mNumMeshes > 0) 
 				{			
 					for (unsigned int i = 0; i < currNode->mNumMeshes; i++)
@@ -824,7 +812,19 @@ void Utility::LoadFBX(const wchar_t* path,
 			{
 				nodeQue.push(currNode->mChildren[i]);
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
-				GameObject* childObj = NewMeshObject(surface, childName.c_str());
+				GameObject* childObj = nullptr;
+				auto findIndex = boneIndexMap.find(childName);
+				if (findIndex != boneIndexMap.end())
+				{
+					BoneObject* chidBone = NewGameObject<BoneObject>(childName.c_str());
+					int index = findIndex->second;
+					chidBone->myIndex = index;
+					childObj = chidBone;
+				}
+				else
+				{
+					childObj = NewMeshObject(surface, childName.c_str());
+				}			
 				childObj->transform.SetParent(currObj->transform, false);
 				objQue.push(childObj);
 			}
@@ -834,7 +834,7 @@ void Utility::LoadFBX(const wchar_t* path,
 	//set bone info
 	for (auto& mesh : meshList)
 	{
-		mesh->boneList = boneList;
+		mesh->AddBonesFromRoot();
 	}
 
 	//set Target
@@ -921,7 +921,6 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 		}
 	}
 	boneCount = boneIndexMap.size();
-	std::vector<BoneComponent*> boneList(boneCount);
 	std::vector<SimpleBoneMeshRender*> meshList;
 	std::weak_ptr<GameObject> rootObj = _gameObject.GetWeakPtr();
 	GetResourceManager<GameObject>().SetResource(wstr_path.c_str(), rootObj);
@@ -948,14 +947,6 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 			if (boneCount > 0)
 			{
 				SetNodeTransform(currNode, currObj);
-
-				auto findIndex = boneIndexMap.find(utf8_to_wstring(currNode->mName.C_Str()));
-				if (findIndex != boneIndexMap.end())
-				{
-					int index = findIndex->second;
-					boneList[index] = &currObj->AddComponent<BoneComponent>();
-					boneList[index]->myIndex = index;
-				}
 
 				if (currNode->mNumMeshes > 0)
 				{
@@ -1123,16 +1114,29 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 			{
 				nodeQue.push(currNode->mChildren[i]);
 				std::wstring childName = utf8_to_wstring(currNode->mChildren[i]->mName.C_Str());
-				GameObject* childObj = NewMeshObject(surface, childName.c_str());
+				GameObject* childObj = nullptr;
+				auto findIndex = boneIndexMap.find(childName);
+				if (findIndex != boneIndexMap.end())
+				{
+					BoneObject* chidBone = NewGameObject<BoneObject>(childName.c_str());
+					int index = findIndex->second;
+					chidBone->myIndex = index;
+					childObj = chidBone;
+				}
+				else
+				{
+					childObj = NewMeshObject(surface, childName.c_str());
+				}
 				childObj->transform.SetParent(currObj->transform, false);
 				objQue.push(childObj);
 			}
 		}
 	}
+
 	//set bone info
 	for (auto& mesh : meshList)
 	{
-		mesh->boneList = boneList;
+		mesh->AddBonesFromRoot();
 	}
 
 	//set Target

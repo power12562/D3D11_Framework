@@ -3,16 +3,17 @@
 #include <Material\BlingPhongMaterial.h>
 #include <Light\SimpleDirectionalLight.h>
 #include <Manager/ResourceManager.h>
-#include <Component/Bone/BoneComponent.h>
 #include <Math/Mathf.h>
 #include <Utility/SerializedUtility.h>
+#include <GameObject/Bone/BoneObject.h>
+#include <Utility/ExceptionUtility.h>
 
 SimpleBoneMeshRender::SimpleBoneMeshRender()
 {
 	RenderFlags |= RENDER_SKINNING;
-	std::string key = MakeMatrixPalleteKey();
-	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(key.c_str());
-	int index = constBuffer.CreateVSConstantBuffers<MatrixPallete>(key.c_str());
+	matrixPalleteKey = MakeMatrixPalleteKey();
+	matrixPallete = D3DConstBuffer::GetData<MatrixPallete>(matrixPalleteKey.c_str());
+	matrixPalleteRegisterIndex = constBuffer.CreateVSConstantBuffers<MatrixPallete>(matrixPalleteKey.c_str());
 }
 
 SimpleBoneMeshRender::~SimpleBoneMeshRender()
@@ -92,7 +93,6 @@ void SimpleBoneMeshRender::Deserialized(std::ifstream& ifs)
 		ifs.seekg(sizeof(Matrix) * offsetMatrixCount, std::ios::cur);
 	}
 		
-
 	size_t indicesSize = Read::data<size_t>(ifs);
 	if (meshResource->pIndexBuffer == nullptr)
 	{
@@ -122,6 +122,19 @@ void SimpleBoneMeshRender::Deserialized(std::ifstream& ifs)
 
 	vertices.shrink_to_fit();
 	indices.shrink_to_fit();
+
+	DeserializedListVec.push_back(this);
+}
+
+void SimpleBoneMeshRender::EndDeserialized()
+{
+	for (auto& item : SimpleBoneMeshRender::DeserializedListVec)
+	{
+		item->AddBonesFromRoot();
+		item->constBuffer.ChangeVSkey<MatrixPallete>(item->matrixPalleteRegisterIndex, item->matrixPalleteKey.c_str());
+	}
+	SimpleBoneMeshRender::DeserializedListVec.clear();
+	SimpleBoneMeshRender::DeserializedListVec.shrink_to_fit();
 }
 
 void SimpleBoneMeshRender::Start()
@@ -255,4 +268,40 @@ void SimpleBoneMeshRender::CreateMesh()
 	indices.shrink_to_fit();
 }
 
+void SimpleBoneMeshRender::AddBonesFromRoot()
+{
+	if (gameObject.transform.RootParent)
+	{
+		Transform* root = gameObject.transform.RootParent;
+		boneList.clear();
+		std::stack<Transform*> transformStack;
+		for (unsigned int i = 0; i < root->GetChildCount(); i++)
+		{
+			transformStack.push(root->GetChild(i));
+		}
+		while (!transformStack.empty())
+		{
+			Transform* cur = transformStack.top();
+			transformStack.pop();
+			if(typeid(BoneObject) == typeid(cur->gameObject))
+			{
+				BoneObject& curBone = static_cast<BoneObject&>(cur->gameObject);
+				if (curBone.myIndex < 0)
+				{
+					__debugbreak(); //ÀÎµ¦½º°¡ Àß¸øµÊ.
+					throw_GameObject("Invalid bone index", &this->gameObject);
+				}
+				if (boneList.size() <= curBone.myIndex)
+				{
+					boneList.resize((size_t)curBone.myIndex + 1);			
+				}
+				boneList[curBone.myIndex] = &curBone;
+			}			 
 
+			for (unsigned int i = 0; i < cur->GetChildCount(); i++)
+			{
+				transformStack.push(cur->GetChild(i));
+			}
+		}
+	}
+}

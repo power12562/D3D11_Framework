@@ -320,3 +320,29 @@ std::shared_ptr<char[]> D3DConstBuffer::GetPSData(size_t size_of, int index)
 	}
 	return data;
 }
+
+void D3DConstBuffer::ChangeVSkey(size_t size_of, int index, const char* key)
+{
+	auto& [size, data] = vs_dataList[index - StaticCbufferCount];
+	if (size_of != size)
+	{
+		__debugbreak(); //사이즈가 다릅니다.
+		return;
+	}
+	auto& data_key = vs_keyList[index - StaticCbufferCount].first;
+	data_key = make_key_data(size_of, key);
+	data = GetData(size_of, data_key.c_str());
+}
+
+void D3DConstBuffer::ChangePSkey(size_t size_of, int index, const char* key)
+{
+	auto& [size, data] = ps_dataList[index - StaticCbufferCount];
+	if (size_of != size)
+	{
+		__debugbreak(); //사이즈가 다릅니다.
+		return;
+	}
+	auto& data_key = ps_keyList[index - StaticCbufferCount].first;
+	data_key = make_key_data(size_of, key);
+	data = GetData(size_of, data_key.c_str());
+}

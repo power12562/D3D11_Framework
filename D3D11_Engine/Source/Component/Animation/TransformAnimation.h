@@ -85,9 +85,22 @@ public:
 public:
 	TransformAnimation();
 	virtual ~TransformAnimation() override;
+	void SerializedAnimation(std::ofstream& ofs);
+	void DeserializedAnimation(std::ifstream& ifs);
+
+public:
+	std::shared_ptr<std::vector<TransformAnimation::Clip::NodeAnimation::PositionKey>>
+		get_position_key(const wchar_t* clipName, unsigned int nodeIndex);
+
+	std::shared_ptr<std::vector<TransformAnimation::Clip::NodeAnimation::RotationKey>>
+		get_rotation_key(const wchar_t* clipName, unsigned int nodeIndex);
+
+	std::shared_ptr<std::vector<TransformAnimation::Clip::NodeAnimation::ScaleKey>>
+		get_scale_key(const wchar_t* clipName, unsigned int nodeIndex);
 
 public:
 	bool PlayClip(const wchar_t* clipName, bool isLoop = true);
+	inline void TogglePause() { isPause = !isPause; };
 	void StopClip();
 	void AddClip(const wchar_t* name, Clip& clip);
 	const Clip* GetCurrClip() { return currClip; }

@@ -151,7 +151,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Component\Bone\BoneComponent.h" />
     <ClInclude Include="Source\Component\Render\BlingPhongBoneMeshRender.h" />
     <ClInclude Include="Source\Component\Render\BlingPhongMeshRender.h" />
     <ClInclude Include="Source\Component\Render\CubeMeshRender.h" />
@@ -165,6 +164,7 @@
     <ClInclude Include="Source\framework.h" />
     <ClInclude Include="Source\D3DCore\D3DSamplerState.h" />
     <ClInclude Include="Source\D3DCore\D3DTexture2D.h" />
+    <ClInclude Include="Source\GameObject\Bone\BoneObject.h" />
     <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="Source\ImGuizmo\GraphEditor.h" />
@@ -220,7 +220,6 @@
     <ClInclude Include="Source\Utility\utfConvert.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Component\Bone\BoneComponent.cpp" />
     <ClCompile Include="Source\Component\Render\BlingPhongBoneMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\BlingPhongMeshRender.cpp" />
     <ClCompile Include="Source\Component\Render\CubeMeshRender.cpp" />
@@ -233,6 +232,7 @@
     <ClCompile Include="Source\Core\StaticBlockMemoryPool.cpp" />
     <ClCompile Include="Source\D3DCore\D3DSamplerState.cpp" />
     <ClCompile Include="Source\D3DCore\D3DTexture2D.cpp" />
+    <ClCompile Include="Source\GameObject\Bone\BoneObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\BlingPhongMeshObject.cpp" />
     <ClCompile Include="Source\GameObject\Mesh\PBRMeshObject.cpp" />
     <ClCompile Include="Source\ImGuiFileDialog\ImGuiFileDialog.cpp" />

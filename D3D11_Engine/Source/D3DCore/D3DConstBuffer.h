@@ -146,11 +146,20 @@ public:
 	/*바인딩된 데이터 가져오기*/
 	template<typename T>
 	inline std::shared_ptr<T> GetPSData(int index);
+
+	/*바인딩 시킬 키 변경하기*/
+	template<typename T>
+	void ChangeVSkey(int index, const char* key);
+	/*바인딩 시킬 키 변경하기*/
+	template<typename T>
+	void ChangePSkey(int index, const char* key);
 private:
 	int CreateVSConstantBuffers(size_t size_of, const char* data_key);
 	int CreatePSConstantBuffers(size_t size_of, const char* data_key);
 	std::shared_ptr<char[]> GetVSData(size_t size_of, int index);
 	std::shared_ptr<char[]> GetPSData(size_t size_of, int index);
+	void ChangeVSkey(size_t size_of, int index, const char* key);
+	void ChangePSkey(size_t size_of, int index, const char* key);
 private:
 	std::vector<std::pair<std::string, std::string>> vs_keyList{};
 	std::vector<std::pair<size_t, std::shared_ptr<char[]>>> vs_dataList{};
@@ -306,6 +315,18 @@ inline std::shared_ptr<T> D3DConstBuffer::GetPSData(int index)
 	std::shared_ptr<char[]> dataPtr = GetPSData(sizeof(T), index);
 	std::shared_ptr<T> Tptr = std::reinterpret_pointer_cast<T>(dataPtr);
 	return Tptr;
+}
+
+template<typename T>
+inline void D3DConstBuffer::ChangeVSkey(int index, const char* key)
+{
+	ChangeVSkey(sizeof(T), index, key);
+}
+
+template<typename T>
+inline void D3DConstBuffer::ChangePSkey(int index, const char* key)
+{
+	ChangePSkey(sizeof(T), index, key);
 }
 
 inline void D3DConstBuffer::UpdateVSconstBuffer(int index)

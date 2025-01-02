@@ -1,10 +1,11 @@
 #pragma once
 #include <Scene\Base\Scene.h>
+#include <Core/DXTKInputSystem.h>
 #include <set>
 
 class SimpleMaterial;
 struct cb_BlingPhongMaterial;
-class ResourceManagerScene : public Scene
+class ResourceManagerScene : public Scene, public InputProcesser
 {
 public:
 	ResourceManagerScene() = default;
@@ -12,7 +13,7 @@ public:
 	virtual void Start() override;
 protected:
 	virtual void ImGUIRender() override;
-
+	virtual void OnInputProcess(DXTKInputSystem::InputSystem& input);
 private:
 	float* pCamSpeed = nullptr;
 

@@ -2,6 +2,7 @@
 #include <GameObject/Base/GameObject.h>
 #include <framework.h>
 #include <Utility/SerializedUtility.h>
+#include <Component/Render/SimpleBoneMeshRender.h>
 
 GameObjectFactory& gameObjectFactory = GameObjectFactory::GetInstance();
 
@@ -122,11 +123,13 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 	Write::data(ofs, object->Active);
 	Write::BoundingBox(ofs, object->Bounds);
 	object->Serialized(ofs);
+
 	//Components
 	for (auto& component : object->componentList)
 	{
 		component->Serialized(ofs);
 	}
+
 	//Transform
 	Write::data<size_t>(ofs, level);
 	bool isParent = level > 0;
@@ -142,6 +145,14 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 		Write::Quaternion(ofs, object->transform.localRotation);
 		Write::Vector3(ofs, object->transform.localScale);
 	}	
+
+	//TransformAnimation
+	TransformAnimation* animation = object->IsComponent<TransformAnimation>();
+	bool isTransformAnimation = animation != nullptr;
+	Write::data(ofs, isTransformAnimation);
+	if (animation)
+		animation->SerializedAnimation(ofs);
+
 	//childs
 	for (size_t i = 0; i < object->transform.GetChildCount(); i++)
 	{
@@ -153,6 +164,7 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 void GameObjectFactory::Deserialized(std::ifstream& ifs)
 {
 	static std::map<size_t, Transform*> objectTreeMap;
+	std::vector<TransformAnimation*> transformAnimationVec;
 	using namespace Binary;
 	while (true)
 	{
@@ -160,6 +172,11 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 		if (ifs.eof())
 		{
 			objectTreeMap.clear();
+			for (auto& animation : transformAnimationVec)
+			{
+				animation->AddChildrenToTargets();
+			}
+			SimpleBoneMeshRender::EndDeserialized();
 			return;
 		}
 		std::wstring objName = Read::wstring(ifs);
@@ -193,6 +210,15 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 			object->transform.localPosition = Read::Vector3(ifs);
 			object->transform.localRotation = Read::Quaternion(ifs);
 			object->transform.localScale	= Read::Vector3(ifs);
+		}
+
+		//TransformAnimation
+		bool isTransformAnimation = Read::data<bool>(ifs);
+		if (isTransformAnimation)
+		{
+			TransformAnimation* animation = &object->AddComponent<TransformAnimation>();
+			animation->DeserializedAnimation(ifs);
+			transformAnimationVec.push_back(animation);
 		}
 	}
 }

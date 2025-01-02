@@ -1,6 +1,7 @@
 #pragma once
 #include <Component/Render/MeshRender.h>
 #include <format>
+#include <stack>
 
 struct MatrixPallete
 {
@@ -13,10 +14,11 @@ struct OffsetMatrices
 	std::vector<Matrix> data;
 };
 
-class BoneComponent;
+class BoneObject;
 class SimpleMaterial;
 class SimpleBoneMeshRender : public MeshRender
 {
+	friend class GameObjectFactory;
 public:
 	struct Vertex
 	{
@@ -32,6 +34,11 @@ public:
 	virtual ~SimpleBoneMeshRender() override;
 	virtual void Serialized(std::ofstream& ofs);
 	virtual void Deserialized(std::ifstream& ifs);
+private:
+	/*Deserialized된 항목들.*/
+	inline static std::vector<SimpleBoneMeshRender*> DeserializedListVec;
+	/*Deserialized 종료 후 호출해야하는 함수(GameObjectFactory에서 호출)*/
+	static void EndDeserialized();
 
 public:
 	virtual void Start() 		 override;
@@ -48,14 +55,19 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<UINT>   indices;
 	std::shared_ptr<OffsetMatrices> offsetMatrices = nullptr;
-	std::vector<BoneComponent*> boneList;
+
+	/*최상위 부모부터 순회하면서 Bone을 찾아 등록합니다.*/
+	void AddBonesFromRoot();
 
 private:
 	inline static size_t MatrixPalletCounter = 0;
 	inline static std::queue<size_t> RealseCounterQueue;
 	inline std::string MakeMatrixPalleteKey();
 	std::shared_ptr<MatrixPallete> matrixPallete = {};
+	std::string matrixPalleteKey;
+	int matrixPalleteRegisterIndex = -1;
 	size_t MyMatrixPalletCounter = 0;
+	std::vector<BoneObject*> boneList;
 };
 
 inline std::string SimpleBoneMeshRender::MakeMatrixPalleteKey()
