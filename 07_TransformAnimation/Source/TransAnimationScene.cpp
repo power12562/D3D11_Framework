@@ -18,6 +18,7 @@ void TransAnimationScene::Start()
 
 	UseImGUI = true;
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
+	d3dRenderer.DebugSetting.UseFrustumCulling = false;
 
 	material_01 = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("material_01");
 
@@ -26,11 +27,7 @@ void TransAnimationScene::Start()
 	cam->transform.position = Vector3(0, 30, -50);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	box = NewGameObject<GameObject>(L"BoxHuman");
-	box->transform.position = { 0,0,0 };
-	box->transform.scale = { 0.05,0.05,0.05 };
-
-	auto meshInit = [this](MeshRender* mesh) 
+	auto meshInit = [this](MeshRender* mesh)
 		{
 			mesh->RenderFlags |= RENDER_FORWARD;
 			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("material_01");
@@ -39,7 +36,9 @@ void TransAnimationScene::Start()
 			mesh->SetVertexShader(L"VertexShader.hlsl");
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
-	Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", *box, meshInit, false, SURFACE_TYPE::NONE);
+	box = Utility::LoadFBX(L"Resource/Robot_Dummy_class.fbx", meshInit, false, SURFACE_TYPE::NONE);;
+	box->transform.position = { 0,0,0 };
+	box->transform.scale = { 0.05,0.05,0.05 };
 	material_01->MaterialDiffuse = { 0.76f ,0.76f ,0.76f ,1.f };
 
 	box->GetComponent<TransformAnimation>().PlayClip(L"Scene", true);

@@ -2,7 +2,7 @@
 
 DeferredTestApp01::DeferredTestApp01()
 {
-    this->windowName = L"DeferredTestApp01";
+    this->windowName = L"13_DeferredTestApp01";
     //this->SetBorderlessWindowed();
     //this->SetOptimalScreenSize();
 }

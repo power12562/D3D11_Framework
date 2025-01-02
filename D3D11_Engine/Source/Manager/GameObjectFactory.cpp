@@ -44,7 +44,7 @@ std::function<GameObject*(const wchar_t* name)>& GameObjectFactory::NewGameObjec
 	throw std::runtime_error("Key not found in the map");
 }
 
-void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* WritePath)
+void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* WritePath, bool isOveride)
 {
 	if (object == nullptr)
 	{
@@ -75,7 +75,7 @@ void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* Writ
 			std::filesystem::create_directories(path.parent_path());
 		}
 	}
-	else
+	else if(!isOveride)
 	{
 		int result = MessageBox(
 			NULL,                      

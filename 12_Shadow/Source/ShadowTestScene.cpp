@@ -111,7 +111,7 @@ void ShadowTestScene::ImGUIRender()
 			for (auto& [key, obj] : charMaterials)
 			{
 				ImGui::Checkbox(key.c_str(), &obj->Active);
-				ImGui::EditMaterial(key.c_str(), obj->Material.get());
+				ImGui::EditMaterial(key.c_str(), &obj->Material);
 			}
 		}
 		ImGui::End();
@@ -121,20 +121,19 @@ void ShadowTestScene::ImGUIRender()
 
 void ShadowTestScene::AddObjects(size_t positionZcount)
 {
-	auto pistol = NewGameObject(L"pistol");
 	auto initMesh = [this](MeshRender* mesh)
 		{		
 			PBRMeshObject& obj = static_cast<PBRMeshObject&>(mesh->gameObject);
 			std::string key = obj.GetNameToString();
 			if (pistolMaterials.find(key) == pistolMaterials.end())
-				pistolMaterials[key] = obj.Material.get();
+				pistolMaterials[key] = &obj.Material;
 			else
 			{
 				cb_PBRMaterial& material = *(pistolMaterials[key]);
 			}
 			mesh->textures.SetDefaultTexture(E_TEXTURE::Specular, E_TEXTURE_DEFAULT::ONE);
 		};
-	Utility::LoadFBX(L"Resource/pistol/pistol.fbx", *pistol, initMesh, false, SURFACE_TYPE::PBR);
+	auto pistol = Utility::LoadFBX(L"Resource/pistol/pistol.fbx", initMesh, false, SURFACE_TYPE::PBR);
 	pistol->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	pistol->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	pistol->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
@@ -149,7 +148,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 	{
 		sphere->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 		if(sphereMaterial == nullptr)
-			sphereMaterial = sphere->Material.get();
+			sphereMaterial = &sphere->Material;
 
 		sphereMaterial->Albedo = { 1.f, 0.8453f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
@@ -162,7 +161,6 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 		positionCountX = 0;
 	}
 
-	auto cha = NewGameObject(L"ch");
 	auto charInit = [this](MeshRender* mesh)
 		{	
 			PBRMeshObject* obj = static_cast<PBRMeshObject*>(&mesh->gameObject);
@@ -170,7 +168,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 			if (charMaterials.find(key) == charMaterials.end())
 				charMaterials[key] = obj;
 		};
-	Utility::LoadFBX(L"Resource/char/char.fbx", *cha, charInit, false, SURFACE_TYPE::PBR);
+	auto cha = Utility::LoadFBX(L"Resource/char/char.fbx", charInit, false, SURFACE_TYPE::PBR);
 	cha->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	cha->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	cha->transform.rotation = Vector3::Up * 23.f;
@@ -181,8 +179,7 @@ void ShadowTestScene::AddObjects(size_t positionZcount)
 		positionCountZ++;
 		positionCountX = 0;
 	}
-	auto Kachujin = NewGameObject(L"Kachujin");
-	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *Kachujin, false, SURFACE_TYPE::BlingPhong);
+	auto Kachujin =  Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", false, SURFACE_TYPE::BlingPhong);
 	Kachujin->transform.position = Vector3(positionCountX * positionDumpX, 0.f, positionCountZ * positionDumpZ);
 	Kachujin->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	Kachujin->transform.rotation = Vector3::Up * 23.f;

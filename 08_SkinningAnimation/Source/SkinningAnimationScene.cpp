@@ -25,18 +25,6 @@ void SkinningAnimationScene::Start()
 	cam->transform.position = Vector3(0, 10, -25);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	test1 = NewGameObject<GameObject>(L"test1");
-	test1->transform.position = { 20,0,0 };
-	test1->transform.scale = { 0.1,0.1,0.1 };
-
-	test2 = NewGameObject<GameObject>(L"test2");
-	test2->transform.position = {-20,0,0 };
-	test2->transform.scale = { 0.1,0.1,0.1 };
-
-	test3 = NewGameObject<GameObject>(L"test3");
-	test3->transform.position = { 0,0,0 };
-	test3->transform.scale = { 0.1,0.1,0.1 };
-
 	auto testInit = [this](MeshRender* mesh)->void
 		{
 			mesh->RenderFlags |= RENDER_FORWARD;
@@ -50,13 +38,21 @@ void SkinningAnimationScene::Start()
 			mesh->SetPixelShader(L"PixelShader.hlsl");	
 		};
 
-	Utility::LoadFBX(L"Resource/SkinningTest.fbx", *test1, testInit, false, SURFACE_TYPE::NONE);
-	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
-	Utility::LoadFBX(L"Resource/SkinningTest2.fbx", *test2, testInit, false, SURFACE_TYPE::NONE);
+	test1 = Utility::LoadFBX(L"Resource/SkinningTest.fbx", testInit, false, SURFACE_TYPE::NONE);
+	test1->transform.position = { 20,0,0 };
+	test1->transform.scale = { 0.1,0.1,0.1 };
+
+	test2 = Utility::LoadFBX(L"Resource/SkinningTest2.fbx", testInit, false, SURFACE_TYPE::NONE);
+	test2->transform.position = { -20,0,0 };
+	test2->transform.scale = { 0.1,0.1,0.1 };
+
+	test3 = Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", testInit, false, SURFACE_TYPE::NONE);
+	test3->transform.position = { 0,0,0 };
+	test3->transform.scale = { 0.1,0.1,0.1 };
+
+	test1->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");	
 	test2->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
-
-	Utility::LoadFBX(L"Resource/Hip Hop Dancing.fbx", *test3, testInit, false, SURFACE_TYPE::NONE);
 	test3->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 }
 

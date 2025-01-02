@@ -32,12 +32,11 @@ void DeferredTestScene1::Start()
 	{
 		for (int x = 0; x < w; x++)
 		{
-			auto chr = NewGameObject(L"chr");
 			auto func = [&](MeshRender* mesh)
 				{
 					chrMeshs.push_back(mesh);
 				};
-			Utility::LoadFBX(L"Resource/char/char.fbx", *chr, func, false, SURFACE_TYPE::PBR);
+			auto chr = Utility::LoadFBX(L"Resource/char/char.fbx", func, false, SURFACE_TYPE::PBR);
 			chr->transform.rotation = Vector3(0, 30, 0);
 			chr->transform.position += Vector3::Up * 10.f;
 			chr->transform.position += Vector3::Right * 50.f * (float)x;
@@ -52,7 +51,7 @@ void DeferredTestScene1::ImGUIRender()
 	{
 		if (Sphere)
 		{
-			ImGui::EditMaterial("Sphere Material", Sphere->Material.get());
+			ImGui::EditMaterial("Sphere Material", &Sphere->Material);
 		}		
 	}
 	ImGui::End();

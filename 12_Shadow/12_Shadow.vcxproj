@@ -157,11 +157,11 @@ xcopy /Y /I /E "$(SolutionDir)\D3D11_Engine\Source\Shader\*.*" "$(ProjectDir)Res
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\MainEntry.cpp" />
-    <ClCompile Include="Source\StartApp.cpp" />
+    <ClCompile Include="Source\ShadowTestApp.cpp" />
     <ClCompile Include="Source\ShadowTestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\StartApp.h" />
+    <ClInclude Include="Source\ShadowTestApp.h" />
     <ClInclude Include="Source\ShadowTestScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

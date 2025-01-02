@@ -51,8 +51,7 @@ void PBRTestScene::Start()
 
 			cerberusObjList[key] = static_cast<PBRMeshObject*>(&mesh->gameObject);
 		};
-	auto cerberus = NewGameObject(L"cerberus");
-	Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", *cerberus, initCerberusShader, false, SURFACE_TYPE::PBR);
+	auto cerberus = Utility::LoadFBX(L"Resource/cerberus/cerberus.fbx", initCerberusShader, false, SURFACE_TYPE::PBR);
 	cerberus->transform.position += Vector3::Left * 10.f;
 	cerberus->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
 	cerberus->transform.rotation = Vector3{ 0.f, 90.f, 0.f };
@@ -68,8 +67,7 @@ void PBRTestScene::Start()
 
 			charObjList[key] = static_cast<PBRMeshObject*>(&mesh->gameObject);
 		};
-	auto charater = NewGameObject(L"charater");
-	Utility::LoadFBX(L"Resource/char/char.fbx", *charater, initCharShader, false, SURFACE_TYPE::PBR);
+	auto charater = Utility::LoadFBX(L"Resource/char/char.fbx", initCharShader, false, SURFACE_TYPE::PBR);
 	charater->transform.position += Vector3::Right * 10.f;
 	charater->transform.rotation = Vector3::Up * 23.f;
 	charater->transform.scale = Vector3{ 0.1f, 0.1f, 0.1f };
@@ -80,7 +78,7 @@ void PBRTestScene::Start()
 		Sphere->SphereMeshRender->RenderFlags |= RENDER_FORWARD;
 		Sphere->SphereMeshRender->SetPixelShader(L"Resource/EngineShader/PBRForwardPS.hlsl");
 
-		sphereMaterial = Sphere->Material.get();
+		sphereMaterial = &Sphere->Material;
 		sphereMaterial->Albedo = { 1.f, 1.f, 0.f, 1.f };
 		sphereMaterial->Metalness = 1.f;
 		sphereMaterial->Roughness = 0.f;

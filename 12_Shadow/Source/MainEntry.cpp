@@ -1,4 +1,4 @@
-#include "StartApp.h"
+#include "ShadowTestApp.h"
 #include <ShadowTestScene.h>
 
 int APIENTRY wWinMain(

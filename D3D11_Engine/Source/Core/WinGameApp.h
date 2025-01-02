@@ -23,6 +23,7 @@ public:
 	static HINSTANCE GetHINSTANCE() { return hInstance; }			
 	static const SIZE& GetClientSize() { return RunApp->clientSize; }
 	static DWORD GetWindowStyleEX() { return RunApp ? RunApp->windowStyleEX : NULL; }
+	static const wchar_t* GetAppName() { return RunApp ? RunApp->windowName : L"Unkown"; }
 	//size <= 0 이거나 size > maxScreenSize 이면 최대 크기로 조정해줍니다.
 	static void ClampScreenMaxSize(SIZE& size);
 	//size <= 0 이거나 size > maxScreenSize 이면 최대 크기로 조정해줍니다.

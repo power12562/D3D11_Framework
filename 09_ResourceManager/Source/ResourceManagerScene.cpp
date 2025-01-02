@@ -36,9 +36,7 @@ void ResourceManagerScene::Start()
 			mesh->SetPixelShader(L"PixelShader.hlsl");
 		};
 	Utility::LoadFBXResource(L"Resource/Kachujin/Hip Hop Dancing.fbx", testInit, false, SURFACE_TYPE::BlingPhong);
-
 	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
-
 	d3dRenderer.backgroundColor = Color(0, 0, 0, 1);
 
 	auto cam = NewGameObject<CameraObject>(L"MainCamera");

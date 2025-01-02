@@ -335,6 +335,7 @@ namespace CompressPopupField
 	static std::vector<std::thread>  compressThreads;
 	static std::vector<ID3D11ShaderResourceView*> tempSRVvec;
 	static std::unordered_set<D3DTexture2D*> textures;	//압축 후 다시 로드할 텍스쳐들
+	static std::unordered_set<GameObject*> DestroyObjects;	//압축 파괴할 오브젝트 목록
 	static std::atomic_int threadsCounter;
 }
 
@@ -443,32 +444,32 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 				ImGui::Button("Auto Compress", &UseAutoCompress);
 				if (ImGui::Button("OK") || ImGui::IsKeyPressed(ImGuiKey_Enter) || UseAutoCompress)
 				{								
-						auto compressThreadFunc = [save_path, path = wstr_path, compType = compressType, isExists]()
+					auto compressThreadFunc = [save_path, path = wstr_path, compType = compressType, isExists]()
+						{
+							static std::mutex mt;
+							std::shared_ptr<DirectX::ScratchImage> image;
+							mt.lock();
+							Utility::CheckHRESULT(CoInitializeEx(nullptr, COINIT_MULTITHREADED)); //작업 스레드의 Com 객체 사용 활성화
+							if (!textureManager.IsTextureLoaded(path.c_str()))
 							{
-								static std::mutex mt;
-								std::shared_ptr<DirectX::ScratchImage> image;
-								mt.lock();
-								Utility::CheckHRESULT(CoInitializeEx(nullptr, COINIT_MULTITHREADED)); //작업 스레드의 Com 객체 사용 활성화
-								if (!textureManager.IsTextureLoaded(path.c_str()))
-								{							
-									ID3D11ShaderResourceView* tempSRV;
-									std::filesystem::path filePath = path;
-									if (isExists)
-										Utility::CheckHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), save_path.c_str(), nullptr, &tempSRV));
-									else
-										image = Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType);
-									textureManager.InsertTexture(path.c_str(), tempSRV);
-									tempSRVvec.push_back(tempSRV);
-									CoUninitialize();					
-								}
-								mt.unlock();
-								if (image)
-								{
-									Utility::SaveTextureForDDS(save_path.c_str(), image);
-								}	
-								return;
-							};
-						compressThreads.emplace_back(compressThreadFunc); //스레드 처리
+								ID3D11ShaderResourceView* tempSRV;
+								std::filesystem::path filePath = path;
+								if (isExists)
+									Utility::CheckHRESULT(Utility::CreateTextureFromFile(d3dRenderer.GetDevice(), save_path.c_str(), nullptr, &tempSRV));
+								else
+									image = Utility::CreateCompressTexture(d3dRenderer.GetDevice(), path.c_str(), nullptr, &tempSRV, compType);
+								textureManager.InsertTexture(path.c_str(), tempSRV);
+								tempSRVvec.push_back(tempSRV);
+								CoUninitialize();
+							}
+							mt.unlock();
+							if (image)
+							{
+								Utility::SaveTextureForDDS(save_path.c_str(), image);
+							}
+							return;
+						};
+					compressThreads.emplace_back(compressThreadFunc); //스레드 처리
 						
 					str_queue.pop();
 					wstr_queue.pop();
@@ -493,6 +494,10 @@ bool ImGui::ShowCompressPopup(const wchar_t* path, D3DTexture2D* texture2D, int 
 								for (auto& texture : textures)
 								{
 									texture->ReloadTexture();
+								}
+								for (auto& obj : DestroyObjects)
+								{
+									sceneManager.DestroyObject(obj);
 								}
 								for (auto& tempSRV : tempSRVvec)
 								{
@@ -561,6 +566,21 @@ bool ImGui::ReloadTextureCompressEnd(const wchar_t* path, D3DTexture2D* texture2
 		return true;
 	}
 	return false;
+}
+
+bool ImGui::DestroyObjTextureCompressEnd(GameObject* obj)
+{
+	using namespace CompressPopupField;
+	if (popupCount > 0)
+	{
+		DestroyObjects.insert(obj);
+		return true;
+	}
+	else
+	{
+		sceneManager.DestroyObject(obj);
+		return false;
+	}
 }
 
 bool ImGui::ShowOpenGameObjectPopup()

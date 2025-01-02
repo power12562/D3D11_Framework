@@ -1,8 +1,8 @@
 #pragma once
-#include <GameObject/Base/GameObject.h>
+#include <GameObject/Mesh/PBRMeshObject.h>
 #include <Material/PBRMaterial.h>
 class PBRMeshRender;
-class SphereObject : public GameObject
+class SphereObject : public PBRMeshObject
 {
 	SERIALIZED_OBJECT(SphereObject)
 public:
@@ -10,6 +10,5 @@ public:
 	virtual void Start() override;
 	virtual ~SphereObject() override = default;
 
-	std::shared_ptr<cb_PBRMaterial> Material;
 	PBRMeshRender* SphereMeshRender = nullptr;
 };

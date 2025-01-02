@@ -69,46 +69,39 @@ void ImportFBXScene::Start()
 	cam->transform.rotation = Quaternion::CreateFromYawPitchRoll(Vector3(-3, 0, 0) * Mathf::Deg2Rad);
 	pCamSpeed = &cam->AddComponent<CameraMoveHelper>().moveSpeed;
 
-	auto character = NewGameObject<GameObject>(L"Character");
+	auto character = Utility::LoadFBX(L"Resource/Character.fbx", initMesh, false, SURFACE_TYPE::NONE);
 	character->transform.position = { 15,0,0 };
 	character->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX(L"Resource/Character.fbx",*character, initMesh, false, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(character);										 
 	
-	auto zelda = NewGameObject<GameObject>(L"zelda");
+	auto zelda = Utility::LoadFBX(L"Resource/zeldaPosed001.fbx", initMesh, false, SURFACE_TYPE::NONE);
 	zelda->transform.position = { 0,0,0 };
 	zelda->transform.scale = { 0.1,0.1,0.1 };
-	Utility::LoadFBX(L"Resource/zeldaPosed001.fbx", *zelda, initMesh, false, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(zelda);
 
-	auto tree = NewGameObject<GameObject>(L"Tree");
+	auto tree = Utility::LoadFBX(L"Resource/Tree.fbx", initMesh, true, SURFACE_TYPE::NONE);
 	tree->transform.position = { -15,0,0 };
 	tree->transform.scale = { 10, 10, 10 };
-	Utility::LoadFBX(L"Resource/Tree.fbx", *tree, initMesh, true, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(tree);
 
-	auto box = NewGameObject<GameObject>(L"box");
+	auto box = Utility::LoadFBX(L"Resource/box.fbx", initMesh, true, SURFACE_TYPE::NONE);
 	box->transform.position = { -5, 5, -15 };
 	box->transform.scale = { 0.1, 0.1, 0.1 };
-	Utility::LoadFBX(L"Resource/box.fbx", *box, initMesh, true, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(box);
 
-	auto monkey = NewGameObject<GameObject>(L"Monkey");
+	auto monkey = Utility::LoadFBX(L"Resource/Monkey.fbx", initMesh, false, SURFACE_TYPE::NONE);
 	monkey->transform.position = { 0,5,30 };
 	monkey->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/Monkey.fbx", *monkey, initMesh, false, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(monkey);
 
-	auto torus = NewGameObject<GameObject>(L"Torus");
+	auto torus = Utility::LoadFBX(L"Resource/Torus.fbx", initMesh, false, SURFACE_TYPE::NONE);
 	torus->transform.position = { 30,5,30 };
 	torus->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/Torus.fbx", *torus, initMesh, false, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(torus);
 
-	auto IcoSphere = NewGameObject<GameObject>(L"IcoSphere");
+	auto IcoSphere = Utility::LoadFBX(L"Resource/IcoSphere.fbx", initMesh, false, SURFACE_TYPE::NONE);
 	IcoSphere->transform.position = { -30, 5, 30 };
 	IcoSphere->transform.scale = { 0.05,0.05,0.05 };
-	Utility::LoadFBX(L"Resource/IcoSphere.fbx", *IcoSphere, initMesh, false, SURFACE_TYPE::NONE);
 	AddUpdateCbufferAllChild(IcoSphere);
 }
 

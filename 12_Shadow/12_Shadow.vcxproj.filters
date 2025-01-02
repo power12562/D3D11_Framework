@@ -4,7 +4,7 @@
     <ClCompile Include="Source\MainEntry.cpp">
       <Filter>MainEntry</Filter>
     </ClCompile>
-    <ClCompile Include="Source\StartApp.cpp">
+    <ClCompile Include="Source\ShadowTestApp.cpp">
       <Filter>MainEntry</Filter>
     </ClCompile>
     <ClCompile Include="Source\ShadowTestScene.cpp">
@@ -20,7 +20,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\StartApp.h">
+    <ClInclude Include="Source\ShadowTestApp.h">
       <Filter>MainEntry</Filter>
     </ClInclude>
     <ClInclude Include="Source\ShadowTestScene.h">

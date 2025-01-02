@@ -16,6 +16,7 @@
 #include <Manager/HLSLManager.h>
 #include <Manager/TextureManager.h>
 #include <Utility/ImguiHelper.h>
+#include <Core/WinGameApp.h>
 
 #include <Component/Render/PBRMeshRender.h>
 #include <Component/Render/PBRBoneMeshRender.h>
@@ -23,7 +24,6 @@
 #include <Component/Render/BlingPhongBoneMeshRender.h>
 
 #include <Math/Mathf.h>
-#include <filesystem>
 #include <iostream>
 
 namespace Utility
@@ -390,15 +390,28 @@ GameObject* Utility::LoadFBX(const wchar_t* path,
 
 	std::wstring wstr_path = path;		
 	std::string str_path = wstring_to_utf8(path);
+	std::filesystem::path resourcePath(GetTempResourcePath(wstr_path.c_str()));
 
-	std::filesystem::path resourcePath = wstr_path;
-	resourcePath.replace_extension(L".GameObject"); 
-	if (std::filesystem::exists(resourcePath)) //리소스 존재 확인
+	//첫 로드시 반드시 리소스 생성
+	static std::unordered_set<std::wstring> resourceSetFlag;
+	auto find = resourceSetFlag.find(wstr_path);
+	if (find != resourceSetFlag.end())
 	{
-		GameObject* obj = gameObjectFactory.DeserializedObject(resourcePath.c_str());
-		return obj;
+		if (std::filesystem::exists(resourcePath)) //리소스 존재 확인
+		{
+			GameObject* obj = gameObjectFactory.DeserializedObject(resourcePath.c_str());
+			return obj;
+		}
 	}
-	
+	else
+	{
+		if (!std::filesystem::exists(resourcePath.parent_path()))
+		{
+			std::filesystem::create_directories(resourcePath.parent_path());
+		}
+	}
+	resourceSetFlag.insert(wstr_path);
+
 	const aiScene* pScene = importer.ReadFile(str_path, importFlags);
 	if (pScene == nullptr)
 	{
@@ -671,7 +684,7 @@ GameObject* Utility::LoadFBX(const wchar_t* path,
 	}
 
 	//리소스 등록
-	gameObjectFactory.SerializedObject(rootObject, resourcePath.c_str()); //리소스 직렬화.
+	gameObjectFactory.SerializedObject(rootObject, resourcePath.c_str(), true); //리소스 직렬화.
 
 	return rootObject;
 }
@@ -686,5 +699,27 @@ void Utility::LoadFBXResource(const wchar_t* path,
 	bool isStatic,
 	SURFACE_TYPE surface)
 {
-	sceneManager.DestroyObject(LoadFBX(path, initMesh, isStatic, surface));
+	ImGui::DestroyObjTextureCompressEnd(LoadFBX(path, initMesh, isStatic, surface));
+}
+
+void Utility::LoadFBXResource(const wchar_t* path, bool isStatic, SURFACE_TYPE surface)
+{
+	LoadFBXResource(path, [](MeshRender* mesh)->void { return; }, isStatic, surface);
+}
+
+std::filesystem::path Utility::GetTempResourcePath(const wchar_t* flieName)
+{
+	//임시 리소스 경로
+	wchar_t tempPath[MAX_PATH];
+	GetTempPath(MAX_PATH, tempPath);
+	std::filesystem::path resourcePath = tempPath;
+
+	//파일 이름 설정
+	GetModuleFileName(nullptr, tempPath, MAX_PATH);
+	resourcePath /= L"power12562";
+	resourcePath /= WinGameApp::GetAppName();
+	resourcePath /= std::filesystem::path(flieName).filename();
+	resourcePath.replace_extension(L".GameObject");
+
+	return resourcePath;
 }
