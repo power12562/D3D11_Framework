@@ -68,9 +68,8 @@ TransformAnimation& GameObject::AddComponent()
 	}
 	else
 	{
-		Debug_printf("Error : Only one TransformAnimation component can be used.\n");
 		__debugbreak();
-		throw std::runtime_error("Error : Only one TransformAnimation component can be used.");
+		throw_GameObject("Error : Only one TransformAnimation component can be used.", this);
 	}
 }
 

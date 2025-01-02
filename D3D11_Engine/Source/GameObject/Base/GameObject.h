@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <Manager/GameObjectFactory.h>
+#include <Utility/ExceptionUtility.h>
 
 #pragma warning( disable : 4267)
 
@@ -140,7 +141,7 @@ inline T& GameObject::GetComponent()
 		}
 	}
 	__debugbreak(); //예외) 존재하지 않는 컴포넌트
-	throw std::runtime_error("Exception : Component does not exist");
+	throw_GameObject("Exception : Component does not exist", this);
 }
 
 template<typename T>

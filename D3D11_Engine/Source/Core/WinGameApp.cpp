@@ -1,5 +1,5 @@
 #include "WinGameApp.h"
-
+#include <GameObject/Base/GameObject.h>
 #include <D3DCore/D3DRenderer.h>
 #include <Core/TimeSystem.h>
 #include <Manager/SceneManager.h>
@@ -13,6 +13,7 @@
 #include <Utility/ImguiHelper.h>
 #include <Math/Mathf.h>
 #include <Utility/Console.h>
+#include <Utility/ExceptionUtility.h>
 
 LRESULT CALLBACK DefaultWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -62,6 +63,18 @@ void WinGameApp::Run()
 				Render();
 			}
 		}
+	}
+	catch (const ObjectException& ex)
+	{
+		const char* what = ex.what();
+		Debug_printf("%s\n", what);
+		Debug_wprintf(L"Object : %s\n", ex.GetGameObject()->Name.c_str());
+		Debug_printf("Flie : %s\n", ex.GetFileName());
+		Debug_printf("Func : %s\n", ex.GetFuncName());
+		Debug_printf("Line : %d\n", ex.GetLineNum());
+		__debugbreak(); //예외 발생
+		sceneManager.currScene.reset();
+		sceneManager.nextScene.reset();
 	}
 	catch (const std::exception& ex)
 	{

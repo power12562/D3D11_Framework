@@ -90,7 +90,7 @@ void TransformAnimation::AddChildrenToTargets()
 		Transform* currTransform = transformStack.top();
 		transformStack.pop();
 		targets[currTransform->gameObject.Name] = &currTransform->gameObject;
-		for (int i = 0; i < currTransform->GetChildCount(); i++)
+		for (unsigned int i = 0; i < currTransform->GetChildCount(); i++)
 		{
 			transformStack.push(currTransform->GetChild(i));
 		}

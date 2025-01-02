@@ -194,6 +194,7 @@
     <ClInclude Include="Source\D3DCore\D3DRenderer.h" />
     <ClInclude Include="Source\Core\DXTKInputSystem.h" />
     <ClInclude Include="Source\Manager\HLSLManager.h" />
+    <ClInclude Include="Source\Utility\ExceptionUtility.h" />
     <ClInclude Include="Source\Utility\FileSystemUtility.h" />
     <ClInclude Include="Source\Utility\ImguiHelper.h" />
     <ClInclude Include="Source\Manager\InstanceIDManager.h" />
