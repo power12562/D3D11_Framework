@@ -74,7 +74,6 @@ public:
 	int GetComponentCount() { return componentList.size(); }
 
 	void DestroyComponent(Component& component);
-
 	void DestroyComponent(Component* component);
 
 	DirectX::BoundingOrientedBox GetOBBToWorld() const;
@@ -90,6 +89,9 @@ private:
 	void Update();
 	void LateUpdate();
 	void Render();
+private:
+	void EraseComponent(Component* component);
+
 private:
 	std::vector<std::unique_ptr<Component>> componentList;
 	std::vector<RenderComponent*> renderList;

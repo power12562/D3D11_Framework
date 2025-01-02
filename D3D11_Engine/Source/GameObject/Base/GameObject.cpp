@@ -71,30 +71,7 @@ void GameObject::DestroyComponent(Component& component)
 
 void GameObject::DestroyComponent(Component* component)
 {
-	int size = (int)componentList.size();
-	int comIndex = 0;
-	for (auto& com : componentList)
-	{
-		if (typeid(*com) == typeid(*component))
-			break;
-
-		++comIndex;
-	}
-	int renderIndex = 0;
-	if (comIndex < size)
-	{
-		size = renderList.size();
-		for (auto& com : renderList)
-		{
-			if (typeid(*com) == typeid(*component))
-				break;
-
-			renderIndex++;
-		}
-		componentList.erase((componentList.begin() + comIndex));
-		if (renderIndex < size)
-			renderList.erase((renderList.begin() + renderIndex));
-	}
+	sceneManager.eraseComponentSet.insert(component);
 }
 
 DirectX::BoundingOrientedBox GameObject::GetOBBToWorld() const
@@ -147,6 +124,34 @@ void GameObject::Render()
 	{
 		if (component->Enable)
 			component->Render();
+	}
+}
+
+void GameObject::EraseComponent(Component* component)
+{
+	int size = (int)componentList.size();
+	int comIndex = 0;
+	for (auto& com : componentList)
+	{
+		if (typeid(*com) == typeid(*component))
+			break;
+
+		++comIndex;
+	}
+	int renderIndex = 0;
+	if (comIndex < size)
+	{
+		size = renderList.size();
+		for (auto& com : renderList)
+		{
+			if (typeid(*com) == typeid(*component))
+				break;
+
+			renderIndex++;
+		}
+		componentList.erase((componentList.begin() + comIndex));
+		if (renderIndex < size)
+			renderList.erase((renderList.begin() + renderIndex));
 	}
 }
 

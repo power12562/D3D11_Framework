@@ -9,6 +9,7 @@
 #include <Utility/utfConvert.h>
 #include <Scene\Base\Scene.h>
 
+class Component;
 extern class SceneManager& sceneManager;
 using ObjectList = std::vector<GameObject*>;
 class SceneManager : public TSingleton<SceneManager>
@@ -30,6 +31,7 @@ private:
 	std::queue<std::shared_ptr<GameObject>>	nextAddQueue; //게임 오브젝트 추가 대기열
 
 	std::set<GameObject*> eraseSet;		  //게임 오브젝트 삭제 대기열
+	std::set<Component*> eraseComponentSet;	      //컴포넌트 삭제 대기열
 
 	std::list<std::pair<std::wstring, GameObject*>> resourceObjectList; //리소스로 등록할 오브젝트 대기열
 

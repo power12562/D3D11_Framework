@@ -274,6 +274,14 @@ void SceneManager::EraseObjects()
 			objList.pop_back();
 		}
 	}
+	if (!eraseComponentSet.empty())
+	{
+		for (auto& component : eraseComponentSet)
+		{
+			component->gameObject.EraseComponent(component);
+		}
+		eraseComponentSet.clear();
+	}
 }
 
 void SceneManager::ChangeScene()
