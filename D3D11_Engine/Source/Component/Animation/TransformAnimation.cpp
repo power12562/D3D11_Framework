@@ -2,6 +2,7 @@
 #include <Core/TimeSystem.h>
 #include <Utility\AssimpUtility.h>
 #include <D3DCore/D3DRenderer.h>
+#include <stack>
 
 void TransformAnimation::CopyClips(TransformAnimation* dest, TransformAnimation* source)
 {
@@ -76,9 +77,24 @@ void TransformAnimation::CopyClips(TransformAnimation* source)
 	this->clips = source->clips;
 }
 
-void TransformAnimation::AddTarget(const wchar_t* targetName, GameObject* object)
+void TransformAnimation::AddChildrenToTargets()
 {
-	targets[targetName] = object;
+	targets.clear();
+	std::stack<Transform*> transformStack;
+	for (unsigned int i = 0; i < gameObject.transform.GetChildCount(); i++)
+	{
+		transformStack.push(gameObject.transform.GetChild(i));
+	}
+	while (!transformStack.empty())
+	{
+		Transform* currTransform = transformStack.top();
+		transformStack.pop();
+		targets[currTransform->gameObject.Name] = &currTransform->gameObject;
+		for (int i = 0; i < currTransform->GetChildCount(); i++)
+		{
+			transformStack.push(currTransform->GetChild(i));
+		}
+	}
 }
 
 void TransformAnimation::Start()

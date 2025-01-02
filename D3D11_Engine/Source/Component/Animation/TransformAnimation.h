@@ -95,7 +95,8 @@ public:
 	void CopyClips(TransformAnimation* source);
 	size_t GetClipsCount() { return clips.size(); }
 
-	void AddTarget(const wchar_t* targetName, GameObject* object);
+	/*현재 자식들을 TransformAnimation targets에 등록합니다.*/
+	void AddChildrenToTargets();
 public:
 	virtual void Start() 		 override;
 protected:						 

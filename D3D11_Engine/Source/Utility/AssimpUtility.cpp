@@ -481,11 +481,6 @@ namespace Utility
 				GameObject* destChild = NewMeshObject(surface, sourceChild->Name.c_str());
 				destChild->transform.SetParent(currDestObj->transform);
 				objDestQue.push(destChild);
-
-				if (destAnime)
-				{
-					destAnime->AddTarget(sourceChild->Name.c_str(), destChild);
-				}
 			}
 
 			destObjNameMap[currDestObj->Name] = currDestObj;
@@ -504,6 +499,12 @@ namespace Utility
 		for (auto& mesh : meshList)
 		{
 			mesh->boneList = boneList;
+		}
+
+		//set Target
+		if (destAnime)
+		{
+			destAnime->AddChildrenToTargets();
 		}
 
 		//set clip target
@@ -826,18 +827,20 @@ void Utility::LoadFBX(const wchar_t* path,
 				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
 				objQue.push(childObj);
-
-				if (transformAnimation)
-				{
-					transformAnimation->AddTarget(childName.c_str(), childObj);
-				}
 			}
 		}
 	}
+
 	//set bone info
 	for (auto& mesh : meshList)
 	{
 		mesh->boneList = boneList;
+	}
+
+	//set Target
+	if (transformAnimation)
+	{
+		transformAnimation->AddChildrenToTargets();
 	}
 
 	//리소스 등록
@@ -1123,11 +1126,6 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 				GameObject* childObj = NewMeshObject(surface, childName.c_str());
 				childObj->transform.SetParent(currObj->transform, false);
 				objQue.push(childObj);
-
-				if (transformAnimation)
-				{
-					transformAnimation->AddTarget(childName.c_str(), childObj);
-				}
 			}
 		}
 	}
@@ -1135,6 +1133,12 @@ void Utility::LoadFBXResource(const wchar_t* path, SURFACE_TYPE surface)
 	for (auto& mesh : meshList)
 	{
 		mesh->boneList = boneList;
+	}
+
+	//set Target
+	if (transformAnimation)
+	{
+		transformAnimation->AddChildrenToTargets();
 	}
 
 	//Move ResouceObj

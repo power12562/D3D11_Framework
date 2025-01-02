@@ -1,6 +1,7 @@
 #include "GameObject.h"	   
 #include <Utility/Console.h>
 
+#include <Component/Animation/TransformAnimation.h>
 #include <Component/Camera/Camera.h>
 #include <Component/Base/RenderComponent.h>
 #include <D3DCore/D3DRenderer.h>
@@ -50,6 +51,27 @@ GameObject::~GameObject()
 	}
 	instanceIDManager.returnID(instanceID);
 	sceneManager.EraseObjectFindMap(this);
+}
+
+template <>
+TransformAnimation& GameObject::AddComponent()
+{
+	GameObject* obj = transform.rootParent ? &transform.rootParent->gameObject : this;
+	if (!obj->IsComponent<TransformAnimation>())
+	{
+		TransformAnimation* nComponent = new TransformAnimation;
+		nComponent->SetOwner(obj);
+		nComponent->index = componentList.size();
+		nComponent->Start();
+		componentList.emplace_back(nComponent);
+		return *nComponent;
+	}
+	else
+	{
+		Debug_printf("Error : Only one TransformAnimation component can be used.\n");
+		__debugbreak();
+		throw std::runtime_error("Error : Only one TransformAnimation component can be used.");
+	}
 }
 
 int GameObject::GetComponentIndex(Component* findComponent)

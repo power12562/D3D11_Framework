@@ -305,7 +305,7 @@ void SceneManager::ChangeScene()
 				{
 					unsigned int id = weakptr.lock()->GetInstanceID();
 					if (nextScene->objectList.size() <= id)
-						nextScene->objectList.resize(id + 1);
+						nextScene->objectList.resize((size_t)id + 1);
 
 					nextScene->objectList[id] = currScene->objectList[id];
 				}
@@ -341,7 +341,7 @@ void SceneManager::AddObjectCurrScene(std::shared_ptr<GameObject>& obj)
 	objectFindMap[obj->Name].insert(id);
 	if (id >= currScene->objectList.size())
 	{
-		currScene->objectList.resize(id + 1);
+		currScene->objectList.resize((size_t)id + 1);
 	}
 	currScene->objectList[id] = obj;
 }
@@ -352,7 +352,7 @@ void SceneManager::AddObjectNextScene(std::shared_ptr<GameObject>& obj)
 	objectFindMap[obj->Name].insert(id);
 	if (id >= nextScene->objectList.size())
 	{
-		nextScene->objectList.resize(id + 1);
+		nextScene->objectList.resize((size_t)id + 1);
 	}
 	nextScene->objectList[id] = obj;
 }
