@@ -23,7 +23,6 @@
 Scene::Scene()
 {
 	constexpr unsigned int ReserveSize = 100000;
-	sceneResourceList.reserve(ReserveSize);
 	objectList.reserve(ReserveSize);
 	dontdestroyonloadList.reserve(ReserveSize);
 	d3dRenderer.reserveRenderQueue(ReserveSize);
@@ -309,36 +308,3 @@ void Scene::ImGUIEndDraw()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	ImGui::ResetGlobalID();
 }
-
-void Scene::SetResouceObj(const wchar_t* key, GameObject* obj)
-{
-	sceneResourceList[key].emplace_back(obj->GetWeakPtr().lock());
-	unsigned int childCount = obj->transform.GetChildCount();
-	if (childCount > 0)
-	{
-		for (unsigned int i = 0; i < childCount; i++)
-		{
-			SetResouceObj(key, &obj->transform.GetChild(i)->gameObject);
-		}
-	}
-}
-
-void Scene::RemoveResouceObj(const wchar_t* key)
-{
-	auto findIter = sceneResourceList.find(key);
-	if (findIter != sceneResourceList.end())
-	{
-		findIter->second.clear();
-	}
-	else
-	{
-		__debugbreak();
-		Debug_printf("Resource not found.\n");
-	}
-}
-
-void Scene::ClearResouceObj()
-{
-	sceneResourceList.clear();
-}
-

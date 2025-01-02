@@ -3,6 +3,7 @@
 #include <Manager/HLSLManager.h>
 #include <Utility/AssimpUtility.h>
 #include <Component/Render/PBRMeshRender.h>
+#include <filesystem>
 
 void SphereObject::Start()
 {
@@ -11,7 +12,11 @@ void SphereObject::Start()
 		Material = D3DConstBuffer::GetData<cb_PBRMaterial>(GetNameToString().c_str());
 
 		std::wstring fbxPath(HLSLManager::EngineShaderPath + L"sphere.fbx"s);
-		Utility::LoadFBX(fbxPath.c_str(), *this, false, SURFACE_TYPE::PBR);
+		std::filesystem::path objectPath(HLSLManager::EngineShaderPath + L"sphere.GameObject"s);
+		if (!std::filesystem::exists(objectPath))
+			Utility::LoadFBX(fbxPath.c_str(), false, SURFACE_TYPE::PBR);
+		else
+			gameObjectFactory.DeserializedObject(objectPath.c_str());
 	}
 
 	for (unsigned int i = 0; i < transform.GetChildCount(); i++)

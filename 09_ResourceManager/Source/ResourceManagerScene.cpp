@@ -23,7 +23,19 @@ void ResourceManagerScene::Start()
 	material = D3DConstBuffer::GetData<cb_BlingPhongMaterial>("Shared Material");
 
 	//리소스 미리 로드
-	Utility::LoadFBXResource(L"Resource/Kachujin/Hip Hop Dancing.fbx", SURFACE_TYPE::NONE);
+	auto testInit = [this](MeshRender* mesh)->void
+		{
+			mesh->constBuffer.clear_ps();
+			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("Shared Material");
+			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
+
+			mesh->RenderFlags |= RENDER_FORWARD;
+			mesh->textures.resize(E_TEXTURE::BlingPhongTextureCount);
+
+			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
+			mesh->SetPixelShader(L"PixelShader.hlsl");
+		};
+	Utility::LoadFBXResource(L"Resource/Kachujin/Hip Hop Dancing.fbx", testInit, false, SURFACE_TYPE::BlingPhong);
 
 	SimpleDirectionalLight::cb_light->LightDir = { 0.5, 0, 1, 0 };
 
@@ -157,21 +169,9 @@ void ResourceManagerScene::AddTestObject()
 		obj->transform.position = Vector3(-30, 0, 0);
 	}
 	obj->transform.scale = { 0.1,0.1,0.1 };
-
-	auto testInit = [this](MeshRender* mesh)->void
-		{
-			mesh->constBuffer.clear_ps();
-			int index = mesh->constBuffer.CreatePSConstantBuffers<cb_BlingPhongMaterial>("Shared Material");
-			index = mesh->constBuffer.CreatePSConstantBuffers<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
-
-			mesh->RenderFlags |= RENDER_FORWARD;
-			mesh->textures.resize(E_TEXTURE::BlingPhongTextureCount);
-
-			mesh->SetVertexShader(L"VertexSkinningShader.hlsl");
-			mesh->SetPixelShader(L"PixelShader.hlsl");
-		};
-	Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", *obj, testInit, false, SURFACE_TYPE::BlingPhong);
-	obj->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
+	auto fbx = Utility::LoadFBX(L"Resource/Kachujin/Hip Hop Dancing.fbx", false, SURFACE_TYPE::BlingPhong);
+	fbx->transform.SetParent(obj->transform);
+	fbx->GetComponent<TransformAnimation>().PlayClip(L"mixamo.com");
 
 	testList.push_back(obj);
 }
@@ -194,7 +194,6 @@ void ResourceManagerScene::ClearTestObject()
 void ResourceManagerScene::ClearAllResource()
 {
 	ClearTestObject();
-	ClearResouceObj();	//이 씬의 리소스 정리
 	Resource::ClearResourceManagers(); //리소스 매니져 리소스 정리
 }
 #pragma warning(default : 4305)

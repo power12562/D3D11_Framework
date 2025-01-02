@@ -43,15 +43,6 @@ public:
 	/*현재 씬에 오브젝트 추가*/
 	void AddGameObject(std::shared_ptr<GameObject>& object);
 
-	/*씬에서 사용될 리소스로 만듭니다. 등록된 오브젝트의 메모리는 씬 종료시 삭제됩니다.*/
-	void SetResouceObj(const wchar_t* key, GameObject* obj);
-
-	/*리소스에서 제거합니다.*/
-	void RemoveResouceObj(const wchar_t* key);
-
-	/*씬에 있는 리소스를 전부 정리합니다.*/
-	void ClearResouceObj();
-
 	void DestroyObject(GameObject* obj);
 	void DestroyObject(GameObject& obj);
 
@@ -105,14 +96,9 @@ inline void SceneManager::LoadScene()
 	static_assert(std::is_base_of_v<Scene, T>, "T is not Scene");
 	if (currScene && !currScene->ImGUIPopupQue.empty())
 	{
-
 		return;
 	}
 	nextScene.reset(new T);
 	nextScene->sceneName = utfConvert::utf8_to_wstring(typeid(T).name());
-	for (auto& pair : resourceObjectList)
-	{
-		nextScene->SetResouceObj(pair.first.c_str(), pair.second);
-	}
 	resourceObjectList.clear();
 }

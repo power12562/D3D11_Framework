@@ -63,9 +63,9 @@ public:
 	std::function<GameObject*(const wchar_t* name)>& NewGameObjectToKey(const char* key);
 
 	void SerializedObject(GameObject* object, const wchar_t* WritePath);
-	void DeserializedObject(const wchar_t* ReadPath);
+	GameObject* DeserializedObject(const wchar_t* ReadPath);
 private:
 	void Serialized(GameObject* object, std::ofstream& ofs, size_t level);
-	void Deserialized(std::ifstream& ifs);
+	GameObject* Deserialized(std::ifstream& ifs);
 };
 

@@ -227,15 +227,15 @@ void Transform::SetParent(Transform& parent, bool worldPositionStays)
 	parent.childList.push_back(this);
 	if (worldPositionStays)
 	{
-		SetPosition(_position);
-		SetRotation(_rotation);
-		SetScale(_scale);
+		SetPosition(position);
+		SetRotation(rotation);
+		SetScale(scale);
 	}
 	else
 	{
-		SetLocalPosition(_position);
-		SetLocalRotation(_rotation);
-		SetLocalScale(_scale);
+		SetLocalPosition(position);
+		SetLocalRotation(rotation);
+		SetLocalScale(scale);
 	}
 }
 

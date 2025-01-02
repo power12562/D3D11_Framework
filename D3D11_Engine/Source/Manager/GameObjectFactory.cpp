@@ -93,24 +93,24 @@ void GameObjectFactory::SerializedObject(GameObject* object, const wchar_t* Writ
 	ofs.close();
 }
 
-void GameObjectFactory::DeserializedObject(const wchar_t* ReadPath)
+GameObject* GameObjectFactory::DeserializedObject(const wchar_t* ReadPath)
 {
 	std::filesystem::path path(ReadPath);
 	if (!std::filesystem::exists(path))
 	{
 		MessageBox(NULL, L"파일이 존재하지 않습니다.", ReadPath, MB_OK);
-		return;
+		return nullptr;
 	}
 	if (path.extension() != L".GameObject")
 	{
 		MessageBox(NULL, L"GameObject 파일이 아닙니다.", ReadPath, MB_OK);
-		return;
+		return nullptr;
 	}
 
 	std::ifstream ifs(path.c_str(), std::ios::binary);
-	Deserialized(ifs);
+	GameObject* obj = Deserialized(ifs);
 	ifs.close();
-	return;
+	return obj;
 }
 
 void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_t level)
@@ -156,15 +156,16 @@ void GameObjectFactory::Serialized(GameObject* object, std::ofstream& ofs, size_
 	//childs
 	for (size_t i = 0; i < object->transform.GetChildCount(); i++)
 	{
-		if(GameObject* chidObject = sceneManager.GetObjectToID(object->transform.GetChild(i)->gameObject.GetInstanceID())) //존재하는지 검증
+		if(GameObject* chidObject = &object->transform.GetChild(i)->gameObject)
 			Serialized(chidObject, ofs, level + 1);
 	}
 }
 
-void GameObjectFactory::Deserialized(std::ifstream& ifs)
+GameObject* GameObjectFactory::Deserialized(std::ifstream& ifs)
 {
 	static std::map<size_t, Transform*> objectTreeMap;
 	std::vector<TransformAnimation*> transformAnimationVec;
+	GameObject* root = nullptr;
 	using namespace Binary;
 	while (true)
 	{
@@ -177,7 +178,7 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 				animation->AddChildrenToTargets();
 			}
 			SimpleBoneMeshRender::EndDeserialized();
-			return;
+			return root;
 		}
 		std::wstring objName = Read::wstring(ifs);
 		GameObject* object = NewGameObjectToKey(typeName.c_str())(objName.c_str());
@@ -204,6 +205,7 @@ void GameObjectFactory::Deserialized(std::ifstream& ifs)
 			object->transform.position = Read::Vector3(ifs);
 			object->transform.rotation = Read::Quaternion(ifs);
 			object->transform.scale	   = Read::Vector3(ifs);
+			root = object;
 		}
 		else
 		{

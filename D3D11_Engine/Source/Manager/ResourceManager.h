@@ -122,67 +122,6 @@ public:
     }
 };
 
-class GameObject;
-template <>
-class ResourceManager<GameObject> : public Resource
-{
-public:
-    /*GetInstance*/
-    static ResourceManager<GameObject>& instance()
-    {
-        static ResourceManager<GameObject> instance;
-        return instance;
-    }
-private:
-    ResourceManager()
-    {
-        auto clearFunc = [this]() { this->Clear(); };
-        clearList.push_back(clearFunc);
-    }
-    ~ResourceManager()
-    {
-        Clear();
-    }
-
-private:
-    std::map<std::wstring, std::weak_ptr<GameObject>> resourceMap;
-public:
-    void Clear()
-    {
-        resourceMap.clear();
-    }
-    std::shared_ptr<GameObject> GetResource(const wchar_t* key)
-    {
-        auto findIter = resourceMap.find(key);
-        if (findIter != resourceMap.end())
-        {
-            if (std::shared_ptr<GameObject> resource = findIter->second.lock())
-            {
-                return  resource;
-            }
-        }
-        return nullptr;
-    }
-    std::shared_ptr<GameObject> operator[](const wchar_t* key) { return GetResource(key); }
-
-public:
-    void SetResource(const wchar_t* key, std::weak_ptr<GameObject> pObj)
-    {
-        auto findIter = resourceMap.find(key);
-        if (findIter == resourceMap.end())
-        {
-            resourceMap[key] = pObj;
-        }
-        else
-        {
-            if (!findIter->second.expired())
-                Debug_wprintf(L"Resource already loaded.\n");
-            else
-                resourceMap[key] = pObj;
-        }
-    }
-};
-
 template<typename T>
 ResourceManager<T>& GetResourceManager()
 {
