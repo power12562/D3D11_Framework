@@ -30,8 +30,7 @@ void TestMainScene::Start()
     mainCam->AddComponent<CameraMoveHelper>();
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
-    chara = NewGameObject(L"char");
-    Utility::LoadFBX(L"Resource/char/char.fbx", *chara, false, SURFACE_TYPE::PBR);
+    chara = Utility::LoadFBX(L"Resource/char/char.fbx", false, SURFACE_TYPE::PBR);
 
     auto Manager = NewGameObject<TestAppManagerObject>(L"TestAppManager");
     GameObject::DontDestroyOnLoad(Manager);

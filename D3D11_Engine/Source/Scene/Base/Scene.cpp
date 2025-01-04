@@ -225,14 +225,16 @@ void Scene::ImGuizmoDraw()
 					float* pMatrix = reinterpret_cast<float*>(&objMatrix);
 					ImGuizmo::Manipulate(cameraView, cameraProjection, operation, mode, pMatrix);
 
-					Transform* rootParent = GuizmoSetting.SelectObject->transform.RootParent;
-					if (rootParent)
-						objMatrix *= rootParent->GetIWM();
-
+					Transform* parent = GuizmoSetting.SelectObject->transform.Parent;
+					if (parent)
+					{
+						objMatrix *= parent->GetIWM();
+					} 
+					
 					Vector3 postion, scale;
 					Quaternion rotation;
 					objMatrix.Decompose(scale, rotation, postion);
-					if (rootParent)
+					if (parent)
 					{
 						GuizmoSetting.SelectObject->transform.localPosition = postion;
 						GuizmoSetting.SelectObject->transform.localScale = scale;
