@@ -95,10 +95,11 @@ const Vector3& Transform::GetPosition() const
 {
 	if (parent) 
 	{
+		const Vector3& pScale = parent->GetScale();
 		_position = parent->GetPosition() +
-			(parent->Right * _localPosition.x * parent->_scale.x) +
-			(parent->Up    * _localPosition.y * parent->_scale.y) +
-			(parent->Forward * _localPosition.z * parent->_scale.z);
+			(parent->Right   * _localPosition.x * pScale.x) +
+			(parent->Up      * _localPosition.y * pScale.y) +
+			(parent->Forward * _localPosition.z * pScale.z);
 		return _position;
 	}
 	return _position;
@@ -193,17 +194,17 @@ const Vector3& Transform::SetLocalScale(const Vector3& value)
 
 Vector3 Transform::GetRight() const
 {
-	return Vector3::Transform(Vector3(1.0f, 0.0f, 0.0f), _rotation);
+	return Vector3::Transform(Vector3(1.0f, 0.0f, 0.0f), GetRotation());
 }
 
 Vector3 Transform::GetUp() const
 {
-	return Vector3::Transform(Vector3(0.0f, 1.0f, 0.0f), _rotation);
+	return Vector3::Transform(Vector3(0.0f, 1.0f, 0.0f), GetRotation());
 }
 
 Vector3 Transform::GetForward() const
 {
-	return Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
+	return Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), GetRotation());
 }
 
 void Transform::SetParent(Transform& parent, bool worldPositionStays)

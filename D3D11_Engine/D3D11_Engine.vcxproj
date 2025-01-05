@@ -115,7 +115,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\;$(ProjectDir)Source\InverseKinematics\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,7 +136,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source\;$(ProjectDir)Source\InverseKinematics\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
@@ -165,6 +165,7 @@
     <ClInclude Include="Source\D3DCore\D3DSamplerState.h" />
     <ClInclude Include="Source\D3DCore\D3DTexture2D.h" />
     <ClInclude Include="Source\GameObject\Bone\BoneObject.h" />
+    <ClInclude Include="Source\InverseKinematics\InverseKinematics.h" />
     <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="Source\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="Source\ImGuizmo\GraphEditor.h" />

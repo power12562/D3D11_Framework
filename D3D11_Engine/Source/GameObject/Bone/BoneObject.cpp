@@ -1,5 +1,6 @@
 #include "BoneObject.h"
 #include <Utility/SerializedUtility.h>
+#include <framework.h>
 
 void BoneObject::Serialized(std::ofstream& ofs)
 {

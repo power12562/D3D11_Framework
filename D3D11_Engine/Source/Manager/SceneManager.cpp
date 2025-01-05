@@ -12,6 +12,9 @@ void SceneManager::AddGameObject(std::shared_ptr<GameObject>& object)
 		sceneManager.nextAddQueue.push(object);
 	else
 		sceneManager.currAddQueue.push(object);
+
+	if (!isStartScene)
+		AddObjects();
 }
 
 SceneManager::SceneManager()
@@ -265,8 +268,8 @@ void SceneManager::ChangeScene()
 			MeshRender::ReloadShaderAll(); //유효한 메시 객체들 셰이더 다시 생성
 		}
 		currScene = std::move(nextScene);
-		currScene->Start();
-		
+		isStartScene = false;
+		currScene->Start();	
 		if (Camera::GetMainCamera() == nullptr)
 		{
 			auto mainCamera = std::make_shared<CameraObject>();
@@ -276,7 +279,7 @@ void SceneManager::ChangeScene()
 			auto obj = std::static_pointer_cast<GameObject>(mainCamera);
 			AddObjectCurrScene(obj);
 		}
-		AddObjects();
+		isStartScene = true;
 	}
 	else if (EndGame)
 	{

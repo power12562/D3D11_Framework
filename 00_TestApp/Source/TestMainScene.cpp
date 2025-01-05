@@ -1,6 +1,7 @@
 #include "TestMainScene.h"
 #include <framework.h>
 #include "TestAppManagerObject.h"
+#include "TestIKComponent.h"
 
 TestMainScene::TestMainScene()
 {
@@ -31,6 +32,24 @@ void TestMainScene::Start()
     pCamSpeed = &mainCam->GetComponent<CameraMoveHelper>().moveSpeed;
 
     chara = Utility::LoadFBX(L"Resource/char/char.fbx", false, SURFACE_TYPE::PBR);
+
+    auto dance = Utility::LoadFBX(L"Resource/Dancing/Hip Hop Dancing.fbx", false, SURFACE_TYPE::BlingPhong);
+    dance->transform.position += Vector3::Right * 50.f;
+
+    if (GameObject* obj = sceneManager.FindObject(L"mixamorig:RightFoot"))
+    {
+        auto RfIK = NewGameObject(L"RightFootIK");
+        RfIK->transform.position = obj->transform.position;
+        TestIKComponent& IKC = RfIK->AddComponent<TestIKComponent>();
+        IKC.SetIK(obj, 2);
+    }
+    if (GameObject* obj = sceneManager.FindObject(L"mixamorig:LeftFoot"))
+    {
+        auto LfIK = NewGameObject(L"LeftFootIK");
+        LfIK->transform.position = obj->transform.position;
+        TestIKComponent& IKC = LfIK->AddComponent<TestIKComponent>();
+        IKC.SetIK(obj, 2);
+    }
 
     auto Manager = NewGameObject<TestAppManagerObject>(L"TestAppManager");
     GameObject::DontDestroyOnLoad(Manager);

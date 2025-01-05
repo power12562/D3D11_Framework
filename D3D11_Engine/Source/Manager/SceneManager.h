@@ -36,6 +36,9 @@ private:
 	std::list<std::pair<std::wstring, GameObject*>> resourceObjectList; //리소스로 등록할 오브젝트 대기열
 
 	std::map<std::wstring, std::unordered_set<Scene::InstanceID>> objectFindMap;
+
+	//씬 초기화 중인지 확인용
+	bool isStartScene = false;
 public:
 	template <typename T>
 	void LoadScene();

@@ -14,6 +14,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="..\13_Deferred_01\Source\DeferredTestScene1.cpp" />
+    <ClCompile Include="Source\TestIKComponent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\TestApp.h">
@@ -23,6 +26,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="Source\TestAppManagerObject.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TestIKComponent.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
