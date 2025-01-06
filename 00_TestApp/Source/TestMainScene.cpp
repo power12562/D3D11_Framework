@@ -34,7 +34,7 @@ void TestMainScene::Start()
     chara = Utility::LoadFBX(L"Resource/char/char.fbx", false, SURFACE_TYPE::PBR);
 
     auto dance = Utility::LoadFBX(L"Resource/Dancing/Hip Hop Dancing.fbx", false, SURFACE_TYPE::BlingPhong);
-    dance->transform.position += Vector3::Right * 50.f;
+    dance->transform.position += Vector3::Right * 100.f;
 
     if (GameObject* obj = sceneManager.FindObject(L"mixamorig:RightFoot"))
     {

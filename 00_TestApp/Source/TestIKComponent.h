@@ -15,9 +15,9 @@ protected:
 public:
 	void SetIK(GameObject* target, int maxDepth);
 private:
-	Transform* endEffector = nullptr;
 	int maxDepth = 0;
-
-	std::vector<Transform*> chain;
+	float maxReach = 0.f;
+	std::vector<Transform*> joints;
 	void CCDMode();
+	void CalculateMaxReach();
 };
