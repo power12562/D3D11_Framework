@@ -30,12 +30,4 @@ void TestAppManagerObject::OnInputProcess(DXTKInputSystem::InputSystem& Input)
 
         mainScene = !mainScene;
     }
-
-    if (Scene::GuizmoSetting.SelectObject && Input.IsKeyDown(KeyboardKeys::Enter))
-    {
-        if (TransformAnimation* animation = Scene::GuizmoSetting.SelectObject->IsComponent<TransformAnimation>())
-        {
-            animation->PlayClip(L"mixamo.com");
-        }
-    }
 }

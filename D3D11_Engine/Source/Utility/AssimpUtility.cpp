@@ -388,7 +388,7 @@ GameObject* Utility::LoadFBX(const wchar_t* path,
 
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);    // $assimp_fbx$ 노드 생성안함
 
-	std::wstring wstr_path = path;		
+	std::wstring wstr_path = std::filesystem::path(path).filename().c_str();
 	std::string str_path = wstring_to_utf8(path);
 	std::filesystem::path resourcePath(GetTempResourcePath(wstr_path.c_str()));
 

@@ -25,42 +25,61 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 	switch (message)
 	{
 #pragma region DXTKInputSystem 사용시 포함
-	case WM_ACTIVATEAPP:
-		DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
-		DirectX::Mouse::ProcessMessage(message, wParam, lParam);
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			if (!d3dRenderer.IsSwapChainWindowed() && !sceneManager.EndGame)
+			{
+				d3dRenderer.ToggleFullscreenMode();
+			}
+		}
+		Mouse::ProcessMessage(message, wParam, lParam);
+		Keyboard::ProcessMessage(message, wParam, lParam);
 		break;
-	case WM_INPUT:
-	case WM_MOUSEMOVE:
+	case WM_ACTIVATEAPP:
+		Mouse::ProcessMessage(message, wParam, lParam);
+		Keyboard::ProcessMessage(message, wParam, lParam);
+		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:
 	case WM_MBUTTONDOWN:
 	case WM_MBUTTONUP:
-	case WM_MOUSEWHEEL:
 	case WM_XBUTTONDOWN:
 	case WM_XBUTTONUP:
+		D3D11_GameApp::ProcessMouse(message, wParam, lParam);
+		break;
+	case WM_INPUT:
+	case WM_MOUSEMOVE:
 	case WM_MOUSEHOVER:
+	case WM_MOUSEWHEEL:
 		Mouse::ProcessMessage(message, wParam, lParam);
+		break;
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000) // Alt + Enter 입력시
+		{
+			d3dRenderer.ToggleFullscreenMode(); //풀스크린 처리
+		}
+		D3D11_GameApp::ProcessKeyboard(message, wParam, lParam);
 		break;
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		Keyboard::ProcessMessage(message, wParam, lParam);
+		D3D11_GameApp::ProcessKeyboard(message, wParam, lParam);
 		break;
+	case WM_MENUCHAR:
+		// A menu is active and the user presses a key that does not correspond
+		// to any mnemonic or accelerator key. Ignore so we don't produce an error beep.
+		return MAKELRESULT(0, MNC_CLOSE);
+	case WM_MOUSEACTIVATE:
+		// When you click to activate the window, we want Mouse to ignore that event.
+		return MA_ACTIVATEANDEAT;
 #pragma endregion 
 
-	case WM_SYSKEYDOWN:
-	{
-		if (wParam == VK_RETURN) // Alt + Enter 입력시
-		{
-			d3dRenderer.ToggleFullscreenMode();
-		}
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
 	case WM_STYLECHANGED:
 	{
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -69,27 +88,18 @@ LRESULT CALLBACK ImGUIWndProcDefault(HWND hWnd, UINT message, WPARAM wParam, LPA
 		break;
 	case WM_EXITSIZEMOVE: 
 	{
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	case WM_ACTIVATE:
-		if (LOWORD(wParam) == WA_INACTIVE) 
-		{
-			if (!d3dRenderer.IsSwapChainWindowed() && !sceneManager.EndGame)
-			{
-				d3dRenderer.ToggleFullscreenMode();
-			}
-		}
 		break;
+	}
 	case WM_SYSCOMMAND:
 		if (wParam == SC_CLOSE)
 		{
 			sceneManager.EndGame = true;
 		}
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
 	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
 	}
-	return 0;
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 void D3D11_GameApp::GameEnd()
@@ -123,6 +133,8 @@ D3D11_GameApp::~D3D11_GameApp()
 
 void D3D11_GameApp::Start()
 {
+	D3D11_GameApp::RunApp = this;
+
 	SimpleDirectionalLight::cb_light =    D3DConstBuffer::GetData<cb_DirectionalLight>(SimpleDirectionalLight::cb_light_key);
 	DirectionalLight::DirectionalLights = D3DConstBuffer::GetData<cb_PBRDirectionalLight>(DirectionalLight::DirectionalLights_key);
 
@@ -156,6 +168,21 @@ void D3D11_GameApp::Render()
 	sceneManager.ChangeScene(); //다음 씬 있으면 전환 
 }
 
+void D3D11_GameApp::ProcessMouse(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if(RunApp && wParam != 0)
+		RunApp->PreProcessMouseMessage(message, static_cast<MouseVK>(wParam));
+
+	Mouse::ProcessMessage(message, wParam, lParam);
+}
+
+void D3D11_GameApp::ProcessKeyboard(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	if (RunApp && wParam != 0)
+		RunApp->PreProcessKeyboradMessage(message, static_cast<KeyboardVK>(wParam));
+
+	Keyboard::ProcessMessage(message, wParam, lParam);
+}
 
 void D3D11_GameApp::SetBorderlessWindowed()
 {
